@@ -46,3 +46,14 @@ Ruta & Elijah (edited)
 **Hosting & Deployment:** Frontend: Vercel
 Backend: VPS (Plesk), GCSM, Cloudflare
 Potentially Docker
+
+## Team Members
+
+-   Front End Developers:
+    -   [Joseph Vigil](https://github.com/joeyvigil)
+    -   [Jae Young Seo]()
+-   Back End Developers:
+    -   [Suryadi Zhang]()
+    -   [Ariel Resendiz]()
+-   Cybersecurity Specialist:
+    -   [Monira Lizu]()
