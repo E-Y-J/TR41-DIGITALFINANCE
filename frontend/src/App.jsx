@@ -1,22 +1,22 @@
-import Button from "@mui/material/Button";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
+import { Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/LandingPage.jsx";
+import HomePage from "./pages/HomePage.jsx";
+import { AuthenticationGuard } from "./guard/AuthenticationGuard.jsx";
 
-function App() {
+const App = () => {
   return (
-    <Stack spacing={2} direction="column" alignItems="center" sx={{ mt: 10 }}>
-      <DashboardIcon color="primary" sx={{ fontSize: 60 }} />
-
-      <Typography variant="h4" component="h1">
-        MUI is Active
-      </Typography>
-
-      <Button variant="contained" onClick={() => alert("It works!")}>
-        Click Me
-      </Button>
-    </Stack>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route
+        path="/home"
+        element={
+          <AuthenticationGuard>
+            <HomePage />
+          </AuthenticationGuard>
+        }
+      />
+    </Routes>
   );
-}
+};
 
 export default App;
