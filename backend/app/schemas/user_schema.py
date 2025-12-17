@@ -12,11 +12,11 @@ This module provides Marshmallow schemas for User data:
 
 Usage:
     from app.schemas.user_schema import UserSchema, UserUpdateSchema
-    
+
     # Serialize user for response
     schema = UserSchema()
     data = schema.dump(user)
-    
+
     # Validate update request
     update_schema = UserUpdateSchema()
     validated = update_schema.load(request.json)
@@ -36,13 +36,14 @@ from marshmallow import Schema, fields, validate, validates, ValidationError, EX
 # BASE SCHEMA
 # =============================================================================
 
+
 class BaseSchema(Schema):
     """
     Base schema with common configuration.
-    
+
     All schemas should inherit from this class.
     """
-    
+
     class Meta:
         # Return ordered dict to maintain field order
         ordered = True
@@ -54,16 +55,17 @@ class BaseSchema(Schema):
 # USER SETTINGS SCHEMA
 # =============================================================================
 
+
 class UserSettingsSchema(BaseSchema):
     """
     Schema for user settings/preferences.
-    
+
     Fields:
         currency: Preferred currency code (3 letters)
         timezone: User's timezone
         notifications: Notification preferences
         theme: UI theme preference
-    
+
     Example:
         >>> settings = {
         ...     "currency": "USD",
@@ -72,29 +74,28 @@ class UserSettingsSchema(BaseSchema):
         ...     "theme": "dark"
         ... }
     """
-    
+
     currency = fields.String(
         validate=validate.Length(equal=3),
         load_default="USD",
-        metadata={"description": "Currency code (e.g., USD, EUR)"}
+        metadata={"description": "Currency code (e.g., USD, EUR)"},
     )
-    
+
     timezone = fields.String(
-        load_default="UTC",
-        metadata={"description": "User timezone"}
+        load_default="UTC", metadata={"description": "User timezone"}
     )
-    
+
     notifications = fields.Dict(
         keys=fields.String(),
         values=fields.Boolean(),
         load_default=dict,
-        metadata={"description": "Notification preferences"}
+        metadata={"description": "Notification preferences"},
     )
-    
+
     theme = fields.String(
         validate=validate.OneOf(["light", "dark", "system"]),
         load_default="system",
-        metadata={"description": "UI theme preference"}
+        metadata={"description": "UI theme preference"},
     )
 
 
@@ -102,13 +103,14 @@ class UserSettingsSchema(BaseSchema):
 # USER SCHEMA (FULL)
 # =============================================================================
 
+
 class UserSchema(BaseSchema):
     """
     Full user schema for API responses.
-    
+
     Includes all user fields except sensitive data.
     Used for responses to authenticated requests.
-    
+
     Example Response:
         {
             "id": "uuid-string",
@@ -122,76 +124,53 @@ class UserSchema(BaseSchema):
             "settings": {...}
         }
     """
-    
+
     # Identity fields
-    id = fields.UUID(
-        dump_only=True,
-        metadata={"description": "User ID"}
-    )
-    
+    id = fields.UUID(dump_only=True, metadata={"description": "User ID"})
+
     auth0_id = fields.String(
-        dump_only=True,
-        metadata={"description": "Auth0 user identifier"}
+        dump_only=True, metadata={"description": "Auth0 user identifier"}
     )
-    
+
     # Profile fields
-    email = fields.Email(
-        dump_only=True,
-        metadata={"description": "User email address"}
-    )
-    
+    email = fields.Email(dump_only=True, metadata={"description": "User email address"})
+
     email_verified = fields.Boolean(
-        dump_only=True,
-        metadata={"description": "Whether email is verified"}
+        dump_only=True, metadata={"description": "Whether email is verified"}
     )
-    
-    name = fields.String(
-        dump_only=True,
-        metadata={"description": "Display name"}
-    )
-    
-    nickname = fields.String(
-        dump_only=True,
-        metadata={"description": "Short nickname"}
-    )
-    
+
+    name = fields.String(dump_only=True, metadata={"description": "Display name"})
+
+    nickname = fields.String(dump_only=True, metadata={"description": "Short nickname"})
+
     picture = fields.Url(
-        dump_only=True,
-        allow_none=True,
-        metadata={"description": "Profile picture URL"}
+        dump_only=True, allow_none=True, metadata={"description": "Profile picture URL"}
     )
-    
+
     # Status fields
     is_active = fields.Boolean(
-        dump_only=True,
-        metadata={"description": "Account active status"}
+        dump_only=True, metadata={"description": "Account active status"}
     )
-    
+
     # Timestamps
     created_at = fields.DateTime(
-        dump_only=True,
-        format="iso",
-        metadata={"description": "Account creation date"}
+        dump_only=True, format="iso", metadata={"description": "Account creation date"}
     )
-    
+
     updated_at = fields.DateTime(
-        dump_only=True,
-        format="iso",
-        metadata={"description": "Last update date"}
+        dump_only=True, format="iso", metadata={"description": "Last update date"}
     )
-    
+
     last_login = fields.DateTime(
         dump_only=True,
         format="iso",
         allow_none=True,
-        metadata={"description": "Last login timestamp"}
+        metadata={"description": "Last login timestamp"},
     )
-    
+
     # Nested settings
     settings = fields.Nested(
-        UserSettingsSchema,
-        dump_only=True,
-        metadata={"description": "User preferences"}
+        UserSettingsSchema, dump_only=True, metadata={"description": "User preferences"}
     )
 
 
@@ -199,35 +178,25 @@ class UserSchema(BaseSchema):
 # USER PUBLIC SCHEMA
 # =============================================================================
 
+
 class UserPublicSchema(BaseSchema):
     """
     Limited user schema for public/shared contexts.
-    
+
     Only includes non-sensitive fields that can be shown to others.
-    
+
     Example:
         Used when displaying transaction history to another user.
     """
-    
-    id = fields.UUID(
-        dump_only=True,
-        metadata={"description": "User ID"}
-    )
-    
-    name = fields.String(
-        dump_only=True,
-        metadata={"description": "Display name"}
-    )
-    
-    nickname = fields.String(
-        dump_only=True,
-        metadata={"description": "Short nickname"}
-    )
-    
+
+    id = fields.UUID(dump_only=True, metadata={"description": "User ID"})
+
+    name = fields.String(dump_only=True, metadata={"description": "Display name"})
+
+    nickname = fields.String(dump_only=True, metadata={"description": "Short nickname"})
+
     picture = fields.Url(
-        dump_only=True,
-        allow_none=True,
-        metadata={"description": "Profile picture URL"}
+        dump_only=True, allow_none=True, metadata={"description": "Profile picture URL"}
     )
 
 
@@ -235,13 +204,14 @@ class UserPublicSchema(BaseSchema):
 # USER UPDATE SCHEMA
 # =============================================================================
 
+
 class UserUpdateSchema(BaseSchema):
     """
     Schema for validating user update requests.
-    
+
     Only allows updating specific fields.
     Auth0-managed fields (email, etc.) are not updatable here.
-    
+
     Example Request:
         {
             "name": "New Name",
@@ -251,36 +221,36 @@ class UserUpdateSchema(BaseSchema):
             }
         }
     """
-    
+
     name = fields.String(
         validate=[
             validate.Length(min=1, max=255),
         ],
         load_default=None,
-        metadata={"description": "Display name"}
+        metadata={"description": "Display name"},
     )
-    
+
     nickname = fields.String(
         validate=[
             validate.Length(min=1, max=100),
         ],
         load_default=None,
-        metadata={"description": "Short nickname"}
+        metadata={"description": "Short nickname"},
     )
-    
+
     settings = fields.Nested(
         UserSettingsSchema,
         partial=True,
         load_default=None,
-        metadata={"description": "User preferences to update"}
+        metadata={"description": "User preferences to update"},
     )
-    
+
     @validates("name")
     def validate_name(self, value: Optional[str]) -> None:
         """Validate name doesn't contain only whitespace."""
         if value is not None and not value.strip():
             raise ValidationError("Name cannot be empty or whitespace only")
-    
+
     @validates("nickname")
     def validate_nickname(self, value: Optional[str]) -> None:
         """Validate nickname format."""
@@ -295,41 +265,41 @@ class UserUpdateSchema(BaseSchema):
 # USER SETTINGS UPDATE SCHEMA
 # =============================================================================
 
+
 class UserSettingsUpdateSchema(BaseSchema):
     """
     Schema for updating individual settings.
-    
+
     Allows partial updates to settings object.
-    
+
     Example Request:
         {
             "currency": "EUR",
             "timezone": "Europe/London"
         }
     """
-    
+
     currency = fields.String(
         validate=validate.Length(equal=3),
         load_default=None,
-        metadata={"description": "Currency code"}
+        metadata={"description": "Currency code"},
     )
-    
+
     timezone = fields.String(
-        load_default=None,
-        metadata={"description": "User timezone"}
+        load_default=None, metadata={"description": "User timezone"}
     )
-    
+
     notifications = fields.Dict(
         keys=fields.String(),
         values=fields.Boolean(),
         load_default=None,
-        metadata={"description": "Notification preferences"}
+        metadata={"description": "Notification preferences"},
     )
-    
+
     theme = fields.String(
         validate=validate.OneOf(["light", "dark", "system"]),
         load_default=None,
-        metadata={"description": "UI theme preference"}
+        metadata={"description": "UI theme preference"},
     )
 
 
@@ -337,10 +307,11 @@ class UserSettingsUpdateSchema(BaseSchema):
 # RESPONSE WRAPPER SCHEMAS
 # =============================================================================
 
+
 class UserResponseSchema(BaseSchema):
     """
     Standard API response wrapper for user data.
-    
+
     Example:
         {
             "success": true,
@@ -348,20 +319,15 @@ class UserResponseSchema(BaseSchema):
             "message": "User retrieved successfully"
         }
     """
-    
+
     success = fields.Boolean(
-        dump_default=True,
-        metadata={"description": "Request success status"}
+        dump_default=True, metadata={"description": "Request success status"}
     )
-    
-    data = fields.Nested(
-        UserSchema,
-        metadata={"description": "User data"}
-    )
-    
+
+    data = fields.Nested(UserSchema, metadata={"description": "User data"})
+
     message = fields.String(
-        dump_default="Success",
-        metadata={"description": "Response message"}
+        dump_default="Success", metadata={"description": "Response message"}
     )
 
 

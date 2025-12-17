@@ -54,15 +54,16 @@ bp = Blueprint("users", __name__)
 # HELPER FUNCTIONS
 # =============================================================================
 
+
 def success_response(data=None, message="Success", status_code=200):
     """
     Create a standardized success response.
-    
+
     Args:
         data: Response data (will be included in 'data' field)
         message: Success message
         status_code: HTTP status code
-    
+
     Returns:
         Tuple of (response_dict, status_code)
     """
@@ -70,10 +71,10 @@ def success_response(data=None, message="Success", status_code=200):
         "success": True,
         "message": message,
     }
-    
+
     if data is not None:
         response["data"] = data
-    
+
     return jsonify(response), status_code
 
 
@@ -81,21 +82,22 @@ def success_response(data=None, message="Success", status_code=200):
 # USER PROFILE ENDPOINTS
 # =============================================================================
 
+
 @bp.route("/me", methods=["GET"])
 @requires_auth
 def get_current_user():
     """
     Get current authenticated user's profile.
-    
+
     Returns:
         200: User profile data
         401: Unauthorized (no/invalid token)
         404: User not found in local database
-    
+
     Example Request:
         GET /api/users/me
         Authorization: Bearer <access_token>
-    
+
     Example Response:
         {
             "success": true,
@@ -110,14 +112,11 @@ def get_current_user():
     """
     # Sync user from Auth0 claims (creates if first login)
     user = sync_user_from_claims(g.current_user)
-    
+
     # Serialize user data
     data = user_schema.dump(user)
-    
-    return success_response(
-        data=data,
-        message="User retrieved successfully"
-    )
+
+    return success_response(data=data, message="User retrieved successfully")
 
 
 @bp.route("/me", methods=["PATCH"])
@@ -125,28 +124,28 @@ def get_current_user():
 def update_current_user():
     """
     Update current authenticated user's profile.
-    
+
     Allowed Fields:
         - name: Display name
         - nickname: Short nickname
         - settings: User preferences (partial update)
-    
+
     Returns:
         200: Updated user profile
         400: Invalid request body
         401: Unauthorized
         422: Validation error
-    
+
     Example Request:
         PATCH /api/users/me
         Authorization: Bearer <access_token>
         Content-Type: application/json
-        
+
         {
             "name": "New Name",
             "nickname": "newnick"
         }
-    
+
     Example Response:
         {
             "success": true,
@@ -156,43 +155,41 @@ def update_current_user():
     """
     # Get request data
     data = request.get_json()
-    
+
     if not data:
         raise ValidationError("Request body required")
-    
+
     # Get/sync current user
     user = sync_user_from_claims(g.current_user)
-    
+
     # Update profile via service
     updated_user = UserService.update_profile(user, data)
-    
+
     # Serialize response
     response_data = user_schema.dump(updated_user)
-    
-    return success_response(
-        data=response_data,
-        message="Profile updated successfully"
-    )
+
+    return success_response(data=response_data, message="Profile updated successfully")
 
 
 # =============================================================================
 # USER SETTINGS ENDPOINTS
 # =============================================================================
 
+
 @bp.route("/me/settings", methods=["GET"])
 @requires_auth
 def get_user_settings():
     """
     Get current user's settings/preferences.
-    
+
     Returns:
         200: User settings object
         401: Unauthorized
-    
+
     Example Request:
         GET /api/users/me/settings
         Authorization: Bearer <access_token>
-    
+
     Example Response:
         {
             "success": true,
@@ -207,10 +204,9 @@ def get_user_settings():
     """
     # Get/sync current user
     user = sync_user_from_claims(g.current_user)
-    
+
     return success_response(
-        data=user.settings,
-        message="Settings retrieved successfully"
+        data=user.settings, message="Settings retrieved successfully"
     )
 
 
@@ -219,31 +215,31 @@ def get_user_settings():
 def update_user_settings():
     """
     Update current user's settings/preferences.
-    
+
     Partial update - only provided fields are updated.
-    
+
     Allowed Fields:
         - currency: 3-letter currency code
         - timezone: Timezone string
         - notifications: Notification preferences dict
         - theme: "light", "dark", or "system"
-    
+
     Returns:
         200: Updated settings
         400: Invalid request body
         401: Unauthorized
         422: Validation error
-    
+
     Example Request:
         PATCH /api/users/me/settings
         Authorization: Bearer <access_token>
         Content-Type: application/json
-        
+
         {
             "currency": "EUR",
             "theme": "dark"
         }
-    
+
     Example Response:
         {
             "success": true,
@@ -253,19 +249,18 @@ def update_user_settings():
     """
     # Get request data
     data = request.get_json()
-    
+
     if not data:
         raise ValidationError("Request body required")
-    
+
     # Get/sync current user
     user = sync_user_from_claims(g.current_user)
-    
+
     # Update settings via service
     updated_user = UserService.update_settings(user, data)
-    
+
     return success_response(
-        data=updated_user.settings,
-        message="Settings updated successfully"
+        data=updated_user.settings, message="Settings updated successfully"
     )
 
 
@@ -273,23 +268,24 @@ def update_user_settings():
 # ACCOUNT MANAGEMENT ENDPOINTS
 # =============================================================================
 
+
 @bp.route("/me/deactivate", methods=["POST"])
 @requires_auth
 def deactivate_account():
     """
     Deactivate current user's account.
-    
+
     This is a soft delete - user data is preserved.
     User can contact support to reactivate.
-    
+
     Returns:
         200: Account deactivated
         401: Unauthorized
-    
+
     Example Request:
         POST /api/users/me/deactivate
         Authorization: Bearer <access_token>
-    
+
     Example Response:
         {
             "success": true,
@@ -298,15 +294,13 @@ def deactivate_account():
     """
     # Get/sync current user
     user = sync_user_from_claims(g.current_user)
-    
+
     # Deactivate via service
     UserService.deactivate_user(user)
-    
+
     logger.info(f"User deactivated: {user.auth0_id}")
-    
-    return success_response(
-        message="Account deactivated successfully"
-    )
+
+    return success_response(message="Account deactivated successfully")
 
 
 # =============================================================================
