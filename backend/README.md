@@ -238,15 +238,18 @@ flask db upgrade
 ## 📋 Sprint Tasks Mapping
 
 ### Sprint 1 - Authentication & Setup (Auth0)
-- [ ] `app/core/config.py` - Environment configuration (Auth0 settings)
-- [ ] `app/core/extensions.py` - Initialize Flask extensions
-- [ ] `app/auth/auth0.py` - Auth0 token validation
-- [ ] `app/auth/decorators.py` - `@requires_auth` decorator
-- [ ] `app/auth/user_sync.py` - Sync Auth0 user to local DB
-- [ ] `app/models/user.py` - User model (with auth0_id)
+- [x] `app/core/config.py` - Environment configuration (Auth0 settings) ✅
+- [x] `app/core/extensions.py` - Initialize Flask extensions ✅
+- [x] `app/auth/auth0.py` - Auth0 token validation ✅
+- [x] `app/auth/decorators.py` - `@requires_auth` decorator ✅
+- [x] `app/auth/user_sync.py` - Sync Auth0 user to local DB ✅
+- [x] `app/models/user.py` - User model (with auth0_id) ✅
+- [x] `app/schemas/user_schema.py` - User validation schemas ✅
+- [x] `app/services/user_service.py` - User sync logic ✅
+- [x] `app/api/routes/users.py` - User endpoints (`/me`, `/profile`) ✅
+- [x] `app/utils/errors.py` - Custom exception classes ✅
+- [x] `app/__init__.py` - Flask app factory ✅
 - [ ] `app/models/category.py` - Category model (default categories)
-- [ ] `app/services/user_service.py` - User sync logic
-- [ ] `app/api/routes/users.py` - User endpoints (`/me`, `/profile`)
 - [ ] `migrations/` - Initial database migration
 - [ ] `tests/integration/test_auth.py` - Auth0 validation tests
 
@@ -274,34 +277,131 @@ flask db upgrade
 
 ## 🔧 Setup Instructions
 
-```bash
-# 1. Navigate to backend folder
-cd backend
+### Prerequisites
 
-# 2. Create virtual environment
+- Python 3.11+
+- PostgreSQL (or use SQLite for development)
+- Redis (optional - falls back to memory for development)
+- Auth0 account with API configured
+
+### 1. Clone and Navigate
+
+```bash
+cd backend
+```
+
+### 2. Create Virtual Environment
+
+```bash
+# Create virtual environment
 python -m venv venv
 
-# 3. Activate virtual environment
+# Activate virtual environment
 # Windows:
 venv\Scripts\activate
 # macOS/Linux:
 source venv/bin/activate
+```
 
-# 4. Install dependencies
+### 3. Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-# 5. Copy environment variables
+### 4. Configure Environment Variables
+
+Create a `.env` file in the `backend/` folder:
+
+```bash
+# Copy from example (if exists) or create new
 cp .env.example .env
-# Edit .env with your values
+```
 
-# 6. Initialize database
+**Required `.env` values:**
+
+```env
+# Flask Configuration
+FLASK_APP=app:create_app
+FLASK_ENV=development
+FLASK_DEBUG=1
+SECRET_KEY=your-secret-key-change-in-production
+
+# Database (PostgreSQL)
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/digital_finance_db
+
+# Auth0 Configuration (REQUIRED)
+AUTH0_DOMAIN=your-tenant.us.auth0.com
+AUTH0_API_AUDIENCE=https://your-api-identifier
+AUTH0_ALGORITHMS=RS256
+
+# Redis (optional for development)
+REDIS_URL=redis://localhost:6379/0
+
+# CORS (Frontend URL)
+FRONTEND_URL=http://localhost:5173
+```
+
+### 5. Set Up Auth0
+
+1. Go to [Auth0 Dashboard](https://manage.auth0.com/)
+2. Create a new **API**:
+   - Name: `Digital Finance API`
+   - Identifier: `https://api.digitalfinance.local` (this is your `AUTH0_API_AUDIENCE`)
+   - Signing Algorithm: RS256
+3. Copy the **Identifier** to your `.env` as `AUTH0_API_AUDIENCE`
+4. Copy your **Domain** (e.g., `dev-xxxxx.us.auth0.com`) to your `.env` as `AUTH0_DOMAIN`
+
+### 6. Set Up Database
+
+```bash
+# Create PostgreSQL database (or use SQLite for development)
+# PostgreSQL:
+createdb digital_finance_db
+
+# Initialize migrations
 flask db init
-flask db migrate -m "Initial migration"
-flask db upgrade
 
-# 7. Run development server
+# Create migration
+flask db migrate -m "Initial migration"
+
+# Apply migration
+flask db upgrade
+```
+
+### 7. Run Development Server
+
+```bash
 flask run
 ```
+
+Server starts at `http://localhost:5000`
+
+### 8. Verify Installation
+
+```bash
+# Health check
+curl http://localhost:5000/health
+
+# Expected response:
+# {"status": "healthy", "service": "digital-finance-api"}
+```
+
+### Quick Test (Python)
+
+```python
+# Test app creation
+python -c "from app import create_app; app = create_app(); print('App created:', app)"
+```
+
+---
+
+## 🔐 Auth0 Integration Notes
+
+- **Frontend** handles login/logout UI via Auth0 React SDK
+- **Backend** validates JWT tokens from Auth0
+- Users are synced to local database on first API call
+- See `docs/FRONTEND_AUTH_INTEGRATION.md` for frontend setup
 
 ---
 
