@@ -143,7 +143,6 @@ def _init_limiter(app) -> None:
     
     logger = logging.getLogger(__name__)
     config = get_config()
-    use_redis = False
     
     if config.redis.enabled and config.redis.url:
         # Test Redis connection before using it
@@ -153,7 +152,6 @@ def _init_limiter(app) -> None:
             r.ping()
             # Redis is available, use it
             limiter._storage_uri = config.redis.url
-            use_redis = True
             logger.info("Rate limiter using Redis storage")
         except Exception as e:
             # Redis not available, fall back to memory

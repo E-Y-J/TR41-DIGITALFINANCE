@@ -28,8 +28,8 @@ Schema Types:
     - UserSettingsSchema: User preferences
 """
 
-from typing import Dict, Any, Optional
-from marshmallow import Schema, fields, validate, post_load, validates, ValidationError, EXCLUDE
+from typing import Optional
+from marshmallow import Schema, fields, validate, validates, ValidationError, EXCLUDE
 
 
 # =============================================================================

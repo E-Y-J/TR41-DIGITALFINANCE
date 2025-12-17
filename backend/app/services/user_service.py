@@ -31,7 +31,7 @@ Design Principles:
 """
 
 import logging
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 from uuid import UUID
 
 from app.core.extensions import db
@@ -40,7 +40,6 @@ from app.schemas.user_schema import user_update_schema, user_settings_update_sch
 from app.utils.errors import (
     NotFoundError,
     ValidationError,
-    ConflictError,
     InternalError,
 )
 
