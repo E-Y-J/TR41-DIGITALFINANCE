@@ -1,0 +1,54 @@
+# ============================================
+# ROOT .gitignore - AI Digital Finance Tracker
+# Shared ignores for entire monorepo
+# ============================================
+
+# Copilot Instructions (Personal - Not Shared)
+.github/copilot-instructions.md
+
+# Pre-commit Config (Local Only - Each dev configures their own)
+.pre-commit-config.yaml
+.secrets.baseline
+
+# Environment variables (NEVER commit secrets)
+.env
+.env.local
+.env.*.local
+*.env
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+*.sublime-project
+
+# Docker
+docker-compose.override.yml
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+*.bak
+*.tmp
+*.temp
