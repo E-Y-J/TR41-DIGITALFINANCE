@@ -393,7 +393,7 @@ Edit `.env` file with your values:
 7. **Secure database credentials** - Use strong passwords and restrict database access
 8. **Monitor with Sentry** - Configure `SENTRY_DSN` for production error tracking
 
-For detailed security requirements, see `../shared/security/README.md`
+For additional security guidelines and requirements, see [`../shared/security/README.md`](../shared/security/README.md)
 
 ---
 
