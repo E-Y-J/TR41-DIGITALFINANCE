@@ -60,6 +60,8 @@ This backend supports a cloud-based finance tracker that:
 | `user_sync.py` | Sync Auth0 user to local database |
 
 > **Note:** Frontend handles Auth0 login UI. Backend only validates tokens and syncs user data.
+> 
+> **Security:** Backend validates JWT tokens by verifying signatures against Auth0's public keys (JWKS). Never store Auth0 passwords in the backend.
 
 ---
 
@@ -274,6 +276,15 @@ flask db upgrade
 
 ## 🔧 Setup Instructions
 
+### Prerequisites
+
+- **Python 3.9+** ([Download](https://www.python.org/downloads/))
+- **PostgreSQL 14+** ([Download](https://www.postgresql.org/download/))
+- **Redis** (optional, for caching & rate limiting) ([Download](https://redis.io/download/))
+- **Auth0 Account** (free tier available at [auth0.com](https://auth0.com/))
+
+### Installation Steps
+
 ```bash
 # 1. Navigate to backend folder
 cd backend
@@ -290,18 +301,62 @@ source venv/bin/activate
 # 4. Install dependencies
 pip install -r requirements.txt
 
-# 5. Copy environment variables
-cp .env.example .env
-# Edit .env with your values
+# 5. Set up PostgreSQL database
+# Create a new database (using psql or pgAdmin):
+# CREATE DATABASE digital_finance_db;
 
-# 6. Initialize database
+# 6. Copy environment variables and configure
+cp .env.example .env
+# Edit .env with your actual values (see Configuration section below)
+
+# 7. Initialize database (only if migrations folder doesn't exist)
+# If this is a fresh clone and migrations/ exists, skip this step
 flask db init
+
+# 8. Apply database migrations
 flask db migrate -m "Initial migration"
 flask db upgrade
 
-# 7. Run development server
+# 9. Run development server
 flask run
+# Server will start at http://127.0.0.1:5000
 ```
+
+### Configuration
+
+Edit `.env` file with your values:
+
+1. **Database Configuration**
+   ```bash
+   DATABASE_URL=postgresql://YOUR_USERNAME:YOUR_PASSWORD@localhost:5432/digital_finance_db
+   ```
+   Replace `YOUR_USERNAME` and `YOUR_PASSWORD` with your PostgreSQL credentials.
+
+2. **Auth0 Configuration** (Required)
+   - Sign up for a free Auth0 account at [auth0.com](https://auth0.com/)
+   - Create a new API in Auth0 Dashboard
+   - Navigate to Applications > APIs > Your API > Settings
+   - Copy the following values to your `.env`:
+   ```bash
+   AUTH0_DOMAIN=your-tenant.auth0.com       # Your Auth0 Domain
+   AUTH0_API_AUDIENCE=your-api-identifier   # API Identifier
+   AUTH0_ALGORITHMS=RS256                   # Keep as RS256
+   ```
+
+3. **Secret Key**
+   ```bash
+   SECRET_KEY=your-random-secret-key-here
+   ```
+   Generate a secure random key:
+   ```bash
+   python -c "import secrets; print(secrets.token_hex(32))"
+   ```
+
+4. **Redis** (Optional - for caching and rate limiting)
+   ```bash
+   REDIS_URL=redis://localhost:6379/0
+   ```
+   If you skip Redis, caching and rate limiting features will be disabled.
 
 ---
 
@@ -322,6 +377,23 @@ flask run
 | POST | `/api/ai/categorize` | Get AI category prediction | Yes |
 | POST | `/api/ai/chat` | Ask spending question | Yes |
 | GET | `/api/notifications` | List notifications | Yes |
+
+---
+
+## 🔒 Security Notes
+
+**Important security practices:**
+
+1. **Never commit `.env` file** - It's already in `.gitignore`. Contains sensitive credentials.
+2. **Use strong SECRET_KEY in production** - Generate with `python -c "import secrets; print(secrets.token_hex(32))"`
+3. **Use environment variables** - Never hardcode credentials in source code
+4. **Enable HTTPS in production** - Auth0 tokens should only be transmitted over HTTPS
+5. **Keep dependencies updated** - Regularly run `pip list --outdated` and update packages
+6. **Review CORS settings** - Update `FRONTEND_URL` in `.env` to match your actual frontend domain
+7. **Secure database credentials** - Use strong passwords and restrict database access
+8. **Monitor with Sentry** - Configure `SENTRY_DSN` for production error tracking
+
+For detailed security requirements, see `../shared/security/README.md`
 
 ---
 
