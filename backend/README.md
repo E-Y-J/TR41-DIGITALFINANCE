@@ -17,7 +17,7 @@ This backend supports a cloud-based finance tracker that:
 ### Entity Relationship Diagram
 
 The ERD for the database architecture is located at: 
-📁 **Path:** `backend\ERD.png`
+📁 **Path:** `backend/ERD.png`
 
 ![ERD](ERD.png)
 
