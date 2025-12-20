@@ -142,17 +142,24 @@ def _register_blueprints(app: Flask) -> None:
     Notes:
         Add new blueprints here as they're created.
     """
+    # Auth routes
+    from app.api.routes.auth import bp as auth_bp
+
+    app.register_blueprint(auth_bp, url_prefix="/api/auth")
+
     # User routes
     from app.api.routes.users import bp as users_bp
 
     app.register_blueprint(users_bp, url_prefix="/api/users")
 
-    logger.debug("Registered blueprints: users")
+    # Transaction routes
+    from app.api.routes.transactions import bp as transactions_bp
+
+    app.register_blueprint(transactions_bp, url_prefix="/api/transactions")
+
+    logger.debug("Registered blueprints: auth, users, transactions")
 
     # Future blueprints:
-    # from app.api.routes.transactions import bp as transactions_bp
-    # app.register_blueprint(transactions_bp, url_prefix="/api/transactions")
-
     # from app.api.routes.budgets import bp as budgets_bp
     # app.register_blueprint(budgets_bp, url_prefix="/api/budgets")
 

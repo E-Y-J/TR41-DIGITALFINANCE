@@ -319,6 +319,7 @@ class TransactionListResponseSchema(BaseSchema):
 transaction_schema = TransactionSchema()
 transaction_create_schema = TransactionCreateSchema()
 transaction_update_schema = TransactionUpdateSchema()
+transaction_list_schema = TransactionSchema(many=True)
 
 
 # =============================================================================
@@ -337,4 +338,5 @@ __all__ = [
     "transaction_schema",
     "transaction_create_schema",
     "transaction_update_schema",
+    "transaction_list_schema",
 ]

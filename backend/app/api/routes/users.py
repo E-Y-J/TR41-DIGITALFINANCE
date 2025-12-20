@@ -104,7 +104,8 @@ def get_current_user():
             "data": {
                 "id": "uuid-string",
                 "email": "user@example.com",
-                "name": "John Doe",
+                "first_name": "John",
+                "last_name": "Doe",
                 ...
             },
             "message": "User retrieved successfully"
@@ -126,7 +127,8 @@ def update_current_user():
     Update current authenticated user's profile.
 
     Allowed Fields:
-        - name: Display name
+        - first_name: User's first name
+        - last_name: User's last name
         - nickname: Short nickname
         - settings: User preferences (partial update)
 
@@ -142,8 +144,9 @@ def update_current_user():
         Content-Type: application/json
 
         {
-            "name": "New Name",
-            "nickname": "newnick"
+            "first_name": "John",
+            "last_name": "Doe",
+            "nickname": "johnd"
         }
 
     Example Response:

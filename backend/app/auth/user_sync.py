@@ -108,6 +108,41 @@ def sync_user_from_claims(claims: Dict[str, Any]) -> User:
         raise InternalError("Failed to sync user data")
 
 
+def _parse_name_from_claims(claims: Dict[str, Any]) -> tuple[str, str]:
+    """
+    Parse first_name and last_name from Auth0 claims.
+
+    Auth0 may provide 'name', 'given_name', 'family_name', or 'nickname'.
+    We prioritize given_name/family_name, then split 'name' if available.
+
+    Args:
+        claims: Auth0 token claims
+
+    Returns:
+        Tuple of (first_name, last_name)
+    """
+    # Try explicit given_name/family_name first (standard OIDC claims)
+    first_name = claims.get("given_name", "")
+    last_name = claims.get("family_name", "")
+
+    # If not available, try to split the 'name' claim
+    if not first_name and not last_name:
+        full_name = claims.get("name", "")
+        if full_name:
+            parts = full_name.strip().split(" ", 1)
+            first_name = parts[0]
+            last_name = parts[1] if len(parts) > 1 else ""
+
+    # Fallback to nickname or email prefix
+    if not first_name:
+        first_name = claims.get("nickname", "")
+    if not first_name:
+        email = claims.get("email", "")
+        first_name = email.split("@")[0] if email else "User"
+
+    return first_name, last_name
+
+
 def _create_user_from_claims(claims: Dict[str, Any]) -> User:
     """
     Create a new User from Auth0 token claims.
@@ -120,12 +155,16 @@ def _create_user_from_claims(claims: Dict[str, Any]) -> User:
 
     Notes:
         This is an internal function - use sync_user_from_claims instead.
+        Auth0 name is parsed into first_name and last_name.
     """
+    first_name, last_name = _parse_name_from_claims(claims)
+
     user = User(
         auth0_id=claims["sub"],
         email=claims.get("email"),
         email_verified=claims.get("email_verified", False),
-        name=claims.get("name"),
+        first_name=first_name,
+        last_name=last_name,
         nickname=claims.get("nickname"),
         picture=claims.get("picture"),
         last_login=datetime.now(timezone.utc),

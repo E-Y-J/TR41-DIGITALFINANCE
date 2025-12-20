@@ -228,22 +228,32 @@ class TransactionType(enum.Enum):
 ## 🚀 NEXT STEPS (Future Sprints)
 
 ### Fields Noted for Future Implementation:
-- [ ] Budgets table (user budgets by category)
 - [ ] Categories table (custom user categories)
+- [ ] Notifications table (user alerts)
+- [ ] Budgets table (user budgets by category)
 - [ ] Recurring transactions
 - [ ] Financial goals
-- [ ] Notifications/alerts
 
-### Migration Commands (to be run):
+### Migration Commands (Reference):
 ```bash
 # Generate migration after model changes
-flask db migrate -m "Initial schema: users and transactions tables"
+flask db migrate -m "Description of changes"
 
 # Apply migration to database
 flask db upgrade
 
 # Rollback if needed
 flask db downgrade
+
+# Show migration history
+flask db history
+```
+
+### Sprint 1 Migrations Already Applied:
+```bash
+# Migration ID: 0ef6d8b45cc5
+# Description: Create users and transactions tables with ERD constraints
+# Status: ✅ APPLIED
 ```
 
 ---
@@ -321,20 +331,179 @@ for transaction in user.transactions:
 
 **Implementation Status:** ✅ COMPLETE
 
-**Files Modified/Created:**
-- `backend/app/models/enums.py` (NEW)
-- `backend/app/models/user.py` (UPDATED)
-- `backend/app/models/transaction.py` (NEW)
-- `backend/app/models/__init__.py` (UPDATED)
-- `backend/app/schemas/base.py` (NEW)
-- `backend/app/schemas/user_schema.py` (UPDATED)
-- `backend/app/schemas/transaction_schema.py` (NEW)
-- `backend/app/schemas/__init__.py` (UPDATED)
+### Files Modified/Created:
 
-**Ready for:**
-- [ ] Team review
-- [ ] Migration generation
-- [ ] Database deployment
+**Models (Database Layer):**
+- `backend/app/models/enums.py` (NEW) - Centralized enums
+- `backend/app/models/user.py` (UPDATED) - User model with first_name/last_name
+- `backend/app/models/transaction.py` (NEW) - Transaction model
+- `backend/app/models/__init__.py` (UPDATED) - Exports
+
+**Schemas (Validation Layer):**
+- `backend/app/schemas/base.py` (NEW) - Base schema + validators
+- `backend/app/schemas/user_schema.py` (UPDATED) - User validation
+- `backend/app/schemas/transaction_schema.py` (NEW) - Transaction validation
+- `backend/app/schemas/__init__.py` (UPDATED) - Exports
+
+**Services (Business Logic):**
+- `backend/app/services/user_service.py` (UPDATED) - first_name/last_name support
+- `backend/app/services/transaction_service.py` (NEW) - Full CRUD operations
+- `backend/app/services/__init__.py` (UPDATED) - Exports
+
+**Routes (API Layer):**
+- `backend/app/api/routes/auth.py` (NEW) - Auth0 endpoints
+- `backend/app/api/routes/users.py` (UPDATED) - User profile endpoints
+- `backend/app/api/routes/transactions.py` (NEW) - Transaction CRUD
+- `backend/app/__init__.py` (UPDATED) - Blueprint registration
+
+**Auth (Auth0 Integration):**
+- `backend/app/auth/user_sync.py` (UPDATED) - Parse Auth0 name to first/last
+
+**Migrations:**
+- `backend/migrations/` (INITIALIZED) - Alembic setup
+- Migration: `0ef6d8b45cc5_create_users_and_transactions_tables_.py`
 
 ---
-*Sprint 1 - Backend Schema Implementation*
+
+## 🔗 IMPLEMENTED API ROUTES
+
+### Auth Routes (`/api/auth`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/callback` | Sync user after Auth0 login |
+| GET | `/api/auth/me` | Get current auth user info |
+| POST | `/api/auth/logout` | Get logout instructions/URL |
+| GET | `/api/auth/status` | Check authentication status |
+
+### User Routes (`/api/users`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/users/me` | Get current user profile |
+| PATCH | `/api/users/me` | Update user profile |
+| GET | `/api/users/me/settings` | Get user settings |
+| PATCH | `/api/users/me/settings` | Update user settings |
+| POST | `/api/users/me/deactivate` | Deactivate account |
+
+### Transaction Routes (`/api/transactions`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/transactions` | List transactions (paginated) |
+| POST | `/api/transactions` | Create new transaction |
+| GET | `/api/transactions/:id` | Get transaction by ID |
+| PATCH | `/api/transactions/:id` | Update transaction |
+| DELETE | `/api/transactions/:id` | Delete transaction |
+| GET | `/api/transactions/summary` | Get income/expense summary |
+
+---
+
+## 🗄️ DATABASE STATUS
+
+**Migration Applied:** ✅ YES
+
+```sql
+-- Tables Created:
+CREATE TABLE users (
+    id UUID PRIMARY KEY,
+    auth0_id VARCHAR(128) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE,
+    email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    nickname VARCHAR(100),
+    picture TEXT,
+    settings JSONB NOT NULL DEFAULT '{}',
+    account_status VARCHAR(9) NOT NULL DEFAULT 'pending',
+    role VARCHAR(5) NOT NULL DEFAULT 'user',
+    salary_amount NUMERIC(12,2) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    last_login TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TABLE transactions (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    amount NUMERIC(12,2) NOT NULL,
+    transaction_type VARCHAR(7) NOT NULL,
+    date VARCHAR(50) NOT NULL,
+    merchant_name VARCHAR(255),
+    category VARCHAR(100),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+-- Indexes Created:
+CREATE INDEX ix_users_auth0_id ON users(auth0_id);
+CREATE INDEX ix_users_email ON users(email);
+CREATE INDEX ix_users_account_status ON users(account_status);
+CREATE INDEX ix_users_role ON users(role);
+CREATE INDEX ix_transactions_user_id ON transactions(user_id);
+CREATE INDEX ix_transactions_transaction_type ON transactions(transaction_type);
+CREATE INDEX ix_transactions_date ON transactions(date);
+CREATE INDEX ix_transactions_category ON transactions(category);
+CREATE INDEX idx_transaction_user_date ON transactions(user_id, date);
+CREATE INDEX idx_transaction_user_category ON transactions(user_id, category);
+```
+
+---
+
+## 🔒 AUTH0 INTEGRATION
+
+**Flow:** Frontend → Auth0 → JWT → Backend validation
+
+1. Frontend redirects to Auth0 Universal Login
+2. User authenticates (email/password, social, etc.)
+3. Auth0 issues JWT tokens (access_token, id_token)
+4. Frontend sends access_token in `Authorization: Bearer <token>` header
+5. Backend validates token via `@requires_auth` decorator
+6. User synced to local database via `sync_user_from_claims()`
+
+**Backend Does NOT:**
+- Handle login/register forms
+- Store passwords
+- Issue tokens
+
+**Backend DOES:**
+- Validate Auth0 JWTs
+- Sync user data to local database
+- Provide `/api/auth/callback` for frontend to call after login
+
+---
+
+## ✅ SPRINT 1 REQUIREMENTS CHECKLIST
+
+| Requirement | Status | Evidence |
+|-------------|--------|----------|
+| Convert ERD into DB tables | ✅ | `users` + `transactions` tables created |
+| Define PKs | ✅ | UUID primary keys on both tables |
+| Define FKs | ✅ | `user_id` FK on transactions |
+| Basic constraints | ✅ | NOT NULL, UNIQUE, DEFAULT values |
+| Keep schema minimal | ✅ | Personal data in Auth0, not local |
+| Tables created with migrations | ✅ | `flask db upgrade` applied |
+| Plan route map | ✅ | `/api/auth`, `/api/users`, `/api/transactions` |
+| RESTful naming/status codes | ✅ | Standard REST conventions |
+| Document in README | ✅ | API endpoints documented |
+| Implement auth endpoints | ✅ | `/api/auth/*` routes |
+| JWT validation | ✅ | `@requires_auth` decorator |
+| Token storage documented | ✅ | Frontend stores tokens, backend validates |
+
+---
+
+## 🚀 READY FOR SPRINT 2
+
+**Completed:**
+- ✅ Database schema and migrations
+- ✅ User and Transaction models
+- ✅ Auth0 integration
+- ✅ CRUD routes for users and transactions
+- ✅ API documentation
+
+**Next Sprint (2):**
+- [ ] Dashboard service and routes
+- [ ] AI categorization
+- [ ] Postman collection
+- [ ] Unit and integration tests
+- [ ] Categories and Notifications models
+
+---
+*Sprint 1 - Backend Schema Implementation - COMPLETE*
