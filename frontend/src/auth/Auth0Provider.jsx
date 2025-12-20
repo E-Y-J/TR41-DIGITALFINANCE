@@ -5,6 +5,7 @@ const Auth0ProviderWithNavigate = ({ children }) => {
   const navigate = useNavigate();
   const domain = import.meta.env.VITE_AUTH0_DOMAIN;
   const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
+  const audience = import.meta.env.VITE_AUTH0_AUDIENCE;
   const redirectUri = window.location.origin;
 
   if (!(domain && clientId)) return null;
@@ -16,6 +17,7 @@ const Auth0ProviderWithNavigate = ({ children }) => {
       authorizationParams={{
         redirect_uri: redirectUri,
         scope: "openid profile email",
+        audience: audience,
       }}
       onRedirectCallback={(appState) => {
         navigate(appState?.returnTo || "/home", { replace: true });
