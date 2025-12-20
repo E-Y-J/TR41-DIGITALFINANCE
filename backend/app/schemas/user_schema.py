@@ -29,26 +29,9 @@ Schema Types:
 """
 
 from typing import Optional
-from marshmallow import Schema, fields, validate, validates, ValidationError, EXCLUDE
+from marshmallow import fields, validate, validates
 
-
-# =============================================================================
-# BASE SCHEMA
-# =============================================================================
-
-
-class BaseSchema(Schema):
-    """
-    Base schema with common configuration.
-
-    All schemas should inherit from this class.
-    """
-
-    class Meta:
-        # Return ordered dict to maintain field order
-        ordered = True
-        # Don't raise on unknown fields during load (ignore them)
-        unknown = EXCLUDE
+from app.schemas.base import BaseSchema, validate_not_blank, validate_no_spaces
 
 
 # =============================================================================
@@ -116,10 +99,14 @@ class UserSchema(BaseSchema):
             "id": "uuid-string",
             "email": "user@example.com",
             "email_verified": true,
-            "name": "John Doe",
+            "first_name": "John",
+            "last_name": "Doe",
+            "full_name": "John Doe",
             "nickname": "john",
             "picture": "https://...",
-            "is_active": true,
+            "account_status": "active",
+            "role": "user",
+            "salary_amount": "5000.00",
             "created_at": "2024-01-01T00:00:00Z",
             "settings": {...}
         }
@@ -132,14 +119,24 @@ class UserSchema(BaseSchema):
         dump_only=True, metadata={"description": "Auth0 user identifier"}
     )
 
-    # Profile fields
+    # Profile fields (per ERD: first_name, last_name)
     email = fields.Email(dump_only=True, metadata={"description": "User email address"})
 
     email_verified = fields.Boolean(
         dump_only=True, metadata={"description": "Whether email is verified"}
     )
 
-    name = fields.String(dump_only=True, metadata={"description": "Display name"})
+    first_name = fields.String(
+        dump_only=True, metadata={"description": "User's first name"}
+    )
+
+    last_name = fields.String(
+        dump_only=True, metadata={"description": "User's last name"}
+    )
+
+    full_name = fields.String(
+        dump_only=True, metadata={"description": "User's full name (computed)"}
+    )
 
     nickname = fields.String(dump_only=True, metadata={"description": "Short nickname"})
 
@@ -147,9 +144,22 @@ class UserSchema(BaseSchema):
         dump_only=True, allow_none=True, metadata={"description": "Profile picture URL"}
     )
 
-    # Status fields
-    is_active = fields.Boolean(
-        dump_only=True, metadata={"description": "Account active status"}
+    # Status & Role fields (per ERD)
+    account_status = fields.String(
+        dump_only=True,
+        metadata={"description": "Account status: pending, active, or suspended"},
+    )
+
+    role = fields.String(
+        dump_only=True,
+        metadata={"description": "User role: user or admin"},
+    )
+
+    # Financial fields (per ERD)
+    salary_amount = fields.Decimal(
+        dump_only=True,
+        as_string=True,
+        metadata={"description": "User's salary amount"},
     )
 
     # Timestamps
@@ -191,7 +201,13 @@ class UserPublicSchema(BaseSchema):
 
     id = fields.UUID(dump_only=True, metadata={"description": "User ID"})
 
-    name = fields.String(dump_only=True, metadata={"description": "Display name"})
+    first_name = fields.String(
+        dump_only=True, metadata={"description": "User's first name"}
+    )
+
+    last_name = fields.String(
+        dump_only=True, metadata={"description": "User's last name"}
+    )
 
     nickname = fields.String(dump_only=True, metadata={"description": "Short nickname"})
 
@@ -214,7 +230,8 @@ class UserUpdateSchema(BaseSchema):
 
     Example Request:
         {
-            "name": "New Name",
+            "first_name": "John",
+            "last_name": "Smith",
             "nickname": "newnick",
             "settings": {
                 "currency": "EUR"
@@ -222,12 +239,20 @@ class UserUpdateSchema(BaseSchema):
         }
     """
 
-    name = fields.String(
+    first_name = fields.String(
         validate=[
             validate.Length(min=1, max=255),
         ],
         load_default=None,
-        metadata={"description": "Display name"},
+        metadata={"description": "User's first name"},
+    )
+
+    last_name = fields.String(
+        validate=[
+            validate.Length(min=1, max=255),
+        ],
+        load_default=None,
+        metadata={"description": "User's last name"},
     )
 
     nickname = fields.String(
@@ -245,20 +270,24 @@ class UserUpdateSchema(BaseSchema):
         metadata={"description": "User preferences to update"},
     )
 
-    @validates("name")
-    def validate_name(self, value: Optional[str]) -> None:
-        """Validate name doesn't contain only whitespace."""
-        if value is not None and not value.strip():
-            raise ValidationError("Name cannot be empty or whitespace only")
+    @validates("first_name")
+    def validate_first_name(self, value: Optional[str]) -> None:
+        """Validate first_name doesn't contain only whitespace."""
+        if value is not None:
+            validate_not_blank(value)
+
+    @validates("last_name")
+    def validate_last_name(self, value: Optional[str]) -> None:
+        """Validate last_name doesn't contain only whitespace."""
+        if value is not None:
+            validate_not_blank(value)
 
     @validates("nickname")
     def validate_nickname(self, value: Optional[str]) -> None:
         """Validate nickname format."""
         if value is not None:
-            if not value.strip():
-                raise ValidationError("Nickname cannot be empty or whitespace only")
-            if " " in value:
-                raise ValidationError("Nickname cannot contain spaces")
+            validate_not_blank(value)
+            validate_no_spaces(value)
 
 
 # =============================================================================

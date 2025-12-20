@@ -14,6 +14,10 @@ Database Table: users
 Primary Key: id (UUID)
 Unique Constraint: auth0_id
 
+Relationship:
+    - One User can have many Transactions (1:N)
+    - Auth0 handles sensitive personal data (address, DOB, etc.)
+
 Usage:
     from app.models.user import User
 
@@ -24,7 +28,8 @@ Usage:
     user = User(
         auth0_id="auth0|123",
         email="user@example.com",
-        name="John Doe"
+        first_name="John",
+        last_name="Doe"
     )
     db.session.add(user)
     db.session.commit()
@@ -33,17 +38,23 @@ Notes:
     - auth0_id is the unique identifier from Auth0 (sub claim)
     - Email may not be verified - check email_verified flag
     - User preferences are stored as JSON in settings column
+    - Personal data (address, DOB) managed by Auth0, not stored locally
 """
 
 import uuid
 from datetime import datetime, timezone
-from typing import Optional, Dict, Any
+from decimal import Decimal
+from typing import Optional, Dict, Any, TYPE_CHECKING
 
-from sqlalchemy import String, Boolean, DateTime, Text
+from sqlalchemy import String, Boolean, DateTime, Text, Numeric, Enum
 from sqlalchemy.dialects.postgresql import UUID, JSONB
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.extensions import db
+from app.models.enums import AccountStatus, UserRole
+
+if TYPE_CHECKING:
+    from app.models.transaction import Transaction
 
 
 # =============================================================================
@@ -56,29 +67,39 @@ class User(db.Model):
     User model representing an authenticated user.
 
     This model stores Auth0 user information locally for:
-    - Linking to other database tables
-    - Storing user preferences
+    - Linking to other database tables (transactions, etc.)
+    - Storing user preferences and app-specific data
     - Quick access without Auth0 API calls
+
+    Note: Sensitive personal data (address, DOB, etc.) is managed by Auth0,
+    not stored locally. This reduces risk and simplifies our schema.
 
     Attributes:
         id: Primary key UUID
         auth0_id: Auth0 user identifier (sub claim)
         email: User's email address
         email_verified: Whether email is verified in Auth0
-        name: Display name
+        first_name: User's first name (per ERD)
+        last_name: User's last name (per ERD)
         nickname: Short nickname
         picture: Profile picture URL
+        account_status: Account status (pending, active, suspended)
+        role: User role (user, admin)
+        salary_amount: User's salary for budgeting features
         settings: JSON object for user preferences
-        is_active: Whether user account is active
         created_at: Account creation timestamp
         updated_at: Last update timestamp
         last_login: Last login timestamp
+
+    Relationships:
+        transactions: One-to-Many relationship with Transaction model
 
     Example:
         >>> user = User(
         ...     auth0_id="auth0|507f1f77bcf86cd799439011",
         ...     email="user@example.com",
-        ...     name="John Doe"
+        ...     first_name="John",
+        ...     last_name="Doe"
         ... )
         >>> db.session.add(user)
         >>> db.session.commit()
@@ -115,11 +136,15 @@ class User(db.Model):
     )
 
     # =========================================================================
-    # PROFILE FIELDS
+    # PROFILE FIELDS (per ERD)
     # =========================================================================
 
-    name: Mapped[Optional[str]] = mapped_column(
-        String(255), nullable=True, doc="User's display name"
+    first_name: Mapped[str] = mapped_column(
+        String(255), nullable=False, doc="User's first name"
+    )
+
+    last_name: Mapped[str] = mapped_column(
+        String(255), nullable=False, doc="User's last name"
     )
 
     nickname: Mapped[Optional[str]] = mapped_column(
@@ -139,11 +164,34 @@ class User(db.Model):
     )
 
     # =========================================================================
-    # STATUS FIELDS
+    # STATUS & ROLE FIELDS (per ERD)
     # =========================================================================
 
-    is_active: Mapped[bool] = mapped_column(
-        Boolean, default=True, nullable=False, doc="Whether user account is active"
+    account_status: Mapped[AccountStatus] = mapped_column(
+        Enum(AccountStatus, name="account_status_enum", native_enum=False),
+        default=AccountStatus.PENDING,
+        nullable=False,
+        index=True,
+        doc="Account status: pending, active, or suspended",
+    )
+
+    role: Mapped[UserRole] = mapped_column(
+        Enum(UserRole, name="user_role_enum", native_enum=False),
+        default=UserRole.USER,
+        nullable=False,
+        index=True,
+        doc="User role: user or admin",
+    )
+
+    # =========================================================================
+    # FINANCIAL FIELDS (per ERD)
+    # =========================================================================
+
+    salary_amount: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        default=Decimal("0.00"),
+        nullable=False,
+        doc="User's salary amount for budgeting features",
     )
 
     # =========================================================================
@@ -170,12 +218,40 @@ class User(db.Model):
     )
 
     # =========================================================================
-    # RELATIONSHIPS (to be added as models are created)
+    # RELATIONSHIPS
     # =========================================================================
 
-    # transactions = relationship("Transaction", back_populates="user")
-    # budgets = relationship("Budget", back_populates="user")
-    # categories = relationship("Category", back_populates="user")
+    # One User can have many Transactions (1:N relationship)
+    transactions: Mapped[list["Transaction"]] = relationship(
+        "Transaction",
+        back_populates="user",
+        lazy="dynamic",
+        cascade="all, delete-orphan",
+    )
+
+    # =========================================================================
+    # PROPERTIES
+    # =========================================================================
+
+    @property
+    def full_name(self) -> str:
+        """
+        Return user's full name (first_name + last_name).
+
+        Returns:
+            Combined first and last name with space between
+        """
+        return f"{self.first_name} {self.last_name}".strip()
+
+    @property
+    def is_active(self) -> bool:
+        """
+        Check if user account is active.
+
+        Returns:
+            True if account_status is ACTIVE, False otherwise
+        """
+        return self.account_status == AccountStatus.ACTIVE
 
     # =========================================================================
     # METHODS
@@ -209,10 +285,14 @@ class User(db.Model):
             "auth0_id": self.auth0_id,
             "email": self.email,
             "email_verified": self.email_verified,
-            "name": self.name,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "full_name": self.full_name,
             "nickname": self.nickname,
             "picture": self.picture,
-            "is_active": self.is_active,
+            "account_status": self.account_status.value,
+            "role": self.role.value,
+            "salary_amount": str(self.salary_amount),
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             "last_login": self.last_login.isoformat() if self.last_login else None,
@@ -242,10 +322,12 @@ class User(db.Model):
         updated = False
 
         # Map claims to user fields
+        # Note: Auth0 provides 'given_name' and 'family_name' for first/last name
         claim_mappings = {
             "email": "email",
             "email_verified": "email_verified",
-            "name": "name",
+            "given_name": "first_name",
+            "family_name": "last_name",
             "nickname": "nickname",
             "picture": "picture",
         }
