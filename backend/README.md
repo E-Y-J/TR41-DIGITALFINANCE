@@ -12,6 +12,34 @@ This backend supports a cloud-based finance tracker that:
 
 ---
 
+## 📊 Database Design & ERD
+
+### Entity Relationship Diagram
+
+The ERD for the database architecture is located at: 
+📁 **Path:** `backend/ERD.png`
+
+![ERD](ERD.png)
+
+---
+
+### Understanding the User-Transaction Relationship
+
+**Relationship Type:** One-to-Many (1:N)
+
+**Cardinality & Ordinality:**
+
+| Entity | Min (Ordinality) | Max | Meaning |
+|--------|------------------|-----|---------|
+| **User** (left side) | 1 | 1 | Every transaction MUST belong to exactly one user |
+| **Transaction** (right side) | 0 | Many | A user can have zero transactions (new account) or unlimited transactions |
+
+**Ordinality Explained:**
+- **Min = 0 (optional):** New users can exist without any transactions
+- **Min = 1 (mandatory):** Every transaction must have exactly one user (enforced by NOT NULL foreign key)
+
+---
+
 ## 🛠 Tech Stack
 
 | Layer | Technology |
@@ -440,6 +468,6 @@ python -c "from app import create_app; app = create_app(); print('App created:',
 
 Documents to be created in `../docs/`:
 - PRD.md - Product Requirements Document
-- ERD.md - Entity Relationship Diagram
+- ERD.png - Entity Relationship Diagram
 - API_CONTRACT.md - API endpoint specifications
 - SECURITY_REQUIREMENTS.md - Security requirements
