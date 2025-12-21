@@ -122,6 +122,9 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     # Register health check
     _register_health_check(app)
 
+    # Initialize Swagger UI
+    _init_swagger(app)
+
     logger.info("Application created successfully")
 
     return app
@@ -165,6 +168,28 @@ def _register_blueprints(app: Flask) -> None:
 
     # from app.api.routes.categories import bp as categories_bp
     # app.register_blueprint(categories_bp, url_prefix="/api/categories")
+
+
+# =============================================================================
+# SWAGGER INITIALIZATION
+# =============================================================================
+
+
+def _init_swagger(app: Flask) -> None:
+    """
+    Initialize Swagger UI for API documentation.
+
+    Args:
+        app: Flask application instance
+
+    Notes:
+        - Swagger UI: /api/docs
+        - OpenAPI JSON: /api/docs/openapi.json
+    """
+    from app.api.swagger import init_swagger
+
+    init_swagger(app)
+    logger.debug("Swagger UI initialized at /api/docs")
 
 
 # =============================================================================

@@ -1,9 +1,21 @@
 # Sprint 1 Backend Implementation Guide
 
-> **For:** Teammates (FE, QA, Data, Security)
-> **Author:** Backend Team (Suryadi Zhang)
-> **Date:** December 19, 2025
-> **Sprint:** Sprint 1 - Schema & Migrations
+Sprint 1 - Schema & Migrations
+
+---
+
+## 🆕 Latest Updates
+
+### Swagger UI Added
+Interactive API documentation is now available:
+
+| Resource | URL |
+|----------|-----|
+| **Swagger UI** | http://localhost:5000/api/docs |
+| **OpenAPI JSON** | http://localhost:5000/api/docs/openapi.json |
+
+**New Files:**
+- `app/api/swagger.py` - Swagger configuration and OpenAPI spec
 
 ---
 
