@@ -3,10 +3,10 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import { useTest } from "../hooks/queries/useTest";
 
 export default function HomePage() {
-  const { data: msg, isLoading, isError } = useTest();
+  // const { data: msg, isLoading, isError } = useTest();
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Failed to load transactions.</div>;
+  // if (isLoading) return <div>Loading...</div>;
+  // if (isError) return <div>Failed to load transactions.</div>;
 
   return (
     <DashboardLayout>
