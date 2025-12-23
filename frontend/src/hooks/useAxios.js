@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import apiClient from "../api/index.js";
+import { apiClient } from "../api/index.js";
 
 const useAxios = () => {
   const { getAccessTokenSilently } = useAuth0();

@@ -1,7 +1,13 @@
 import { Grid, Paper, Typography } from "@mui/material";
 import DashboardLayout from "../layouts/DashboardLayout";
+import { useTest } from "../hooks/queries/useTest";
 
-const HomePage = () => {
+export default function HomePage() {
+  const { data: msg, isLoading, isError } = useTest();
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Failed to load transactions.</div>;
+
   return (
     <DashboardLayout>
       <Typography variant="h4" gutterBottom sx={{ mb: 4 }}>
@@ -48,6 +54,4 @@ const HomePage = () => {
       </Grid>
     </DashboardLayout>
   );
-};
-
-export default HomePage;
+}
