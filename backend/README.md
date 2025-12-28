@@ -265,33 +265,43 @@ flask db upgrade
 
 ## 📋 Sprint Tasks Mapping
 
-### Sprint 1 - Authentication & Setup (Auth0)
+### Sprint 1 - Authentication & Setup (Auth0) ✅ COMPLETED
 - [x] `app/core/config.py` - Environment configuration (Auth0 settings) ✅
 - [x] `app/core/extensions.py` - Initialize Flask extensions ✅
 - [x] `app/auth/auth0.py` - Auth0 token validation ✅
 - [x] `app/auth/decorators.py` - `@requires_auth` decorator ✅
 - [x] `app/auth/user_sync.py` - Sync Auth0 user to local DB ✅
 - [x] `app/models/user.py` - User model (with auth0_id) ✅
+- [x] `app/models/transaction.py` - Transaction model ✅
+- [x] `app/models/enums.py` - Centralized enums ✅
+- [x] `app/schemas/base.py` - Base schema and validators ✅
 - [x] `app/schemas/user_schema.py` - User validation schemas ✅
+- [x] `app/schemas/transaction_schema.py` - Transaction validation ✅
 - [x] `app/services/user_service.py` - User sync logic ✅
+- [x] `app/services/transaction_service.py` - Transaction CRUD ✅
+- [x] `app/api/routes/auth.py` - Auth0 endpoints ✅
 - [x] `app/api/routes/users.py` - User endpoints (`/me`, `/profile`) ✅
+- [x] `app/api/routes/transactions.py` - Transaction CRUD ✅
 - [x] `app/utils/errors.py` - Custom exception classes ✅
 - [x] `app/__init__.py` - Flask app factory ✅
-- [ ] `app/models/category.py` - Category model (default categories)
-- [ ] `migrations/` - Initial database migration
-- [ ] `tests/integration/test_auth.py` - Auth0 validation tests
+- [x] `migrations/` - Database migration (users + transactions tables) ✅
+- [ ] `tests/` - Unit and integration tests (Sprint 2)
+- [ ] `shared/postman/` - Postman collection & tests for auth endpoints (**Ariel**)
+  - Create Postman collection for auth endpoints
+  - Add tests for success/failure and token validation
+  - Run locally and note results in README
+  - Environment variables for base_url, access_token
 
-### Sprint 2 - Transactions, Dashboard & AI
-- [ ] `app/models/transaction.py` - Transaction model
-- [ ] `app/models/notification.py` - Notification model
-- [ ] `app/schemas/transaction_schema.py` - Transaction validation
-- [ ] `app/services/transaction_service.py` - Transaction CRUD
+### Sprint 2 - Dashboard, AI & Polish
 - [ ] `app/services/dashboard_service.py` - Summary calculations
-- [ ] `app/api/routes/transactions.py` - Transaction endpoints
 - [ ] `app/api/routes/dashboard.py` - Dashboard endpoints
 - [ ] `app/ai/categorize.py` - AI categorization
 - [ ] `app/ai/chatbot.py` - Basic Q&A chatbot
 - [ ] `app/api/routes/ai.py` - AI endpoints
+- [ ] `app/models/notification.py` - Notification model
+- [ ] `app/models/category.py` - Category model (default categories)
+- [ ] Unit & Integration tests
+- [ ] Postman collection
 
 ### Sprint 3 - Polish & Stretch Goals
 - [ ] `app/ai/alerts.py` - Smart spending alerts
@@ -437,19 +447,99 @@ python -c "from app import create_app; app = create_app(); print('App created:',
 
 > **Auth Note:** Login/Register handled by Auth0 on frontend. Backend validates Auth0 tokens.
 
+### Authentication Endpoints (`/api/auth`)
+
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| GET | `/api/users/me` | Get current user (syncs from Auth0) | Yes |
-| PUT | `/api/users/profile` | Update profile | Yes |
-| GET | `/api/transactions` | List transactions | Yes |
-| POST | `/api/transactions` | Create transaction | Yes |
-| PUT | `/api/transactions/:id` | Update transaction | Yes |
+| POST | `/api/auth/callback` | Sync user after Auth0 login | Yes |
+| GET | `/api/auth/me` | Get current auth user info | Yes |
+| POST | `/api/auth/logout` | Get logout instructions/URL | Optional |
+| GET | `/api/auth/status` | Check authentication status | Optional |
+
+### User Endpoints (`/api/users`)
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/users/me` | Get current user profile | Yes |
+| PATCH | `/api/users/me` | Update user profile | Yes |
+| GET | `/api/users/me/settings` | Get user settings | Yes |
+| PATCH | `/api/users/me/settings` | Update user settings | Yes |
+| POST | `/api/users/me/deactivate` | Deactivate account | Yes |
+
+### Transaction Endpoints (`/api/transactions`)
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/transactions` | List transactions (paginated) | Yes |
+| POST | `/api/transactions` | Create new transaction | Yes |
+| GET | `/api/transactions/:id` | Get transaction by ID | Yes |
+| PATCH | `/api/transactions/:id` | Update transaction | Yes |
 | DELETE | `/api/transactions/:id` | Delete transaction | Yes |
-| GET | `/api/dashboard/summary` | Spending summary | Yes |
-| GET | `/api/dashboard/categories` | Category breakdown | Yes |
-| POST | `/api/ai/categorize` | Get AI category prediction | Yes |
-| POST | `/api/ai/chat` | Ask spending question | Yes |
-| GET | `/api/notifications` | List notifications | Yes |
+| GET | `/api/transactions/summary` | Get income/expense summary | Yes |
+
+### Utility Endpoints
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/health` | Health check | No |
+| GET | `/` | API info | No |
+
+### Future Endpoints (Sprint 2-3)
+
+| Method | Endpoint | Description | Sprint |
+|--------|----------|-------------|--------|
+| GET | `/api/dashboard/summary` | Spending summary | 2 |
+| GET | `/api/dashboard/categories` | Category breakdown | 2 |
+| POST | `/api/ai/categorize` | Get AI category prediction | 2 |
+| POST | `/api/ai/chat` | Ask spending question | 2 |
+| GET | `/api/notifications` | List notifications | 2 |
+
+---
+
+## 🧪 Postman Collection (Pending - Ariel)
+
+> **Status:** 🔄 In Progress - Assigned to Ariel Resendiz
+
+### Collection Requirements
+
+| Item | Status | Description |
+|------|--------|-------------|
+| Auth Endpoints | ⏳ | POST /callback, GET /me, POST /logout, GET /status |
+| Success Tests | ⏳ | Valid token returns 200, user data present |
+| Failure Tests | ⏳ | Invalid/missing token returns 401 |
+| Token Validation | ⏳ | Check token presence and JWT format |
+| Environment Vars | ⏳ | base_url, access_token, auth0_domain |
+
+### Expected Test Coverage
+
+```
+Auth Tests:
+├── POST /api/auth/callback
+│   ├── ✓ Returns 200 with valid token
+│   ├── ✓ Syncs user to database
+│   ├── ✓ Returns is_new_user flag
+│   └── ✗ Returns 401 without token
+├── GET /api/auth/me
+│   ├── ✓ Returns user data with valid token
+│   └── ✗ Returns 401 without token
+├── POST /api/auth/logout
+│   └── ✓ Returns logout instructions
+└── GET /api/auth/status
+    ├── ✓ Returns authenticated: true with token
+    └── ✓ Returns authenticated: false without token
+```
+
+### Local Run Results
+*(To be filled by Ariel after testing)*
+
+```
+Date: ___________
+Environment: Local (http://localhost:5001)
+Total Tests: ___
+Passed: ___
+Failed: ___
+Notes: ___
+```
 
 ---
 

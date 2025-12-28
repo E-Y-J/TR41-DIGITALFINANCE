@@ -2,36 +2,95 @@
 
 This folder contains Postman collections and environment files for API testing.
 
-## Files to Create Here
+---
 
-| File | Description | Owner |
-|------|-------------|-------|
-| `digital-finance.postman_collection.json` | Full API collection | Backend |
-| `local.postman_environment.json` | Local development env vars | Backend |
-| `staging.postman_environment.json` | Staging env vars | Backend/CS |
+## 🚀 Quick Start for QA
 
-## How to Import
+### Auto-Import from Swagger
 
-1. Open Postman
-2. Click **Import** button
-3. Select the `.json` files from this folder
+**You can import the OpenAPI spec directly into Postman:**
 
-## Naming Convention
+1. Start backend: `cd backend && flask run --port=5000`
+2. Open Postman → **Import** → **Link** tab
+3. Paste: `http://localhost:5000/api/docs/openapi.json`
+4. All 17 requests auto-generated!
 
-- Collections: `digital-finance-{feature}.postman_collection.json`
-- Environments: `{env-name}.postman_environment.json`
+### View Endpoints in Swagger UI
 
-## Testing Workflow
+Open in browser: http://localhost:5000/api/docs
 
-1. Run auth tests first (get token)
-2. Token auto-saves to environment
-3. Run other tests with saved token
+---
 
-## Required Environment Variables
+## 📋 Endpoints to Test (17 Total)
 
+| Category | Count | Auth Required |
+|----------|-------|---------------|
+| Health | 2 | ❌ No |
+| Auth | 4 | Mixed |
+| Users | 5 | ✅ Yes |
+| Transactions | 6 | ✅ Yes |
+
+---
+
+## 🔐 Authentication
+
+All protected endpoints require an Auth0 JWT token.
+
+### Getting a Token
+
+**Option 1: Via Frontend**
+1. Start frontend: `cd frontend && npm run dev`
+2. Login at http://localhost:5173
+3. Open DevTools → Application → Local Storage
+4. Copy the `access_token` value
+
+**Option 2: Auth0 Dashboard**
+1. Go to Auth0 Dashboard → APIs → Your API → Test tab
+2. Copy the test token
+
+### Using Token in Postman
+
+Set environment variable: `{{access_token}} = <your-token>`
+
+Add header: `Authorization: Bearer {{access_token}}`
+
+---
+
+## 📝 Key Schema Details
+
+### Transaction Create (POST /api/transactions)
+```json
+{
+    "amount": "125.50",
+    "transaction_type": "expense",
+    "date": "2025-12-20",
+    "merchant_name": "Amazon",
+    "category": "Shopping"
+}
 ```
-{{BASE_URL}} = http://localhost:5000/api
-{{ACCESS_TOKEN}} = (auto-populated after login)
-{{USER_EMAIL}} = test@example.com
-{{USER_PASSWORD}} = testpassword123
+
+**Important:**
+- `amount` - String (decimal precision)
+- `transaction_type` - "income" or "expense" (not credit/debit)
+- `merchant_name` - not "description"
+
+---
+
+## 🔧 Environment Variables
+
+```json
+{
+    "base_url": "http://localhost:5000",
+    "access_token": "",
+    "user_id": "",
+    "transaction_id": ""
+}
 ```
+
+---
+
+## 📚 Related Docs
+
+- **Swagger UI:** http://localhost:5000/api/docs
+- **API Testing Guide:** `backend/docs/API_TESTING_GUIDE.md`
+- **Sprint 1 Guide:** `backend/docs/SPRINT1_IMPLEMENTATION_GUIDE.md`

@@ -18,7 +18,7 @@ Usage:
     user = UserService.get_by_auth0_id("auth0|123")
 
     # Update user profile
-    user = UserService.update_profile(user, {"name": "New Name"})
+    user = UserService.update_profile(user, {"first_name": "John", "last_name": "Doe"})
 
     # Update user settings
     user = UserService.update_settings(user, {"currency": "EUR"})
@@ -189,12 +189,14 @@ class UserService:
         Example:
             >>> user = UserService.get_by_auth0_id("auth0|123")
             >>> updated = UserService.update_profile(user, {
-            ...     "name": "New Name",
-            ...     "nickname": "newnick"
+            ...     "first_name": "John",
+            ...     "last_name": "Doe",
+            ...     "nickname": "johnd"
             ... })
 
         Allowed Fields:
-            - name: Display name
+            - first_name: User's first name
+            - last_name: User's last name
             - nickname: Short nickname
             - settings: User preferences (partial update)
         """
@@ -207,9 +209,13 @@ class UserService:
         validated = user_update_schema.load(data)
 
         try:
-            # Update name if provided
-            if validated.get("name") is not None:
-                user.name = validated["name"]
+            # Update first_name if provided
+            if validated.get("first_name") is not None:
+                user.first_name = validated["first_name"]
+
+            # Update last_name if provided
+            if validated.get("last_name") is not None:
+                user.last_name = validated["last_name"]
 
             # Update nickname if provided
             if validated.get("nickname") is not None:
