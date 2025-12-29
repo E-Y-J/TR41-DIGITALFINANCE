@@ -57,10 +57,11 @@ copy .env.example .env
 flask db upgrade
 
 # 6. Start server
-flask run --port=5000
+# NOTE: Port 8000 matches frontend's expected API base URL
+flask run --port=8000
 
 # 7. Test it
-curl http://localhost:5000/health
+curl http://localhost:8000/health
 ```
 
 ---
@@ -189,12 +190,13 @@ flask db upgrade
 ### Step 7: Start the Flask Server
 
 ```bash
-flask run --port=5000
+# NOTE: Port 8000 matches frontend's apiClient baseURL configuration
+flask run --port=8000
 ```
 
 ✅ **Success indicator:**
 ```
- * Running on http://127.0.0.1:5000
+ * Running on http://127.0.0.1:8000
 ```
 
 ---
@@ -205,13 +207,13 @@ Open your browser or use curl to test:
 
 | URL | Expected Response |
 |-----|-------------------|
-| http://localhost:5000/ | `{"name": "Digital Finance Tracker API", "version": "1.0.0", ...}` |
-| http://localhost:5000/health | `{"status": "healthy", "service": "digital-finance-api"}` |
-| http://localhost:5000/api/docs | Swagger UI (interactive documentation) |
+| http://localhost:8000/ | `{"name": "Digital Finance Tracker API", "version": "1.0.0", ...}` |
+| http://localhost:8000/health | `{"status": "healthy", "service": "digital-finance-api"}` |
+| http://localhost:8000/api/docs | Swagger UI (interactive documentation) |
 
 **Using curl:**
 ```bash
-curl http://localhost:5000/health
+curl http://localhost:8000/health
 ```
 
 ---
@@ -392,5 +394,5 @@ If you're stuck after following these steps:
 
 - [API Testing Guide](./API_TESTING_GUIDE.md) - How to test endpoints
 - [Sprint 1 Implementation Guide](./SPRINT1_IMPLEMENTATION_GUIDE.md) - Schema details
-- [Swagger UI](http://localhost:5000/api/docs) - Interactive API docs (when running)
+- [Swagger UI](http://localhost:8000/api/docs) - Interactive API docs (when running)
 - [Postman Collections](../../shared/postman/README.md) - Postman setup

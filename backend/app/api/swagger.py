@@ -16,8 +16,12 @@ Usage:
     init_swagger(app)
 
 Access:
-    - Swagger UI: http://localhost:5000/api/docs
-    - OpenAPI JSON: http://localhost:5000/api/docs/openapi.json
+    - Swagger UI: http://localhost:8000/api/docs
+    - OpenAPI JSON: http://localhost:8000/api/docs/openapi.json
+
+Note:
+    Port 8000 is used to match the frontend's expected API base URL.
+    Frontend (Vite) runs on port 5173, backend (Flask) runs on port 8000.
 """
 
 import logging
@@ -82,9 +86,12 @@ Error responses:
         },
         "license": {"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
     },
-    "servers": [{"url": "http://localhost:5000", "description": "Development server"}],
+    # NOTE: Port 8000 matches frontend's apiClient baseURL configuration
+    # Frontend expects backend at http://localhost:8000/api
+    "servers": [{"url": "http://localhost:8000", "description": "Development server"}],
     "tags": [
         {"name": "Health", "description": "Health check endpoints"},
+        {"name": "Test", "description": "Frontend-backend connection testing"},
         {"name": "Auth", "description": "Authentication and authorization"},
         {"name": "Users", "description": "User profile and settings"},
         {"name": "Transactions", "description": "Financial transaction operations"},
@@ -147,6 +154,52 @@ Error responses:
                                         "service": {
                                             "type": "string",
                                             "example": "digital-finance-api",
+                                        },
+                                    },
+                                }
+                            }
+                        },
+                    }
+                },
+            }
+        },
+        "/api/test": {
+            "get": {
+                "tags": ["Test"],
+                "summary": "Test Connection",
+                "description": "Simple endpoint for frontend-backend connection verification. No authentication required.",
+                "responses": {
+                    "200": {
+                        "description": "Connection successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": True,
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Hello from backend!",
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "connected",
+                                                },
+                                                "api_version": {
+                                                    "type": "string",
+                                                    "example": "1.0.0",
+                                                },
+                                                "service": {
+                                                    "type": "string",
+                                                    "example": "digital-finance-api",
+                                                },
+                                            },
                                         },
                                     },
                                 }
