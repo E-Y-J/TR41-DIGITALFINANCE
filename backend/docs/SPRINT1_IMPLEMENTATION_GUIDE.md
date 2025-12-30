@@ -11,8 +11,10 @@ Interactive API documentation is now available:
 
 | Resource | URL |
 |----------|-----|
-| **Swagger UI** | http://localhost:5000/api/docs |
-| **OpenAPI JSON** | http://localhost:5000/api/docs/openapi.json |
+| **Swagger UI** | http://localhost:8000/api/docs |
+| **OpenAPI JSON** | http://localhost:8000/api/docs/openapi.json |
+
+> **Note:** Port 8000 is used to match the frontend's expected API base URL.
 
 **New Files:**
 - `app/api/swagger.py` - Swagger configuration and OpenAPI spec

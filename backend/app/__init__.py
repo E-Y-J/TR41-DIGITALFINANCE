@@ -77,7 +77,8 @@ def create_app(config_name: Optional[str] = None) -> Flask:
 
     Example:
         >>> app = create_app()
-        >>> app.run(host="0.0.0.0", port=5000)
+        >>> # NOTE: Port 8000 to match frontend's expected API base URL
+        >>> app.run(host="0.0.0.0", port=8000)
 
     Notes:
         - Always use this factory, don't create Flask() directly
@@ -160,7 +161,12 @@ def _register_blueprints(app: Flask) -> None:
 
     app.register_blueprint(transactions_bp, url_prefix="/api/transactions")
 
-    logger.debug("Registered blueprints: auth, users, transactions")
+    # Test routes (for frontend-backend connection verification)
+    from app.api.routes.test import bp as test_bp
+
+    app.register_blueprint(test_bp, url_prefix="/api")
+
+    logger.debug("Registered blueprints: auth, users, transactions, test")
 
     # Future blueprints:
     # from app.api.routes.budgets import bp as budgets_bp

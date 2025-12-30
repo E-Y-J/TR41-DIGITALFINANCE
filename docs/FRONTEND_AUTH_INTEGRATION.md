@@ -99,7 +99,8 @@ Create a reusable API client:
 // src/api/client.ts
 import { useAuth0 } from '@auth0/auth0-react';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// NOTE: Port 8000 is used to match frontend's apiClient configuration
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export const useApiClient = () => {
   const { getAccessTokenSilently } = useAuth0();

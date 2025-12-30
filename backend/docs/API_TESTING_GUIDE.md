@@ -33,7 +33,7 @@ The Digital Finance Tracker API provides 17 endpoints across 4 categories:
 
 | Tool | Purpose | Location |
 |------|---------|----------|
-| **Swagger UI** | Interactive browser testing | http://localhost:5000/api/docs |
+| **Swagger UI** | Interactive browser testing | http://localhost:8000/api/docs |
 | **Postman** | Collection-based testing | `shared/postman/` |
 | **pytest** | Automated unit/integration tests | `backend/tests/` |
 
@@ -61,15 +61,15 @@ cd backend
 $env:FLASK_APP = "app:create_app"
 $env:FLASK_ENV = "development"
 
-# Start server
-flask run --host=0.0.0.0 --port=5000
+# Start server (port 8000 matches frontend's expected API URL)
+flask run --host=0.0.0.0 --port=8000
 ```
 
 ### Verify Server is Running
 
 ```powershell
 # Health check
-curl http://localhost:5000/health
+curl http://localhost:8000/health
 
 # Expected response:
 # {"status": "healthy", "service": "digital-finance-api"}
@@ -82,7 +82,7 @@ curl http://localhost:5000/health
 ### Access Swagger UI
 
 1. Start the backend server (see above)
-2. Open browser: **http://localhost:5000/api/docs**
+2. Open browser: **http://localhost:8000/api/docs**
 3. You'll see the interactive API documentation
 
 ### Swagger UI Features
@@ -135,7 +135,7 @@ These endpoints work without authentication:
 
 | Variable | Value | Description |
 |----------|-------|-------------|
-| `{{base_url}}` | `http://localhost:5000` | API base URL |
+| `{{base_url}}` | `http://localhost:8000` | API base URL (matches frontend config) |
 | `{{access_token}}` | (your token) | Auth0 JWT token |
 | `{{user_id}}` | (auto-populated) | Current user's UUID |
 | `{{transaction_id}}` | (auto-populated) | Test transaction UUID |
