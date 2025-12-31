@@ -3,7 +3,8 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import { useTest } from "../hooks/queries/useTest";
 
 export default function HomePage() {
-  // const { data: msg, isLoading, isError } = useTest();
+  const { data: msg, isLoading, isError } = useTest();
+  console.log(msg);
 
   // if (isLoading) return <div>Loading...</div>;
   // if (isError) return <div>Failed to load transactions.</div>;
@@ -22,10 +23,19 @@ export default function HomePage() {
             <Typography color="textSecondary" gutterBottom>
               Total Balance
             </Typography>
+            run
             <Typography variant="h4">$12,450.00</Typography>
           </Paper>
         </Grid>
-
+        <Paper>
+          <Typography variant="h6">
+            {isLoading
+              ? "Loading..."
+              : isError
+              ? "Error loading message"
+              : msg?.message}
+          </Typography>
+        </Paper>
         <Grid item xs={12} md={4}>
           <Paper
             sx={{ p: 3, display: "flex", flexDirection: "column", height: 140 }}
