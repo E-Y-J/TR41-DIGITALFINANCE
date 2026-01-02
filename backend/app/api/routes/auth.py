@@ -261,8 +261,8 @@ def logout():
     config = get_config()
 
     # Build Auth0 logout URL
-    auth0_domain = config.AUTH0_DOMAIN
-    client_id = config.AUTH0_CLIENT_ID
+    auth0_domain = config.auth0.domain
+    client_id = config.auth0.client_id
     return_to = request.args.get("return_to", request.host_url)
 
     auth0_logout_url = (

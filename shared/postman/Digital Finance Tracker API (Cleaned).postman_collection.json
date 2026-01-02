@@ -1,0 +1,719 @@
+{
+	"info": {
+		"_postman_id": "673d66e7-3e28-425f-a3ae-0c2412f55401",
+		"name": "Digital Finance Tracker API (Cleaned)",
+		"description": "## Digital Finance Tracker API Collection\n\n- Use `{{baseUrl}}` for server URL (e.g., http://localhost:8000)\n- Use `{{bearerToken}}` variable for Auth0 JWT when calling protected endpoints.\n\n**Key Flows**:\n- Test connection with `/api/test` and `/health`\n- Use `/api/auth/*` endpoints for login/auth flows\n- Use `/api/users/*` for user profile/settings\n- Use `/api/transactions/*` for transaction data\n\nMore info: Contact support@digitalfinance.com",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "46729974",
+		"_collection_link": "https://ar-8007029.postman.co/workspace/Flask-API~0ffc4100-54ee-41e2-9281-5b0ed8822808/collection/46729974-673d66e7-3e28-425f-a3ae-0c2412f55401?action=share&source=collection_link&creator=46729974"
+	},
+	"item": [
+		{
+			"name": "Health / Test",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Check if the API service is healthy (no authentication required)."
+					},
+					"response": []
+				},
+				{
+					"name": "Test Connection",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/test",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"test"
+							]
+						},
+						"description": "Test Frontend/Backend connectivity. Returns version/info. No authentication required."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Auth0 Callback",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/callback",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"callback"
+							]
+						},
+						"description": "Sync user after Auth0 login. Frontend calls this after tokens are received from Auth0.\n\n**Requires JWT auth.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me"
+							]
+						},
+						"description": "Get the currently authenticated user's info.\n\n**Requires JWT auth.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Check Auth Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"status"
+							]
+						},
+						"description": "Check if the user is authenticated (checks JWT validity)."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout Instructions",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Get instructions for client-side logout.\n\n**No authentication required.**"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "User Settings",
+					"item": [
+						{
+							"name": "Get Settings",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{bearerToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/users/me/settings",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"me",
+										"settings"
+									]
+								},
+								"description": "Get the user's settings (currency, notifications, theme, timezone).\n\n**Requires JWT auth.**"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Settings",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{bearerToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{ \"currency\": \"USD\", \"theme\": \"dark\", \"timezone\": \"America/New_York\", \"notifications\": {\"reminders\": true} }"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/users/me/settings",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"users",
+										"me",
+										"settings"
+									]
+								},
+								"description": "Update user settings (currency, theme, timezone, notification preferences).\n\n**Sample body:**\n```\n{\n  \"currency\": \"USD\",\n  \"theme\": \"dark\",\n  \"timezone\": \"America/New_York\",\n  \"notifications\": { \"reminders\": true }\n}\n```"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"me"
+							]
+						},
+						"description": "Get the logged-in user's profile data.\n\n**Requires JWT auth.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"first_name\": \"John\", \"last_name\": \"Doe\", \"nickname\": \"JD\" }"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"me"
+							]
+						},
+						"description": "Update user's profile (first/last name, nickname).\n\n**Requires JWT auth.**\n\n**Sample body:**\n```\n{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"nickname\": \"JD\"\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate Account",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/me/deactivate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"me",
+								"deactivate"
+							]
+						},
+						"description": "Deactivate the current user's account (soft delete, can be reactivated via support).\n\n**Requires JWT auth.**"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "List Transactions",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions?page=1&per_page=20&transaction_type=&category=&start_date=&end_date=&sort_by=date&sort_order=desc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "20"
+								},
+								{
+									"key": "transaction_type",
+									"value": ""
+								},
+								{
+									"key": "category",
+									"value": ""
+								},
+								{
+									"key": "start_date",
+									"value": ""
+								},
+								{
+									"key": "end_date",
+									"value": ""
+								},
+								{
+									"key": "sort_by",
+									"value": "date"
+								},
+								{
+									"key": "sort_order",
+									"value": "desc"
+								}
+							]
+						},
+						"description": "Get a paginated list of user's transactions (filter/sort by type, date, category, etc).\n\n**Requires JWT auth.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transaction",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Get a single transaction by ID.\n\n**Requires JWT auth.**\n\nSet the `:id` path variable to your transaction's UUID."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Transaction",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"transaction_type\": \"income\",\n  \"amount\": \"125.50\",\n  \"date\": \"2022-09-01\",\n  \"category\": \"Salary\",\n  \"merchant_name\": \"Company Inc.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions"
+							]
+						},
+						"description": "Create a new transaction for the user.\n\n**Requires JWT auth.**\n\nSample body:\n```\n{\n  \"transaction_type\": \"income\",\n  \"amount\": \"125.50\",\n  \"date\": \"2022-09-01\",\n  \"category\": \"Salary\",\n  \"merchant_name\": \"Company Inc.\"\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Transaction",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"transaction_type\": \"expense\",\n  \"amount\": \"18.00\",\n  \"date\": \"2022-09-02\",\n  \"category\": \"Lunch\",\n  \"merchant_name\": \"Cafe\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Update an existing transaction.\n\n**Requires JWT auth.**\nSet `:id` to transaction UUID.\nSample body:\n```\n{\n  \"transaction_type\": \"expense\",\n  \"amount\": \"18.00\",\n  \"date\": \"2022-09-02\",\n  \"category\": \"Lunch\",\n  \"merchant_name\": \"Cafe\"\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Transaction",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						},
+						"description": "Delete a user's transaction by ID.\n\n**Requires JWT auth.**"
+					},
+					"response": []
+				},
+				{
+					"name": "Transaction Summary",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/summary?start_date=2022-01-01&end_date=2022-12-31",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"summary"
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": "2022-01-01"
+								},
+								{
+									"key": "end_date",
+									"value": "2022-12-31"
+								}
+							]
+						},
+						"description": "Get summary stats for user's transactions.\n\n**Requires JWT auth.** Query params: `start_date`, `end_date`."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "README / How To Use",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/docs",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"docs"
+					]
+				},
+				"description": "Welcome to the Digital Finance Tracker API Postman Collection!\n\n**Setup:**\n\n- Set the `baseUrl` variable to your local/staging/prod server.\n    \n- For protected endpoints, set the `bearerToken` variable (copy your Auth0 JWT here).\n    \n\n**Key flows:**\n\n- Start with Auth endpoints to get a valid token.\n    \n- Test API health and connectivity with `/health` and `/api/test`.\n    \n- All error/success response formats follow a strict API contract (see descriptions).\n    \n\nContact the backend team with questions or for credentials.\n\nFull instructions available in the README.md within this folder."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000"
+		},
+		{
+			"key": "bearerToken",
+			"value": ""
+		}
+	]
+}

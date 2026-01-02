@@ -10,14 +10,14 @@ This folder contains Postman collections and environment files for API testing.
 
 **You can import the OpenAPI spec directly into Postman:**
 
-1. Start backend: `cd backend && flask run --port=5000`
+1. Start backend: `cd backend && flask run --port=8000`
 2. Open Postman → **Import** → **Link** tab
-3. Paste: `http://localhost:5000/api/docs/openapi.json`
+3. Paste: `http://localhost:8000/api/docs/openapi.json`
 4. All 17 requests auto-generated!
 
 ### View Endpoints in Swagger UI
 
-Open in browser: http://localhost:5000/api/docs
+Open in browser: http://localhost:8000/api/docs
 
 ---
 
@@ -80,7 +80,7 @@ Add header: `Authorization: Bearer {{access_token}}`
 
 ```json
 {
-    "base_url": "http://localhost:5000",
+    "base_url": "http://localhost:8000",
     "access_token": "",
     "user_id": "",
     "transaction_id": ""
@@ -91,6 +91,6 @@ Add header: `Authorization: Bearer {{access_token}}`
 
 ## 📚 Related Docs
 
-- **Swagger UI:** http://localhost:5000/api/docs
+- **Swagger UI:** http://localhost:8000/api/docs
 - **API Testing Guide:** `backend/docs/API_TESTING_GUIDE.md`
 - **Sprint 1 Guide:** `backend/docs/SPRINT1_IMPLEMENTATION_GUIDE.md`
