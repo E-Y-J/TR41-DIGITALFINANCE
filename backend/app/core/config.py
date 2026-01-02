@@ -54,7 +54,7 @@ class Auth0Config:
 
     domain: str
     api_audience: str
-    client_id: str= ""
+    client_id: str = ""
     algorithms: list = field(default_factory=lambda: ["RS256"])
 
     @property
