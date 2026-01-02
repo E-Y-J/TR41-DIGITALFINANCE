@@ -3,7 +3,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
-const TopBar = ({ drawerWidth, handleDrawerToggle }) => {
+const TopBar = ({ drawerWidth, handleMobileDrawerToggle }) => {
   return (
     <AppBar
       position="fixed"
@@ -22,7 +22,7 @@ const TopBar = ({ drawerWidth, handleDrawerToggle }) => {
         <IconButton
           color="inherit"
           edge="start"
-          onClick={handleDrawerToggle}
+          onClick={handleMobileDrawerToggle}
           sx={{ mr: 2, display: { sm: "none" } }}
         >
           <MenuIcon />

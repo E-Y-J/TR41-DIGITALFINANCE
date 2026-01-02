@@ -1,16 +1,22 @@
 import { useState } from "react";
-import { Box, Toolbar, Drawer, IconButton } from "@mui/material";
+import { Box, Toolbar, Drawer, IconButton, Button } from "@mui/material";
 import ChatIcon from "@mui/icons-material/Chat";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
+import ChatBubble from "../components/ChatBubble";
 
 const drawerWidth = 240;
 
 const DashboardLayout = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
 
-  const handleDrawerToggle = () => {
+  const handleMobileDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  const handleChatDrawerToggle = () => {
+    setChatDrawerOpen(!chatDrawerOpen);
   };
 
   return (
@@ -18,7 +24,7 @@ const DashboardLayout = ({ children }) => {
       {/* 1. The Top Bar */}
       <TopBar
         drawerWidth={drawerWidth}
-        handleDrawerToggle={handleDrawerToggle}
+        handleMobileDrawerToggle={handleMobileDrawerToggle}
       />
 
       {/* 2. The Navigation Drawer */}
@@ -30,7 +36,7 @@ const DashboardLayout = ({ children }) => {
         <Drawer
           variant="temporary"
           open={mobileOpen}
-          onClose={handleDrawerToggle}
+          onClose={handleMobileDrawerToggle}
           ModalProps={{ keepMounted: true }}
           sx={{
             display: { xs: "block", sm: "none" },
@@ -70,6 +76,13 @@ const DashboardLayout = ({ children }) => {
       >
         <Toolbar />
         {children}
+        <Button
+          variant="contained"
+          onClick={handleChatDrawerToggle}
+          sx={{ mt: 2 }}
+        >
+          {chatDrawerOpen ? "Close Chat Assistant" : "Open Chat Assistant"}
+        </Button>
         <Box
           sx={{
             position: "fixed",
@@ -79,7 +92,7 @@ const DashboardLayout = ({ children }) => {
         >
           <IconButton
             aria-label="chat-assistant"
-            onClick={() => alert("Chat clicked!")}
+            onClick={handleChatDrawerToggle}
             sx={{
               p: 1.5,
               backgroundColor: "primary.light",
@@ -100,6 +113,30 @@ const DashboardLayout = ({ children }) => {
             />
           </IconButton>
         </Box>
+        <Drawer
+          anchor="right"
+          variant="persistent"
+          open={chatDrawerOpen}
+          onClose={handleChatDrawerToggle}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            width: {
+              xs: drawerWidth,
+              sm: drawerWidth * 1.2,
+            },
+            flexShrink: 0,
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              borderRadius: "20px 0 0 20px",
+              width: {
+                xs: drawerWidth,
+                sm: drawerWidth * 1.2,
+              },
+            },
+          }}
+        >
+          <ChatBubble handleChatDrawerToggle={handleChatDrawerToggle} />
+        </Drawer>
       </Box>
     </Box>
   );
