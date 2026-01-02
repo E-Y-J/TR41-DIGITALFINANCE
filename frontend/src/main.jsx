@@ -21,7 +21,7 @@ createRoot(document.getElementById("root")).render(
           </Auth0ProviderWithNavigate>
         </ThemeProvider>
       </BrowserRouter>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   </StrictMode>
 );
