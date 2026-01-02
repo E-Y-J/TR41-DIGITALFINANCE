@@ -54,6 +54,7 @@ class Auth0Config:
 
     domain: str
     api_audience: str
+    client_id: str= ""
     algorithms: list = field(default_factory=lambda: ["RS256"])
 
     @property
@@ -242,6 +243,7 @@ class Config:
         self.auth0 = Auth0Config(
             domain=os.getenv("AUTH0_DOMAIN", ""),
             api_audience=os.getenv("AUTH0_API_AUDIENCE", ""),
+            client_id=os.getenv("AUTH0_CLIENT_ID", ""),
             algorithms=algorithms,
         )
 
