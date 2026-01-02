@@ -413,13 +413,13 @@ flask db upgrade
 flask run
 ```
 
-Server starts at `http://localhost:5000`
+Server starts at `http://localhost:8000`
 
 ### 8. Verify Installation
 
 ```bash
 # Health check
-curl http://localhost:5000/health
+curl http://localhost:8000/health
 
 # Expected response:
 # {"status": "healthy", "service": "digital-finance-api"}
