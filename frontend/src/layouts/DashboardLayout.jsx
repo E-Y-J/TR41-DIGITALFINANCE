@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Box, Toolbar, Drawer } from "@mui/material";
+import { Box, Toolbar, Drawer, IconButton } from "@mui/material";
+import ChatIcon from "@mui/icons-material/Chat";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 
@@ -69,6 +70,36 @@ const DashboardLayout = ({ children }) => {
       >
         <Toolbar />
         {children}
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 16,
+            right: 16,
+          }}
+        >
+          <IconButton
+            aria-label="chat-assistant"
+            onClick={() => alert("Chat clicked!")}
+            sx={{
+              p: 1.5,
+              backgroundColor: "primary.light",
+              "&:hover": {
+                backgroundColor: "primary.main",
+              },
+              boxShadow: 4,
+            }}
+          >
+            <ChatIcon
+              sx={{
+                color: "white",
+                fontSize: {
+                  xs: 20,
+                  sm: 30,
+                },
+              }}
+            />
+          </IconButton>
+        </Box>
       </Box>
     </Box>
   );
