@@ -262,7 +262,6 @@ class User(db.Model):
     @property
     def is_deactivated(self) -> bool:
         return self.account_status == AccountStatus.DEACTIVATED
-    
     # =========================================================================
     # METHODS
     # =========================================================================
