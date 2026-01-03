@@ -1,4 +1,4 @@
-"""Align account_status to lowercase and add 'deactivated'
+"""Align account_status to lowercase and add 'deactivated' (with column widening)
 
 Revision ID: 748571261c46
 Revises: 0ef6d8b45cc5
@@ -8,13 +8,14 @@ from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
-revision = '748571261c46'
-down_revision = '0ef6d8b45cc5'
+revision = "748571261c46"
+down_revision = "0ef6d8b45cc5"
 branch_labels = None
 depends_on = None
 
+
 def upgrade():
-    # Drop any existing CHECK constraint that references account_status
+    # 1) Drop any existing CHECK constraint that references account_status
     op.execute("""
     DO $$
     DECLARE
@@ -32,7 +33,10 @@ def upgrade():
     END$$;
     """)
 
-    # Normalize existing data to lowercase to satisfy the new constraint
+    # 2) Widen column to handle 'deactivated' (11 chars) with a bit of headroom
+    op.execute("ALTER TABLE users ALTER COLUMN account_status TYPE VARCHAR(12);")
+
+    # 3) Normalize existing data to lowercase to satisfy the new constraint
     op.execute("""
     UPDATE users
     SET account_status = CASE account_status
@@ -43,30 +47,34 @@ def upgrade():
     END;
     """)
 
-    # Add the new CHECK constraint with lowercase + 'deactivated'
+    # 4) Add the new CHECK constraint with lowercase + 'deactivated'
     op.execute("""
     ALTER TABLE users
     ADD CONSTRAINT ck_users_account_status_enum
     CHECK (account_status IN ('pending','active','suspended','deactivated'));
     """)
 
+
 def downgrade():
-    # Drop the lowercase constraint
+    # 1) Drop the lowercase constraint
     op.execute("ALTER TABLE users DROP CONSTRAINT IF EXISTS ck_users_account_status_enum;")
 
-    # Convert values back to uppercase to match the original initial migration
+    # 2) Convert values back to uppercase to match the original initial migration
     op.execute("""
     UPDATE users
     SET account_status = CASE account_status
         WHEN 'pending' THEN 'PENDING'
         WHEN 'active' THEN 'ACTIVE'
         WHEN 'suspended' THEN 'SUSPENDED'
-        WHEN 'deactivated' THEN 'SUSPENDED' -- fallback (no 'DEACTIVATED' in original)
+        WHEN 'deactivated' THEN 'SUSPENDED' -- fallback in original schema
         ELSE UPPER(account_status)
     END;
     """)
 
-    # Recreate the original CHECK constraint (uppercase values only)
+    # 3) Narrow column back to original length (VARCHAR(9))
+    op.execute("ALTER TABLE users ALTER COLUMN account_status TYPE VARCHAR(9);")
+
+    # 4) Recreate the original CHECK constraint (uppercase values only)
     op.execute("""
     ALTER TABLE users
     ADD CONSTRAINT ck_users_account_status_enum
