@@ -9,7 +9,6 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 
 const TopBar = ({ drawerWidth, handleMobileDrawerToggle }) => {
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
-
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
   const handleMobileMenuClose = () => {

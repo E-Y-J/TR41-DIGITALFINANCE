@@ -127,11 +127,13 @@ const DashboardLayout = ({ children }) => {
             flexShrink: 0,
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
-              borderRadius: "20px 0 0 20px",
+              borderRadius: "24px 0 0 24px",
               width: {
                 xs: drawerWidth,
                 sm: drawerWidth * 1.2,
               },
+              borderLeftWidth: "2px",
+              borderLeftColor: "divider",
             },
           }}
         >
