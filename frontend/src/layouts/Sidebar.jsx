@@ -157,7 +157,6 @@ const Sidebar = ({ handleLogout }) => {
           sx={{ height: 40, width: "auto" }}
         />
       </Box>
-      <Divider sx={{ mb: 2 }} />
 
       {/* Menu Items */}
       <Box sx={{ flexGrow: 1, overflowY: "auto", px: 0 }}>
@@ -179,7 +178,12 @@ const Sidebar = ({ handleLogout }) => {
       )}
 
       {isMobile && (
-        <>
+        <Box
+          sx={{
+            pb: 2,
+            paddingBottom: "calc(16px + env(safe-area-inset-bottom))",
+          }}
+        >
           <Divider sx={{ my: 2 }} />
           <Box sx={{ px: 3, mb: 1 }}>
             <Typography
@@ -196,7 +200,7 @@ const Sidebar = ({ handleLogout }) => {
               <NavItem key={item.text} {...item} />
             ))}
           </List>
-        </>
+        </Box>
       )}
     </Box>
   );
