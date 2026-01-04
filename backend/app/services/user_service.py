@@ -42,6 +42,7 @@ from app.utils.errors import (
     ValidationError,
     InternalError,
 )
+from app.models.enums import AccountStatus
 
 
 # =============================================================================
@@ -321,12 +322,12 @@ class UserService:
             InternalError: If operation fails
 
         Notes:
-            - Sets is_active to False
+            - Sets account_status to DEACTIVATED
             - User data is preserved (soft delete)
             - User cannot login after deactivation
         """
         try:
-            user.is_active = False
+            user.account_status = AccountStatus.DEACTIVATED
             db.session.commit()
             logger.info(f"Deactivated user: {user.auth0_id}")
             return user
@@ -351,7 +352,7 @@ class UserService:
             InternalError: If operation fails
         """
         try:
-            user.is_active = True
+            user.account_status = AccountStatus.ACTIVE
             db.session.commit()
             logger.info(f"Reactivated user: {user.auth0_id}")
             return user
@@ -385,7 +386,7 @@ class UserService:
         """
         user = cls.get_by_auth0_id(auth0_id)
 
-        if not user.is_active:
+        if user.account_status == AccountStatus.DEACTIVATED:
             raise ValidationError("Account is deactivated")
 
         return user

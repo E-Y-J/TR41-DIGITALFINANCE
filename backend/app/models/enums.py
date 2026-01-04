@@ -51,6 +51,7 @@ class AccountStatus(enum.Enum):
     PENDING = "pending"
     ACTIVE = "active"
     SUSPENDED = "suspended"
+    DEACTIVATED = "deactivated"
 
 
 class UserRole(enum.Enum):

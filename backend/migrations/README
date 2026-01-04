@@ -1,1 +1,74 @@
-Single-database configuration for Flask.
+# Database Migrations
+
+Alembic + Flask-Migrate for a single PostgreSQL database.
+
+## Requirements
+- PostgreSQL (migrations use Postgres-specific SQL: `DO $$ ... $$`)
+- venv activated
+- `FLASK_APP=app:create_app`
+- Valid `.env` (KEY=VALUE lines; no `export`, no inline comments)
+
+## Common Commands
+- Create revision (empty): `flask db revision -m "message"`
+- Autogenerate (when safe): `flask db migrate -m "message"`
+- Apply: `flask db upgrade`
+- Downgrade: `flask db downgrade <rev>`
+- Show: `flask db current`, `flask db history`
+
+## Recent Change (2026-01-03)
+
+Revision: `748571261c46`  
+Title: Align account_status to lowercase and add 'deactivated' (with column widening)
+
+What it does:
+- Widen `users.account_status` to `VARCHAR(12)` (fits `deactivated`)
+- Normalize existing values to lowercase (`PENDING`→`pending`, etc.)
+- Recreate CHECK constraint:
+  - `CHECK (account_status IN ('pending','active','suspended','deactivated'))`
+
+Why:
+- Python enum uses lowercase string values; DB must store lowercase and allow `deactivated`.
+
+Model alignment (app/models/user.py):
+```python
+Enum(
+    AccountStatus,
+    name="account_status_enum",
+    native_enum=False,
+    values_callable=lambda obj: [e.value for e in obj],
+    validate_strings=True,
+)
+```
+
+## How to Apply
+1) Ensure venv and `FLASK_APP` are set  
+2) Run: `flask db upgrade`
+
+## Quick Verification
+- Distinct values:
+  ```sql
+  SELECT DISTINCT account_status FROM users;
+  ```
+- Column length:
+  ```sql
+  SELECT character_maximum_length
+  FROM information_schema.columns
+  WHERE table_name='users' AND column_name='account_status';
+  -- Expect 12
+  ```
+- Constraint:
+  ```sql
+  SELECT pg_get_constraintdef(oid)
+  FROM pg_constraint
+  WHERE conname='ck_users_account_status_enum';
+  ```
+
+## Troubleshooting (fast)
+- syntax error near "DO": using SQLite; switch to PostgreSQL
+- check constraint violated: data not normalized; ensure revision `748571261c46` ran
+- value too long for character varying(9): widening didn’t apply; re-run upgrade
+- 'pending' not among enum values: ensure model uses `values_callable` as above
+
+## History (excerpt)
+- `0ef6d8b45cc5`: Initial schema
+- `748571261c46`: Lowercase enum values, add `deactivated`, widen column, update CHECK

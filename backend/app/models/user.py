@@ -168,11 +168,17 @@ class User(db.Model):
     # =========================================================================
 
     account_status: Mapped[AccountStatus] = mapped_column(
-        Enum(AccountStatus, name="account_status_enum", native_enum=False),
+        Enum(
+            AccountStatus,
+            name="account_status_enum",
+            native_enum=False,
+            values_callable=lambda obj: [e.value for e in obj],  # map to lowercase values
+            validate_strings=True,
+        ),
         default=AccountStatus.PENDING,
         nullable=False,
         index=True,
-        doc="Account status: pending, active, or suspended",
+        doc="Account status: pending, active, suspended, or deactivated",
     )
 
     role: Mapped[UserRole] = mapped_column(
@@ -253,6 +259,15 @@ class User(db.Model):
         """
         return self.account_status == AccountStatus.ACTIVE
 
+    @property
+    def is_deactivated(self) -> bool:
+        """
+        Check if user account is deactivated.
+
+        Returns:
+            True if account_status is DEACTIVATED, False otherwise
+        """
+        return self.account_status == AccountStatus.DEACTIVATED
     # =========================================================================
     # METHODS
     # =========================================================================

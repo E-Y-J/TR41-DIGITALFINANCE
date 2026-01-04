@@ -846,7 +846,7 @@ Error responses:
                     "picture": {"type": "string", "format": "uri", "nullable": True},
                     "account_status": {
                         "type": "string",
-                        "enum": ["pending", "active", "suspended"],
+                        "enum": ["pending", "active", "suspended", "deactivated"],
                     },
                     "role": {"type": "string", "enum": ["user", "admin"]},
                     "salary_amount": {
