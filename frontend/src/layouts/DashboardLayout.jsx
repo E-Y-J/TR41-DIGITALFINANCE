@@ -11,7 +11,7 @@ import {
 import ChatIcon from "@mui/icons-material/Chat";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
-import ChatBubble from "../components/ChatBubble";
+import ChatBubble from "../components//dashboard/Chat";
 import PageLoader from "../components/PageLoader";
 
 const drawerWidth = 240;
@@ -150,6 +150,7 @@ const DashboardLayout = ({ children }) => {
               width: {
                 xs: drawerWidth,
                 sm: drawerWidth * 1.2,
+                md: drawerWidth * 1.4,
               },
               borderLeftWidth: "2px",
               borderLeftColor: "divider",
