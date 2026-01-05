@@ -1,15 +1,33 @@
 import { useState } from "react";
-import { Box, Toolbar, Drawer, IconButton, Button } from "@mui/material";
+import { useAuth0 } from "@auth0/auth0-react";
+import {
+  Box,
+  Toolbar,
+  Drawer,
+  IconButton,
+  Button,
+  Backdrop,
+} from "@mui/material";
 import ChatIcon from "@mui/icons-material/Chat";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
-import ChatBubble from "../components/dashboard/Chat";
+import ChatBubble from "../components//dashboard/Chat";
+import PageLoader from "../components/PageLoader";
 
 const drawerWidth = 240;
 
 const DashboardLayout = ({ children }) => {
+  const { logout } = useAuth0();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
+  const [isGlobalLoading, setIsGlobalLoading] = useState(false);
+
+  const handleLogout = () => {
+    setIsGlobalLoading(true);
+    setTimeout(() => {
+      logout({ logoutParams: { returnTo: window.location.origin } });
+    }, 500);
+  };
 
   const handleMobileDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -25,6 +43,7 @@ const DashboardLayout = ({ children }) => {
       <TopBar
         drawerWidth={drawerWidth}
         handleMobileDrawerToggle={handleMobileDrawerToggle}
+        handleLogout={handleLogout}
       />
 
       {/* 2. The Navigation Drawer */}
@@ -46,7 +65,7 @@ const DashboardLayout = ({ children }) => {
             },
           }}
         >
-          <Sidebar />
+          <Sidebar handleLogout={handleLogout} />
         </Drawer>
 
         {/* Desktop Drawer */}
@@ -141,6 +160,16 @@ const DashboardLayout = ({ children }) => {
           <ChatBubble handleChatDrawerToggle={handleChatDrawerToggle} />
         </Drawer>
       </Box>
+      <Backdrop
+        sx={{
+          color: "#fff",
+          zIndex: (theme) => theme.zIndex.drawer + 999,
+          backgroundColor: "rgba(255, 255, 255, 0.8)",
+        }}
+        open={isGlobalLoading}
+      >
+        <PageLoader />
+      </Backdrop>
     </Box>
   );
 };
