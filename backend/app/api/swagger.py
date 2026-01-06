@@ -58,7 +58,7 @@ Authorization: Bearer <access_token>
 ```
 
 ### Response Format
-All responses follow a standard format:
+Most API endpoints follow a standard format:
 ```json
 {
     "success": true,
@@ -101,7 +101,7 @@ Error responses:
             "get": {
                 "tags": ["Health"],
                 "summary": "API Root",
-                "description": "Get API information and status",
+                "description": "Get API information and status. Note: This endpoint returns an unwrapped object (no success/data/message). ",
                 "responses": {
                     "200": {
                         "description": "API information",
@@ -138,7 +138,7 @@ Error responses:
             "get": {
                 "tags": ["Health"],
                 "summary": "Health Check",
-                "description": "Check if the service is healthy",
+                "description": "Check if the service is healthy. Note: This endpoint returns an unwrapped object (no success/data/message).",
                 "responses": {
                     "200": {
                         "description": "Service is healthy",
