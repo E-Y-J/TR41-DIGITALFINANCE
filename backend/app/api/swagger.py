@@ -228,14 +228,7 @@ Error responses:
                             }
                         },
                     },
-                    "401": {
-                        "description": "Unauthorized - Invalid or missing token",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
-                            }
-                        },
-                    },
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
                 },
             }
         },
@@ -254,14 +247,7 @@ Error responses:
                             }
                         },
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
-                            }
-                        },
-                    },
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
                 },
             }
         },
@@ -342,14 +328,7 @@ Error responses:
                             }
                         },
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
-                            }
-                        },
-                    },
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
                 },
             },
             "patch": {
@@ -382,14 +361,7 @@ Error responses:
                             }
                         },
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
-                            }
-                        },
-                    },
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
                 },
             },
         },
@@ -410,14 +382,7 @@ Error responses:
                             }
                         },
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
-                            }
-                        },
-                    },
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
                 },
             },
             "patch": {
@@ -452,14 +417,7 @@ Error responses:
                             }
                         },
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
-                            }
-                        },
-                    },
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
                 },
             },
         },
@@ -487,14 +445,7 @@ Error responses:
                             }
                         },
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
-                            }
-                        },
-                    },
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
                 },
             }
         },
@@ -573,14 +524,7 @@ Error responses:
                             }
                         },
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
-                            }
-                        },
-                    },
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
                 },
             },
             "post": {
@@ -615,14 +559,7 @@ Error responses:
                             }
                         },
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
-                            }
-                        },
-                    },
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
                 },
             },
         },
@@ -652,14 +589,7 @@ Error responses:
                             }
                         },
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
-                            }
-                        },
-                    },
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
                     "404": {
                         "description": "Transaction not found",
                         "content": {
@@ -711,14 +641,7 @@ Error responses:
                             }
                         },
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
-                            }
-                        },
-                    },
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
                     "404": {
                         "description": "Transaction not found",
                         "content": {
@@ -758,14 +681,7 @@ Error responses:
                             }
                         },
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
-                            }
-                        },
-                    },
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
                     "404": {
                         "description": "Transaction not found",
                         "content": {
@@ -808,14 +724,7 @@ Error responses:
                             }
                         },
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
-                            }
-                        },
-                    },
+                    "401": {"$ref": "#/components/responses/UnauthorizedError"},
                 },
             }
         },
@@ -829,6 +738,79 @@ Error responses:
                 "description": "Auth0 JWT access token",
             }
         },
+        "responses": {
+        "UnauthorizedError": {
+            "description": "Unauthorized - missing or invalid token",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/ErrorResponse"},
+                    "examples": {
+                        "authorization_header_missing": {
+                            "summary": "Authorization header missing",
+                            "value": {
+                                "error": {
+                                    "code": "UNAUTHORIZED",
+                                    "message": "Authorization header missing"
+                                },
+                                "success": False
+                            }
+                        },
+                        "invalid_token": {
+                            "summary": "Invalid or expired token",
+                            "value": {
+                                "error": {
+                                    "code": "UNAUTHORIZED",
+                                    "message": "Invalid or expired token"
+                                },
+                                "success": False
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "ValidationError": {
+            "description": "Validation error - bad request payload or params",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/ErrorResponse"},
+                    "examples": {
+                        "invalid_payload": {
+                            "summary": "Invalid payload",
+                            "value": {
+                                "error": {
+                                    "code": "VALIDATION_ERROR",
+                                    "message": "One or more fields are invalid",
+                                    "details": {"field": "reason"}
+                                },
+                                "success": False
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "NotFoundError": {
+            "description": "Resource not found",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/ErrorResponse"},
+                    "examples": {
+                        "not_found": {
+                            "summary": "Entity not found",
+                            "value": {
+                                "error": {
+                                    "code": "NOT_FOUND",
+                                    "message": "Resource not found"
+                                },
+                                "success": False
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
         "schemas": {
             "User": {
                 "type": "object",
