@@ -67,6 +67,10 @@ Most API endpoints follow a standard format:
 }
 ```
 
+### Special Cases
+**Exceptions**:
+- "/" and "/health" return unwrapped objects (no success/data/message).
+
 Error responses:
 ```json
 {
