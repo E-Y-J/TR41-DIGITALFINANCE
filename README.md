@@ -57,3 +57,30 @@ Potentially Docker
     -   [Ariel Resendiz]()
 -   Cybersecurity Specialist:
     -   [Monira Lizu]()
+-   Data Analyst:
+    -   [Trey Beckford]()
+
+   
+## Frontend Run Dev Instructions
+1. Add .env file in the `frontend` directory with the following variables:
+
+    ```env
+    VITE_AUTH0_DOMAIN=******.auth0.com
+    VITE_AUTH0_CLIENT_ID=******
+    ```
+
+2.  Navigate to the `frontend` directory:
+
+    ```bash
+    cd frontend
+    ```
+3.  Install the required dependencies using npm or yarn:
+
+    ```bash
+    npm install
+    ```
+4.  Start the development server:
+
+    ```bash 
+    npm run dev
+    ```
