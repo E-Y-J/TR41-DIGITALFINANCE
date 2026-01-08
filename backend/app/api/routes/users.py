@@ -27,13 +27,14 @@ Response Format:
 """
 
 import logging
-from flask import Blueprint, request, g, jsonify
+from flask import Blueprint, request, g
 
 from app.auth.decorators import requires_auth
 from app.auth.user_sync import sync_user_from_claims
 from app.services.user_service import UserService
 from app.schemas.user_schema import user_schema
 from app.utils.errors import ValidationError
+from app.utils.helpers import success_response
 
 
 # =============================================================================
@@ -48,34 +49,6 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 
 bp = Blueprint("users", __name__)
-
-
-# =============================================================================
-# HELPER FUNCTIONS
-# =============================================================================
-
-
-def success_response(data=None, message="Success", status_code=200):
-    """
-    Create a standardized success response.
-
-    Args:
-        data: Response data (will be included in 'data' field)
-        message: Success message
-        status_code: HTTP status code
-
-    Returns:
-        Tuple of (response_dict, status_code)
-    """
-    response = {
-        "success": True,
-        "message": message,
-    }
-
-    if data is not None:
-        response["data"] = data
-
-    return jsonify(response), status_code
 
 
 # =============================================================================

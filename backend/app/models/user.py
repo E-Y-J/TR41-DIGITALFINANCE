@@ -55,7 +55,8 @@ from app.models.enums import AccountStatus, UserRole
 
 if TYPE_CHECKING:
     from app.models.transaction import Transaction
-
+    from app.models.notification import Notification
+    from app.models.alert import Alert
 
 # =============================================================================
 # USER MODEL
@@ -172,7 +173,9 @@ class User(db.Model):
             AccountStatus,
             name="account_status_enum",
             native_enum=False,
-            values_callable=lambda obj: [e.value for e in obj],  # map to lowercase values
+            values_callable=lambda obj: [
+                e.value for e in obj
+            ],  # map to lowercase values
             validate_strings=True,
         ),
         default=AccountStatus.PENDING,
@@ -235,6 +238,24 @@ class User(db.Model):
         cascade="all, delete-orphan",
     )
 
+    # One User can have many Notifications (1:N relationship)
+    # For notification system
+    notifications: Mapped[list["Notification"]] = relationship(
+        "Notification",
+        back_populates="user",
+        lazy="dynamic",
+        cascade="all, delete-orphan",
+    )
+
+    # One User can have many Alerts (1:N relationship)
+    # For anomaly detection alerts
+    alerts: Mapped[list["Alert"]] = relationship(
+        "Alert",
+        back_populates="user",
+        lazy="dynamic",
+        cascade="all, delete-orphan",
+    )
+
     # =========================================================================
     # PROPERTIES
     # =========================================================================
@@ -268,6 +289,7 @@ class User(db.Model):
             True if account_status is DEACTIVATED, False otherwise
         """
         return self.account_status == AccountStatus.DEACTIVATED
+
     # =========================================================================
     # METHODS
     # =========================================================================

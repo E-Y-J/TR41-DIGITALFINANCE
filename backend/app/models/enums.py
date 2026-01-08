@@ -95,11 +95,200 @@ class TransactionType(enum.Enum):
 
 
 # =============================================================================
+# CATEGORY ENUMS
+# =============================================================================
+
+
+class CategoryType(enum.Enum):
+    """
+    Category transaction type association.
+
+    Indicates what type of transactions a category applies to.
+
+    Values:
+        INCOME: Category only for income transactions (e.g., Salary)
+        EXPENSE: Category only for expense transactions (e.g., Food & Dining)
+        BOTH: Category can be either (e.g., Unknown)
+
+    AI Categorization:
+        Used to match categories to transaction types.
+
+    Example:
+        >>> category.category_type = CategoryType.EXPENSE
+        >>> category.category_type.value
+        'expense'
+    """
+
+    INCOME = "income"
+    EXPENSE = "expense"
+    BOTH = "both"
+
+
+# =============================================================================
+# NOTIFICATION ENUMS
+# =============================================================================
+
+
+class NotificationStatus(enum.Enum):
+    """
+    Notification read status enumeration.
+
+    Values:
+        UNREAD: Notification has not been read
+        READ: Notification has been read
+
+    Notification System:
+        Used to track which notifications user has seen.
+
+    Example:
+        >>> notification.status = NotificationStatus.UNREAD
+        >>> notification.status.value
+        'unread'
+    """
+
+    UNREAD = "unread"
+    READ = "read"
+
+
+class NotificationType(enum.Enum):
+    """
+    Notification type enumeration.
+
+    Defines the 6 core notification types for the application.
+
+    Values:
+        DEFAULT: Generic/system notification
+        NEW_TRANSACTION: Transaction created notification
+        DELETED_TRANSACTION: Transaction deleted notification
+        EDITED_PROFILE: Profile updated notification
+        WEEKLY_SUMMARY_READY: Weekly AI summary available
+        CATEGORY_UPDATED: AI re-categorized a transaction
+
+    Notification System:
+        Types requested by frontend team for notification UI.
+
+    Example:
+        >>> notification.type = NotificationType.NEW_TRANSACTION
+        >>> notification.type.value
+        'new_transaction'
+    """
+
+    DEFAULT = "default"
+    NEW_TRANSACTION = "new_transaction"
+    DELETED_TRANSACTION = "deleted_transaction"
+    EDITED_PROFILE = "edited_profile"
+    WEEKLY_SUMMARY_READY = "weekly_summary_ready"
+    CATEGORY_UPDATED = "category_updated"
+
+
+class AISource(enum.Enum):
+    """
+    AI categorization source enumeration.
+
+    Tracks which system assigned the category to a transaction.
+
+    Values:
+        KEYWORD: Category assigned by keyword matching (rule-based)
+        HUGGINGFACE: Category assigned by HuggingFace model
+        GEMINI: Category assigned by Gemini API (fallback)
+        USER: Category manually set by user (override)
+
+    AI Categorization:
+        KEYWORD is for rule-based matching (no AI needed).
+        HUGGINGFACE/GEMINI track which AI model was used.
+        USER indicates manual override by user.
+
+    Example:
+        >>> transaction.ai_source = AISource.KEYWORD
+        >>> transaction.ai_source.value
+        'keyword'
+    """
+
+    KEYWORD = "keyword"
+    HUGGINGFACE = "huggingface"
+    GEMINI = "gemini"
+    USER = "user"
+
+
+# =============================================================================
+# ALERT ENUMS (Foundation)
+# =============================================================================
+
+
+class AlertType(enum.Enum):
+    """
+    Alert type enumeration.
+
+    Defines types of financial alerts the system can generate.
+
+    Values:
+        HIGH_SPENDING: Spending exceeds baseline in a category
+        LARGE_TRANSACTION: Single transaction exceeds threshold
+        UNUSUAL_CATEGORY: Spending in unusual category for user
+        BUDGET_WARNING: Approaching budget limit
+        BUDGET_EXCEEDED: Budget exceeded
+
+    Alert System:
+        Foundation for anomaly detection. Detection logic in alert_service.
+
+    Example:
+        >>> alert.alert_type = AlertType.HIGH_SPENDING
+        >>> alert.alert_type.value
+        'high_spending'
+    """
+
+    HIGH_SPENDING = "high_spending"
+    LARGE_TRANSACTION = "large_transaction"
+    UNUSUAL_CATEGORY = "unusual_category"
+    BUDGET_WARNING = "budget_warning"
+    BUDGET_EXCEEDED = "budget_exceeded"
+
+
+class AlertSeverity(enum.Enum):
+    """
+    Alert severity level enumeration.
+
+    Indicates urgency/importance of an alert.
+
+    Values:
+        LOW: Informational, minor anomaly
+        MEDIUM: Notable, should review
+        HIGH: Significant, requires attention
+        CRITICAL: Urgent, potential issue
+
+    Alert System:
+        Foundation for anomaly detection UI styling.
+
+    Example:
+        >>> alert.severity = AlertSeverity.MEDIUM
+        >>> alert.severity.value
+        'medium'
+    """
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+# =============================================================================
 # MODULE EXPORTS
 # =============================================================================
 
 __all__ = [
+    # User enums
     "AccountStatus",
     "UserRole",
+    # Transaction enums
     "TransactionType",
+    # Category enums
+    "CategoryType",
+    # Notification enums
+    "NotificationStatus",
+    "NotificationType",
+    # AI enums
+    "AISource",
+    # Alert enums (Foundation)
+    "AlertType",
+    "AlertSeverity",
 ]

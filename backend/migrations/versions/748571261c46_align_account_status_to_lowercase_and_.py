@@ -4,6 +4,7 @@ Revision ID: 748571261c46
 Revises: 0ef6d8b45cc5
 Create Date: 2026-01-02 22:28:46.813452
 """
+
 from alembic import op
 
 # revision identifiers, used by Alembic.
@@ -56,7 +57,9 @@ def upgrade():
 
 def downgrade():
     # 1) Drop the lowercase constraint
-    op.execute("ALTER TABLE users DROP CONSTRAINT IF EXISTS ck_users_account_status_enum;")
+    op.execute(
+        "ALTER TABLE users DROP CONSTRAINT IF EXISTS ck_users_account_status_enum;"
+    )
 
     # 2) Convert values back to uppercase to match the original initial migration
     op.execute("""

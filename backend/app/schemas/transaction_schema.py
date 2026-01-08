@@ -50,6 +50,10 @@ class TransactionSchema(BaseSchema):
     Includes all transaction fields.
     Used for responses to authenticated requests.
 
+    AI Categorization Fields:
+        Added category_id, ai_confidence, ai_source, is_user_override
+        to support intelligent transaction categorization.
+
     Example Response:
         {
             "id": "uuid-string",
@@ -59,6 +63,11 @@ class TransactionSchema(BaseSchema):
             "date": "2024-01-15",
             "merchant_name": "Amazon",
             "category": "Shopping",
+            "category_id": "category-uuid",
+            "category_obj": {"id": "...", "name": "Shopping & Retail"},
+            "ai_confidence": 0.95,
+            "ai_source": "huggingface",
+            "is_user_override": false,
             "created_at": "2024-01-15T10:30:00Z",
             "updated_at": "2024-01-15T10:30:00Z"
         }
@@ -92,10 +101,52 @@ class TransactionSchema(BaseSchema):
         metadata={"description": "Merchant or payee name"},
     )
 
+    # Legacy category field (deprecated, kept for backward compatibility)
     category = fields.String(
         dump_only=True,
         allow_none=True,
-        metadata={"description": "Transaction category"},
+        metadata={"description": "[DEPRECATED] Transaction category string"},
+    )
+
+    # =========================================================================
+    # AI CATEGORIZATION FIELDS
+    # =========================================================================
+
+    category_id = fields.UUID(
+        dump_only=True,
+        allow_none=True,
+        metadata={"description": "Category ID (foreign key to categories table)"},
+    )
+
+    category_obj = fields.Dict(
+        keys=fields.String(),
+        values=fields.Raw(),
+        dump_only=True,
+        allow_none=True,
+        metadata={"description": "Category object with id and name"},
+    )
+
+    ai_confidence = fields.Float(
+        dump_only=True,
+        allow_none=True,
+        metadata={"description": "AI confidence score (0.0 to 1.0)"},
+    )
+
+    ai_source = fields.String(
+        dump_only=True,
+        allow_none=True,
+        metadata={"description": "Source: huggingface, gemini, or user"},
+    )
+
+    is_user_override = fields.Boolean(
+        dump_only=True,
+        metadata={"description": "True if user overrode AI's category"},
+    )
+
+    original_category_id = fields.UUID(
+        dump_only=True,
+        allow_none=True,
+        metadata={"description": "AI's original category suggestion (before override)"},
     )
 
     # Timestamps
@@ -121,13 +172,18 @@ class TransactionCreateSchema(BaseSchema):
     """
     Schema for validating transaction create requests.
 
+    Category Assignment:
+        Added category_id field for explicit category assignment.
+        When category_id is not provided, AI will auto-categorize.
+
     Example Request:
         {
             "amount": "125.50",
             "transaction_type": "expense",
             "date": "2024-01-15",
             "merchant_name": "Amazon",
-            "category": "Shopping"
+            "category": "Shopping",
+            "category_id": "uuid-string"  // Optional
         }
     """
 
@@ -156,10 +212,19 @@ class TransactionCreateSchema(BaseSchema):
         metadata={"description": "Merchant or payee name"},
     )
 
+    # Legacy category field (kept for backward compatibility)
     category = fields.String(
         load_default=None,
         validate=validate.Length(max=100),
-        metadata={"description": "Transaction category"},
+        metadata={"description": "[DEPRECATED] Transaction category string"},
+    )
+
+    # Category ID for explicit category assignment
+    category_id = fields.UUID(
+        load_default=None,
+        metadata={
+            "description": "Category ID (optional, AI will assign if not provided)"
+        },
     )
 
     @validates("amount")

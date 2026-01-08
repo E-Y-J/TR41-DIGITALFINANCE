@@ -45,15 +45,16 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional, Dict, Any, TYPE_CHECKING
 
-from sqlalchemy import String, DateTime, Numeric, Enum, ForeignKey
+from sqlalchemy import String, Boolean, DateTime, Numeric, Float, Enum, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.extensions import db
-from app.models.enums import TransactionType
+from app.models.enums import TransactionType, AISource
 
 if TYPE_CHECKING:
     from app.models.user import User
+    from app.models.category import Category
 
 
 # =============================================================================
@@ -150,11 +151,62 @@ class Transaction(db.Model):
         doc="Name of merchant or payee",
     )
 
+    # -------------------------------------------------------------------------
+    # LEGACY FIELD - Keep for backward compatibility during migration
+    # This field is deprecated in favor of category_id foreign key
+    # Will be removed in future migration after data migration complete
+    # -------------------------------------------------------------------------
     category: Mapped[Optional[str]] = mapped_column(
         String(100),
         nullable=True,
         index=True,
-        doc="Transaction category",
+        doc="[DEPRECATED] Transaction category string - use category_id instead",
+    )
+
+    # =========================================================================
+    # AI CATEGORIZATION FIELDS
+    # =========================================================================
+    # These fields support the AI categorization feature:
+    # - category_id: Links to categories table
+    # - ai_confidence: AI's confidence score (0.0 to 1.0)
+    # - ai_source: Which AI system assigned the category
+    # - is_user_override: Did user manually override AI's suggestion?
+    # - original_category_id: What AI originally suggested (before override)
+    # =========================================================================
+
+    category_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("categories.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+        doc="Foreign key to categories table",
+    )
+
+    ai_confidence: Mapped[Optional[float]] = mapped_column(
+        Float,
+        nullable=True,
+        doc="AI confidence score (0.0 to 1.0). NULL if user-assigned.",
+    )
+
+    ai_source: Mapped[Optional[AISource]] = mapped_column(
+        Enum(AISource, name="ai_source_enum", native_enum=False),
+        nullable=True,
+        index=True,
+        doc="Source of categorization: huggingface, gemini, or user",
+    )
+
+    is_user_override: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        doc="True if user manually overrode AI's category suggestion",
+    )
+
+    original_category_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("categories.id", ondelete="SET NULL"),
+        nullable=True,
+        doc="AI's original suggestion before user override",
     )
 
     # =========================================================================
@@ -183,8 +235,12 @@ class Transaction(db.Model):
     __table_args__ = (
         # Composite index for user + date queries (e.g., monthly reports)
         db.Index("idx_transaction_user_date", "user_id", "date"),
-        # Composite index for user + category queries
+        # Composite index for user + category queries (legacy)
         db.Index("idx_transaction_user_category", "user_id", "category"),
+        # Composite index for user + category_id queries
+        db.Index("idx_transaction_user_category_id", "user_id", "category_id"),
+        # Composite index for user + ai_source queries
+        db.Index("idx_transaction_user_ai_source", "user_id", "ai_source"),
     )
 
     # =========================================================================
@@ -195,6 +251,22 @@ class Transaction(db.Model):
     user: Mapped["User"] = relationship(
         "User",
         back_populates="transactions",
+    )
+
+    # Many Transactions belong to one Category (N:1 relationship)
+    # Links to categories table for AI categorization
+    category_rel: Mapped[Optional["Category"]] = relationship(
+        "Category",
+        back_populates="transactions",
+        foreign_keys=[category_id],
+    )
+
+    # Original category before user override (N:1 relationship)
+    # Tracks what AI originally suggested
+    original_category_rel: Mapped[Optional["Category"]] = relationship(
+        "Category",
+        back_populates="original_transactions",
+        foreign_keys=[original_category_id],
     )
 
     # =========================================================================
@@ -221,18 +293,42 @@ class Transaction(db.Model):
                 "transaction_type": "expense",
                 ...
             }
+
+        Includes:
+            Added category object with id/name, ai_confidence, ai_source,
+            is_user_override, and original_category fields.
         """
-        return {
+        result = {
             "id": str(self.id),
             "user_id": str(self.user_id),
             "amount": str(self.amount),
             "transaction_type": self.transaction_type.value,
             "date": self.date,
             "merchant_name": self.merchant_name,
+            # Legacy category string (deprecated)
             "category": self.category,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            # AI categorization fields
+            "category_id": str(self.category_id) if self.category_id else None,
+            "ai_confidence": self.ai_confidence,
+            "ai_source": self.ai_source.value if self.ai_source else None,
+            "is_user_override": self.is_user_override,
+            "original_category_id": (
+                str(self.original_category_id) if self.original_category_id else None
+            ),
         }
+
+        # Include category object if relationship is loaded
+        if self.category_rel:
+            result["category_obj"] = {
+                "id": str(self.category_rel.id),
+                "name": self.category_rel.name,
+            }
+        else:
+            result["category_obj"] = None
+
+        return result
 
     # =========================================================================
     # CLASS METHODS

@@ -230,28 +230,42 @@ class TransactionService:
     @classmethod
     def create_transaction(cls, user: User, data: Dict[str, Any]) -> Transaction:
         """
-        Create a new transaction for a user.
+        Create a new transaction for a user with auto-categorization.
+
+        Includes auto-categorization via keyword matching.
+        If merchant_name is provided and no category_id is given,
+        the system will attempt to auto-categorize the transaction.
+
+        CATEGORIZATION FLOW:
+        1. If category_id provided -> use that category
+        2. Else if merchant_name provided -> auto-categorize via keywords
+        3. If no match -> assign "Unknown" category
 
         Args:
             user: User instance (owner)
             data: Transaction data from request
 
         Returns:
-            Created Transaction instance
+            Created Transaction instance with category assigned
 
         Raises:
             ValidationError: If data fails validation
             InternalError: If database operation fails
 
         Example:
+            >>> # Auto-categorized by keyword
             >>> transaction = TransactionService.create_transaction(user, {
             ...     "amount": "50.00",
             ...     "transaction_type": "expense",
             ...     "date": "2025-12-19",
-            ...     "merchant_name": "Grocery Store",
-            ...     "category": "Food"
+            ...     "merchant_name": "Starbucks Coffee"
             ... })
+            >>> print(transaction.category_rel.name)  # "Food & Dining"
         """
+        # Import here to avoid circular imports
+        from app.services.category_service import CategoryService
+        from app.models.enums import AISource
+
         # Validate input
         errors = transaction_create_schema.validate(data)
         if errors:
@@ -264,20 +278,55 @@ class TransactionService:
             # Convert transaction_type string to enum
             tx_type = TransactionType(validated["transaction_type"].lower())
 
-            # Create transaction
+            # =================================================================
+            # Auto-categorization
+            # =================================================================
+            category_id = validated.get("category_id")
+            ai_confidence = None
+            ai_source = None
+
+            if category_id:
+                # User explicitly provided category_id - use it
+                ai_source = AISource.USER
+                ai_confidence = 1.0
+            elif validated.get("merchant_name"):
+                # Try auto-categorization by keyword
+                category, confidence, source = CategoryService.auto_categorize(
+                    validated["merchant_name"]
+                )
+                category_id = category.id
+                ai_confidence = confidence
+
+                # Map source string to enum
+                if source == "keyword":
+                    ai_source = AISource.KEYWORD
+                elif source == "huggingface":
+                    ai_source = AISource.HUGGINGFACE
+                elif source == "gemini":
+                    ai_source = AISource.GEMINI
+                # else: source == "unknown", ai_source stays None
+
+            # Create transaction with auto-categorization data
             transaction = Transaction(
                 user_id=user.id,
                 amount=Decimal(str(validated["amount"])),
                 transaction_type=tx_type,
                 date=validated["date"],
                 merchant_name=validated.get("merchant_name"),
-                category=validated.get("category"),
+                category=validated.get("category"),  # Legacy field (deprecated)
+                # AI categorization fields
+                category_id=category_id,
+                ai_confidence=ai_confidence,
+                ai_source=ai_source,
             )
 
             db.session.add(transaction)
             db.session.commit()
 
-            logger.info(f"Created transaction {transaction.id} for user {user.id}")
+            logger.info(
+                f"Created transaction {transaction.id} for user {user.id}, "
+                f"category_id={category_id}, source={ai_source}"
+            )
             return transaction
 
         except Exception as e:
@@ -455,6 +504,81 @@ class TransactionService:
         summary["net_balance"] = summary["total_income"] - summary["total_expense"]
 
         return summary
+
+    # =========================================================================
+    # CATEGORY OVERRIDE
+    # =========================================================================
+
+    @classmethod
+    def update_category(
+        cls,
+        user: User,
+        transaction_id: UUID,
+        category_id: UUID,
+    ) -> Transaction:
+        """
+        Update a transaction's category (user override).
+
+        Allows users to manually correct AI-assigned categories.
+        Stores the original category for analytics purposes.
+
+        WHAT HAPPENS:
+        1. Store current category as original_category_id (if not already overridden)
+        2. Set new category_id
+        3. Set is_user_override = True
+        4. Set ai_source = USER
+
+        Args:
+            user: User instance (owner)
+            transaction_id: Transaction's UUID
+            category_id: New category UUID to assign
+
+        Returns:
+            Updated Transaction instance
+
+        Raises:
+            NotFoundError: If transaction or category not found
+            ForbiddenError: If transaction doesn't belong to user
+
+        Example:
+            >>> updated = TransactionService.update_category(
+            ...     user, tx_id, food_category_id
+            ... )
+            >>> print(updated.category_rel.name)  # "Food & Dining"
+            >>> print(updated.is_user_override)   # True
+        """
+        from app.services.category_service import CategoryService
+        from app.models.enums import AISource
+
+        # Get transaction (validates ownership)
+        transaction = cls.get_user_transaction(user, transaction_id)
+
+        # Validate category exists
+        new_category = CategoryService.get_by_id(category_id)
+
+        try:
+            # Store original category if this is first override
+            if not transaction.is_user_override and transaction.category_id:
+                transaction.original_category_id = transaction.category_id
+
+            # Update category
+            transaction.category_id = new_category.id
+            transaction.is_user_override = True
+            transaction.ai_source = AISource.USER
+            transaction.ai_confidence = 1.0  # User is 100% confident
+
+            db.session.commit()
+
+            logger.info(
+                f"User {user.id} overrode category for transaction {transaction_id} "
+                f"to {new_category.name}"
+            )
+            return transaction
+
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Failed to update category: {e}", exc_info=True)
+            raise InternalError("Failed to update category")
 
 
 # =============================================================================

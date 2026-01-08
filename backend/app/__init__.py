@@ -166,14 +166,34 @@ def _register_blueprints(app: Flask) -> None:
 
     app.register_blueprint(test_bp, url_prefix="/api")
 
-    logger.debug("Registered blueprints: auth, users, transactions, test")
+    # =========================================================================
+    # AI Foundation: Categories, Notifications, Alerts, Summary Routes
+    # =========================================================================
 
-    # Future blueprints:
-    # from app.api.routes.budgets import bp as budgets_bp
-    # app.register_blueprint(budgets_bp, url_prefix="/api/budgets")
+    # Category routes (GET only - categories are pre-defined)
+    from app.api.routes.categories import bp as categories_bp
 
-    # from app.api.routes.categories import bp as categories_bp
-    # app.register_blueprint(categories_bp, url_prefix="/api/categories")
+    app.register_blueprint(categories_bp, url_prefix="/api/categories")
+
+    # Notification routes (CRUD + mark read)
+    from app.api.routes.notifications import bp as notifications_bp
+
+    app.register_blueprint(notifications_bp, url_prefix="/api/notifications")
+
+    # Summary routes (spending analytics)
+    from app.api.routes.summary import bp as summary_bp
+
+    app.register_blueprint(summary_bp, url_prefix="/api/summary")
+
+    # Alert routes (financial anomaly alerts - foundation)
+    from app.api.routes.alerts import alerts_bp
+
+    app.register_blueprint(alerts_bp)  # url_prefix already set in blueprint
+
+    logger.debug(
+        "Registered blueprints: auth, users, transactions, test, "
+        "categories, notifications, summary, alerts"
+    )
 
 
 # =============================================================================

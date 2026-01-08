@@ -20,14 +20,18 @@ Comprehensive guide for testing the Digital Finance Tracker API.
 
 ## 📖 Overview
 
-The Digital Finance Tracker API provides 17 endpoints across 4 categories:
+The Digital Finance Tracker API provides endpoints across 8 categories:
 
-| Category | Endpoints | Auth Required |
-|----------|-----------|---------------|
-| Health | 2 | ❌ No |
-| Auth | 4 | Mixed |
-| Users | 5 | ✅ Yes |
-| Transactions | 6 | ✅ Yes |
+| Category | Endpoints | Auth Required | Status |
+|----------|-----------|---------------|--------|
+| Health | 2 | ❌ No | ✅ Sprint 1 |
+| Auth | 4 | Mixed | ✅ Sprint 1 |
+| Users | 5 | ✅ Yes | ✅ Sprint 1 |
+| Transactions | 6 | ✅ Yes | ✅ Sprint 1 |
+| Categories | 2 | ✅ Yes | ✅ Sprint 2 Foundation |
+| Notifications | 6 | ✅ Yes | ✅ Sprint 2 Foundation |
+| Alerts | 4 | ✅ Yes | ✅ Sprint 2 Foundation |
+| Summary | 4 | ✅ Yes | ✅ Sprint 2 Foundation |
 
 ### Testing Tools Available
 
@@ -551,6 +555,42 @@ def mock_auth(mocker):
 | `PATCH` | `/api/transactions/{id}` | ✅ | Update transaction |
 | `DELETE` | `/api/transactions/{id}` | ✅ | Delete transaction |
 | `GET` | `/api/transactions/summary` | ✅ | Get summary statistics |
+
+### Category Endpoints (Sprint 2 Foundation)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/categories` | ✅ | List all 11 default categories |
+| `GET` | `/api/categories/{id}` | ✅ | Get category by ID |
+
+### Notification Endpoints (Sprint 2 Foundation)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/notifications` | ✅ | List notifications (paginated) |
+| `GET` | `/api/notifications/unread-count` | ✅ | Get unread notification count |
+| `PATCH` | `/api/notifications/{id}/read` | ✅ | Mark notification as read |
+| `PATCH` | `/api/notifications/read-all` | ✅ | Mark all notifications as read |
+| `DELETE` | `/api/notifications/{id}` | ✅ | Delete single notification |
+| `DELETE` | `/api/notifications/read` | ✅ | Delete all read notifications |
+
+### Alert Endpoints (Sprint 2 Foundation)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/alerts` | ✅ | List alerts (paginated) |
+| `GET` | `/api/alerts/count` | ✅ | Get active (undismissed) alert count |
+| `PATCH` | `/api/alerts/{id}/dismiss` | ✅ | Dismiss single alert |
+| `PATCH` | `/api/alerts/dismiss-all` | ✅ | Dismiss all alerts |
+
+### Summary Endpoints (Sprint 2 Foundation)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/summary/{period}` | ✅ | Get spending summary (daily/weekly/monthly/yearly/ytd) |
+| `GET` | `/api/summary/{period}/categories` | ✅ | Get category breakdown for period |
+| `GET` | `/api/summary/trends` | ✅ | Get spending trends over multiple periods |
+| `GET` | `/api/summary/compare/{period}` | ✅ | Compare current vs previous period |
 
 ---
 
