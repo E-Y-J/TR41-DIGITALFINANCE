@@ -41,7 +41,7 @@ def make_user(fake: Faker, used_emails: set):
         "nickname": fake.user_name(),
         "picture": None,
         "account_status": "pending",
-        "role": "user",
+        "role": "USER",
         "salary_amount": "0.00",
         "settings": {
             "currency": random.choice(["USD", "EUR", "GBP", "AUD"]),

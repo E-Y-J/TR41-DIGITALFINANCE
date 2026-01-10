@@ -23,6 +23,7 @@ Usage:
         return app
 """
 
+import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_caching import Cache
@@ -184,12 +185,17 @@ def _init_cors(app) -> None:
 
     config = get_config()
 
+    # Dev-only header for impersonation
+    allow_headers = config.cors.allow_headers
+    if os.getenv("FLASK_ENV") == "development":
+        allow_headers = [*allow_headers, "X-Dev-Auth0-Id"]
+
     cors.init_app(
         app,
         origins=config.cors.origins,
         methods=config.cors.methods,
-        allow_headers=config.cors.allow_headers,
-        supports_credentials=True,  # Allow cookies/auth headers
+        allow_headers=allow_headers,
+        supports_credentials=True,
     )
 
 

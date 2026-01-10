@@ -1,17 +1,233 @@
 {
-  "generated_at": "2026-01-10T00:45:14.773403Z",
+  "generated_at": "2026-01-10T08:21:50.842503Z",
   "users": [
     {
-      "id": "16cf6da5-be36-4417-b6d9-847f51b16eb0",
-      "auth0_id": "b8b23b71-ca23-459e-9b10-6a1a027d7fea",
-      "email": "zyork@example.net",
+      "id": "b1a33755-1c84-49f2-9d4c-03fc1ded485d",
+      "auth0_id": "1ef59437-bd26-4801-ac9a-2c908355bbae",
+      "email": "adkinsdaniel@example.com",
       "email_verified": false,
-      "first_name": "Megan",
-      "last_name": "Harvey",
-      "nickname": "ucrawford",
+      "first_name": "Steven",
+      "last_name": "Hansen",
+      "nickname": "patriciamitchell",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-06-09T11:16:56",
+      "updated_at": "2024-08-12T18:11:22",
+      "last_login": null
+    },
+    {
+      "id": "49875db3-23c6-4a6b-89e0-244961fbdd7c",
+      "auth0_id": "e598dce3-3952-4d8c-ab64-906b1d84c2eb",
+      "email": "cindy42@example.net",
+      "email_verified": false,
+      "first_name": "Yvonne",
+      "last_name": "Bennett",
+      "nickname": "ohuang",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-01-15T09:51:05",
+      "updated_at": "2025-04-30T04:35:54",
+      "last_login": null
+    },
+    {
+      "id": "959dd5de-733e-4a93-a847-f2aa8c43159f",
+      "auth0_id": "e5c2caa5-9a6d-4548-913e-6afb692972fc",
+      "email": "ysingh@example.org",
+      "email_verified": false,
+      "first_name": "Jenna",
+      "last_name": "Velasquez",
+      "nickname": "larry90",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-08-10T12:41:53",
+      "updated_at": "2025-09-28T08:52:48",
+      "last_login": null
+    },
+    {
+      "id": "e60dd542-8884-414b-a7c6-f5a23ffcfba8",
+      "auth0_id": "e44128a9-cdea-4cd7-8e77-f36199545ceb",
+      "email": "bsellers@example.org",
+      "email_verified": false,
+      "first_name": "Mark",
+      "last_name": "Shelton",
+      "nickname": "glennreynolds",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "Europe/London",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-07-27T12:47:27",
+      "updated_at": "2025-12-10T23:45:24",
+      "last_login": null
+    },
+    {
+      "id": "39399160-c1a7-49de-a6da-95f98885ab92",
+      "auth0_id": "164e993c-3442-454b-9279-bea6055e269b",
+      "email": "alan81@example.com",
+      "email_verified": false,
+      "first_name": "Mindy",
+      "last_name": "Griffin",
+      "nickname": "kelly33",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "UTC",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-11-30T14:38:34",
+      "updated_at": "2025-12-04T08:09:58",
+      "last_login": null
+    },
+    {
+      "id": "0149a742-2333-4137-bf17-de138a5e0ba1",
+      "auth0_id": "02d15d64-0f96-4368-83de-0d619f2fc240",
+      "email": "snash@example.org",
+      "email_verified": false,
+      "first_name": "Jerry",
+      "last_name": "Levine",
+      "nickname": "shawnlevy",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-07-09T10:16:03",
+      "updated_at": "2025-10-16T19:14:02",
+      "last_login": null
+    },
+    {
+      "id": "12c32a3c-8ff6-4607-b781-6a9ba9a0565c",
+      "auth0_id": "d27edbf3-4383-41a7-a2d3-4a05bedbc858",
+      "email": "desireevillanueva@example.org",
+      "email_verified": false,
+      "first_name": "Beth",
+      "last_name": "Graham",
+      "nickname": "carriefranklin",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-01-12T06:53:55",
+      "updated_at": "2024-05-01T12:20:28",
+      "last_login": null
+    },
+    {
+      "id": "c7a8fb94-c809-43c0-b245-ec55da03017f",
+      "auth0_id": "0beda8a0-cc32-4aee-8122-5bd000089e04",
+      "email": "duncanscott@example.net",
+      "email_verified": false,
+      "first_name": "Erica",
+      "last_name": "Walker",
+      "nickname": "jessicahouse",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "America/Los_Angeles",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-09-01T02:45:55",
+      "updated_at": "2025-12-21T20:38:14",
+      "last_login": null
+    },
+    {
+      "id": "0cd98680-2cc7-4860-b27d-f87455b78d5b",
+      "auth0_id": "9959ec8f-a5b5-4076-afcf-a86a8795eb9f",
+      "email": "kyle49@example.net",
+      "email_verified": false,
+      "first_name": "Vanessa",
+      "last_name": "Dickerson",
+      "nickname": "yeseniafloyd",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "America/Los_Angeles",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-08-31T13:27:30",
+      "updated_at": "2025-12-16T01:03:19",
+      "last_login": null
+    },
+    {
+      "id": "bd270ced-0a5e-4b1e-bb1f-2369dea937ee",
+      "auth0_id": "15d829ca-b062-4f72-adc7-de087a034783",
+      "email": "johnsonamanda@example.org",
+      "email_verified": false,
+      "first_name": "Anthony",
+      "last_name": "Allen",
+      "nickname": "pittscheryl",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "AUD",
@@ -21,525 +237,1053 @@
           "reminders": true
         }
       },
-      "created_at": "2025-09-18T14:04:32",
-      "updated_at": "2025-10-11T17:06:04",
+      "created_at": "2024-09-18T09:56:37",
+      "updated_at": "2025-11-21T05:28:09",
       "last_login": null
     },
     {
-      "id": "41fb637e-42d9-4fae-b349-844a829df9b1",
-      "auth0_id": "53f46936-7416-4862-9c4c-7762e994ca3c",
-      "email": "jmyers@example.net",
+      "id": "476e3087-9e79-433e-8ef7-f82fbacabd8e",
+      "auth0_id": "93c1a065-6d19-4db2-91b9-e03a1048b0cb",
+      "email": "johnathangilbert@example.org",
+      "email_verified": false,
+      "first_name": "Tamara",
+      "last_name": "Reyes",
+      "nickname": "jameskayla",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-10-06T10:11:39",
+      "updated_at": "2025-12-03T03:37:52",
+      "last_login": null
+    },
+    {
+      "id": "4619fc6c-6965-4419-aa5a-d9db92332c15",
+      "auth0_id": "4647f2d5-7803-4c91-9955-494eceec2748",
+      "email": "meganphillips@example.org",
+      "email_verified": false,
+      "first_name": "Andrea",
+      "last_name": "Ramos",
+      "nickname": "iross",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "America/Los_Angeles",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-08-09T12:04:10",
+      "updated_at": "2025-07-04T00:54:58",
+      "last_login": null
+    },
+    {
+      "id": "0e3ff622-f60e-4063-a51c-0cf376aec733",
+      "auth0_id": "c0857433-1d77-4afe-ae2d-aaecf13d2eff",
+      "email": "jenningsscott@example.org",
+      "email_verified": false,
+      "first_name": "Pamela",
+      "last_name": "Sullivan",
+      "nickname": "smithcharlotte",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "Europe/London",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-12-03T02:49:06",
+      "updated_at": "2025-01-31T02:31:03",
+      "last_login": null
+    },
+    {
+      "id": "02a75f80-38d1-4c4b-8e27-08985d95a8a4",
+      "auth0_id": "40b48f34-b084-4ecb-8d47-11d7bcacc3ab",
+      "email": "anitapalmer@example.com",
+      "email_verified": false,
+      "first_name": "Nicole",
+      "last_name": "Martin",
+      "nickname": "dwright",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "America/Los_Angeles",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-07-08T09:33:27",
+      "updated_at": "2025-11-02T11:55:30",
+      "last_login": null
+    },
+    {
+      "id": "c3683890-a598-480d-aa11-bb7ab038b485",
+      "auth0_id": "38e5cdad-58a8-4bbf-b3e6-83b072a22bcf",
+      "email": "lindsay54@example.net",
+      "email_verified": false,
+      "first_name": "Jerome",
+      "last_name": "Young",
+      "nickname": "srodriguez",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-07-16T07:55:51",
+      "updated_at": "2025-09-04T08:30:20",
+      "last_login": null
+    },
+    {
+      "id": "5ca10146-6467-4188-8ee8-16676f88ab7c",
+      "auth0_id": "8a73ade4-acfb-415c-b7a2-dc4926b01ff2",
+      "email": "amandawilliams@example.net",
+      "email_verified": false,
+      "first_name": "Jesse",
+      "last_name": "Diaz",
+      "nickname": "kendra27",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-10-16T09:13:17",
+      "updated_at": "2025-11-28T14:37:14",
+      "last_login": null
+    },
+    {
+      "id": "cd4b9426-8f24-4356-badd-679dda9da857",
+      "auth0_id": "f04cdbcf-31e8-437c-ab6f-bc3cace44677",
+      "email": "joneselizabeth@example.org",
+      "email_verified": false,
+      "first_name": "Joshua",
+      "last_name": "Wilson",
+      "nickname": "bryantsarah",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "America/Los_Angeles",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-12-23T22:23:20",
+      "updated_at": "2025-12-27T07:08:18",
+      "last_login": null
+    },
+    {
+      "id": "48a7cc0b-36ac-4ffc-9460-843b695d72c3",
+      "auth0_id": "40003690-1dc0-4ec1-a24a-8438da1a17a8",
+      "email": "kwood@example.com",
+      "email_verified": false,
+      "first_name": "Samuel",
+      "last_name": "James",
+      "nickname": "fedwards",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-02-03T23:49:43",
+      "updated_at": "2024-04-16T18:15:56",
+      "last_login": null
+    },
+    {
+      "id": "c106fd52-2306-428b-a3ba-3becae4c17b4",
+      "auth0_id": "6feacb12-b65b-4646-8415-e4f73c24131d",
+      "email": "xschroeder@example.net",
+      "email_verified": false,
+      "first_name": "Victor",
+      "last_name": "Baldwin",
+      "nickname": "jmccarthy",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "Europe/London",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-11-12T08:34:05",
+      "updated_at": "2025-12-20T20:42:57",
+      "last_login": null
+    },
+    {
+      "id": "dfcdfc5d-f410-4ea2-b4a6-75cc45da56b9",
+      "auth0_id": "d2328483-308f-4f73-98bf-f81c6d357269",
+      "email": "burnsangelica@example.org",
+      "email_verified": false,
+      "first_name": "James",
+      "last_name": "Gonzalez",
+      "nickname": "myerschristopher",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-03-23T01:38:45",
+      "updated_at": "2024-12-28T21:32:18",
+      "last_login": null
+    },
+    {
+      "id": "98b5a5bd-f97e-49b8-8b05-793d558513ac",
+      "auth0_id": "75cfedf1-754a-4b27-955b-57af697252d4",
+      "email": "edwardsdennis@example.com",
+      "email_verified": false,
+      "first_name": "Wayne",
+      "last_name": "Rogers",
+      "nickname": "wscott",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-02-25T06:55:50",
+      "updated_at": "2025-03-13T19:27:33",
+      "last_login": null
+    },
+    {
+      "id": "5a25fdda-c0f9-4cf8-9d44-f400614ad37e",
+      "auth0_id": "dd4c7417-d4f3-45e3-af17-f533bf3fe2f7",
+      "email": "amy50@example.com",
+      "email_verified": false,
+      "first_name": "Jonathan",
+      "last_name": "Wilson",
+      "nickname": "nharris",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "Europe/London",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-12-09T00:35:26",
+      "updated_at": "2025-04-22T12:42:32",
+      "last_login": null
+    },
+    {
+      "id": "33e5c7ed-4879-4a4f-b0f8-6c337c86df07",
+      "auth0_id": "01e6fe4a-deb1-4db5-a9c9-d7dd27746c65",
+      "email": "adrian61@example.net",
+      "email_verified": false,
+      "first_name": "David",
+      "last_name": "Brown",
+      "nickname": "ucastro",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-11-27T10:54:04",
+      "updated_at": "2024-12-14T11:01:36",
+      "last_login": null
+    },
+    {
+      "id": "4854b4d6-02d2-4a85-8caf-0542254b86ef",
+      "auth0_id": "ee4019bb-be40-45b9-b352-ea645dedf11a",
+      "email": "elizabeth20@example.org",
+      "email_verified": false,
+      "first_name": "David",
+      "last_name": "Simmons",
+      "nickname": "christophermcclure",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "America/Los_Angeles",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-03-11T09:12:35",
+      "updated_at": "2025-07-26T10:53:26",
+      "last_login": null
+    },
+    {
+      "id": "555acfd2-186c-4a15-9d80-f8d68ebe16f5",
+      "auth0_id": "b73136aa-90d1-456a-b41a-a5d9a687b21f",
+      "email": "kevinhess@example.net",
+      "email_verified": false,
+      "first_name": "Yolanda",
+      "last_name": "Pratt",
+      "nickname": "stephaniebrown",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "America/Los_Angeles",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-09-09T06:56:51",
+      "updated_at": "2025-10-10T19:55:45",
+      "last_login": null
+    },
+    {
+      "id": "7b4761cc-f98f-4b95-bd00-6350bb9089f9",
+      "auth0_id": "900d2883-4b11-49b4-996a-818b5a4dc99e",
+      "email": "marissa47@example.com",
+      "email_verified": false,
+      "first_name": "Darlene",
+      "last_name": "Wade",
+      "nickname": "hosborn",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "America/Los_Angeles",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-12-01T12:18:14",
+      "updated_at": "2024-12-02T09:39:31",
+      "last_login": null
+    },
+    {
+      "id": "0b05b605-3061-4df4-8ce3-81dd1e8f1d7b",
+      "auth0_id": "bdc5a437-9df9-4409-9a62-77aaf89b080d",
+      "email": "jenny95@example.com",
+      "email_verified": false,
+      "first_name": "Brenda",
+      "last_name": "Li",
+      "nickname": "jamesjessica",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "Europe/London",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-08-27T07:57:32",
+      "updated_at": "2024-10-27T04:26:28",
+      "last_login": null
+    },
+    {
+      "id": "68a1f684-671e-42b6-9fdc-c7f1ab9dec3b",
+      "auth0_id": "56bbfd53-5900-42f5-bbb7-278b8c30aed6",
+      "email": "ymendez@example.org",
+      "email_verified": false,
+      "first_name": "Rodney",
+      "last_name": "Munoz",
+      "nickname": "nicolehawkins",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-12-02T10:23:27",
+      "updated_at": "2025-01-11T00:18:38",
+      "last_login": null
+    },
+    {
+      "id": "0aec0ea2-c09c-4d11-a4e4-36decd1ee8ff",
+      "auth0_id": "8fdb4933-824d-4f12-9b55-9828d0ac5077",
+      "email": "jason18@example.com",
+      "email_verified": false,
+      "first_name": "Kevin",
+      "last_name": "Richardson",
+      "nickname": "rodriguezjordan",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-08-23T08:27:12",
+      "updated_at": "2025-09-05T23:20:47",
+      "last_login": null
+    },
+    {
+      "id": "28f51f5a-aa9d-4336-8349-1b07e3342807",
+      "auth0_id": "d63cd47b-f2c6-41a0-8f35-bb0a4f98dd4b",
+      "email": "nicholefields@example.org",
+      "email_verified": false,
+      "first_name": "Adam",
+      "last_name": "Humphrey",
+      "nickname": "steven88",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "UTC",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-05-13T19:39:38",
+      "updated_at": "2025-04-04T10:24:19",
+      "last_login": null
+    },
+    {
+      "id": "cb0e8bc2-0478-4971-8036-87da67c0c361",
+      "auth0_id": "ab325d58-d452-444a-a0c8-c9d820254892",
+      "email": "ydavis@example.org",
+      "email_verified": false,
+      "first_name": "Spencer",
+      "last_name": "Cox",
+      "nickname": "michael06",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "Europe/London",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-08-22T23:00:04",
+      "updated_at": "2025-12-03T20:14:20",
+      "last_login": null
+    },
+    {
+      "id": "bfdb6806-a8ab-47c6-a777-9a252c1f1eeb",
+      "auth0_id": "389bb0da-7cfe-4f87-8071-c35ed21e1334",
+      "email": "reyescaitlin@example.net",
+      "email_verified": false,
+      "first_name": "Robert",
+      "last_name": "Johnson",
+      "nickname": "danielsarah",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "UTC",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-07-17T08:11:52",
+      "updated_at": "2025-11-10T19:55:39",
+      "last_login": null
+    },
+    {
+      "id": "89ee6b4d-0a41-49e6-a418-1d79a1052861",
+      "auth0_id": "c1ad5481-55ed-4357-b001-7eaf7f44fb33",
+      "email": "justin99@example.net",
+      "email_verified": false,
+      "first_name": "Lisa",
+      "last_name": "Bell",
+      "nickname": "julia53",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "UTC",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-04-08T17:40:25",
+      "updated_at": "2025-10-03T09:01:09",
+      "last_login": null
+    },
+    {
+      "id": "fbbaa978-e490-4507-9d37-e50feab7d255",
+      "auth0_id": "530c64a7-3a9d-49cb-8a4d-eeaf54b49633",
+      "email": "roberto33@example.com",
+      "email_verified": false,
+      "first_name": "John",
+      "last_name": "Mendez",
+      "nickname": "pgreene",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "UTC",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-12-09T04:37:24",
+      "updated_at": "2025-02-17T03:21:30",
+      "last_login": null
+    },
+    {
+      "id": "0a9eb107-721f-41d5-b50f-adfe90c9f449",
+      "auth0_id": "0e1c6628-b9df-4182-8bd4-0a154a71a177",
+      "email": "davismary@example.org",
+      "email_verified": false,
+      "first_name": "Melinda",
+      "last_name": "Gonzalez",
+      "nickname": "tonya42",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-02-12T07:02:40",
+      "updated_at": "2025-04-07T01:37:28",
+      "last_login": null
+    },
+    {
+      "id": "6ce5882f-3095-418f-b972-43ca59f3819b",
+      "auth0_id": "f03f81ce-b1d7-4169-a4dd-c2116fb87605",
+      "email": "lpalmer@example.net",
+      "email_verified": false,
+      "first_name": "Victoria",
+      "last_name": "Mathews",
+      "nickname": "mark02",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "America/Los_Angeles",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-08-08T05:46:24",
+      "updated_at": "2025-12-17T05:52:37",
+      "last_login": null
+    },
+    {
+      "id": "144d0c27-5469-4aeb-b867-87353878e144",
+      "auth0_id": "4c9d1538-7839-4792-b2af-de4970398344",
+      "email": "careysamantha@example.org",
+      "email_verified": false,
+      "first_name": "Austin",
+      "last_name": "Green",
+      "nickname": "stevensonalejandra",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-01-13T10:53:13",
+      "updated_at": "2025-06-02T11:36:11",
+      "last_login": null
+    },
+    {
+      "id": "ed57d633-8a51-40e7-ba99-342d8418c4e5",
+      "auth0_id": "c918fb68-9563-44c4-a08e-e4bd373a95c3",
+      "email": "kleinwilliam@example.com",
+      "email_verified": false,
+      "first_name": "Angela",
+      "last_name": "Guzman",
+      "nickname": "vstephens",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "America/Los_Angeles",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-10-20T16:33:39",
+      "updated_at": "2024-11-14T07:05:07",
+      "last_login": null
+    },
+    {
+      "id": "b4bbf40d-2122-4490-a5c2-12ff7e9f8bf1",
+      "auth0_id": "574b76be-5d42-4556-8b70-4b2677cb1cdc",
+      "email": "wjohnson@example.org",
+      "email_verified": false,
+      "first_name": "Alan",
+      "last_name": "Davis",
+      "nickname": "guyarias",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "Europe/London",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-04-15T16:52:36",
+      "updated_at": "2025-05-25T07:11:31",
+      "last_login": null
+    },
+    {
+      "id": "d0f33a60-bf1d-4d48-b63a-d0f5a83a695a",
+      "auth0_id": "b951ac1b-20e9-4aae-9db8-fea74688157e",
+      "email": "jennasmith@example.com",
+      "email_verified": false,
+      "first_name": "Robin",
+      "last_name": "Howard",
+      "nickname": "ashley14",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "America/Los_Angeles",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-07-17T00:19:23",
+      "updated_at": "2024-08-28T01:42:17",
+      "last_login": null
+    },
+    {
+      "id": "ff72399c-37f5-444f-8be6-5989cae474d3",
+      "auth0_id": "0372c9d1-eff5-4976-8ebc-c15b09891baa",
+      "email": "kelly80@example.com",
+      "email_verified": false,
+      "first_name": "Peggy",
+      "last_name": "Smith",
+      "nickname": "nicholshannah",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "America/Los_Angeles",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-11-27T19:49:14",
+      "updated_at": "2026-01-03T16:53:03",
+      "last_login": null
+    },
+    {
+      "id": "9c4d99a8-4043-4411-bea5-e00d0dddf6d2",
+      "auth0_id": "88f724e7-c23c-4394-b1bd-328339d85c25",
+      "email": "bgonzalez@example.org",
+      "email_verified": false,
+      "first_name": "Aaron",
+      "last_name": "Murray",
+      "nickname": "kevin37",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-04-23T12:38:59",
+      "updated_at": "2025-05-22T09:17:39",
+      "last_login": null
+    },
+    {
+      "id": "2141e0c5-0424-4dc6-9574-b653a3d13ef1",
+      "auth0_id": "d443624a-eecd-4a49-9f98-de0e14ea8567",
+      "email": "robert74@example.org",
+      "email_verified": false,
+      "first_name": "Jeffery",
+      "last_name": "Fernandez",
+      "nickname": "melindagutierrez",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-04-23T13:16:16",
+      "updated_at": "2025-06-19T18:51:20",
+      "last_login": null
+    },
+    {
+      "id": "66fff9e4-e0a2-480f-9503-f21d7cb945b6",
+      "auth0_id": "088605b4-a3e3-43ef-bcf2-755ae8b480de",
+      "email": "smithrobyn@example.com",
+      "email_verified": false,
+      "first_name": "Taylor",
+      "last_name": "Johnson",
+      "nickname": "nicholas26",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "America/Los_Angeles",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-05-16T07:25:00",
+      "updated_at": "2025-06-15T13:17:10",
+      "last_login": null
+    },
+    {
+      "id": "3ed395f9-a133-4bfb-8219-09294d8abdc0",
+      "auth0_id": "94cb4c1f-5c1f-45fc-8368-c61f77705056",
+      "email": "jessicaclark@example.org",
+      "email_verified": false,
+      "first_name": "Mark",
+      "last_name": "Donovan",
+      "nickname": "rodriguezmelissa",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "Europe/London",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-12-27T01:49:03",
+      "updated_at": "2025-08-27T07:30:30",
+      "last_login": null
+    },
+    {
+      "id": "5aa2e66d-e0a4-4c79-8d36-0cd991944e6a",
+      "auth0_id": "e23a9181-bd07-424a-a096-bdd8782dcf2f",
+      "email": "cle@example.org",
+      "email_verified": false,
+      "first_name": "Jessica",
+      "last_name": "Moore",
+      "nickname": "david79",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-06-04T15:59:52",
+      "updated_at": "2025-02-16T08:23:13",
+      "last_login": null
+    },
+    {
+      "id": "d06054ef-6040-4d00-8f80-8bcc44e46915",
+      "auth0_id": "f5b0b147-aee4-4a4c-9f73-94e2c6b34b1b",
+      "email": "ccarter@example.com",
+      "email_verified": false,
+      "first_name": "Caitlyn",
+      "last_name": "Harris",
+      "nickname": "gaustin",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-05-25T01:46:41",
+      "updated_at": "2025-11-26T18:59:40",
+      "last_login": null
+    },
+    {
+      "id": "cb103f79-a629-4538-9516-44325bf8c400",
+      "auth0_id": "27271717-b7c6-4e31-b7f8-60aeb4fd4bd6",
+      "email": "williamsdaniel@example.com",
       "email_verified": false,
       "first_name": "Jason",
-      "last_name": "Ruiz",
-      "nickname": "zimmermanmelissa",
+      "last_name": "Williams",
+      "nickname": "zherrera",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
-        "currency": "USD",
-        "timezone": "UTC",
-        "theme": "dark",
+        "currency": "EUR",
+        "timezone": "America/Los_Angeles",
+        "theme": "light",
         "notifications": {
-          "reminders": false
+          "reminders": true
         }
       },
-      "created_at": "2024-05-05T08:53:49",
-      "updated_at": "2024-05-06T08:17:35",
+      "created_at": "2024-03-01T14:36:53",
+      "updated_at": "2025-01-22T07:12:05",
       "last_login": null
     },
     {
-      "id": "e2830afe-09ff-4f3e-b07d-19fced10f52a",
-      "auth0_id": "57cf0581-e758-40c7-921d-5a0017fd7d2f",
-      "email": "gtaylor@example.net",
+      "id": "8f29b89e-6129-48be-abd4-e2340446980e",
+      "auth0_id": "48398287-4a2b-4250-a21a-3d0a7962550c",
+      "email": "rperez@example.org",
       "email_verified": false,
-      "first_name": "George",
-      "last_name": "Hill",
-      "nickname": "kimberlyswanson",
+      "first_name": "Nicholas",
+      "last_name": "Obrien",
+      "nickname": "friedmaneric",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
-        "currency": "USD",
-        "timezone": "UTC",
+        "currency": "EUR",
+        "timezone": "Europe/London",
         "theme": "dark",
         "notifications": {
           "reminders": false
         }
       },
-      "created_at": "2025-07-23T09:52:43",
-      "updated_at": "2025-10-14T14:01:15",
+      "created_at": "2025-12-05T06:09:38",
+      "updated_at": "2025-12-12T04:23:25",
       "last_login": null
     },
     {
-      "id": "ef15e5cd-ac7d-4dbf-b3b7-35d1dee4328e",
-      "auth0_id": "826bfaa6-6114-4ffa-b853-95995027f10c",
-      "email": "yhall@example.com",
+      "id": "af15e4f9-2aae-4385-a663-fa761a669840",
+      "auth0_id": "85b03da2-cdf9-46cc-8db3-39e87c1f4cb8",
+      "email": "charlottebrown@example.org",
+      "email_verified": false,
+      "first_name": "Carrie",
+      "last_name": "West",
+      "nickname": "melanie27",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "America/Los_Angeles",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-02-25T00:49:14",
+      "updated_at": "2025-10-17T01:53:59",
+      "last_login": null
+    },
+    {
+      "id": "eecd7775-ae6b-4274-a96e-21b8dbd5b915",
+      "auth0_id": "2c8ce52f-069d-4091-a376-20b025171602",
+      "email": "bradleytaylor@example.net",
+      "email_verified": false,
+      "first_name": "Martha",
+      "last_name": "Copeland",
+      "nickname": "vthornton",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "UTC",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-10-29T15:51:50",
+      "updated_at": "2025-08-17T14:08:11",
+      "last_login": null
+    },
+    {
+      "id": "19f971e6-1cf4-4e2b-8a05-ab66b653b0d6",
+      "auth0_id": "802b580c-de9b-45c9-936e-e86aaa7ee0f8",
+      "email": "nathan45@example.com",
+      "email_verified": false,
+      "first_name": "Jonathan",
+      "last_name": "Willis",
+      "nickname": "hahnlaura",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "UTC",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-06-23T06:38:35",
+      "updated_at": "2025-08-11T11:21:09",
+      "last_login": null
+    },
+    {
+      "id": "db4d18e8-8cb9-46c8-9d66-9fdd55b44d09",
+      "auth0_id": "2996fba9-9e3c-46ab-bf78-2656bc3ececc",
+      "email": "matthewsmith@example.org",
+      "email_verified": false,
+      "first_name": "Tami",
+      "last_name": "Miller",
+      "nickname": "amitchell",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "America/Los_Angeles",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-10-22T15:34:29",
+      "updated_at": "2025-12-09T17:02:09",
+      "last_login": null
+    },
+    {
+      "id": "bf02dff7-4e02-457e-b428-f4836b8f71f2",
+      "auth0_id": "d57027a2-1c6f-47f9-a571-682fd8f48e86",
+      "email": "romerolauren@example.org",
       "email_verified": false,
       "first_name": "James",
       "last_name": "Brown",
-      "nickname": "jessicastout",
+      "nickname": "allison91",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "UTC",
-        "theme": "dark",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-08-13T03:55:06",
-      "updated_at": "2024-10-27T21:39:32",
-      "last_login": null
-    },
-    {
-      "id": "7040b37b-93b4-43ba-b2e6-7a582bca0d69",
-      "auth0_id": "66fd4cba-93d2-4e10-884f-639cb5f772ea",
-      "email": "martinkelly@example.com",
-      "email_verified": false,
-      "first_name": "Amber",
-      "last_name": "Robinson",
-      "nickname": "marnold",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "Europe/London",
-        "theme": "dark",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-03-15T12:06:05",
-      "updated_at": "2025-03-22T15:26:34",
-      "last_login": null
-    },
-    {
-      "id": "180b3bff-07c3-472e-963a-29a3b88ea231",
-      "auth0_id": "a8c8295b-9091-4b20-afa2-f19a1356eaf7",
-      "email": "william71@example.org",
-      "email_verified": false,
-      "first_name": "Maria",
-      "last_name": "Parsons",
-      "nickname": "jameslopez",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "America/Los_Angeles",
-        "theme": "light",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-12-09T19:15:06",
-      "updated_at": "2025-08-21T10:26:52",
-      "last_login": null
-    },
-    {
-      "id": "bbe3d5fe-8294-4651-8691-cf33ccb3aa34",
-      "auth0_id": "f12d88c7-a758-411b-9ab9-5280c0c06e5c",
-      "email": "daydustin@example.org",
-      "email_verified": false,
-      "first_name": "Jessica",
-      "last_name": "Carroll",
-      "nickname": "rhondaflores",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "America/Los_Angeles",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-01-05T20:48:29",
-      "updated_at": "2025-07-17T04:06:11",
-      "last_login": null
-    },
-    {
-      "id": "394ce33e-ff6b-4de8-bac3-3027cce931bc",
-      "auth0_id": "8815f789-600e-4f8e-a93d-ac931e865128",
-      "email": "brenda75@example.org",
-      "email_verified": false,
-      "first_name": "Erica",
-      "last_name": "Davis",
-      "nickname": "grantjodi",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-03-09T05:03:11",
-      "updated_at": "2024-10-09T20:39:23",
-      "last_login": null
-    },
-    {
-      "id": "a489927e-f562-4993-9221-72cec9448f77",
-      "auth0_id": "d78dd8e7-75e0-4062-8a84-3c3f2cd5c45a",
-      "email": "qnelson@example.com",
-      "email_verified": false,
-      "first_name": "Kimberly",
-      "last_name": "Schneider",
-      "nickname": "hespinoza",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-10-17T08:17:34",
-      "updated_at": "2025-12-10T08:49:55",
-      "last_login": null
-    },
-    {
-      "id": "35a4c991-31e7-4ab6-a591-b9b16d13b7d2",
-      "auth0_id": "cab3ab87-f4cb-41ce-912c-a3875ce2ceca",
-      "email": "burnschristine@example.net",
-      "email_verified": false,
-      "first_name": "Christina",
-      "last_name": "Jones",
-      "nickname": "gibsonsonia",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "Europe/London",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-06-17T10:56:22",
-      "updated_at": "2025-09-25T00:17:17",
-      "last_login": null
-    },
-    {
-      "id": "fc07fd10-7456-4f6f-93df-f90c9efd8a75",
-      "auth0_id": "d5ad6189-4c07-43b4-ab7a-f02a0b6a2e72",
-      "email": "johnwood@example.com",
-      "email_verified": false,
-      "first_name": "Kaitlin",
-      "last_name": "Small",
-      "nickname": "stacycarey",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "Europe/London",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-06-11T18:12:32",
-      "updated_at": "2025-07-20T21:23:38",
-      "last_login": null
-    },
-    {
-      "id": "275988dc-781c-49cc-8809-9c4da364c5fa",
-      "auth0_id": "d0a96b21-f7e4-4f2f-92ce-384f25402ce8",
-      "email": "jenniferedwards@example.net",
-      "email_verified": false,
-      "first_name": "Brian",
-      "last_name": "Warren",
-      "nickname": "madelinesnyder",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "UTC",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-08-09T06:43:44",
-      "updated_at": "2025-11-18T10:55:22",
-      "last_login": null
-    },
-    {
-      "id": "0275b96f-b45c-4e40-ba30-f6d0603f2eab",
-      "auth0_id": "162b2c3d-8b66-422b-92f8-38b9f8a3bfc1",
-      "email": "awatson@example.org",
-      "email_verified": false,
-      "first_name": "Laura",
-      "last_name": "Mendez",
-      "nickname": "shelbylee",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2025-05-27T10:03:17",
-      "updated_at": "2025-09-05T17:22:14",
-      "last_login": null
-    },
-    {
-      "id": "709b5b4c-e100-48d2-92c0-b99980530ca6",
-      "auth0_id": "543bcb7f-0573-4c32-a1ea-d2243ba5333a",
-      "email": "kelly76@example.net",
-      "email_verified": false,
-      "first_name": "Robert",
-      "last_name": "Cross",
-      "nickname": "contrerashailey",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "America/Los_Angeles",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-10-01T12:08:44",
-      "updated_at": "2025-12-22T00:56:06",
-      "last_login": null
-    },
-    {
-      "id": "9d1be790-08f0-4ef0-83c4-ef63acdc80d2",
-      "auth0_id": "6ac01bae-34a3-4795-a681-e789e9eb37a5",
-      "email": "kellykelly@example.net",
-      "email_verified": false,
-      "first_name": "Susan",
-      "last_name": "Johnson",
-      "nickname": "howardpatrick",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "America/Los_Angeles",
-        "theme": "light",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2025-12-12T17:10:37",
-      "updated_at": "2025-12-29T11:29:51",
-      "last_login": null
-    },
-    {
-      "id": "ffe39a7e-6d57-49da-8880-a8941b0e297b",
-      "auth0_id": "c7d92c47-743c-4204-b2f4-d9399e9e96e2",
-      "email": "xkelley@example.org",
-      "email_verified": false,
-      "first_name": "Tina",
-      "last_name": "Noble",
-      "nickname": "kathleen18",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "America/Los_Angeles",
-        "theme": "light",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2025-03-03T19:31:47",
-      "updated_at": "2025-12-24T17:14:13",
-      "last_login": null
-    },
-    {
-      "id": "b317a235-75b0-466f-aaab-e34ff76176f3",
-      "auth0_id": "3208a140-21c0-4c5c-9ff8-c3f4b82a19c2",
-      "email": "yramirez@example.com",
-      "email_verified": false,
-      "first_name": "Douglas",
-      "last_name": "Morgan",
-      "nickname": "jamessmith",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "UTC",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-08-21T15:20:47",
-      "updated_at": "2025-09-03T11:22:05",
-      "last_login": null
-    },
-    {
-      "id": "67b43faa-fa78-4ff3-b79c-e217f3b98a68",
-      "auth0_id": "d3783bea-e8a3-4197-9a67-83c373e112fc",
-      "email": "robertjenkins@example.com",
-      "email_verified": false,
-      "first_name": "Adrian",
-      "last_name": "Shelton",
-      "nickname": "hjames",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-02-05T22:02:37",
-      "updated_at": "2024-02-27T05:42:53",
-      "last_login": null
-    },
-    {
-      "id": "72a41d69-6f04-49bf-b809-cf063da211ec",
-      "auth0_id": "34c060d7-df1a-48a6-9ce5-cbd5c6bbf9e9",
-      "email": "james71@example.org",
-      "email_verified": false,
-      "first_name": "Marcus",
-      "last_name": "Berg",
-      "nickname": "owhitney",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "Europe/London",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-08-26T20:18:55",
-      "updated_at": "2025-06-29T06:11:49",
-      "last_login": null
-    },
-    {
-      "id": "fe3cf0b6-ec24-4682-96a3-48a680e0ad5f",
-      "auth0_id": "09c9c327-0b33-424d-a718-3c1c04a17a2b",
-      "email": "gwalker@example.org",
-      "email_verified": false,
-      "first_name": "Alexandra",
-      "last_name": "Mitchell",
-      "nickname": "sherri89",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "America/Los_Angeles",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-05-21T20:23:54",
-      "updated_at": "2025-11-27T08:36:25",
-      "last_login": null
-    },
-    {
-      "id": "8a6b5bc3-e06b-417e-b791-0258932e2017",
-      "auth0_id": "592b3e36-bfbe-42ca-ac3d-101988c8eb29",
-      "email": "zacharyalvarez@example.net",
-      "email_verified": false,
-      "first_name": "Lisa",
-      "last_name": "Ross",
-      "nickname": "fletchercarolyn",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-11-08T19:52:17",
-      "updated_at": "2025-05-22T07:06:59",
-      "last_login": null
-    },
-    {
-      "id": "85d29413-6bb8-4279-bed5-3989845412fa",
-      "auth0_id": "003ddd0d-3b0a-4de0-96e7-782cb9242f5f",
-      "email": "ucurry@example.org",
-      "email_verified": false,
-      "first_name": "Brandon",
-      "last_name": "Gomez",
-      "nickname": "eric36",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "Europe/London",
-        "theme": "light",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-05-02T23:10:33",
-      "updated_at": "2025-07-14T14:22:12",
-      "last_login": null
-    },
-    {
-      "id": "a8a8dc39-e00d-453e-ae48-6d4e33f35dac",
-      "auth0_id": "a8d2d0c3-4304-4c50-b40a-3bc9ad40703f",
-      "email": "jacobsmaurice@example.com",
-      "email_verified": false,
-      "first_name": "Tammy",
-      "last_name": "Manning",
-      "nickname": "ccurtis",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "EUR",
@@ -549,213 +1293,165 @@
           "reminders": true
         }
       },
-      "created_at": "2025-06-30T02:57:21",
-      "updated_at": "2025-09-26T11:12:57",
+      "created_at": "2024-04-09T21:59:39",
+      "updated_at": "2024-10-21T09:23:45",
       "last_login": null
     },
     {
-      "id": "146f26e7-1f1a-482b-8e4f-4dca2c8d9759",
-      "auth0_id": "0b4f5771-48f3-47fd-b3c9-f09c961c1c9f",
-      "email": "ricemary@example.org",
+      "id": "e0ea90e2-bc9e-45a1-acf6-84305b9c9534",
+      "auth0_id": "9c6f656c-3181-447d-aa4d-0f91aa598d0a",
+      "email": "diazrachel@example.net",
       "email_verified": false,
-      "first_name": "Erica",
-      "last_name": "Rogers",
-      "nickname": "charleswatkins",
+      "first_name": "Devin",
+      "last_name": "Goodman",
+      "nickname": "bergerphilip",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
-        "currency": "GBP",
+        "currency": "AUD",
         "timezone": "Europe/London",
         "theme": "dark",
         "notifications": {
           "reminders": true
         }
       },
-      "created_at": "2024-04-07T22:15:07",
-      "updated_at": "2025-10-18T02:59:28",
+      "created_at": "2025-09-14T08:16:48",
+      "updated_at": "2025-11-22T12:33:48",
       "last_login": null
     },
     {
-      "id": "6c07b977-ee17-4c7b-a632-f5d3bd57328d",
-      "auth0_id": "714161ca-8823-48dd-9dfa-e92734f57fff",
-      "email": "johnstondaniel@example.com",
+      "id": "37cea4ef-b829-4dc2-a8e9-95604e373f7a",
+      "auth0_id": "bdf556b0-dcb7-44b6-b695-7610e00674a4",
+      "email": "kimberly57@example.net",
       "email_verified": false,
-      "first_name": "Christina",
-      "last_name": "Hudson",
-      "nickname": "logancameron",
+      "first_name": "Zachary",
+      "last_name": "Scott",
+      "nickname": "michelle45",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2026-01-06T09:31:55",
-      "updated_at": "2026-01-08T10:13:21",
-      "last_login": null
-    },
-    {
-      "id": "b32b811a-c7d2-4445-82de-90e05cc6db30",
-      "auth0_id": "f8b3f57e-fd73-4361-ae50-46faacd576c9",
-      "email": "simmonskathy@example.net",
-      "email_verified": false,
-      "first_name": "Lindsey",
-      "last_name": "Gonzalez",
-      "nickname": "jocelyn66",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "Europe/London",
-        "theme": "dark",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-03-04T02:57:23",
-      "updated_at": "2024-09-17T13:46:12",
-      "last_login": null
-    },
-    {
-      "id": "7a478da2-6776-404f-872f-1b08a7e8356b",
-      "auth0_id": "b124f4ec-386e-4bb5-b0a7-f07ba8a1b33b",
-      "email": "ypena@example.net",
-      "email_verified": false,
-      "first_name": "Andrew",
-      "last_name": "Fletcher",
-      "nickname": "christopher83",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "AUD",
         "timezone": "UTC",
         "theme": "light",
         "notifications": {
-          "reminders": true
+          "reminders": false
         }
       },
-      "created_at": "2025-01-23T17:31:14",
-      "updated_at": "2025-10-15T18:09:52",
+      "created_at": "2024-06-29T08:59:42",
+      "updated_at": "2024-09-19T18:17:34",
       "last_login": null
     },
     {
-      "id": "5bcf7a4a-6211-405c-a628-f1dd16d6a5ed",
-      "auth0_id": "d59e4d69-d1a2-4326-bf21-95a1c6451dff",
-      "email": "bullockbarbara@example.net",
+      "id": "a9b8d961-6fb3-4e63-8f8c-9132ac779c8e",
+      "auth0_id": "517f8d42-de83-4437-8a1b-31da64977718",
+      "email": "todd63@example.com",
       "email_verified": false,
-      "first_name": "Mary",
-      "last_name": "Love",
-      "nickname": "sawyerjoseph",
+      "first_name": "Shannon",
+      "last_name": "Aguirre",
+      "nickname": "fwebb",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
-        "currency": "EUR",
+        "currency": "AUD",
         "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-07-27T07:25:12",
-      "updated_at": "2024-10-09T22:23:02",
-      "last_login": null
-    },
-    {
-      "id": "c75b094a-fe4e-4d35-8d45-4a1046623ed4",
-      "auth0_id": "7d6f4c46-abf1-413e-9e82-bb61ee8ba8cb",
-      "email": "idavis@example.net",
-      "email_verified": false,
-      "first_name": "Brandon",
-      "last_name": "Hess",
-      "nickname": "sandragrant",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "UTC",
-        "theme": "dark",
+        "theme": "light",
         "notifications": {
           "reminders": false
         }
       },
-      "created_at": "2024-07-12T19:14:36",
-      "updated_at": "2025-10-26T19:23:34",
+      "created_at": "2024-02-20T18:18:26",
+      "updated_at": "2025-07-07T12:04:25",
       "last_login": null
     },
     {
-      "id": "ac9b23a6-6290-400c-a7cd-c4af620b7c7e",
-      "auth0_id": "ee16a7b4-3066-45a1-b573-4e6e63a7a541",
-      "email": "swansonrobert@example.org",
+      "id": "96773a0e-bb8c-46ed-964d-1faaff10a826",
+      "auth0_id": "fe3b6617-7b9b-4038-87b4-e1635b63fb21",
+      "email": "sarah73@example.net",
+      "email_verified": false,
+      "first_name": "Shelby",
+      "last_name": "Hall",
+      "nickname": "jonathanstewart",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "Europe/London",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-09-28T16:26:49",
+      "updated_at": "2026-01-04T16:46:52",
+      "last_login": null
+    },
+    {
+      "id": "2ba26cb9-ea0e-4bd7-99b3-73d8a45869e6",
+      "auth0_id": "c6ddd9c3-178b-4c7a-9faf-32340e2367ae",
+      "email": "jamiehoffman@example.org",
       "email_verified": false,
       "first_name": "April",
-      "last_name": "Gay",
-      "nickname": "austinbrooks",
+      "last_name": "Richards",
+      "nickname": "frenchluke",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
-        "currency": "GBP",
+        "currency": "USD",
         "timezone": "Europe/London",
         "theme": "light",
         "notifications": {
           "reminders": true
         }
       },
-      "created_at": "2025-05-16T18:32:22",
-      "updated_at": "2025-12-04T12:43:14",
+      "created_at": "2025-12-27T23:11:52",
+      "updated_at": "2026-01-09T00:58:18",
       "last_login": null
     },
     {
-      "id": "18a3fced-0a28-4402-9445-164dd496304d",
-      "auth0_id": "dee876f5-6e17-4e96-a8ce-3214e8a4d71d",
-      "email": "nicholasmiller@example.org",
+      "id": "dbb3cc22-1737-432c-b55e-8e3d8fd5c39d",
+      "auth0_id": "3797b001-ab95-4028-be54-f2780c99ca60",
+      "email": "hardinjessica@example.net",
       "email_verified": false,
-      "first_name": "Sean",
-      "last_name": "Gibbs",
-      "nickname": "spencerapril",
+      "first_name": "Yolanda",
+      "last_name": "Goodman",
+      "nickname": "tflores",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "EUR",
-        "timezone": "America/Los_Angeles",
-        "theme": "light",
+        "timezone": "UTC",
+        "theme": "dark",
         "notifications": {
-          "reminders": true
+          "reminders": false
         }
       },
-      "created_at": "2025-02-13T23:56:20",
-      "updated_at": "2025-05-14T07:05:30",
+      "created_at": "2024-11-09T15:31:21",
+      "updated_at": "2025-07-23T02:14:37",
       "last_login": null
     },
     {
-      "id": "da84b943-ca3b-481f-a91c-49b73a2a24e4",
-      "auth0_id": "358d58fe-3dc7-419e-9e71-593e606b1b92",
-      "email": "perkinsmichael@example.net",
+      "id": "4b992548-8800-408f-ae9b-c53d02a25b67",
+      "auth0_id": "4da2f74f-db5a-4404-9046-88584ae0682c",
+      "email": "pamelaellis@example.net",
       "email_verified": false,
-      "first_name": "Samantha",
-      "last_name": "Cox",
-      "nickname": "ddavis",
+      "first_name": "Ricky",
+      "last_name": "Barker",
+      "nickname": "amoore",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "USD",
@@ -765,477 +1461,69 @@
           "reminders": false
         }
       },
-      "created_at": "2024-03-07T05:39:07",
-      "updated_at": "2025-07-20T23:37:07",
+      "created_at": "2025-09-06T13:05:47",
+      "updated_at": "2025-11-26T00:32:57",
       "last_login": null
     },
     {
-      "id": "bce2749c-2fc1-4e66-a36b-c5a394b98c34",
-      "auth0_id": "c6049eb6-90b2-4c93-b41a-c40431c3ff51",
-      "email": "kgeorge@example.com",
+      "id": "04556950-b43c-409b-82e4-7409fa3abaab",
+      "auth0_id": "80334a51-2b54-4f0e-a912-29772d2be60c",
+      "email": "vstone@example.org",
       "email_verified": false,
-      "first_name": "Sierra",
-      "last_name": "Collins",
-      "nickname": "sjohnson",
+      "first_name": "Karen",
+      "last_name": "Tucker",
+      "nickname": "norrisdavid",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2025-03-19T13:18:04",
-      "updated_at": "2026-01-01T08:27:01",
-      "last_login": null
-    },
-    {
-      "id": "7d6a11fa-76c6-4da8-b280-72e8a244595f",
-      "auth0_id": "5e100a94-9f4c-4af8-b36b-ab7e753048c6",
-      "email": "nancydavis@example.com",
-      "email_verified": false,
-      "first_name": "Douglas",
-      "last_name": "Gordon",
-      "nickname": "echoi",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "Europe/London",
-        "theme": "dark",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-08-21T03:10:21",
-      "updated_at": "2025-04-01T13:58:28",
-      "last_login": null
-    },
-    {
-      "id": "fb7b16a4-1e15-4dbb-9bdc-8713ec714141",
-      "auth0_id": "bfe8b531-fb92-4fd9-ba5c-9f0747df874c",
-      "email": "warrenthomas@example.com",
-      "email_verified": false,
-      "first_name": "Brenda",
-      "last_name": "Lee",
-      "nickname": "meghangreene",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-10-07T23:46:19",
-      "updated_at": "2025-04-25T19:20:00",
-      "last_login": null
-    },
-    {
-      "id": "22233e8d-edf0-4789-9887-0b796e6f1978",
-      "auth0_id": "d1158f43-e692-48fc-b1ef-e6450da4988c",
-      "email": "chadcastillo@example.com",
-      "email_verified": false,
-      "first_name": "Christian",
-      "last_name": "Fowler",
-      "nickname": "goldenangela",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-04-13T22:05:47",
-      "updated_at": "2025-09-30T13:17:35",
-      "last_login": null
-    },
-    {
-      "id": "8d829c04-95de-458d-856e-ab6c70b8ad1a",
-      "auth0_id": "aff2843e-62b1-4d7e-9c60-e26c4c825f51",
-      "email": "cbryant@example.com",
-      "email_verified": false,
-      "first_name": "Juan",
-      "last_name": "Warren",
-      "nickname": "anthonyboyd",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "Europe/London",
-        "theme": "dark",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2025-10-15T21:13:35",
-      "updated_at": "2025-12-05T03:10:19",
-      "last_login": null
-    },
-    {
-      "id": "63999185-7bf0-4a41-9849-dc12ff55f8f5",
-      "auth0_id": "731954d1-e894-40a8-a48e-d5f185d4f58d",
-      "email": "jessicahood@example.org",
-      "email_verified": false,
-      "first_name": "Cameron",
-      "last_name": "Atkinson",
-      "nickname": "susan31",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "UTC",
-        "theme": "dark",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-05-16T16:03:45",
-      "updated_at": "2024-06-19T08:12:04",
-      "last_login": null
-    },
-    {
-      "id": "a1a88fa1-a9af-41a0-ba90-ea0a39cf0dcf",
-      "auth0_id": "e9d14498-2aed-4098-a37c-0bb3d08ec47e",
-      "email": "hinesraymond@example.net",
-      "email_verified": false,
-      "first_name": "Eric",
-      "last_name": "David",
-      "nickname": "lsims",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "America/Los_Angeles",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-08-04T10:47:44",
-      "updated_at": "2025-10-17T06:34:03",
-      "last_login": null
-    },
-    {
-      "id": "18c199c0-3635-4e29-bc27-169deea4fe95",
-      "auth0_id": "d4a4d533-914c-49bc-aae1-c17b7c6d5417",
-      "email": "ritaduffy@example.net",
-      "email_verified": false,
-      "first_name": "Diane",
-      "last_name": "Fox",
-      "nickname": "byrdsusan",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-10-22T18:21:37",
-      "updated_at": "2024-11-08T23:03:14",
-      "last_login": null
-    },
-    {
-      "id": "3481e0aa-7390-41bf-a8e0-3d32122cc092",
-      "auth0_id": "5fcb7174-4223-44d2-a793-4648348f6481",
-      "email": "jessicaelliott@example.com",
-      "email_verified": false,
-      "first_name": "Krista",
-      "last_name": "Ingram",
-      "nickname": "bgamble",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-05-30T10:49:20",
-      "updated_at": "2025-10-25T19:04:57",
-      "last_login": null
-    },
-    {
-      "id": "f3a789f4-a1c8-4d5e-b1f3-f3e690c85791",
-      "auth0_id": "8b8ddd10-9362-4e2d-9f17-6f58676f2680",
-      "email": "janice12@example.com",
-      "email_verified": false,
-      "first_name": "Debbie",
-      "last_name": "Wright",
-      "nickname": "millerteresa",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-05-12T04:44:32",
-      "updated_at": "2024-07-13T10:39:07",
-      "last_login": null
-    },
-    {
-      "id": "fb8dd9c5-51c8-430e-98d4-ec00d5f17f33",
-      "auth0_id": "8699cc04-02ef-4a7a-9922-3fc3243ea16a",
-      "email": "kortiz@example.com",
-      "email_verified": false,
-      "first_name": "Donna",
-      "last_name": "Murray",
-      "nickname": "barrystein",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-03-30T19:24:55",
-      "updated_at": "2025-12-28T13:26:45",
-      "last_login": null
-    },
-    {
-      "id": "80716e12-1860-4223-916f-607835b85ca9",
-      "auth0_id": "c342e927-1007-4709-a2e7-61f15608fd30",
-      "email": "vaustin@example.com",
-      "email_verified": false,
-      "first_name": "Ebony",
-      "last_name": "Mitchell",
-      "nickname": "rogerbolton",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "USD",
         "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-11-14T12:01:47",
-      "updated_at": "2025-12-18T15:26:12",
-      "last_login": null
-    },
-    {
-      "id": "a20027da-960c-446b-87e8-218a79c7e2f3",
-      "auth0_id": "3cf2f194-2898-42de-a31d-ee2b32862463",
-      "email": "wangbailey@example.net",
-      "email_verified": false,
-      "first_name": "Eric",
-      "last_name": "Fox",
-      "nickname": "markwallace",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "Europe/London",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-08-02T09:55:46",
-      "updated_at": "2024-09-08T04:00:52",
-      "last_login": null
-    },
-    {
-      "id": "37d6ebce-33ae-4d73-953b-15dfc2403c1e",
-      "auth0_id": "ebc135ee-414c-4c6a-badb-09cf7406fcca",
-      "email": "taylorpadilla@example.org",
-      "email_verified": false,
-      "first_name": "Evan",
-      "last_name": "Nicholson",
-      "nickname": "shane98",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-09-02T18:51:23",
-      "updated_at": "2025-11-04T18:10:45",
-      "last_login": null
-    },
-    {
-      "id": "5f0cdf7a-e7e2-4516-b39f-006b7e5b57c1",
-      "auth0_id": "07453b5d-c168-42a9-966b-449f182e921e",
-      "email": "danielmisty@example.org",
-      "email_verified": false,
-      "first_name": "Elizabeth",
-      "last_name": "Marquez",
-      "nickname": "lwagner",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "America/Los_Angeles",
         "theme": "dark",
         "notifications": {
           "reminders": true
         }
       },
-      "created_at": "2025-09-04T12:45:29",
-      "updated_at": "2025-11-13T05:04:36",
+      "created_at": "2024-06-12T16:17:06",
+      "updated_at": "2024-08-16T14:11:00",
       "last_login": null
     },
     {
-      "id": "5cab92e4-d9ee-484d-9b59-bd765b89df5a",
-      "auth0_id": "21c35708-cae5-4e3b-a2af-2fae1715263f",
-      "email": "gilbertmelissa@example.org",
+      "id": "9384fe84-113b-4f55-b356-d19e46ed9c86",
+      "auth0_id": "9f0dd5d2-bf1e-4ea6-95a1-dfab7590361b",
+      "email": "mriley@example.com",
       "email_verified": false,
-      "first_name": "Jessica",
-      "last_name": "Jordan",
-      "nickname": "alewis",
+      "first_name": "Debra",
+      "last_name": "Hatfield",
+      "nickname": "melissa18",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-07-02T13:09:56",
-      "updated_at": "2025-11-10T15:11:29",
-      "last_login": null
-    },
-    {
-      "id": "2b82a0e2-3b14-4981-9afe-f37ff7ab80ae",
-      "auth0_id": "3f006d5e-48b9-44f2-b4bb-58e1b6819502",
-      "email": "brownjulie@example.com",
-      "email_verified": false,
-      "first_name": "Tonya",
-      "last_name": "Armstrong",
-      "nickname": "woliver",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "AUD",
         "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-03-18T13:03:53",
-      "updated_at": "2025-06-12T10:59:23",
-      "last_login": null
-    },
-    {
-      "id": "674b6d4f-aea9-49a3-b3db-c175507565ab",
-      "auth0_id": "e86b22be-23c2-4bb4-bd3b-0329a08902c0",
-      "email": "monteslarry@example.org",
-      "email_verified": false,
-      "first_name": "David",
-      "last_name": "Davis",
-      "nickname": "claudiaadams",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "America/Los_Angeles",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-01-18T01:43:00",
-      "updated_at": "2025-06-11T20:11:41",
-      "last_login": null
-    },
-    {
-      "id": "349678a9-5c9a-46a2-aa7e-ed8bdb5a21f4",
-      "auth0_id": "fe9c399b-64c3-4ef5-b06d-3e70e562fde5",
-      "email": "laurahendrix@example.org",
-      "email_verified": false,
-      "first_name": "Tyler",
-      "last_name": "Thomas",
-      "nickname": "amandabonilla",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "America/Los_Angeles",
         "theme": "dark",
         "notifications": {
           "reminders": false
         }
       },
-      "created_at": "2025-10-21T10:27:51",
-      "updated_at": "2025-12-25T06:21:48",
+      "created_at": "2025-12-25T01:14:59",
+      "updated_at": "2026-01-04T12:03:26",
       "last_login": null
     },
     {
-      "id": "0dea8465-1792-495c-98e0-192ea4ca4481",
-      "auth0_id": "9c59dd9b-28d8-40bc-9012-925ef84e3c03",
-      "email": "bakermitchell@example.net",
+      "id": "d84f834f-ff25-4823-996b-f81fa608c298",
+      "auth0_id": "6334d9a5-bf7a-4ab8-9cc3-321db85f4356",
+      "email": "tracygarcia@example.net",
       "email_verified": false,
-      "first_name": "Michael",
-      "last_name": "Pena",
-      "nickname": "tmendoza",
+      "first_name": "Mathew",
+      "last_name": "Bean",
+      "nickname": "andrewbutler",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "AUD",
@@ -1245,213 +1533,21 @@
           "reminders": true
         }
       },
-      "created_at": "2024-08-18T10:53:30",
-      "updated_at": "2025-09-20T04:41:01",
+      "created_at": "2024-02-08T07:16:13",
+      "updated_at": "2025-10-07T00:40:45",
       "last_login": null
     },
     {
-      "id": "b462576a-6626-4a47-9645-3dd2c197f093",
-      "auth0_id": "27cab5f4-e078-4a78-9536-ca7203c3d1b8",
-      "email": "richard50@example.net",
+      "id": "5f741a02-d058-43ee-ad37-17a3a10e107b",
+      "auth0_id": "2dc427ae-fa3d-4a89-bc67-ce547ef56899",
+      "email": "stevenanderson@example.com",
       "email_verified": false,
-      "first_name": "Shannon",
-      "last_name": "Stevens",
-      "nickname": "ijohnson",
+      "first_name": "Mario",
+      "last_name": "Herrera",
+      "nickname": "mcclaindaniel",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "Europe/London",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-10-08T21:38:30",
-      "updated_at": "2025-01-09T06:25:20",
-      "last_login": null
-    },
-    {
-      "id": "f5bc0a50-b402-417e-99ff-bc2c183a2911",
-      "auth0_id": "0a1d1990-f6fd-4864-bfd2-64093b966fbd",
-      "email": "edwardsmelanie@example.net",
-      "email_verified": false,
-      "first_name": "Jessica",
-      "last_name": "Hughes",
-      "nickname": "kimwilliam",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-02-28T00:49:07",
-      "updated_at": "2025-11-22T11:19:40",
-      "last_login": null
-    },
-    {
-      "id": "ead521d2-4584-4a52-a780-626b0df20349",
-      "auth0_id": "f4935eda-9620-4dc5-95d7-e298bfdc9073",
-      "email": "jsparks@example.org",
-      "email_verified": false,
-      "first_name": "Maria",
-      "last_name": "Rodgers",
-      "nickname": "kimberlyfoley",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2025-05-01T23:08:12",
-      "updated_at": "2026-01-03T09:13:39",
-      "last_login": null
-    },
-    {
-      "id": "4ba46462-f458-455d-a2c8-00d4cb5a6ab8",
-      "auth0_id": "0b990c0d-b816-4f2d-a736-e399ec6e67c7",
-      "email": "mayala@example.net",
-      "email_verified": false,
-      "first_name": "Dustin",
-      "last_name": "Keller",
-      "nickname": "victorhampton",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-05-03T20:17:36",
-      "updated_at": "2025-11-16T18:57:50",
-      "last_login": null
-    },
-    {
-      "id": "257c1b96-efcb-41a6-a239-dba710f24fe8",
-      "auth0_id": "89b6b881-1143-494d-8f5a-2169991881b8",
-      "email": "brittanysmith@example.com",
-      "email_verified": false,
-      "first_name": "Jennifer",
-      "last_name": "Sweeney",
-      "nickname": "natalieschultz",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-11-25T08:16:33",
-      "updated_at": "2025-12-15T11:46:10",
-      "last_login": null
-    },
-    {
-      "id": "f33f44db-8156-4920-9cca-8067ab480742",
-      "auth0_id": "306a6bb7-a540-44fb-aaa4-4bb2c0148a68",
-      "email": "nelsontodd@example.org",
-      "email_verified": false,
-      "first_name": "Heidi",
-      "last_name": "Nixon",
-      "nickname": "psullivan",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-09-15T01:52:47",
-      "updated_at": "2025-08-20T23:23:15",
-      "last_login": null
-    },
-    {
-      "id": "1e3023cc-b250-454d-8adb-99a649e37fb7",
-      "auth0_id": "41c63853-398c-4e94-bdeb-3989235b079c",
-      "email": "simsjamie@example.com",
-      "email_verified": false,
-      "first_name": "Jennifer",
-      "last_name": "Lewis",
-      "nickname": "jonessean",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "Europe/London",
-        "theme": "dark",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-04-02T21:18:46",
-      "updated_at": "2025-12-26T06:27:26",
-      "last_login": null
-    },
-    {
-      "id": "2e4bac67-f630-4333-8871-91a84383c0eb",
-      "auth0_id": "f8bed9a7-a1d1-422b-9802-322406e01d46",
-      "email": "yesenia95@example.net",
-      "email_verified": false,
-      "first_name": "Terri",
-      "last_name": "Cooper",
-      "nickname": "howard42",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "Europe/London",
-        "theme": "dark",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-01-18T19:27:00",
-      "updated_at": "2024-06-23T03:41:38",
-      "last_login": null
-    },
-    {
-      "id": "7c8b9d69-5e18-457c-a89b-5251b63be729",
-      "auth0_id": "950c6083-63e8-4b35-a84e-fb4985cb42d5",
-      "email": "amber04@example.com",
-      "email_verified": false,
-      "first_name": "Joseph",
-      "last_name": "Norman",
-      "nickname": "gibsonsarah",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "EUR",
@@ -1461,909 +1557,429 @@
           "reminders": false
         }
       },
-      "created_at": "2025-05-26T22:54:49",
-      "updated_at": "2025-07-06T06:27:51",
+      "created_at": "2025-05-31T11:08:15",
+      "updated_at": "2025-11-24T17:31:00",
       "last_login": null
     },
     {
-      "id": "72ac790e-7289-4069-8622-f9379541e661",
-      "auth0_id": "a7eac7dd-4793-45c9-9522-f7b9b638e907",
-      "email": "adrianthompson@example.net",
+      "id": "694c3e53-fbc1-4aaf-9f64-6d035c7f1826",
+      "auth0_id": "628afd34-95ab-4d10-b2f5-fb810c87bdfb",
+      "email": "kcombs@example.net",
       "email_verified": false,
-      "first_name": "Justin",
-      "last_name": "Jones",
-      "nickname": "bradley06",
+      "first_name": "Melissa",
+      "last_name": "Brock",
+      "nickname": "dgriffin",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2025-02-24T22:25:28",
-      "updated_at": "2025-09-26T15:26:28",
-      "last_login": null
-    },
-    {
-      "id": "7f0f6a30-5246-4029-9165-c987ed71a2bd",
-      "auth0_id": "9af663d3-8b01-4fed-9508-611a96a8956c",
-      "email": "amy09@example.net",
-      "email_verified": false,
-      "first_name": "Elizabeth",
-      "last_name": "Brown",
-      "nickname": "richardsonmichael",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "EUR",
-        "timezone": "UTC",
+        "timezone": "Europe/London",
         "theme": "light",
         "notifications": {
           "reminders": false
         }
       },
-      "created_at": "2025-04-10T10:32:05",
-      "updated_at": "2025-08-17T04:48:59",
+      "created_at": "2025-09-21T09:14:27",
+      "updated_at": "2025-10-24T04:27:40",
       "last_login": null
     },
     {
-      "id": "41b86c7c-30a2-46bb-9f6b-c6bc399eb1a9",
-      "auth0_id": "8ba36411-a810-4ed2-8126-41fba703defb",
-      "email": "howardsylvia@example.org",
+      "id": "77a82c7e-17cd-4f5a-a888-0c0b443fb010",
+      "auth0_id": "95c6008d-b611-4986-a2b8-8784c9f9f752",
+      "email": "fdiaz@example.com",
       "email_verified": false,
-      "first_name": "Dwayne",
-      "last_name": "Mills",
-      "nickname": "chelsey66",
+      "first_name": "Keith",
+      "last_name": "Williams",
+      "nickname": "macdonaldkyle",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
-        "currency": "EUR",
+        "currency": "AUD",
         "timezone": "UTC",
         "theme": "light",
         "notifications": {
           "reminders": true
         }
       },
-      "created_at": "2025-07-21T22:19:12",
-      "updated_at": "2025-10-23T16:55:32",
+      "created_at": "2024-06-28T01:53:16",
+      "updated_at": "2024-08-24T16:56:57",
       "last_login": null
     },
     {
-      "id": "e590597a-6191-475a-a9ac-10d6a1714e00",
-      "auth0_id": "895193e6-25e8-417f-9cf7-c586c872dd4a",
-      "email": "veronica43@example.com",
+      "id": "a262328b-6844-4553-9926-f24ac32d3860",
+      "auth0_id": "e98593b2-7b07-4caf-9ed3-2ed581b666ce",
+      "email": "roymendez@example.com",
       "email_verified": false,
-      "first_name": "Kimberly",
-      "last_name": "Gutierrez",
-      "nickname": "christina61",
+      "first_name": "Rachel",
+      "last_name": "Morton",
+      "nickname": "fergusonmicheal",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "EUR",
-        "timezone": "Europe/London",
-        "theme": "dark",
+        "timezone": "America/Los_Angeles",
+        "theme": "light",
         "notifications": {
           "reminders": true
         }
       },
-      "created_at": "2025-07-24T09:17:18",
-      "updated_at": "2025-12-07T14:44:19",
+      "created_at": "2024-12-25T15:33:21",
+      "updated_at": "2025-05-09T17:03:25",
       "last_login": null
     },
     {
-      "id": "a91d56a9-69a6-4ae4-ab67-aa696de39bed",
-      "auth0_id": "1f81e2ce-3e68-4dc4-9d1d-1a058fe87698",
-      "email": "ortizlinda@example.net",
+      "id": "4e14645b-a05c-4598-877e-4ccad3136bbf",
+      "auth0_id": "a14d39b5-605e-410d-b07c-63d3c76c56c8",
+      "email": "amy72@example.com",
       "email_verified": false,
       "first_name": "Patrick",
-      "last_name": "Butler",
-      "nickname": "shepardkelli",
+      "last_name": "Cortez",
+      "nickname": "davidpope",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "GBP",
-        "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-12-28T10:47:39",
-      "updated_at": "2025-12-30T04:21:57",
-      "last_login": null
-    },
-    {
-      "id": "d6620282-da93-43e0-807a-0adaf100b528",
-      "auth0_id": "676a91fd-e457-4ed6-8444-64a3263f29c0",
-      "email": "sherry88@example.com",
-      "email_verified": false,
-      "first_name": "Sara",
-      "last_name": "Avery",
-      "nickname": "petermckay",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-03-09T04:57:24",
-      "updated_at": "2024-07-23T11:43:55",
-      "last_login": null
-    },
-    {
-      "id": "6d8ca1cd-1251-44fc-b9ef-36b97bdda44c",
-      "auth0_id": "1de2b921-0007-4164-9574-6336b015eef8",
-      "email": "christophergarcia@example.org",
-      "email_verified": false,
-      "first_name": "Maria",
-      "last_name": "Hancock",
-      "nickname": "edwardsgreg",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-06-10T03:27:23",
-      "updated_at": "2025-11-08T00:33:55",
-      "last_login": null
-    },
-    {
-      "id": "1c830be3-6f77-42fa-89b0-025c81bf35eb",
-      "auth0_id": "f02c76e1-f411-4543-9e38-6fb79b272e1b",
-      "email": "robertthompson@example.net",
-      "email_verified": false,
-      "first_name": "Heather",
-      "last_name": "Ramos",
-      "nickname": "shannonacosta",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "Europe/London",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-07-07T03:26:22",
-      "updated_at": "2025-11-10T03:18:46",
-      "last_login": null
-    },
-    {
-      "id": "b0cf8de2-6c93-4de6-9254-663ca914faf1",
-      "auth0_id": "bfd281c3-32b2-43ec-a6b2-427c5b1bec19",
-      "email": "kyleshaw@example.com",
-      "email_verified": false,
-      "first_name": "Wendy",
-      "last_name": "Copeland",
-      "nickname": "jordanchavez",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "Europe/London",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-08-05T23:47:55",
-      "updated_at": "2025-10-01T03:05:14",
-      "last_login": null
-    },
-    {
-      "id": "fb857ce1-17a9-482d-be38-2dc49784eaca",
-      "auth0_id": "ac0bb08f-652f-4a4a-b641-b50b5a2be9a1",
-      "email": "isaacchristian@example.com",
-      "email_verified": false,
-      "first_name": "Steven",
-      "last_name": "Moss",
-      "nickname": "victoria00",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
         "timezone": "America/Los_Angeles",
         "theme": "dark",
         "notifications": {
           "reminders": false
         }
       },
-      "created_at": "2024-04-07T10:45:42",
-      "updated_at": "2024-09-25T02:38:04",
+      "created_at": "2025-11-07T19:50:21",
+      "updated_at": "2025-12-22T17:41:52",
       "last_login": null
     },
     {
-      "id": "43c2d1d3-2878-448b-ace7-a15c9e577755",
-      "auth0_id": "973b41de-f0a3-493e-bdb7-f02c9ca59ef9",
-      "email": "ulopez@example.org",
-      "email_verified": false,
-      "first_name": "Maria",
-      "last_name": "Wallace",
-      "nickname": "donaldsantiago",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "America/Los_Angeles",
-        "theme": "light",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2025-03-22T20:12:05",
-      "updated_at": "2025-08-01T07:12:37",
-      "last_login": null
-    },
-    {
-      "id": "aaf1fdd8-0186-408f-a867-4bf99818c714",
-      "auth0_id": "7cf29065-bb9f-4805-9752-0593caac674d",
-      "email": "pgarcia@example.net",
-      "email_verified": false,
-      "first_name": "Anna",
-      "last_name": "Bender",
-      "nickname": "tflowers",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "Europe/London",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-08-02T15:23:42",
-      "updated_at": "2025-11-21T04:11:35",
-      "last_login": null
-    },
-    {
-      "id": "27739cfa-065a-49a0-9740-c399f26e6dd9",
-      "auth0_id": "5b586c92-843d-47ef-b3a5-e3b358bd4ef5",
-      "email": "janetthomas@example.net",
-      "email_verified": false,
-      "first_name": "Richard",
-      "last_name": "Phelps",
-      "nickname": "lopezshannon",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-03-12T22:43:22",
-      "updated_at": "2025-06-14T17:28:28",
-      "last_login": null
-    },
-    {
-      "id": "c4439e7b-a5fc-4eb1-92b8-bed970d5a7f4",
-      "auth0_id": "b4147354-264e-4200-8d6d-1f46dbfb8142",
-      "email": "hlewis@example.net",
-      "email_verified": false,
-      "first_name": "Shannon",
-      "last_name": "Garcia",
-      "nickname": "psalinas",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "America/Los_Angeles",
-        "theme": "light",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2025-11-04T15:51:54",
-      "updated_at": "2025-12-07T08:23:23",
-      "last_login": null
-    },
-    {
-      "id": "885c02dd-8fd2-445f-9a97-a1e163564d4e",
-      "auth0_id": "0cb0d87c-a460-4949-953d-edc87911b552",
-      "email": "robert23@example.org",
-      "email_verified": false,
-      "first_name": "Stephanie",
-      "last_name": "Gray",
-      "nickname": "brian74",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2025-11-11T03:29:03",
-      "updated_at": "2025-12-31T09:07:32",
-      "last_login": null
-    },
-    {
-      "id": "13bdc6ac-2a4d-4228-b183-950834aecd12",
-      "auth0_id": "a0365d6d-bc27-411b-9668-ffb93e20b60e",
-      "email": "sullivanchristopher@example.org",
-      "email_verified": false,
-      "first_name": "Brian",
-      "last_name": "Smith",
-      "nickname": "qshepherd",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-10-05T00:27:23",
-      "updated_at": "2024-12-04T09:31:51",
-      "last_login": null
-    },
-    {
-      "id": "bb9ca305-bbd6-4dcc-9ed1-5ba80f35e104",
-      "auth0_id": "415ddbc3-c75e-4fa2-8e33-26eb08780256",
-      "email": "taylorjohnson@example.org",
-      "email_verified": false,
-      "first_name": "Amanda",
-      "last_name": "Carter",
-      "nickname": "sarahriley",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "Europe/London",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-02-09T00:01:28",
-      "updated_at": "2025-07-08T23:15:50",
-      "last_login": null
-    },
-    {
-      "id": "13bfea49-e91c-4fa9-9d10-8dee81e4d6ae",
-      "auth0_id": "47aaa28d-2fcb-4aa2-a100-789fbb8f520f",
-      "email": "greentina@example.com",
-      "email_verified": false,
-      "first_name": "Ashley",
-      "last_name": "Lee",
-      "nickname": "qwilkerson",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "Europe/London",
-        "theme": "light",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-09-05T03:33:38",
-      "updated_at": "2025-01-30T23:43:30",
-      "last_login": null
-    },
-    {
-      "id": "a16c12ac-426a-48d9-b55f-5d1548dbc9e9",
-      "auth0_id": "03c3f1e1-a81b-45a2-ab5b-973a991c3ed2",
-      "email": "bakerebony@example.net",
-      "email_verified": false,
-      "first_name": "Sue",
-      "last_name": "Newton",
-      "nickname": "bryan62",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "USD",
-        "timezone": "America/Los_Angeles",
-        "theme": "light",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2025-07-27T09:08:25",
-      "updated_at": "2025-11-05T04:04:36",
-      "last_login": null
-    },
-    {
-      "id": "5afc95c2-942a-463c-9c2b-58ef67ae530a",
-      "auth0_id": "94d62cef-0d58-4d9d-a926-f2008795b583",
-      "email": "dariusscott@example.org",
+      "id": "ab4f48e9-4d23-405c-b471-80a84c42caef",
+      "auth0_id": "5a65303a-5aed-4704-b9a3-8f5bbb1091b2",
+      "email": "lsantos@example.org",
       "email_verified": false,
       "first_name": "Daniel",
-      "last_name": "Rodriguez",
-      "nickname": "victoria81",
+      "last_name": "George",
+      "nickname": "brookecastro",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "Europe/London",
-        "theme": "light",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2025-05-10T11:14:40",
-      "updated_at": "2025-07-16T22:19:09",
-      "last_login": null
-    },
-    {
-      "id": "b81c20b0-8670-4f98-9577-3e55132e8178",
-      "auth0_id": "2dd008ab-298d-45d7-a11d-7500984682bf",
-      "email": "agonzalez@example.net",
-      "email_verified": false,
-      "first_name": "Anthony",
-      "last_name": "Fitzpatrick",
-      "nickname": "jeffrey14",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "America/Los_Angeles",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-06-22T05:02:17",
-      "updated_at": "2025-08-24T18:35:07",
-      "last_login": null
-    },
-    {
-      "id": "cff6acfa-b247-4686-841d-d30abff0ecc8",
-      "auth0_id": "ff533381-a108-4a54-9c6e-de1dd3b87204",
-      "email": "hernandezcharles@example.com",
-      "email_verified": false,
-      "first_name": "Christine",
-      "last_name": "Murray",
-      "nickname": "ahill",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "Europe/London",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-12-14T06:03:41",
-      "updated_at": "2025-02-25T00:20:36",
-      "last_login": null
-    },
-    {
-      "id": "8e3efc14-eb5f-419a-b26a-2ac16ec0ee64",
-      "auth0_id": "04176612-25cb-4248-8742-602b8c584526",
-      "email": "hillbrian@example.net",
-      "email_verified": false,
-      "first_name": "Donald",
-      "last_name": "Adkins",
-      "nickname": "jacksonandrew",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "Europe/London",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2026-01-06T08:36:42",
-      "updated_at": "2026-01-07T13:21:37",
-      "last_login": null
-    },
-    {
-      "id": "4498087a-a947-49d9-86d7-a254e0154b6b",
-      "auth0_id": "5fb62a4a-3afd-46d6-9ec6-0fb35391ab24",
-      "email": "mcculloughallison@example.org",
-      "email_verified": false,
-      "first_name": "Tina",
-      "last_name": "Ho",
-      "nickname": "michaeljackson",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "Europe/London",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-06-10T08:48:48",
-      "updated_at": "2025-10-05T02:08:19",
-      "last_login": null
-    },
-    {
-      "id": "7c519b08-61b2-4f15-834e-62aa1533c6c5",
-      "auth0_id": "85f6be67-7e7e-410a-b2df-aca3e1de99b9",
-      "email": "martinezthomas@example.org",
-      "email_verified": false,
-      "first_name": "Albert",
-      "last_name": "Adams",
-      "nickname": "jeremy93",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "Europe/London",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-09-03T23:52:46",
-      "updated_at": "2024-12-03T17:03:12",
-      "last_login": null
-    },
-    {
-      "id": "3fc12313-77ea-49ef-8fca-686d4fef95cc",
-      "auth0_id": "dd551101-feb2-44f9-bfb1-cc07754c9260",
-      "email": "lavila@example.org",
-      "email_verified": false,
-      "first_name": "Jessica",
-      "last_name": "Bentley",
-      "nickname": "kmoore",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-07-17T22:38:53",
-      "updated_at": "2024-10-19T21:38:41",
-      "last_login": null
-    },
-    {
-      "id": "7bae95b4-da25-45b5-98ef-0e10b2bfcf21",
-      "auth0_id": "f657af83-81e3-49d3-b825-2bbf9636528e",
-      "email": "danielleallen@example.com",
-      "email_verified": false,
-      "first_name": "Andrew",
-      "last_name": "Watson",
-      "nickname": "mitchell28",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "America/Los_Angeles",
-        "theme": "light",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-08-17T17:17:02",
-      "updated_at": "2025-12-29T07:02:20",
-      "last_login": null
-    },
-    {
-      "id": "2ebd9f9e-9b9a-41d3-8062-dd281da7c034",
-      "auth0_id": "2867971f-f20d-4190-b8c6-9960aa6a05ab",
-      "email": "amanda50@example.com",
-      "email_verified": false,
-      "first_name": "John",
-      "last_name": "Ray",
-      "nickname": "angela68",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
-        "timezone": "UTC",
-        "theme": "light",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2024-09-10T09:31:59",
-      "updated_at": "2025-11-23T05:30:47",
-      "last_login": null
-    },
-    {
-      "id": "d7e876ec-08fd-4beb-9fe2-5e8a4fa152cb",
-      "auth0_id": "ca4ab1fc-c212-4a83-9d2b-8957e20d2c02",
-      "email": "deniseortiz@example.net",
-      "email_verified": false,
-      "first_name": "Todd",
-      "last_name": "Greer",
-      "nickname": "garzaamy",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "EUR",
-        "timezone": "Europe/London",
-        "theme": "dark",
-        "notifications": {
-          "reminders": true
-        }
-      },
-      "created_at": "2025-04-19T12:29:44",
-      "updated_at": "2025-11-30T21:18:01",
-      "last_login": null
-    },
-    {
-      "id": "08631b93-ec8f-453b-9cdf-5aca49ba2562",
-      "auth0_id": "e2f91174-46ed-4e50-a9c2-3d3d2e1ff5aa",
-      "email": "carlabarber@example.org",
-      "email_verified": false,
-      "first_name": "Roberta",
-      "last_name": "Ibarra",
-      "nickname": "dayantonio",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "GBP",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2025-04-06T02:56:37",
-      "updated_at": "2025-07-12T09:13:38",
-      "last_login": null
-    },
-    {
-      "id": "075bb3e7-af07-4ee6-86e0-c3bb7989e882",
-      "auth0_id": "e4cbbfdb-3573-47fb-996e-24dd80be2a07",
-      "email": "scottmatthew@example.com",
-      "email_verified": false,
-      "first_name": "Sherry",
-      "last_name": "Burton",
-      "nickname": "matthew79",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "USD",
         "timezone": "UTC",
-        "theme": "dark",
+        "theme": "light",
         "notifications": {
           "reminders": true
         }
       },
-      "created_at": "2025-08-31T15:41:20",
-      "updated_at": "2025-12-18T12:09:09",
+      "created_at": "2024-04-11T22:28:50",
+      "updated_at": "2025-10-04T21:49:29",
       "last_login": null
     },
     {
-      "id": "195b5af8-8b1a-4a02-ae8a-edf8d414a890",
-      "auth0_id": "669da1b1-6a78-4c97-8f94-895e6fcdcb5d",
-      "email": "yvonnesweeney@example.org",
+      "id": "e2f73227-f23f-46c7-973e-f2e22e44cd13",
+      "auth0_id": "3a70f878-be36-41b5-ae35-9af429057cc5",
+      "email": "katherinetucker@example.com",
       "email_verified": false,
-      "first_name": "Brandon",
-      "last_name": "Wilson",
-      "nickname": "mary72",
+      "first_name": "Brian",
+      "last_name": "Huffman",
+      "nickname": "chavezdorothy",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
-        "currency": "AUD",
-        "timezone": "UTC",
+        "currency": "GBP",
+        "timezone": "America/Los_Angeles",
         "theme": "dark",
         "notifications": {
           "reminders": false
         }
       },
-      "created_at": "2024-06-18T20:42:28",
-      "updated_at": "2024-12-05T22:07:33",
+      "created_at": "2024-05-12T05:42:55",
+      "updated_at": "2024-06-20T04:09:23",
       "last_login": null
     },
     {
-      "id": "3764253a-af46-499f-99b6-3f1d68d44bad",
-      "auth0_id": "2d2ab76f-65fa-47f8-85b0-8186da649607",
-      "email": "onewman@example.com",
+      "id": "898706d1-3ae0-45c6-b376-34aa9ee2b604",
+      "auth0_id": "cd30693c-6218-4889-bf77-05ec04d78f5b",
+      "email": "victorialambert@example.net",
       "email_verified": false,
-      "first_name": "Robert",
-      "last_name": "Heath",
-      "nickname": "mikaylaboyd",
+      "first_name": "Hunter",
+      "last_name": "Reyes",
+      "nickname": "zcochran",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
-        "currency": "AUD",
-        "timezone": "Europe/London",
+        "currency": "GBP",
+        "timezone": "America/Los_Angeles",
         "theme": "dark",
         "notifications": {
           "reminders": false
         }
       },
-      "created_at": "2024-01-25T20:08:13",
-      "updated_at": "2024-03-01T13:17:11",
+      "created_at": "2024-03-31T04:24:01",
+      "updated_at": "2025-12-08T23:39:41",
       "last_login": null
     },
     {
-      "id": "f285a6f8-c2a2-4300-bde4-8782d83438a0",
-      "auth0_id": "cdfc7fd7-dea9-430b-90d0-b2eec863dc33",
-      "email": "amberperez@example.net",
+      "id": "dd7ba2a0-e6cd-4d6c-944e-dec217de9f35",
+      "auth0_id": "3fb398a2-4138-4675-8017-179fbe187f2b",
+      "email": "thomas32@example.org",
       "email_verified": false,
-      "first_name": "Lori",
-      "last_name": "Rice",
-      "nickname": "diane33",
+      "first_name": "Michelle",
+      "last_name": "Jones",
+      "nickname": "rachel15",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "EUR",
-        "timezone": "UTC",
-        "theme": "dark",
-        "notifications": {
-          "reminders": false
-        }
-      },
-      "created_at": "2024-03-05T05:20:34",
-      "updated_at": "2024-10-15T03:10:35",
-      "last_login": null
-    },
-    {
-      "id": "54d83bb3-fb09-4535-8857-e7f1f939079b",
-      "auth0_id": "8b005d68-6877-461c-b747-13c4f6d70051",
-      "email": "bvasquez@example.org",
-      "email_verified": false,
-      "first_name": "David",
-      "last_name": "Massey",
-      "nickname": "mbrown",
-      "picture": null,
-      "account_status": "pending",
-      "role": "user",
-      "salary_amount": "0.00",
-      "settings": {
-        "currency": "AUD",
         "timezone": "Europe/London",
         "theme": "dark",
         "notifications": {
           "reminders": true
         }
       },
-      "created_at": "2025-10-03T01:29:41",
-      "updated_at": "2025-11-03T11:49:51",
+      "created_at": "2025-07-15T15:14:11",
+      "updated_at": "2025-10-06T16:17:18",
       "last_login": null
     },
     {
-      "id": "9c32ebb0-4979-4992-86e2-a0b74bef5b10",
-      "auth0_id": "d9872d6c-376a-4c45-b359-c26dc7da2c2b",
-      "email": "zproctor@example.com",
+      "id": "77c4e224-bbf0-480e-9650-7face250498a",
+      "auth0_id": "1784747c-7389-4613-9e41-9309b8ff0622",
+      "email": "oscarbush@example.net",
       "email_verified": false,
-      "first_name": "Julie",
-      "last_name": "Andrews",
-      "nickname": "luis11",
+      "first_name": "James",
+      "last_name": "Davis",
+      "nickname": "jamie82",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
-        "currency": "AUD",
+        "currency": "GBP",
         "timezone": "UTC",
         "theme": "dark",
         "notifications": {
-          "reminders": false
+          "reminders": true
         }
       },
-      "created_at": "2024-02-25T05:26:20",
-      "updated_at": "2024-06-23T17:59:08",
+      "created_at": "2024-11-20T04:47:44",
+      "updated_at": "2025-07-05T19:23:13",
       "last_login": null
     },
     {
-      "id": "18c05a1a-35b0-4856-b82c-b0b10bcb5efb",
-      "auth0_id": "b7db19d6-0d66-45cc-b116-2bea1160dea5",
-      "email": "kmarshall@example.net",
+      "id": "8f232208-852c-4492-a6ac-b0ed78236ef1",
+      "auth0_id": "760dcf99-b1fb-49de-be6a-c6d2f18ca1da",
+      "email": "ssmith@example.com",
       "email_verified": false,
-      "first_name": "Sarah",
-      "last_name": "Moore",
-      "nickname": "david52",
+      "first_name": "Glenn",
+      "last_name": "Odonnell",
+      "nickname": "annstephens",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "EUR",
-        "timezone": "Europe/London",
+        "timezone": "America/Los_Angeles",
         "theme": "light",
         "notifications": {
           "reminders": false
         }
       },
-      "created_at": "2024-08-22T01:52:49",
-      "updated_at": "2025-10-07T03:03:27",
+      "created_at": "2025-11-27T21:26:24",
+      "updated_at": "2025-12-26T21:39:42",
       "last_login": null
     },
     {
-      "id": "e7a48f72-1619-47fc-a6d8-a4b27945540a",
-      "auth0_id": "93e845cc-b936-42f3-b47a-de17bc6abc76",
-      "email": "lewisamanda@example.com",
+      "id": "55d38b21-6128-4ba0-bd9e-ffa116e23940",
+      "auth0_id": "fc305d09-0ac8-4087-a373-6a49aada9767",
+      "email": "rodgerscarolyn@example.net",
       "email_verified": false,
-      "first_name": "Garrett",
-      "last_name": "Taylor",
-      "nickname": "jonathan86",
+      "first_name": "Angela",
+      "last_name": "Boone",
+      "nickname": "xmiller",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "America/Los_Angeles",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-04-23T05:36:40",
+      "updated_at": "2025-10-02T20:06:08",
+      "last_login": null
+    },
+    {
+      "id": "e2af414e-1499-4c2e-9f4a-51271960011e",
+      "auth0_id": "2a5629b2-bc21-4ce9-88b2-187665c27df4",
+      "email": "justin23@example.com",
+      "email_verified": false,
+      "first_name": "Samantha",
+      "last_name": "Acevedo",
+      "nickname": "bakerandrew",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "Europe/London",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-05-03T02:54:39",
+      "updated_at": "2024-12-30T04:25:10",
+      "last_login": null
+    },
+    {
+      "id": "59fdc6fc-57e3-4c3c-8420-87713c9fbb43",
+      "auth0_id": "7d93a45d-46b6-4f07-a4bd-873b9068cafc",
+      "email": "mendozamichelle@example.com",
+      "email_verified": false,
+      "first_name": "Emily",
+      "last_name": "Smith",
+      "nickname": "jenniferjohnson",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "Europe/London",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-05-14T11:53:31",
+      "updated_at": "2024-07-04T08:09:33",
+      "last_login": null
+    },
+    {
+      "id": "e7208e73-a939-4b1a-bb10-b626ff661e15",
+      "auth0_id": "5235e689-99c2-4bdf-a85c-7b1aa6461d0f",
+      "email": "burnsroger@example.org",
+      "email_verified": false,
+      "first_name": "Dean",
+      "last_name": "Torres",
+      "nickname": "teresahogan",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "America/Los_Angeles",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-11-12T19:14:31",
+      "updated_at": "2025-05-14T06:29:25",
+      "last_login": null
+    },
+    {
+      "id": "cde5b214-6f98-4874-98a1-fbaf65217fe8",
+      "auth0_id": "f39d2b19-7ba5-4ee8-94fa-a7758d5360a8",
+      "email": "laura14@example.com",
+      "email_verified": false,
+      "first_name": "Cody",
+      "last_name": "Henson",
+      "nickname": "hansenkim",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "America/Los_Angeles",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-07-15T08:54:21",
+      "updated_at": "2025-08-17T17:26:16",
+      "last_login": null
+    },
+    {
+      "id": "fbec1e63-8fcb-49c2-925f-879315b4974e",
+      "auth0_id": "4fa37688-0363-4ea3-80bb-0f91262383dc",
+      "email": "jacobjacobs@example.org",
+      "email_verified": false,
+      "first_name": "Tammy",
+      "last_name": "Barnes",
+      "nickname": "englishkathryn",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-01-31T19:33:38",
+      "updated_at": "2025-01-09T16:54:01",
+      "last_login": null
+    },
+    {
+      "id": "1f179ccf-f225-4fdf-a2ed-4596c1fbdeb9",
+      "auth0_id": "80c4f77e-c37d-4c18-97cb-367526f0e091",
+      "email": "hwilson@example.org",
+      "email_verified": false,
+      "first_name": "Misty",
+      "last_name": "Bailey",
+      "nickname": "julie15",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-10-02T04:14:22",
+      "updated_at": "2025-04-12T08:08:28",
+      "last_login": null
+    },
+    {
+      "id": "a3a15975-2c36-42e5-a310-7345664fe2d8",
+      "auth0_id": "d46504ec-2918-4d2e-900f-8e33cb18b3df",
+      "email": "millershannon@example.com",
+      "email_verified": false,
+      "first_name": "Erica",
+      "last_name": "Stephens",
+      "nickname": "aboyer",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "GBP",
@@ -2373,21 +1989,213 @@
           "reminders": true
         }
       },
-      "created_at": "2025-03-05T00:16:40",
-      "updated_at": "2025-08-30T11:47:28",
+      "created_at": "2024-03-18T06:41:47",
+      "updated_at": "2024-11-03T13:56:06",
       "last_login": null
     },
     {
-      "id": "40025351-65c4-49d2-9565-08c2870e7133",
-      "auth0_id": "e9e028b2-6281-4bd3-b2e5-b34f2b49196f",
-      "email": "ksexton@example.org",
+      "id": "439ee863-9715-4be6-9dc2-51cc45f1152b",
+      "auth0_id": "577e19da-8e73-4332-a47e-8cd301c21895",
+      "email": "davidcline@example.com",
       "email_verified": false,
-      "first_name": "Carmen",
-      "last_name": "Leon",
-      "nickname": "smithmatthew",
+      "first_name": "Michelle",
+      "last_name": "Castro",
+      "nickname": "hbell",
       "picture": null,
       "account_status": "pending",
-      "role": "user",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-09-29T11:33:24",
+      "updated_at": "2025-10-24T14:55:36",
+      "last_login": null
+    },
+    {
+      "id": "17ed2f6d-b0e8-4922-9cbb-2829d5f91014",
+      "auth0_id": "35b08881-5ada-40ce-9058-efee6ebca27c",
+      "email": "raven89@example.net",
+      "email_verified": false,
+      "first_name": "Zachary",
+      "last_name": "Mendoza",
+      "nickname": "steven94",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-02-07T20:37:28",
+      "updated_at": "2025-06-11T03:26:04",
+      "last_login": null
+    },
+    {
+      "id": "91bc45e7-5aee-4767-9bc5-0c22e23a0b1b",
+      "auth0_id": "cd746843-2fb0-442f-81eb-764ba77bcba2",
+      "email": "xdorsey@example.com",
+      "email_verified": false,
+      "first_name": "Kelsey",
+      "last_name": "Potts",
+      "nickname": "sherryroberts",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "Europe/London",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-06-17T04:24:51",
+      "updated_at": "2025-02-25T03:26:09",
+      "last_login": null
+    },
+    {
+      "id": "0fd9e572-7587-4640-b371-9ee9ac0ddb19",
+      "auth0_id": "319d00c4-43cb-462f-8e97-e39da7f82e3d",
+      "email": "joyce73@example.com",
+      "email_verified": false,
+      "first_name": "Connie",
+      "last_name": "Campos",
+      "nickname": "princezachary",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "Europe/London",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-07-13T11:35:59",
+      "updated_at": "2025-10-25T07:35:04",
+      "last_login": null
+    },
+    {
+      "id": "1eeed998-9545-4ff2-8d21-7ef1f719f9af",
+      "auth0_id": "74cc23ae-445f-4ca1-8844-1ad91b30817a",
+      "email": "rebeccaevans@example.com",
+      "email_verified": false,
+      "first_name": "Curtis",
+      "last_name": "Gallegos",
+      "nickname": "johnnorton",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "America/Los_Angeles",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-11-19T13:30:37",
+      "updated_at": "2025-12-20T22:03:37",
+      "last_login": null
+    },
+    {
+      "id": "dec4eef9-633b-4741-8b8c-f62f1f5751cf",
+      "auth0_id": "7366d19c-2e9d-45a7-ac1d-0ff666e720d7",
+      "email": "asullivan@example.net",
+      "email_verified": false,
+      "first_name": "Alison",
+      "last_name": "Kramer",
+      "nickname": "elaineboyle",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-08-10T22:46:33",
+      "updated_at": "2025-12-07T07:58:39",
+      "last_login": null
+    },
+    {
+      "id": "9d7a4274-1433-421e-bdbf-84890c3a5f2c",
+      "auth0_id": "dfb0a67a-41c6-448f-8e1d-356af332598a",
+      "email": "robert29@example.com",
+      "email_verified": false,
+      "first_name": "Patrick",
+      "last_name": "Chavez",
+      "nickname": "jessica91",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "UTC",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-06-01T23:33:06",
+      "updated_at": "2025-08-27T18:32:14",
+      "last_login": null
+    },
+    {
+      "id": "42b15238-f273-4fbe-897f-0456af203537",
+      "auth0_id": "17170039-2767-47bc-98bd-71e71fbebb65",
+      "email": "mpayne@example.org",
+      "email_verified": false,
+      "first_name": "Lisa",
+      "last_name": "Hanson",
+      "nickname": "brandybrooks",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "UTC",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-05-02T05:02:49",
+      "updated_at": "2025-08-02T12:22:53",
+      "last_login": null
+    },
+    {
+      "id": "b7df502f-cae9-4647-a633-dc0f958f4e7d",
+      "auth0_id": "9bcaa589-3882-460a-9a9e-2e3fc7422240",
+      "email": "christopher48@example.com",
+      "email_verified": false,
+      "first_name": "Christopher",
+      "last_name": "Hensley",
+      "nickname": "jenniferlopez",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
       "salary_amount": "0.00",
       "settings": {
         "currency": "EUR",
@@ -2397,8 +2205,200 @@
           "reminders": true
         }
       },
-      "created_at": "2024-03-21T09:07:51",
-      "updated_at": "2024-12-18T12:48:28",
+      "created_at": "2025-10-09T13:04:25",
+      "updated_at": "2025-12-24T04:49:12",
+      "last_login": null
+    },
+    {
+      "id": "6dd3e6f3-45e0-46bb-bfad-83f64f450b06",
+      "auth0_id": "730388a4-6580-4dfb-8297-d0382e68ab2e",
+      "email": "lauren47@example.com",
+      "email_verified": false,
+      "first_name": "Kathryn",
+      "last_name": "Rhodes",
+      "nickname": "braymichael",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "Europe/London",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-06-27T04:04:49",
+      "updated_at": "2025-11-17T13:09:38",
+      "last_login": null
+    },
+    {
+      "id": "825a7ec6-acda-49ff-b9b7-162dfd683a76",
+      "auth0_id": "9ab8669b-c4fc-49af-8724-3f630f12fcb1",
+      "email": "johnsonjessica@example.com",
+      "email_verified": false,
+      "first_name": "Nancy",
+      "last_name": "Sellers",
+      "nickname": "emontoya",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-04-22T11:04:06",
+      "updated_at": "2025-09-06T19:36:44",
+      "last_login": null
+    },
+    {
+      "id": "b8cde870-51c4-4fad-b543-b2bc3986b400",
+      "auth0_id": "32124f5d-98a3-4abb-916d-9c05e237cd7b",
+      "email": "mchase@example.com",
+      "email_verified": false,
+      "first_name": "Elizabeth",
+      "last_name": "Cohen",
+      "nickname": "carolinerodriguez",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-06-09T11:50:50",
+      "updated_at": "2024-11-05T11:16:56",
+      "last_login": null
+    },
+    {
+      "id": "4dc7b9c1-53bb-4bf7-a166-9f477922b7cd",
+      "auth0_id": "55fe7648-7ecc-44e2-a612-25e8e17a4022",
+      "email": "ortizjason@example.org",
+      "email_verified": false,
+      "first_name": "Megan",
+      "last_name": "Wood",
+      "nickname": "sara89",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "UTC",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-03-16T15:12:33",
+      "updated_at": "2024-08-31T00:53:06",
+      "last_login": null
+    },
+    {
+      "id": "9911d65d-f707-481b-8e51-eb08765e4053",
+      "auth0_id": "64e764ea-ce8d-4da7-b930-0a0fabdbf463",
+      "email": "tbaker@example.com",
+      "email_verified": false,
+      "first_name": "Rachel",
+      "last_name": "Brooks",
+      "nickname": "greenkenneth",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-05-18T21:12:27",
+      "updated_at": "2025-02-20T08:22:07",
+      "last_login": null
+    },
+    {
+      "id": "fa76df35-e219-4e2a-926a-a7dee0081a26",
+      "auth0_id": "6d1c019f-4db1-4d77-b301-4b86c69df379",
+      "email": "omartinez@example.com",
+      "email_verified": false,
+      "first_name": "Ashlee",
+      "last_name": "Taylor",
+      "nickname": "ramireztiffany",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "America/Los_Angeles",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-03-28T09:09:51",
+      "updated_at": "2025-04-11T20:54:30",
+      "last_login": null
+    },
+    {
+      "id": "6f9b9450-a0f2-499a-aad2-29e109d94ba0",
+      "auth0_id": "e628958c-c5b4-4a44-be43-621c1f9cdb0d",
+      "email": "elizabethdavis@example.net",
+      "email_verified": false,
+      "first_name": "Juan",
+      "last_name": "Davis",
+      "nickname": "brian23",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-11-27T07:02:42",
+      "updated_at": "2026-01-07T02:01:07",
+      "last_login": null
+    },
+    {
+      "id": "c37a2c1b-b6dd-4d29-a300-255f547d0f1f",
+      "auth0_id": "9a65f9df-426b-4913-8a13-60a812f1f62f",
+      "email": "woodselizabeth@example.net",
+      "email_verified": false,
+      "first_name": "Christopher",
+      "last_name": "Sims",
+      "nickname": "francisco49",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-10-31T07:29:21",
+      "updated_at": "2025-04-29T01:59:48",
       "last_login": null
     }
   ]
