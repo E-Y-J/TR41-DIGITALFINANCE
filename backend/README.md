@@ -406,8 +406,247 @@ flask db migrate -m "Initial migration"
 # Apply migration
 flask db upgrade
 ```
+---
 
-### 7. Run Development Server
+### 6.1 Seed Development Data (Users)
+
+> Required for local development to test authentication, `/api/users/me`, and role-based behavior without Auth0 login.
+> Ensure your `.env` file contains the following before seeding:
+
+```env
+FLASK_APP=app:create_app
+FLASK_ENV=development
+DEV_IMPERSONATION=true
+```
+
+#### Overview
+
+* Generates seed users with valid `auth0_id` values.
+* Ensures enum fields (e.g., `role`) match backend constraints (`USER`, `ADMIN`).
+* Supports dev impersonation via `X-Dev-Auth0-Id`.
+
+> ⚠️ Only use dev impersonation in **local or development environments**. Never enable in production.
+
+#### Running the Seed Scripts
+
+##### 1. Ensure virtual environment is active
+
+```bash
+cd backend
+# Mac/Linux
+source venv/bin/activate
+# Windows (Git Bash)
+source venv/Scripts/activate
+# Windows (CMD)
+venv\Scripts\activate
+```
+
+---
+
+##### 2. Generate seed users (fixtures)
+
+<details>
+<summary>Optional: Adjust number of users or output file</summary>
+
+```bash
+cd tools
+# Default: 100 users
+python generate_seed_users.py --count 100 --out ../fixtures/seed_users.json
+
+# Example: 50 users
+python generate_seed_users.py --count 50 --out ../fixtures/seed_users.json
+
+cd ..
+```
+
+</details>
+
+This will create or overwrite:
+
+```
+backend/fixtures/seed_users.json
+```
+
+---
+
+##### 3. Seed the database
+
+###### Dry run (no database writes)
+
+<details>
+<summary>Optional: Dry run to validate seed data</summary>
+
+```bash
+python tools/seed_db.py --file fixtures/seed_users.json
+```
+
+</details>
+
+###### Commit seed data to the database
+
+```bash
+python tools/seed_db.py --file fixtures/seed_users.json --commit
+```
+
+This will insert all users into the database.
+
+---
+
+##### 4. Verify data in PostgreSQL
+
+Using **pgAdmin** or `psql`:
+
+```sql
+-- Check all users
+SELECT * FROM users;
+
+-- Verify enum-safe roles
+SELECT DISTINCT role FROM users;
+```
+
+> ✅ Tip: Make note of `auth0_id` values in the database; you will use them for dev impersonation in 6.2–6.3.
+
+---
+
+### 6.2 Backend Testing
+
+#### 1. Start Flask app
+
+```bash
+cd backend
+flask run
+```
+
+Server will start at `http://localhost:8000`.
+
+---
+
+#### 2. Test endpoints with dev impersonation
+
+You can use **curl** or **Postman** to test seeded users.
+The `X-Dev-Auth0-Id` header allows you to impersonate any seeded user in local/dev environments.
+
+> **Note:** Replace `actual_auth0_id` with the **auth0_id from your database** to see real responses.
+
+```bash
+curl -H "X-Dev-Auth0-Id: actual_auth0_id" http://localhost:8000/api/users/me
+```
+
+<details>
+<summary>Optional: Test multiple users</summary>
+
+```bash
+curl -H "X-Dev-Auth0-Id: another_auth0_id" http://localhost:8000/api/users/me
+```
+
+</details>
+
+---
+
+#### 3. Expected response
+
+```json
+{
+  "success": true,
+  "message": "User retrieved successfully",
+  "data": {
+    "auth0_id": "Auth0_id",  // Replace with actual database value
+    "account_status": "AccountStatus.PENDING",
+    "role": "USER"
+    // other user fields as in your database...
+  }
+}
+```
+
+---
+
+#### ⚠️ Important Notes
+
+* **Dev impersonation is strictly for local or development use.** Never enable in production.
+
+  > Backend checks ensure this **cannot affect production**.
+* `X-Dev-Auth0-Id` must match a seeded user from `fixtures/seed_users.json`.
+* If you get a 401 or empty response:
+
+  1. Ensure Flask app is running in development mode (`FLASK_ENV=development`).
+  2. Verify seed data was committed to the database.
+* Replace all placeholder `auth0_id` values with actual database IDs to see true results.
+
+---
+
+### 6.3 Frontend Testing
+
+> Ensure the backend is running locally (`http://localhost:8000`) and that seed data exists.
+
+#### 1. Test endpoints from the browser console
+
+Open DevTools (Chrome, Edge, or Firefox) and run:
+
+```javascript
+fetch('http://localhost:8000/api/users/me', {
+  headers: { 'X-Dev-Auth0-Id': 'actual_auth0_id' } // Replace with auth0_id from DB
+})
+  .then(res => res.json())
+  .then(data => console.log(data))
+  .catch(err => console.error('Fetch error:', err));
+```
+
+> **Note:** Replace `actual_auth0_id` with the **auth0_id from your database** to see real responses.
+
+<details>
+<summary>Optional: Test multiple users in console</summary>
+
+```javascript
+const ids = ['auth0_id_1', 'auth0_id_2'];
+ids.forEach(id => {
+  fetch('http://localhost:8000/api/users/me', { headers: { 'X-Dev-Auth0-Id': id } })
+    .then(res => res.json())
+    .then(data => console.log(id, data));
+});
+```
+
+</details>
+
+---
+
+#### 2. Monitor requests via the Network tab
+
+1. Open **DevTools → Network**.
+2. Filter by **XHR/Fetch** requests.
+3. Optionally enable **Preserve log** to keep request history across reloads.
+4. Inspect the `/api/users/me` request for:
+
+   * Status codes (200, 401, etc.)
+   * Request and response headers
+   * JSON response body
+
+---
+
+#### 3. Verify results
+
+* Ensure the returned `role` matches the seeded user (`"USER"` or `"ADMIN"`).
+* To test a different user, update the `X-Dev-Auth0-Id` header to another seeded `auth0_id`.
+
+---
+
+#### 4. Tips & Tricks for smoother frontend testing
+
+* **Combine console + Network tab:** Run the fetch request and watch Network tab to see headers/payload in real time.
+* **Preserve log:** Keep request history across reloads.
+* **Response inspection:** Clicking on a request shows the JSON response clearly.
+* **Debugging headers:** Wrong `X-Dev-Auth0-Id` returns 401 or empty responses.
+
+---
+
+#### ⚠️ Important Notes
+
+* **Dev impersonation is strictly for local or development use.**
+* Backend checks ensure this **cannot affect production**.
+* Never enable or use this header in staging/production environments.
+
+---
+
+#### 7. Run Development Server
 
 ```bash
 flask run

@@ -37,7 +37,7 @@ Flask g Context:
 import logging
 from functools import wraps
 from typing import Callable, Optional, TypeVar, Any
-
+import os
 from flask import request, g
 
 from app.auth.auth0 import (
@@ -98,8 +98,18 @@ def requires_auth(f: F) -> F:
         ...     return {"user_id": g.auth0_id}
     """
 
+
     @wraps(f)
     def decorated(*args: Any, **kwargs: Any) -> Any:
+# DEV IMPERSONATION (skip Auth0)
+        if os.getenv("DEV_IMPERSONATION") == "true":
+            dev_auth0_id = request.headers.get("X-Dev-Auth0-Id")
+            if dev_auth0_id:
+                g.auth0_id = dev_auth0_id
+                g.current_user = {"sub": dev_auth0_id}
+                g.access_token = None
+                logger.debug(f"Dev impersonation enabled for user: {dev_auth0_id}")
+                return f(*args, **kwargs)
         try:
             # Extract token from header
             auth_header = request.headers.get("Authorization")

@@ -60,3 +60,8 @@ pytest-cov>=4.1.0
 python-dotenv>=1.0.0
 black>=24.0.0
 flake8>=7.0.0
+
+# Seed Data Generation
+Faker>=40.1.0
+SQLAlchemy>=2.0.45
+requests>=2.32.5
