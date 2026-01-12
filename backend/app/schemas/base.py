@@ -88,8 +88,6 @@ class BaseSchema(Schema):
     """
 
     class Meta:
-        # Return ordered dict to maintain field order
-        ordered = True
         # Don't raise on unknown fields during load (ignore them)
         unknown = EXCLUDE
 

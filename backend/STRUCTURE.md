@@ -41,14 +41,17 @@ app/api/
 - Call services for business logic (routes should be thin)
 
 **Files to create:**
-| File | Endpoints |
-|------|-----------|
-| `users.py` | `/api/users/me`, `/api/users/profile` |
-| `transactions.py` | `/api/transactions` (CRUD) |
-| `dashboard.py` | `/api/dashboard/summary`, `/api/dashboard/categories` |
-| `ai.py` | `/api/ai/categorize`, `/api/ai/chat`, `/api/ai/alerts` |
-| `notifications.py` | `/api/notifications` |
-| `categories.py` | `/api/categories` (user custom categories) |
+| File | Endpoints | Status |
+|------|-----------|--------|
+| `auth.py` | `/api/auth/callback`, `/api/auth/me` | ✅ Sprint 1 |
+| `users.py` | `/api/users/me`, `/api/users/profile` | ✅ Sprint 1 |
+| `transactions.py` | `/api/transactions` (CRUD) | ✅ Sprint 1 |
+| `test.py` | `/api/test` (connection test) | ✅ Sprint 1 |
+| `categories.py` | `/api/categories` (list 11 defaults) | ✅ AI Foundation |
+| `notifications.py` | `/api/notifications` (CRUD + mark read) | ✅ AI Foundation |
+| `alerts.py` | `/api/alerts` (list, dismiss) | ✅ AI Foundation |
+| `summary.py` | `/api/summary` (spending analytics) | ✅ AI Foundation |
+| `ai.py` | `/api/ai/categorize`, `/api/ai/chat` | ⏳ AI Integration |
 
 ---
 
@@ -114,13 +117,15 @@ app/models/
 - Model methods for common queries
 
 **Files to create:**
-| File | Table | Description |
-|------|-------|-------------|
-| `user.py` | `users` | User profile (linked to Auth0) |
-| `transaction.py` | `transactions` | Income/expense entries |
-| `category.py` | `categories` | Default + user custom categories |
-| `notification.py` | `notifications` | User notifications & alerts |
-| `budget.py` | `budgets` | Budget goals per category (stretch) |
+| File | Table | Description | Status |
+|------|-------|-------------|--------|
+| `user.py` | `users` | User profile (linked to Auth0) | ✅ Sprint 1 |
+| `transaction.py` | `transactions` | Income/expense entries | ✅ Sprint 1 |
+| `enums.py` | N/A | Centralized enums for all models | ✅ Sprint 1 + AI Foundation |
+| `category.py` | `categories` | 11 default categories for AI categorization | ✅ AI Foundation |
+| `notification.py` | `notifications` | User notifications (6 types) | ✅ AI Foundation |
+| `alert.py` | `alerts` | Financial anomaly alerts | ✅ AI Foundation |
+| `budget.py` | `budgets` | Budget goals per category | ⏳ Future |
 
 ---
 
@@ -138,13 +143,15 @@ app/schemas/
 - Nested schemas for related objects
 
 **Files to create:**
-| File | Purpose |
-|------|---------|
-| `user_schema.py` | User profile validation/serialization |
-| `transaction_schema.py` | Transaction CRUD validation |
-| `category_schema.py` | Category validation |
-| `dashboard_schema.py` | Summary response schemas |
-| `ai_schema.py` | AI request/response schemas |
+| File | Purpose | Status |
+|------|---------|--------|
+| `base.py` | Base schema class with common validators | ✅ Sprint 1 |
+| `user_schema.py` | User profile validation/serialization | ✅ Sprint 1 |
+| `transaction_schema.py` | Transaction CRUD validation | ✅ Sprint 1 |
+| `category_schema.py` | Category serialization | ✅ AI Foundation |
+| `notification_schema.py` | Notification serialization | ✅ AI Foundation |
+| `alert_schema.py` | Alert serialization | ✅ AI Foundation |
+| `ai_schema.py` | AI request/response schemas | ⏳ AI Integration |
 | `notification_schema.py` | Notification serialization |
 
 ---
@@ -164,14 +171,15 @@ app/services/
 - Data processing and calculations
 
 **Files to create:**
-| File | Purpose |
-|------|---------|
-| `user_service.py` | User CRUD, profile updates, Auth0 sync |
-| `transaction_service.py` | Transaction CRUD, filtering, CSV export |
-| `dashboard_service.py` | Spending summaries, category totals, date ranges |
-| `ai_service.py` | Orchestrate AI modules, format responses |
-| `notification_service.py` | Create alerts, mark as read |
-| `category_service.py` | Default categories, user custom categories |
+| File | Purpose | Status |
+|------|---------|--------|
+| `user_service.py` | User CRUD, profile updates, Auth0 sync | ✅ Sprint 1 |
+| `transaction_service.py` | Transaction CRUD, filtering, CSV export | ✅ Sprint 1 |
+| `category_service.py` | Category lookup, keyword categorization | ✅ AI Foundation |
+| `notification_service.py` | Notification CRUD, mark as read | ✅ AI Foundation |
+| `alert_service.py` | Alert management, dismiss alerts | ✅ AI Foundation |
+| `summary_service.py` | Spending summaries, trends, comparisons | ✅ AI Foundation |
+| `ai_service.py` | Orchestrate AI modules, format responses | ⏳ AI Integration |
 
 **Rule:** Routes call services. Services call models. Keep it clean.
 

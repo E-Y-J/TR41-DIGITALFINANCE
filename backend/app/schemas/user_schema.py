@@ -265,9 +265,8 @@ class UserUpdateSchema(BaseSchema):
 
     settings = fields.Nested(
         UserSettingsSchema,
-        partial=True,
         load_default=None,
-        metadata={"description": "User preferences to update"},
+        metadata={"description": "User preferences to update", "partial": True},
     )
 
     @validates("first_name")

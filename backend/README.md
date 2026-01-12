@@ -16,7 +16,7 @@ This backend supports a cloud-based finance tracker that:
 
 ### Entity Relationship Diagram
 
-The ERD for the database architecture is located at: 
+The ERD for the database architecture is located at:
 📁 **Path:** `backend/ERD.png`
 
 ![ERD](ERD.png)
@@ -292,16 +292,34 @@ flask db upgrade
   - Run locally and note results in README
   - Environment variables for base_url, access_token
 
-### Sprint 2 - Dashboard, AI & Polish
-- [ ] `app/services/dashboard_service.py` - Summary calculations
-- [ ] `app/api/routes/dashboard.py` - Dashboard endpoints
-- [ ] `app/ai/categorize.py` - AI categorization
+### Sprint 2 - Foundation (Models, Services, Routes) ✅ IN PROGRESS
+
+**Sprint 2 Foundation - COMPLETED:**
+- [x] `app/models/category.py` - Category model (11 default categories) ✅
+- [x] `app/models/notification.py` - Notification model (6 types) ✅
+- [x] `app/models/alert.py` - Alert model (anomaly detection foundation) ✅
+- [x] `app/models/enums.py` - Sprint 2 enums (CategoryType, NotificationType, AlertType, etc.) ✅
+- [x] `app/schemas/category_schema.py` - Category serialization ✅
+- [x] `app/schemas/notification_schema.py` - Notification serialization ✅
+- [x] `app/schemas/alert_schema.py` - Alert serialization ✅
+- [x] `app/services/category_service.py` - Category business logic + keyword categorization ✅
+- [x] `app/services/notification_service.py` - Notification CRUD ✅
+- [x] `app/services/alert_service.py` - Alert management ✅
+- [x] `app/services/summary_service.py` - Spending summary calculations ✅
+- [x] `app/api/routes/categories.py` - Category endpoints ✅
+- [x] `app/api/routes/notifications.py` - Notification endpoints ✅
+- [x] `app/api/routes/alerts.py` - Alert endpoints ✅
+- [x] `app/api/routes/summary.py` - Summary/analytics endpoints ✅
+- [x] `app/utils/helpers.py` - Shared utilities ✅
+- [x] `migrations/versions/sprint2_categories_notifications.py` - Database migration ✅
+- [x] `tests/integration/test_sprint2_endpoints.py` - Integration tests (21 tests passing) ✅
+
+**Sprint 2 AI Integration - PENDING:**
+- [ ] `app/ai/categorize.py` - HuggingFace + Gemini AI categorization
 - [ ] `app/ai/chatbot.py` - Basic Q&A chatbot
 - [ ] `app/api/routes/ai.py` - AI endpoints
-- [ ] `app/models/notification.py` - Notification model
-- [ ] `app/models/category.py` - Category model (default categories)
-- [ ] Unit & Integration tests
-- [ ] Postman collection
+- [ ] Automatic alert generation (anomaly detection logic)
+- [ ] Postman collection for Sprint 2 endpoints
 
 ### Sprint 3 - Polish & Stretch Goals
 - [ ] `app/ai/alerts.py` - Smart spending alerts
@@ -723,15 +741,49 @@ python -c "from app import create_app; app = create_app(); print('App created:',
 | GET | `/health` | Health check | No |
 | GET | `/` | API info | No |
 
-### Future Endpoints (Sprint 2-3)
+### Category Endpoints (`/api/categories`) - Sprint 2 Foundation ✅
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/categories` | List all categories (11 defaults) | Yes |
+| GET | `/api/categories/:id` | Get category by ID | Yes |
+
+### Notification Endpoints (`/api/notifications`) - Sprint 2 Foundation ✅
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/notifications` | List notifications (paginated) | Yes |
+| GET | `/api/notifications/unread-count` | Get unread count | Yes |
+| PATCH | `/api/notifications/:id/read` | Mark notification as read | Yes |
+| PATCH | `/api/notifications/read-all` | Mark all as read | Yes |
+| DELETE | `/api/notifications/:id` | Delete notification | Yes |
+| DELETE | `/api/notifications/read` | Delete all read notifications | Yes |
+
+### Alert Endpoints (`/api/alerts`) - Sprint 2 Foundation ✅
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/alerts` | List alerts (paginated) | Yes |
+| GET | `/api/alerts/count` | Get active alert count | Yes |
+| PATCH | `/api/alerts/:id/dismiss` | Dismiss single alert | Yes |
+| PATCH | `/api/alerts/dismiss-all` | Dismiss all alerts | Yes |
+
+### Summary Endpoints (`/api/summary`) - Sprint 2 Foundation ✅
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/summary/:period` | Get spending summary (daily/weekly/monthly/yearly/ytd) | Yes |
+| GET | `/api/summary/:period/categories` | Get category breakdown | Yes |
+| GET | `/api/summary/trends` | Get spending trends | Yes |
+| GET | `/api/summary/compare/:period` | Compare with previous period | Yes |
+
+### Future Endpoints (Sprint 2 AI / Sprint 3)
 
 | Method | Endpoint | Description | Sprint |
 |--------|----------|-------------|--------|
-| GET | `/api/dashboard/summary` | Spending summary | 2 |
-| GET | `/api/dashboard/categories` | Category breakdown | 2 |
 | POST | `/api/ai/categorize` | Get AI category prediction | 2 |
-| POST | `/api/ai/chat` | Ask spending question | 2 |
-| GET | `/api/notifications` | List notifications | 2 |
+| POST | `/api/ai/chat` | Ask spending question | 2-3 |
+| GET | `/api/ai/alerts` | Get AI-generated alerts | 2-3 |
 
 ---
 

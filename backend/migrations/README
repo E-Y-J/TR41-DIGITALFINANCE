@@ -17,7 +17,7 @@ Alembic + Flask-Migrate for a single PostgreSQL database.
 
 ## Recent Change (2026-01-03)
 
-Revision: `748571261c46`  
+Revision: `748571261c46`
 Title: Align account_status to lowercase and add 'deactivated' (with column widening)
 
 What it does:
@@ -41,7 +41,7 @@ Enum(
 ```
 
 ## How to Apply
-1) Ensure venv and `FLASK_APP` are set  
+1) Ensure venv and `FLASK_APP` are set
 2) Run: `flask db upgrade`
 
 ## Quick Verification

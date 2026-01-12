@@ -30,14 +30,14 @@ Response Format:
 """
 
 import logging
-from flask import Blueprint, request, g, jsonify
-from uuid import UUID
+from flask import Blueprint, request, g
 
 from app.auth.decorators import requires_auth
 from app.auth.user_sync import sync_user_from_claims
 from app.services.transaction_service import TransactionService
 from app.schemas.transaction_schema import transaction_schema, transaction_list_schema
 from app.utils.errors import ValidationError
+from app.utils.helpers import success_response, parse_uuid
 
 
 # =============================================================================
@@ -52,58 +52,6 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 
 bp = Blueprint("transactions", __name__)
-
-
-# =============================================================================
-# HELPER FUNCTIONS
-# =============================================================================
-
-
-def success_response(data=None, message="Success", status_code=200, meta=None):
-    """
-    Create a standardized success response.
-
-    Args:
-        data: Response data (will be included in 'data' field)
-        message: Success message
-        status_code: HTTP status code
-        meta: Optional metadata (pagination info)
-
-    Returns:
-        Tuple of (response_dict, status_code)
-    """
-    response = {
-        "success": True,
-        "message": message,
-    }
-
-    if data is not None:
-        response["data"] = data
-
-    if meta is not None:
-        response["meta"] = meta
-
-    return jsonify(response), status_code
-
-
-def parse_uuid(value: str, field_name: str = "id") -> UUID:
-    """
-    Parse string to UUID with validation.
-
-    Args:
-        value: String value to parse
-        field_name: Field name for error message
-
-    Returns:
-        UUID instance
-
-    Raises:
-        ValidationError: If value is not a valid UUID
-    """
-    try:
-        return UUID(value)
-    except (ValueError, AttributeError):
-        raise ValidationError(f"Invalid {field_name}: must be a valid UUID")
 
 
 # =============================================================================
@@ -464,6 +412,83 @@ def get_summary():
 
     return success_response(
         data=serialized_summary, message="Summary retrieved successfully"
+    )
+
+
+# =============================================================================
+# CATEGORY OVERRIDE (User Manual Override)
+# =============================================================================
+
+
+@bp.route("/<transaction_id>/category", methods=["PATCH"])
+@requires_auth
+def update_category(transaction_id: str):
+    """
+    Update a transaction's category (user override).
+
+    AI Foundation:
+    Allows users to manually correct AI-assigned categories.
+    The original AI-assigned category is preserved for analytics.
+
+    Path Parameters:
+        transaction_id: Transaction UUID
+
+    Request Body:
+        {
+            "category_id": "uuid-of-new-category"
+        }
+
+    Returns:
+        200: Updated transaction
+        400: Invalid UUID or missing category_id
+        403: Transaction doesn't belong to user
+        404: Transaction or category not found
+
+    Example Request:
+        PATCH /api/transactions/abc123/category
+        {
+            "category_id": "food-dining-uuid"
+        }
+
+    Example Response:
+        {
+            "success": true,
+            "data": {
+                "id": "abc123",
+                "category_id": "food-dining-uuid",
+                "category": {
+                    "id": "food-dining-uuid",
+                    "name": "Food & Dining"
+                },
+                "is_user_override": true,
+                "ai_source": "user",
+                ...
+            },
+            "message": "Category updated successfully"
+        }
+    """
+    # Parse and validate transaction UUID
+    tx_id = parse_uuid(transaction_id, "transaction_id")
+
+    # Get current user
+    user = sync_user_from_claims(g.current_user)
+
+    # Get request body
+    data = request.get_json() or {}
+
+    # Validate category_id is provided
+    if "category_id" not in data:
+        raise ValidationError("category_id is required")
+
+    # Parse and validate category UUID
+    category_id = parse_uuid(data["category_id"], "category_id")
+
+    # Update category
+    transaction = TransactionService.update_category(user, tx_id, category_id)
+
+    return success_response(
+        data=transaction_schema.dump(transaction),
+        message="Category updated successfully",
     )
 
 
