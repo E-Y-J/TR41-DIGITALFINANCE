@@ -1,14 +1,22 @@
-import { Grid, Paper, Typography } from "@mui/material";
+import { Grid, Paper, Typography, Button } from "@mui/material";
 import DashboardLayout from "../layouts/DashboardLayout";
 import { useTest } from "../hooks/queries/useTest";
+import { useAxios } from "../hooks/useAxios";
 
 export default function HomePage() {
+  const apiClient = useAxios();
   const { data: msg, isLoading, isError } = useTest();
-  console.log(msg);
 
   // if (isLoading) return <div>Loading...</div>;
   // if (isError) return <div>Failed to load transactions.</div>;
-
+  const getAuthorizedData = async () => {
+    try {
+      const response = await apiClient.get("/test/protected-endpoint");
+      console.log("Authorized data:", response.data);
+    } catch (error) {
+      console.error("Error fetching authorized data:", error);
+    }
+  };
   return (
     <DashboardLayout>
       <Typography variant="h4" gutterBottom sx={{ mb: 4 }}>
@@ -50,16 +58,9 @@ export default function HomePage() {
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Paper
-            sx={{ p: 3, display: "flex", flexDirection: "column", height: 140 }}
-          >
-            <Typography color="textSecondary" gutterBottom>
-              Monthly Expenses
-            </Typography>
-            <Typography variant="h4" sx={{ color: "red" }}>
-              -$1,150.00
-            </Typography>
-          </Paper>
+          <Button onClick={getAuthorizedData}>
+            Testing backend connection
+          </Button>
         </Grid>
       </Grid>
     </DashboardLayout>
