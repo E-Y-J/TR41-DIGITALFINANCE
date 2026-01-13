@@ -32,7 +32,7 @@ import uuid
 
 # revision identifiers, used by Alembic.
 revision = "add_categories_notifications_alerts"
-down_revision = "0ef6d8b45cc5"
+down_revision = "748571261c46"
 branch_labels = None
 depends_on = None
 
