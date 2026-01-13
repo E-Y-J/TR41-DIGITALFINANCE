@@ -1,11 +1,8 @@
-import { useNavigate } from "react-router-dom";
 import { AppBar, Toolbar, Box, Button, Stack } from "@mui/material";
 import AuthButton from "../AuthButton";
 import logo from "../../assets/logo1.png";
 
 const Navbar = () => {
-  const navigate = useNavigate();
-
   const NAV_LINKS = [
     { title: "Features", id: "features" },
     { title: "About Us", id: "about_us" },
