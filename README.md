@@ -57,3 +57,7 @@ Potentially Docker
     -   [Ariel Resendiz]()
 -   Cybersecurity Specialist:
     -   [Monira Lizu]()
+-   Data Analyst:
+    -   [Trey Beckford]()
+
+   
