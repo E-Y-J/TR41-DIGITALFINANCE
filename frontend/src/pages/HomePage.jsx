@@ -1,6 +1,8 @@
 import { Box, Typography, Button, Paper } from "@mui/material";
 import DashboardLayout from "../layouts/DashboardLayout";
 import TransactionTable from "../components/dashboard/TransactionTable";
+import LoanTracker from "../components/dashboard/LoanTracker";
+import { useGetUser } from "../hooks/queries/useGetUser";
 
 const MockChartPlaceholder = ({ height = 100, text }) => (
   <Box
@@ -21,11 +23,15 @@ const MockChartPlaceholder = ({ height = 100, text }) => (
 );
 
 export default function HomePage() {
+  const { data: user } = useGetUser();
+
+  console.log(user);
+
   return (
     <DashboardLayout>
       <Box sx={{ bgcolor: "background.default", p: 1, minHeight: "100vh" }}>
-        <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
-          Welcome, User
+        <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
+          Welcome, {user?.data.first_name || "User"}
         </Typography>
 
         <Box
@@ -38,14 +44,6 @@ export default function HomePage() {
             gap: 3,
           }}
         >
-          <Box sx={{ gridColumn: { md: "span 2" } }}>
-            <Paper sx={{ p: 3, height: "100%" }} variant="outlined">
-              <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-                My Cards
-              </Typography>
-              <MockChartPlaceholder height={220} text="Credit Cards" />
-            </Paper>
-          </Box>
           <Box sx={{ gridColumn: { md: "span 1" } }}>
             <Paper
               sx={{
@@ -64,47 +62,83 @@ export default function HomePage() {
                   AI Insights
                 </Typography>
                 <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                  Spending is 15% higher this week.
+                  To be implemented with AI summary of your spending habits.
                 </Typography>
               </Box>
-              <MockChartPlaceholder height={120} text="AI Graph" />
             </Paper>
           </Box>
-          <Box sx={{ gridColumn: { md: "span 1" } }}>
+          <Box sx={{ gridColumn: { md: "span 2" } }}>
             <Paper sx={{ p: 3, height: "100%" }} variant="outlined">
               <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-                Something else
+                My Monthly Spending
               </Typography>
-              <MockChartPlaceholder height={250} text="Pie Chart" />
+              <MockChartPlaceholder height={260} text="Credit Cards" />
             </Paper>
           </Box>
+
           <Box sx={{ gridColumn: { md: "span 2", lg: "span 2" } }}>
             <Paper
+              elevation={3}
               sx={{
-                p: 2,
+                px: 3,
+                pt: 3,
                 display: "flex",
                 flexDirection: "column",
                 borderRadius: 4,
-
-                height: { xs: "auto", md: "100%" },
-                maxHeight: { xs: "none", md: 400 },
+                height: { xs: "auto", md: 450 },
+                border: "1px solid",
+                borderColor: "grey.200",
               }}
-              variant="outlined"
             >
               <Box
                 sx={{
                   display: "flex",
                   justifyContent: "space-between",
-                  mb: 1,
-                  px: 1,
+                  alignItems: "center",
+                  mb: 1.5,
                 }}
               >
-                <Typography variant="h6" fontWeight="bold">
+                <Typography variant="h6" fontWeight={700}>
                   Transaction History
                 </Typography>
-                <Button size="small">View All</Button>
+                <Button
+                  size="small"
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    borderRadius: 2,
+                  }}
+                >
+                  View All
+                </Button>
               </Box>
-              <TransactionTable />
+
+              <Box sx={{ flexGrow: 1, overflow: "hidden" }}>
+                <TransactionTable />
+              </Box>
+            </Paper>
+          </Box>
+
+          <Box sx={{ gridColumn: { md: "span 1" } }}>
+            <Paper
+              elevation={3}
+              sx={{
+                p: 3,
+                height: { xs: "auto", md: 450 },
+                display: "flex",
+                flexDirection: "column",
+                borderRadius: 4,
+                border: "1px solid",
+                borderColor: "grey.200",
+              }}
+            >
+              <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+                Active Loans
+              </Typography>
+
+              <Box sx={{ flexGrow: 1 }}>
+                <LoanTracker />
+              </Box>
             </Paper>
           </Box>
         </Box>

@@ -1,5 +1,5 @@
 export const getUser = async (client) => {
-  const { data } = await client.get("/test/me");
+  const { data } = await client.get("/users/me");
   console.log(data);
   return data;
 };

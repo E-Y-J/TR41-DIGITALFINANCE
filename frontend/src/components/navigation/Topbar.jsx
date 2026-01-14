@@ -20,10 +20,17 @@ import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 
-const TopBar = ({ drawerWidth, handleMobileDrawerToggle, handleLogout }) => {
+const TopBar = ({
+  drawerWidth,
+  handleMobileDrawerToggle,
+  handleLogout,
+  open,
+}) => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+  const isMenuOpen = Boolean(anchorEl);
+
+  const miniDrawerWidth = 65;
 
   const SETTINGS_ITEMS = [
     {
@@ -43,22 +50,14 @@ const TopBar = ({ drawerWidth, handleMobileDrawerToggle, handleLogout }) => {
     },
   ];
 
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
+  const handleMenuClose = () => setAnchorEl(null);
 
   const handleMenuItemClick = (item) => {
     handleMenuClose();
-
-    if (item.onClick) {
-      item.onClick();
-    } else if (item.path) {
-      navigate(item.path);
-    }
+    if (item.onClick) item.onClick();
+    else if (item.path) navigate(item.path);
   };
 
   return (
@@ -66,16 +65,30 @@ const TopBar = ({ drawerWidth, handleMobileDrawerToggle, handleLogout }) => {
       position="fixed"
       elevation={0}
       sx={{
-        width: { sm: `calc(100% - ${drawerWidth}px)` },
-        ml: { sm: `${drawerWidth}px` },
         bgcolor: "background.paper",
         color: "text.primary",
         borderBottom: "1px solid",
         borderColor: "divider",
+        transition: (theme) =>
+          theme.transitions.create(["width", "margin"], {
+            easing: theme.transitions.easing.sharp,
+            duration: open
+              ? theme.transitions.duration.enteringScreen
+              : theme.transitions.duration.leavingScreen,
+          }),
+
+        width: {
+          sm: open
+            ? `calc(100% - ${drawerWidth}px)`
+            : `calc(100% - ${miniDrawerWidth}px)`,
+        },
+        ml: {
+          sm: open ? `${drawerWidth}px` : `${miniDrawerWidth}px`,
+        },
       }}
     >
       <Toolbar>
-        {/*  Mobile Hamburger  */}
+        {/* Mobile Hamburger */}
         <IconButton
           color="inherit"
           edge="start"
@@ -87,22 +100,8 @@ const TopBar = ({ drawerWidth, handleMobileDrawerToggle, handleLogout }) => {
 
         <Box sx={{ flexGrow: 1 }} />
 
-        {/*  Notification Bell */}
-        <Tooltip
-          title="Notifications"
-          slotProps={{
-            popper: {
-              modifiers: [
-                {
-                  name: "offset",
-                  options: {
-                    offset: [0, -10],
-                  },
-                },
-              ],
-            },
-          }}
-        >
+        {/* Notifications */}
+        <Tooltip title="Notifications">
           <IconButton size="large" color="inherit" sx={{ mr: 1 }}>
             <Badge variant="dot" color="error" overlap="circular">
               <NotificationsIcon />
@@ -110,39 +109,16 @@ const TopBar = ({ drawerWidth, handleMobileDrawerToggle, handleLogout }) => {
           </IconButton>
         </Tooltip>
 
-        {/* User Avatar (Triggers Menu) */}
+        {/* User Menu */}
         <Box sx={{ display: { xs: "none", sm: "block" } }}>
-          <Tooltip
-            title="Account settings"
-            slotProps={{
-              popper: {
-                modifiers: [
-                  {
-                    name: "offset",
-                    options: {
-                      offset: [0, -10],
-                    },
-                  },
-                ],
-              },
-            }}
-          >
-            <IconButton
-              onClick={handleMenuOpen}
-              size="small"
-              sx={{ ml: 0.5 }}
-              aria-controls={open ? "account-menu" : undefined}
-              aria-haspopup="true"
-              aria-expanded={open ? "true" : undefined}
-            >
+          <Tooltip title="Account settings">
+            <IconButton onClick={handleMenuOpen} size="small" sx={{ ml: 0.5 }}>
               <AccountCircle sx={{ width: 32, height: 32 }} />
             </IconButton>
           </Tooltip>
-          {/* The Dropdown Menu */}
           <Menu
             anchorEl={anchorEl}
-            id="account-menu"
-            open={open}
+            open={isMenuOpen}
             onClose={handleMenuClose}
             onClick={handleMenuClose}
             slotProps={{

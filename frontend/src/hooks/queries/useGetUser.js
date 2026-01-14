@@ -6,9 +6,10 @@ export const useGetUser = () => {
   const apiClient = useAxios();
 
   return useQuery({
-    queryKey: ["user_data"],
+    queryKey: ["user"],
     queryFn: () => getUser(apiClient),
     placeholderData: (previousData) => previousData,
+    staleTime: 1000 * 60 * 60,
   });
 };
 
