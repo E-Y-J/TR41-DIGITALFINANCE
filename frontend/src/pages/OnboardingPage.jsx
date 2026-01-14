@@ -59,9 +59,7 @@ const OnboardingForm = () => {
             Please complete your profile to continue to the dashboard.
           </Typography>
         </Box>
-
-        {isError && <Alert severity="error">{isError}</Alert>}
-
+        7{isError && <Alert severity="error">{isError}</Alert>}
         <Box
           component="form"
           onSubmit={handleSubmit}

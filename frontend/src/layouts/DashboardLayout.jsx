@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import { Outlet } from "react-router-dom";
+import { useGetUser } from "../hooks/queries/useGetUser";
 import {
   Box,
   Toolbar,
   Drawer,
   IconButton,
-  Button,
   Backdrop,
   useTheme,
   useMediaQuery,
@@ -19,6 +20,7 @@ import Sidebar from "../components/navigation/Sidebar";
 import TopBar from "../components/navigation/Topbar";
 import ChatBubble from "../components/dashboard/Chat";
 import PageLoader from "../components/PageLoader";
+import Breadcrumb from "../components/common/Breadcrumb";
 
 const drawerWidth = 240;
 
@@ -68,11 +70,12 @@ const StyledDrawer = styled(MuiDrawer, {
   ],
 }));
 
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = () => {
   const { logout } = useAuth0();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const { data: user, isLoading } = useGetUser();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [desktopOpen, setDesktopOpen] = useState(false);
   const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
@@ -101,6 +104,7 @@ const DashboardLayout = ({ children }) => {
         handleMobileDrawerToggle={handleMobileDrawerToggle}
         handleLogout={handleLogout}
         open={isMobile ? false : desktopOpen}
+        user={user}
       />
 
       {/* Nav Sidebar */}
@@ -119,7 +123,7 @@ const DashboardLayout = ({ children }) => {
               },
             }}
           >
-            <Sidebar handleLogout={handleLogout} />
+            <Sidebar handleLogout={handleLogout} user={user} />
           </Drawer>
         ) : (
           <StyledDrawer
@@ -146,9 +150,11 @@ const DashboardLayout = ({ children }) => {
           overflow: "auto",
         }}
       >
-        <Toolbar />
-        {children}
-
+        <Toolbar sx={{ minHeight: { xs: 48, sm: 64 } }} />
+        <Box sx={{ mb: 2 }}>
+          <Breadcrumb />
+        </Box>
+        <Outlet />
         {/* Ai Assistant  */}
         <Box sx={{ position: "fixed", bottom: 16, right: 16 }}>
           <IconButton
@@ -197,7 +203,7 @@ const DashboardLayout = ({ children }) => {
           color: "#fff",
           backgroundColor: "rgba(255, 255, 255, 0.8)",
         }}
-        open={isGlobalLoading}
+        open={isGlobalLoading || isLoading}
       >
         <PageLoader />
       </Backdrop>

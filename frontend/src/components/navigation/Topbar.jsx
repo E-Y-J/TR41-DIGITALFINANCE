@@ -69,7 +69,6 @@ const TopBar = ({
         color: "text.primary",
         borderBottom: "1px solid",
         borderColor: "divider",
-        zIndex: (theme) => theme.zIndex.drawer + 1,
         transition: (theme) =>
           theme.transitions.create(["width", "margin"], {
             easing: theme.transitions.easing.sharp,

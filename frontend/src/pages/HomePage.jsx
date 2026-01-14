@@ -1,68 +1,157 @@
-import { Grid, Paper, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, Paper } from "@mui/material";
 import DashboardLayout from "../layouts/DashboardLayout";
-import { useTest } from "../hooks/queries/useTest";
-import { useAxios } from "../hooks/useAxios";
+import TransactionTable from "../components/dashboard/TransactionTable";
+import LoanTracker from "../components/dashboard/LoanTracker";
+import BudgetBarChart from "../components/dashboard/MonthlyTracker";
+import { useGetUser } from "../hooks/queries/useGetUser";
+
+const MockChartPlaceholder = ({ height = 100, text }) => (
+  <Box
+    sx={{
+      height: height,
+      bgcolor: "grey.100",
+      borderRadius: 2,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      border: "1px dashed",
+      borderColor: "grey.400",
+      width: "100%",
+    }}
+  >
+    <Typography color="text.secondary">{text}</Typography>
+  </Box>
+);
 
 export default function HomePage() {
-  const apiClient = useAxios();
-  const { data: msg, isLoading, isError } = useTest();
+  const { data: user } = useGetUser();
 
-  // if (isLoading) return <div>Loading...</div>;
-  // if (isError) return <div>Failed to load transactions.</div>;
-  const getAuthorizedData = async () => {
-    try {
-      const response = await apiClient.get("/test/protected-endpoint");
-      console.log("Authorized data:", response.data);
-    } catch (error) {
-      console.error("Error fetching authorized data:", error);
-    }
-  };
+  console.log(user);
+
   return (
-    <DashboardLayout>
-      <Typography variant="h4" gutterBottom sx={{ mb: 4 }}>
-        Dashboard Overview (*Placeholder Content*)
+    <Box sx={{ bgcolor: "background.default", p: 1, minHeight: "100vh" }}>
+      <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
+        Welcome, {user?.data.first_name || "User"}
       </Typography>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            md: "1fr 1fr 1fr",
+          },
+          gap: 3,
+        }}
+      >
+        <Box sx={{ gridColumn: { md: "span 1" } }}>
           <Paper
-            sx={{ p: 3, display: "flex", flexDirection: "column", height: 140 }}
+            sx={{
+              p: 3,
+              height: "100%",
+              bgcolor: "primary.light",
+              color: "white",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+            variant="outlined"
           >
-            <Typography color="textSecondary" gutterBottom>
-              Total Balance
-            </Typography>
-            run
-            <Typography variant="h4">$12,450.00</Typography>
+            <Box>
+              <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
+                AI Insights
+              </Typography>
+              <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                To be implemented with AI summary of your spending habits.
+              </Typography>
+            </Box>
           </Paper>
-        </Grid>
-        <Paper>
-          <Typography variant="h6">
-            {isLoading
-              ? "Loading..."
-              : isError
-              ? "Error loading message"
-              : msg?.message}
-          </Typography>
-        </Paper>
-        <Grid item xs={12} md={4}>
+        </Box>
+        <Box sx={{ gridColumn: { md: "span 2" } }}>
           <Paper
-            sx={{ p: 3, display: "flex", flexDirection: "column", height: 140 }}
+            elevation={3}
+            sx={{
+              p: 3,
+              display: "flex",
+              flexDirection: "column",
+              borderRadius: 4,
+              border: "1px solid",
+              borderColor: "grey.200",
+            }}
           >
-            <Typography color="textSecondary" gutterBottom>
-              Monthly Income
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+              My Monthly Spending
             </Typography>
-            <Typography variant="h4" sx={{ color: "green" }}>
-              +$3,200.00
-            </Typography>
+            <BudgetBarChart />
           </Paper>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} md={4}>
-          <Button onClick={getAuthorizedData}>
-            Testing backend connection
-          </Button>
-        </Grid>
-      </Grid>
-    </DashboardLayout>
+        <Box sx={{ gridColumn: { md: "span 2", lg: "span 2" } }}>
+          <Paper
+            elevation={3}
+            sx={{
+              px: 3,
+              pt: 3,
+              display: "flex",
+              flexDirection: "column",
+              borderRadius: 4,
+              height: { xs: "auto", md: 450 },
+              border: "1px solid",
+              borderColor: "grey.200",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 1.5,
+              }}
+            >
+              <Typography variant="h6" fontWeight={700}>
+                Transaction History
+              </Typography>
+              <Button
+                size="small"
+                sx={{
+                  textTransform: "none",
+                  fontWeight: 600,
+                  borderRadius: 2,
+                }}
+              >
+                View All
+              </Button>
+            </Box>
+
+            <Box sx={{ flexGrow: 1, overflow: "hidden" }}>
+              <TransactionTable />
+            </Box>
+          </Paper>
+        </Box>
+
+        <Box sx={{ gridColumn: { md: "span 1" } }}>
+          <Paper
+            elevation={3}
+            sx={{
+              p: 3,
+              height: { xs: "auto", md: 450 },
+              display: "flex",
+              flexDirection: "column",
+              borderRadius: 4,
+              border: "1px solid",
+              borderColor: "grey.200",
+            }}
+          >
+            <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
+              Active Loans
+            </Typography>
+
+            <Box sx={{ flexGrow: 1 }}>
+              <LoanTracker />
+            </Box>
+          </Paper>
+        </Box>
+      </Box>
+    </Box>
   );
 }
