@@ -24,10 +24,10 @@ const App = () => {
       {/*   MUST BE LOGGED IN  */}
       <Route element={<AuthenticationGuard />}>
         <Route path="/onboarding" element={<OnboardingPage />} />
-
+        <Route path="/home/test" element={<HomePage />} />
         {/*   MUST BE "ACTIVE" STATUS  */}
         <Route element={<UserGuard />}>
-          <Route path="/home" element={<HomePage />} />
+          {/* <Route path="/home" element={<HomePage />} /> */}
         </Route>
       </Route>
     </Routes>

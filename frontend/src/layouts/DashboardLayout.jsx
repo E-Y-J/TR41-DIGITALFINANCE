@@ -13,6 +13,7 @@ import Sidebar from "../components/navigation/Sidebar";
 import TopBar from "../components/navigation/Topbar";
 import ChatBubble from "../components//dashboard/Chat";
 import PageLoader from "../components/PageLoader";
+import Breadcrumb from "../components/common/Breadcrumb";
 
 const drawerWidth = 240;
 
@@ -39,14 +40,14 @@ const DashboardLayout = ({ children }) => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      {/* 1. The Top Bar */}
+      {/* Top Bar */}
       <TopBar
         drawerWidth={drawerWidth}
         handleMobileDrawerToggle={handleMobileDrawerToggle}
         handleLogout={handleLogout}
       />
 
-      {/* 2. The Navigation Drawer */}
+      {/* Navigation Drawer */}
       <Box
         component="nav"
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
@@ -84,7 +85,7 @@ const DashboardLayout = ({ children }) => {
         </Drawer>
       </Box>
 
-      {/* 3. The Main Page Content */}
+      {/* Main Page Content */}
       <Box
         component="main"
         sx={{
@@ -93,15 +94,11 @@ const DashboardLayout = ({ children }) => {
           width: { sm: `calc(100% - ${drawerWidth}px)` },
         }}
       >
-        <Toolbar />
+        <Toolbar sx={{ minHeight: { xs: 48, sm: 64 } }} />
+        <Box sx={{ mb: 2 }}>
+          <Breadcrumb />
+        </Box>
         {children}
-        <Button
-          variant="contained"
-          onClick={handleChatDrawerToggle}
-          sx={{ mt: 2 }}
-        >
-          {chatDrawerOpen ? "Close Chat Assistant" : "Open Chat Assistant"}
-        </Button>
         <Box
           sx={{
             position: "fixed",

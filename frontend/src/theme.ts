@@ -39,6 +39,20 @@ export const theme = createTheme({
   },
 
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: "'Inter', sans-serif",
+
+    h1: { fontWeight: 700 },
+    h2: { fontWeight: 700 },
+    h3: { fontWeight: 600 },
+
+    allVariants: {
+      fontFeatureSettings: "'cv11', 'ss01'",
+    },
+    body1: {
+      fontFeatureSettings: "'tnum'",
+    },
+    body2: {
+      fontFeatureSettings: "'tnum'",
+    },
   },
 });
