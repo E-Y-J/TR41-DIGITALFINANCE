@@ -13,7 +13,7 @@ export const useAxios = () => {
             audience: import.meta.env.VITE_AUTH0_AUDIENCE,
             scope: "openid profile email",
           });
-
+          console.log("Attaching token to request:", token);
           config.headers.Authorization = `Bearer ${token}`;
         } catch (error) {
           console.error("Failed to attach token:", error);

@@ -1,9 +1,9 @@
 import { useAuth0 } from "@auth0/auth0-react";
+import { Navigate, Outlet } from "react-router-dom";
 import { Box } from "@mui/material";
-import PageLoader from "../components/PageLoader.jsx";
-import { Navigate } from "react-router-dom";
+import PageLoader from "../components/PageLoader";
 
-export const AuthenticationGuard = ({ children }) => {
+export const AuthenticationGuard = () => {
   const { isAuthenticated, isLoading } = useAuth0();
 
   if (isLoading) {
@@ -13,5 +13,6 @@ export const AuthenticationGuard = ({ children }) => {
       </Box>
     );
   }
-  return isAuthenticated ? children : <Navigate to="/" />;
+
+  return isAuthenticated ? <Outlet /> : <Navigate to="/" replace />;
 };

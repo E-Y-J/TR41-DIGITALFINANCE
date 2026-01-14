@@ -9,8 +9,8 @@ import {
   Backdrop,
 } from "@mui/material";
 import ChatIcon from "@mui/icons-material/Chat";
-import Sidebar from "./Sidebar";
-import TopBar from "./TopBar";
+import Sidebar from "../components/navigation/Sidebar";
+import TopBar from "../components/navigation/Topbar";
 import ChatBubble from "../components//dashboard/Chat";
 import PageLoader from "../components/PageLoader";
 
