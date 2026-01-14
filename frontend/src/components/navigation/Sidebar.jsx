@@ -108,17 +108,17 @@ const Sidebar = ({ handleLogout, open }) => {
     {
       text: "Transactions",
       icon: <PaymentIcon fontSize="small" />,
-      path: "/transactions",
+      path: "/home/transactions",
     },
     {
       text: "Budget",
       icon: <PieChartIcon fontSize="small" />,
-      path: "/budget",
+      path: "/home/budget",
     },
     {
       text: "AI Assistant",
       icon: <AssistantIcon fontSize="small" />,
-      path: "/ai-assistant",
+      path: "/home/ai-assistant",
     },
   ];
 

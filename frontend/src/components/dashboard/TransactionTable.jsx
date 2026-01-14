@@ -41,8 +41,6 @@ const rows = [
   { id: 5, name: "Salary Deposit", date: "Jan 01, 2026", amount: "+$4,500.00" },
 ];
 
-const test = [];
-
 const getIcon = (name) => {
   if (name.includes("Netflix") || name.includes("Subscription"))
     return <SubscriptionsIcon fontSize="small" />;

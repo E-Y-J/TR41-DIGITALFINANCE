@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import { Outlet } from "react-router-dom";
 import { useGetUser } from "../hooks/queries/useGetUser";
 import {
   Box,
   Toolbar,
   Drawer,
   IconButton,
-  Button,
   Backdrop,
   useTheme,
   useMediaQuery,
@@ -70,7 +70,7 @@ const StyledDrawer = styled(MuiDrawer, {
   ],
 }));
 
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = () => {
   const { logout } = useAuth0();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -154,8 +154,7 @@ const DashboardLayout = ({ children }) => {
         <Box sx={{ mb: 2 }}>
           <Breadcrumb />
         </Box>
-        {children}
-
+        <Outlet />
         {/* Ai Assistant  */}
         <Box sx={{ position: "fixed", bottom: 16, right: 16 }}>
           <IconButton

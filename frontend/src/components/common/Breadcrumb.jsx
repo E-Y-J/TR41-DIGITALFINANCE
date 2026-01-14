@@ -28,7 +28,6 @@ const Breadcrumb = () => {
         const to = `/${pathnames.slice(0, index + 1).join("/")}`;
 
         const text = value.replace(/-/g, " ");
-        const formattedText = text.charAt(0).toUpperCase() + text.slice(1);
 
         return last ? (
           <Typography
@@ -38,9 +37,10 @@ const Breadcrumb = () => {
             fontWeight={600}
             sx={{
               fontSize: { xs: "0.75rem", sm: "0.875rem" },
+              textTransform: "capitalize",
             }}
           >
-            {formattedText}
+            {text}
           </Typography>
         ) : (
           <Link
@@ -52,12 +52,12 @@ const Breadcrumb = () => {
             variant="body2"
             sx={{
               color: "text.secondary",
-              "&:hover": { color: "primary.main" },
-
+              textTransform: "capitalize",
               fontSize: { xs: "0.75rem", sm: "0.875rem" },
+              "&:hover": { color: "primary.main" },
             }}
           >
-            {formattedText}
+            {text}
           </Link>
         );
       })}
