@@ -1,6 +1,6 @@
 import { AppBar, Toolbar, Box, Button, Stack } from "@mui/material";
 import AuthButton from "../AuthButton";
-import logo from "../../assets/logo1.png";
+import logo from "../../assets/logo.png";
 
 const Navbar = () => {
   const NAV_LINKS = [
