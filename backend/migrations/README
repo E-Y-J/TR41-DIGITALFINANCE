@@ -15,6 +15,18 @@ Alembic + Flask-Migrate for a single PostgreSQL database.
 - Downgrade: `flask db downgrade <rev>`
 - Show: `flask db current`, `flask db history`
 
+## Alembic Versioning Notes
+
+- Alembic tracks migrations in the `alembic_version` table using `VARCHAR(32)`.
+- Avoid manually setting long `revision` strings; PostgreSQL will truncate and cause 
+  `StringDataRightTruncation` errors.
+- When reordering or merging migrations, ensure `down_revision` points to the correct 
+  previous migration ID (`flask db history` can help confirm this).
+- Recommended workflow:
+  1. Use `flask db revision --autogenerate -m "short message"` for new revisions.
+  2. Let Alembic assign `revision` IDs automatically.
+  3. Only manually adjust `down_revision` if you need to fix the migration chain.
+
 ## Recent Change (2026-01-03)
 
 Revision: `748571261c46`
