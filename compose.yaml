@@ -1,0 +1,79 @@
+services:
+  db:
+    env_file:
+      - .env.dev
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+    ports:
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DATABASE_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    env_file:
+      - .env.dev
+    depends_on:
+      - db
+    build:
+      context: ./backend
+    container_name: flask_backend
+    command: sh -c "
+      echo 'Starting Flask server ...' &&
+      flask db upgrade &&
+      flask run --port=${BACKEND_PORT}
+      "
+    volumes:
+      - ./backend:/app
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:${BACKEND_PORT}/health/ || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    env_file:
+      - .env.dev
+    build:
+      context: ./frontend
+    container_name: vite_frontend
+    command: sh -c "
+      npm install &&
+      echo 'Starting dev server ...' &&
+      npm run dev -- --host 0.0.0.0 --no-open
+      "
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - FLASK_APP={FLASK_APP}
+      - FLASK_ENV={FLASK_ENV}
+      - FLASK_DEBUG={FLASK_DEBUG}
+      - SECRET_KEY=${SECRET_KEY}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - BACKEND_URL=${BACKEND_URL}
+    healthcheck:
+      test:
+        ["CMD-SHELL", "curl -f http://localhost:${FRONTEND_PORT}/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
