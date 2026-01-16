@@ -19,39 +19,26 @@ services:
   backend:
     env_file:
       - .env.dev
+      - ./backend/.env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     build:
       context: ./backend
     container_name: flask_backend
     command: sh -c "
       echo 'Starting Flask server ...' &&
       flask db upgrade &&
+      python tools/seed_db.py --file fixtures/seed_users.json --commit &&
       flask run --port=${BACKEND_PORT}
       "
     volumes:
       - ./backend:/app
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - DATABASE_NAME=${DATABASE_NAME}
-      - DATABASE_USER=${DATABASE_USER}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - DATABASE_HOST=${DATABASE_HOST}
-      - DATABASE_PORT=${DATABASE_PORT}
-      - FLASK_APP=${FLASK_APP}
-      - FLASK_ENV=${FLASK_ENV}
-      - FLASK_DEBUG=${FLASK_DEBUG}
-      - SECRET_KEY=${SECRET_KEY}
-      - FRONTEND_URL=${FRONTEND_URL}
-      - BACKEND_URL=${BACKEND_URL}
     healthcheck:
       test:
-        [
-          "CMD-SHELL",
-          "curl -f http://localhost:${BACKEND_PORT}/health/ || exit 1",
-        ]
+        ["CMD", "curl -f http://localhost:${BACKEND_PORT}/health/ || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -73,8 +60,7 @@ services:
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     healthcheck:
-      test:
-        ["CMD-SHELL", "curl -f http://localhost:${FRONTEND_PORT}/ || exit 1"]
+      test: ["CMD", "curl -f http://localhost:${FRONTEND_PORT}/ || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
