@@ -32,4 +32,7 @@ reset:
 	@$(MAKE) seed
 	@echo "Reset complete! Fresh data ready."
 
+view-data:
+	@echo "Viewing data in the database..."
+	docker compose --env-file .env.dev exec db psql -U postgres -d digital_finance_db
 
