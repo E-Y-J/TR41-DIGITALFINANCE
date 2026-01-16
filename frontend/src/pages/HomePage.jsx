@@ -1,27 +1,8 @@
 import { Box, Typography, Button, Paper } from "@mui/material";
-import DashboardLayout from "../layouts/DashboardLayout";
 import TransactionTable from "../components/dashboard/TransactionTable";
 import LoanTracker from "../components/dashboard/LoanTracker";
 import BudgetBarChart from "../components/dashboard/MonthlyTracker";
 import { useGetUser } from "../hooks/queries/useGetUser";
-
-const MockChartPlaceholder = ({ height = 100, text }) => (
-  <Box
-    sx={{
-      height: height,
-      bgcolor: "grey.100",
-      borderRadius: 2,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      border: "1px dashed",
-      borderColor: "grey.400",
-      width: "100%",
-    }}
-  >
-    <Typography color="text.secondary">{text}</Typography>
-  </Box>
-);
 
 export default function HomePage() {
   const { data: user } = useGetUser();
@@ -42,6 +23,7 @@ export default function HomePage() {
             md: "1fr 1fr 1fr",
           },
           gap: 3,
+          mb: 3,
         }}
       >
         <Box sx={{ gridColumn: { md: "span 1" } }}>
@@ -90,8 +72,7 @@ export default function HomePage() {
           <Paper
             elevation={3}
             sx={{
-              px: 3,
-              pt: 3,
+              p: 3,
               display: "flex",
               flexDirection: "column",
               borderRadius: 4,

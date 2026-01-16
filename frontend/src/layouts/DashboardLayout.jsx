@@ -10,8 +10,8 @@ import {
   Backdrop,
   useTheme,
   useMediaQuery,
+  Drawer as MuiDrawer,
 } from "@mui/material";
-import MuiDrawer from "@mui/material/Drawer";
 import { styled } from "@mui/material/styles";
 
 import ChatIcon from "@mui/icons-material/Chat";
@@ -161,11 +161,16 @@ const DashboardLayout = () => {
             aria-label="chat-assistant"
             onClick={handleChatDrawerToggle}
             sx={{
+              transition: "transform 0.15s ease-in-out",
               p: 1.5,
               backgroundColor: "primary.light",
               color: "white",
               boxShadow: 4,
-              "&:hover": { backgroundColor: "primary.main" },
+              "&:hover": {
+                backgroundColor: "primary.main",
+                transform: "translateY(-3px)",
+                boxShadow: 2,
+              },
             }}
           >
             <ChatIcon sx={{ fontSize: { xs: 20, sm: 30 } }} />

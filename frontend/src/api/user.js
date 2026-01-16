@@ -5,6 +5,6 @@ export const getUser = async (client) => {
 };
 
 export const updateUser = async (client, userData) => {
-  const { data } = await client.patch("/test/me", userData);
+  const { data } = await client.patch("/users/me", userData);
   return data;
 };
