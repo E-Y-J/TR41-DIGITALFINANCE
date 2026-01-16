@@ -1,0 +1,65 @@
+services:
+  db:
+    env_file:
+      - .env.dev
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+    ports:
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DATABASE_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    env_file:
+      - .env.dev
+      - ./backend/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    build:
+      context: ./backend
+    container_name: flask_backend
+    command: sh -c "
+      echo 'Starting Flask server ...' &&
+      flask db upgrade &&
+      flask run --host=0.0.0.0 --port=${BACKEND_PORT}
+      "
+    volumes:
+      - ./backend:/app
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    healthcheck:
+      test:
+        ["CMD", "curl -f http://localhost:${BACKEND_PORT}/health/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    env_file:
+      - .env.dev
+      - ./frontend/.env
+    build:
+      context: ./frontend
+    container_name: vite_frontend
+    command: sh -c "
+      npm install &&
+      echo 'Starting dev server ...' &&
+      npm run dev -- --host 0.0.0.0 --no-open
+      "
+    volumes:
+      - ./frontend:/src
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    healthcheck:
+      test: ["CMD", "curl -f http://localhost:${FRONTEND_PORT}/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

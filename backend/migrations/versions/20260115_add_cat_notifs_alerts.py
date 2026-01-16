@@ -31,8 +31,9 @@ from sqlalchemy.dialects import postgresql
 import uuid
 
 # revision identifiers, used by Alembic.
-revision = "add_categories_notifications_alerts"
-down_revision = "748571261c46"
+# In add_categories_notifications_alerts.py
+revision = 'add_cat_notifs_alerts'  # <=32 chars
+down_revision = '748571261c46'      # points to previous migration
 branch_labels = None
 depends_on = None
 

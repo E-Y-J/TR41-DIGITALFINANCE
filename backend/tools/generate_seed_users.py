@@ -61,6 +61,55 @@ def generate(count, seed=None):
 
     used_emails = set()
     users = [make_user(fake, used_emails) for _ in range(count)]
+
+    jae_user = {
+        "id": str(uuid.uuid4()),
+        "auth0_id": "google-oauth2|110513262768393412869",
+        "email": "jaeyseo0922@gmail.com",
+        "email_verified": False,
+        "first_name": "Jae",
+        "last_name": "Seo",
+        "nickname": fake.user_name(),
+        "picture": None,
+        "account_status": "pending",
+        "role": "USER",
+        "salary_amount": "0.00",
+        "settings": {
+            "currency": random.choice(["USD", "EUR", "GBP", "AUD"]),
+            "timezone": random.choice(["UTC", "America/Los_Angeles", "Europe/London"]),
+            "theme": random.choice(["light", "dark"]),
+            "notifications": {"reminders": bool(random.getrandbits(1))}
+        },
+        "created_at": datetime.utcnow().isoformat(),
+        "updated_at": datetime.utcnow().isoformat(),
+        "last_login": None
+    }
+
+    ariel_user = {
+        "id": str(uuid.uuid4()),
+        "auth0_id": "google-oauth2|110513262768393412869",
+        "email": "jaeyseo0922@gmail.com",
+        "email_verified": False,
+        "first_name": "Ariel",
+        "last_name": "Resendiz",
+        "nickname": fake.user_name(),
+        "picture": None,
+        "account_status": "active",
+        "role": "USER",
+        "salary_amount": "0.00",
+        "settings": {
+            "currency": random.choice(["USD", "EUR", "GBP", "AUD"]),
+            "timezone": random.choice(["UTC", "America/Los_Angeles", "Europe/London"]),
+            "theme": random.choice(["light", "dark"]),
+            "notifications": {"reminders": bool(random.getrandbits(1))}
+        },
+        "created_at": datetime.utcnow().isoformat(),
+        "updated_at": datetime.utcnow().isoformat(),
+        "last_login": None
+    }
+
+    users.append(jae_user)
+
     return {"generated_at": datetime.utcnow().isoformat() + "Z", "users": users}
 
 
