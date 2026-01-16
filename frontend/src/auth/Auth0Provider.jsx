@@ -8,10 +8,6 @@ const Auth0ProviderWithNavigate = ({ children }) => {
   const audience = import.meta.env.VITE_AUTH0_AUDIENCE;
   const redirectUri = window.location.origin;
 
-  console.log("Auth0 Domain:", domain);
-  console.log("Auth0 Client ID:", clientId);
-  console.log("Auth0 Audience:", audience);
-
   if (!(domain && clientId)) return null;
 
   return (
