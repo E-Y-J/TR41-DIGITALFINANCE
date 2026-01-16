@@ -33,6 +33,19 @@ services:
       - ./backend:/app
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - FLASK_APP=${FLASK_APP}
+      - FLASK_ENV=${FLASK_ENV}
+      - FLASK_DEBUG=${FLASK_DEBUG}
+      - SECRET_KEY=${SECRET_KEY}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - BACKEND_URL=${BACKEND_URL}
     healthcheck:
       test:
         [
@@ -46,6 +59,7 @@ services:
   frontend:
     env_file:
       - .env.dev
+      - ./frontend/.env
     build:
       context: ./frontend
     container_name: vite_frontend
@@ -58,19 +72,6 @@ services:
       - ./frontend:/app
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - DATABASE_NAME=${DATABASE_NAME}
-      - DATABASE_USER=${DATABASE_USER}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - DATABASE_HOST=${DATABASE_HOST}
-      - DATABASE_PORT=${DATABASE_PORT}
-      - FLASK_APP={FLASK_APP}
-      - FLASK_ENV={FLASK_ENV}
-      - FLASK_DEBUG={FLASK_DEBUG}
-      - SECRET_KEY=${SECRET_KEY}
-      - FRONTEND_URL=${FRONTEND_URL}
-      - BACKEND_URL=${BACKEND_URL}
     healthcheck:
       test:
         ["CMD-SHELL", "curl -f http://localhost:${FRONTEND_PORT}/ || exit 1"]
