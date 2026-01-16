@@ -18,7 +18,7 @@ export const UserGuard = () => {
   console.log("Account Status:", dbUser?.data.account_status);
 
   // If user is stuck in "pending", force them to Onboarding
-  if (dbUser?.data.account_status === "pending") {
+  if (dbUser?.data.account_status === "AccountStatus.PENDING") {
     return <Navigate to="/onboarding" replace />;
   }
 

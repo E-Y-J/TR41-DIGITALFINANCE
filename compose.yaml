@@ -29,8 +29,7 @@ services:
     command: sh -c "
       echo 'Starting Flask server ...' &&
       flask db upgrade &&
-      python tools/seed_db.py --file fixtures/seed_users.json --commit &&
-      flask run --port=${BACKEND_PORT}
+      flask run --host=0.0.0.0 --port=${BACKEND_PORT}
       "
     volumes:
       - ./backend:/app
@@ -56,7 +55,7 @@ services:
       npm run dev -- --host 0.0.0.0 --no-open
       "
     volumes:
-      - ./frontend:/app
+      - ./frontend:/src
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     healthcheck:

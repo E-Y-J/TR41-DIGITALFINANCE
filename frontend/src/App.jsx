@@ -1,43 +1,55 @@
 import { Routes, Route } from "react-router-dom";
-import LandingPage from "./pages/LandingPage";
-import HomePage from "./pages/HomePage";
-import OnboardingPage from "./pages/OnboardingPage";
-import BudgetPage from "./pages/BudgetPage";
-import TransactionPage from "./pages/TransactionPage";
-import AiAssistantPage from "./pages/AiAssistantPage";
+import { lazy, Suspense } from "react";
+import PageLoader from "./components/PageLoader";
 import DashboardLayout from "./layouts/DashboardLayout";
 
 import { AuthenticationGuard } from "./guard/AuthenticationGuard";
 import { UserGuard } from "./guard/UserGuard";
 import { PublicRoute } from "./guard/PublicRoute";
 
+// Lazy Import to reduce initial bundle size
+const LandingPage = lazy(() => import("./pages/LandingPage"));
+const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
+const HomePage = lazy(() => import("./pages/HomePage"));
+const BudgetPage = lazy(() => import("./pages/BudgetPage"));
+const TransactionPage = lazy(() => import("./pages/TransactionPage"));
+const AiAssistantPage = lazy(() => import("./pages/AiAssistantPage"));
+
 const App = () => {
   return (
     <Routes>
-      {/*  PUBLIC ROUTES  */}
+      {/* PUBLIC ROUTES */}
       <Route
         path="/"
         element={
           <PublicRoute>
-            <LandingPage />
+            <Suspense fallback={<PageLoader />}>
+              <LandingPage />
+            </Suspense>
           </PublicRoute>
         }
       />
 
-      {/*   MUST BE LOGGED IN  */}
+      {/* AUTHENTICATED ROUTES */}
       <Route element={<AuthenticationGuard />}>
-        <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route
+          path="/onboarding"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <OnboardingPage />
+            </Suspense>
+          }
+        />
 
-        {/*   MUST BE "ACTIVE" STATUS  */}
-        {/* <Route element={<UserGuard />}> removed for testing purpose */}
-        {/* The Layout stays mounted for all these paths */}
-        <Route element={<DashboardLayout />}>
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/home/budget" element={<BudgetPage />} />
-          <Route path="/home/transactions" element={<TransactionPage />} />
-          <Route path="/home/ai-assistant" element={<AiAssistantPage />} />
+        {/* DASHBOARD ROUTES */}
+        <Route element={<UserGuard />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/home/budget" element={<BudgetPage />} />
+            <Route path="/home/transactions" element={<TransactionPage />} />
+            <Route path="/home/ai-assistant" element={<AiAssistantPage />} />
+          </Route>
         </Route>
-        {/* </Route> */}
       </Route>
     </Routes>
   );
