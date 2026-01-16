@@ -20,7 +20,8 @@ services:
     env_file:
       - .env.dev
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     build:
       context: ./backend
     container_name: flask_backend
