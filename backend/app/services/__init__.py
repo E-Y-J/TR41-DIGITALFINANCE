@@ -25,6 +25,7 @@ from app.services.category_service import CategoryService
 from app.services.notification_service import NotificationService
 from app.services.summary_service import SummaryService
 from app.services.alert_service import AlertService
+from app.services.budget_service import BudgetService
 
 __all__ = [
     # Core services
@@ -35,4 +36,5 @@ __all__ = [
     "NotificationService",
     "SummaryService",
     "AlertService",
+    "BudgetService",
 ]

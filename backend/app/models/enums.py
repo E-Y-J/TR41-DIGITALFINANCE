@@ -272,6 +272,60 @@ class AlertSeverity(enum.Enum):
 
 
 # =============================================================================
+# BUDGET ENUMS
+# =============================================================================
+
+
+class BudgetType(enum.Enum):
+    """
+    Budget type enumeration.
+
+    Defines whether a budget applies to total spending or a specific category.
+
+    Values:
+        TOTAL: Overall spending limit (no specific category)
+        CATEGORY: Limit for a specific spending category
+
+    Budget System:
+        - TOTAL budgets have category_id = NULL
+        - CATEGORY budgets must have a valid category_id
+
+    Example:
+        >>> budget.budget_type = BudgetType.TOTAL
+        >>> budget.budget_type.value
+        'total'
+    """
+
+    TOTAL = "total"
+    CATEGORY = "category"
+
+
+class BudgetPeriod(enum.Enum):
+    """
+    Budget reset period enumeration.
+
+    Defines how often a budget resets.
+
+    Values:
+        WEEKLY: Budget resets every week
+        MONTHLY: Budget resets every month
+
+    Budget System:
+        - Weekly budgets reset on Monday
+        - Monthly budgets reset on the 1st of each month
+        - No carry over - unused budget does not roll over
+
+    Example:
+        >>> budget.period = BudgetPeriod.MONTHLY
+        >>> budget.period.value
+        'monthly'
+    """
+
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
+
+
+# =============================================================================
 # MODULE EXPORTS
 # =============================================================================
 
@@ -291,4 +345,7 @@ __all__ = [
     # Alert enums (Foundation)
     "AlertType",
     "AlertSeverity",
+    # Budget enums
+    "BudgetType",
+    "BudgetPeriod",
 ]

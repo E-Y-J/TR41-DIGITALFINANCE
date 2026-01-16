@@ -327,6 +327,26 @@ class TransactionService:
                 f"Created transaction {transaction.id} for user {user.id}, "
                 f"category_id={category_id}, source={ai_source}"
             )
+
+            # =================================================================
+            # Check and trigger budget alerts for EXPENSE transactions
+            # =================================================================
+            if tx_type == TransactionType.EXPENSE and category_id:
+                try:
+                    from app.services.budget_service import BudgetService
+
+                    alerts = BudgetService.check_and_trigger_budget_alerts(
+                        user.id, category_id
+                    )
+                    if alerts:
+                        logger.info(
+                            f"Budget alert(s) triggered for user {user.id}: "
+                            f"{[a['type'] for a in alerts]}"
+                        )
+                except Exception as alert_error:
+                    # Don't fail transaction creation if alert fails
+                    logger.warning(f"Failed to check budget alerts: {alert_error}")
+
             return transaction
 
         except Exception as e:

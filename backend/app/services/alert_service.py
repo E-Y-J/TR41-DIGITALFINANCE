@@ -433,6 +433,157 @@ class AlertService:
         logger.info(f"Dismissed {count} alerts for user {user_id}")
         return count
 
+    # =========================================================================
+    # BUDGET ALERT METHODS
+    # =========================================================================
+
+    @classmethod
+    def create_budget_warning_alert(
+        cls,
+        user_id: UUID,
+        budget_id: UUID,
+        category_id: Optional[UUID],
+        category_name: Optional[str],
+        budget_amount: Decimal,
+        spent_amount: Decimal,
+        percentage_used: float,
+        period: str,
+    ) -> Alert:
+        """
+        Create a budget warning alert (70% threshold reached).
+
+        Args:
+            user_id: User's UUID
+            budget_id: Budget's UUID
+            category_id: Category UUID (None for total budget)
+            category_name: Category name (None for total budget)
+            budget_amount: Budget limit amount
+            spent_amount: Amount spent so far
+            percentage_used: Percentage of budget used
+            period: Budget period (weekly/monthly)
+
+        Returns:
+            Created Alert instance
+        """
+        if category_name:
+            title = f"Budget Warning: {category_name}"
+            message = (
+                f"You've used {percentage_used:.0f}% of your {period} "
+                f"{category_name} budget (${spent_amount:.2f} of ${budget_amount:.2f})"
+            )
+        else:
+            title = "Total Budget Warning"
+            message = (
+                f"You've used {percentage_used:.0f}% of your {period} total budget "
+                f"(${spent_amount:.2f} of ${budget_amount:.2f})"
+            )
+
+        return cls.create(
+            user_id=user_id,
+            alert_type=AlertType.BUDGET_WARNING,
+            severity=AlertSeverity.MEDIUM,
+            title=title,
+            message=message,
+            category_id=category_id,
+            data={
+                "budget_id": str(budget_id),
+                "budget_amount": str(budget_amount),
+                "spent_amount": str(spent_amount),
+                "percentage_used": percentage_used,
+                "period": period,
+                "threshold": 70,
+            },
+        )
+
+    @classmethod
+    def create_budget_exceeded_alert(
+        cls,
+        user_id: UUID,
+        budget_id: UUID,
+        category_id: Optional[UUID],
+        category_name: Optional[str],
+        budget_amount: Decimal,
+        spent_amount: Decimal,
+        percentage_used: float,
+        period: str,
+    ) -> Alert:
+        """
+        Create a budget exceeded alert (100% threshold reached).
+
+        Args:
+            user_id: User's UUID
+            budget_id: Budget's UUID
+            category_id: Category UUID (None for total budget)
+            category_name: Category name (None for total budget)
+            budget_amount: Budget limit amount
+            spent_amount: Amount spent so far
+            percentage_used: Percentage of budget used
+            period: Budget period (weekly/monthly)
+
+        Returns:
+            Created Alert instance
+        """
+        over_amount = spent_amount - budget_amount
+
+        if category_name:
+            title = f"Budget Exceeded: {category_name}"
+            message = (
+                f"You've exceeded your {period} {category_name} budget by "
+                f"${over_amount:.2f} (${spent_amount:.2f} of ${budget_amount:.2f})"
+            )
+        else:
+            title = "Total Budget Exceeded"
+            message = (
+                f"You've exceeded your {period} total budget by "
+                f"${over_amount:.2f} (${spent_amount:.2f} of ${budget_amount:.2f})"
+            )
+
+        return cls.create(
+            user_id=user_id,
+            alert_type=AlertType.BUDGET_EXCEEDED,
+            severity=AlertSeverity.HIGH,
+            title=title,
+            message=message,
+            category_id=category_id,
+            data={
+                "budget_id": str(budget_id),
+                "budget_amount": str(budget_amount),
+                "spent_amount": str(spent_amount),
+                "over_amount": str(over_amount),
+                "percentage_used": percentage_used,
+                "period": period,
+            },
+        )
+
+    @classmethod
+    def has_recent_budget_alert(
+        cls,
+        user_id: UUID,
+        budget_id: UUID,
+        alert_type: AlertType,
+    ) -> bool:
+        """
+        Check if a budget alert was already created recently (to avoid spam).
+
+        Only creates one alert per budget per type until dismissed.
+
+        Args:
+            user_id: User's UUID
+            budget_id: Budget's UUID
+            alert_type: BUDGET_WARNING or BUDGET_EXCEEDED
+
+        Returns:
+            True if active alert exists, False otherwise
+        """
+        existing = Alert.query.filter(
+            Alert.user_id == user_id,
+            Alert.alert_type == alert_type,
+            Alert.is_dismissed.is_(False),
+            Alert.data["budget_id"].astext == str(budget_id),
+        ).first()
+
+        return existing is not None
+
 
 # =============================================================================
 # MODULE EXPORTS

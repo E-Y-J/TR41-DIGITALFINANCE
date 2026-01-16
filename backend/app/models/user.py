@@ -36,7 +36,7 @@ Usage:
 
 Notes:
     - auth0_id is the unique identifier from Auth0 (sub claim)
-    - Email may not be verified - check email_verified flag
+    - Email verification is managed by Auth0, not stored locally
     - User preferences are stored as JSON in settings column
     - Personal data (address, DOB) managed by Auth0, not stored locally
 """
@@ -46,7 +46,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional, Dict, Any, TYPE_CHECKING
 
-from sqlalchemy import String, Boolean, DateTime, Text, Numeric, Enum
+from sqlalchemy import String, DateTime, Numeric, Enum
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -57,6 +57,7 @@ if TYPE_CHECKING:
     from app.models.transaction import Transaction
     from app.models.notification import Notification
     from app.models.alert import Alert
+    from app.models.budget import Budget
 
 # =============================================================================
 # USER MODEL
@@ -79,11 +80,8 @@ class User(db.Model):
         id: Primary key UUID
         auth0_id: Auth0 user identifier (sub claim)
         email: User's email address
-        email_verified: Whether email is verified in Auth0
         first_name: User's first name (per ERD)
         last_name: User's last name (per ERD)
-        nickname: Short nickname
-        picture: Profile picture URL
         account_status: Account status (pending, active, suspended)
         role: User role (user, admin)
         salary_amount: User's salary for budgeting features
@@ -132,10 +130,6 @@ class User(db.Model):
         String(255), unique=True, nullable=True, index=True, doc="User email address"
     )
 
-    email_verified: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=False, doc="Whether email is verified in Auth0"
-    )
-
     # =========================================================================
     # PROFILE FIELDS (per ERD)
     # =========================================================================
@@ -146,14 +140,6 @@ class User(db.Model):
 
     last_name: Mapped[str] = mapped_column(
         String(255), nullable=False, doc="User's last name"
-    )
-
-    nickname: Mapped[Optional[str]] = mapped_column(
-        String(100), nullable=True, doc="Short nickname"
-    )
-
-    picture: Mapped[Optional[str]] = mapped_column(
-        Text, nullable=True, doc="Profile picture URL"
     )
 
     # =========================================================================
@@ -256,6 +242,15 @@ class User(db.Model):
         cascade="all, delete-orphan",
     )
 
+    # One User can have many Budgets (1:N relationship)
+    # For spending limit management
+    budgets: Mapped[list["Budget"]] = relationship(
+        "Budget",
+        back_populates="user",
+        lazy="dynamic",
+        cascade="all, delete-orphan",
+    )
+
     # =========================================================================
     # PROPERTIES
     # =========================================================================
@@ -321,12 +316,9 @@ class User(db.Model):
             "id": str(self.id),
             "auth0_id": self.auth0_id,
             "email": self.email,
-            "email_verified": self.email_verified,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "full_name": self.full_name,
-            "nickname": self.nickname,
-            "picture": self.picture,
             "account_status": self.account_status.value,
             "role": self.role.value,
             "salary_amount": str(self.salary_amount),
@@ -362,11 +354,8 @@ class User(db.Model):
         # Note: Auth0 provides 'given_name' and 'family_name' for first/last name
         claim_mappings = {
             "email": "email",
-            "email_verified": "email_verified",
             "given_name": "first_name",
             "family_name": "last_name",
-            "nickname": "nickname",
-            "picture": "picture",
         }
 
         for claim_key, field_name in claim_mappings.items():

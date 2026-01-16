@@ -102,7 +102,6 @@ def update_current_user():
     Allowed Fields:
         - first_name: User's first name
         - last_name: User's last name
-        - nickname: Short nickname
         - settings: User preferences (partial update)
 
     Returns:
@@ -118,8 +117,7 @@ def update_current_user():
 
         {
             "first_name": "John",
-            "last_name": "Doe",
-            "nickname": "johnd"
+            "last_name": "Doe"
         }
 
     Example Response:

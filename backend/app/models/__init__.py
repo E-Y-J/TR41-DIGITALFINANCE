@@ -10,13 +10,16 @@ This package contains all SQLAlchemy database models.
 Usage:
     from app.models import User, Transaction
     from app.models import AccountStatus, UserRole, TransactionType
+    from app.models import Budget, BudgetType, BudgetPeriod
 
 AI Foundation Additions:
     - Category model for transaction categorization
     - Notification model for user notifications
     - Alert model for financial anomaly alerts (foundation)
+    - Budget model for user spending limits
     - New enums: CategoryType, NotificationStatus, NotificationType, AISource
     - Alert enums: AlertType, AlertSeverity
+    - Budget enums: BudgetType, BudgetPeriod
 """
 
 # Import enums from centralized location
@@ -36,6 +39,9 @@ from app.models.enums import (
     # Alert enums (Foundation)
     AlertType,
     AlertSeverity,
+    # Budget enums
+    BudgetType,
+    BudgetPeriod,
 )
 
 # Import models
@@ -46,6 +52,7 @@ from app.models.transaction import Transaction
 from app.models.category import Category
 from app.models.notification import Notification
 from app.models.alert import Alert
+from app.models.budget import Budget
 
 __all__ = [
     # =========================================================================
@@ -66,6 +73,9 @@ __all__ = [
     # Alert enums (Foundation)
     "AlertType",
     "AlertSeverity",
+    # Budget enums
+    "BudgetType",
+    "BudgetPeriod",
     # =========================================================================
     # Models
     # =========================================================================
@@ -75,4 +85,5 @@ __all__ = [
     "Category",
     "Notification",
     "Alert",
+    "Budget",
 ]

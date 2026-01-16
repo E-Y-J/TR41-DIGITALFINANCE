@@ -176,6 +176,11 @@ class UserService:
         """
         Update user profile fields.
 
+        Auto-Activation:
+            When a user with 'pending' status provides first_name and last_name,
+            their account_status will be automatically set to 'active'.
+            This supports the onboarding questionnaire flow.
+
         Args:
             user: User instance to update
             data: Dictionary of fields to update
@@ -192,15 +197,17 @@ class UserService:
             >>> updated = UserService.update_profile(user, {
             ...     "first_name": "John",
             ...     "last_name": "Doe",
-            ...     "nickname": "johnd"
+            ...     "salary_amount": "5000.00"
             ... })
 
         Allowed Fields:
             - first_name: User's first name
             - last_name: User's last name
-            - nickname: Short nickname
+            - salary_amount: User's salary for budgeting
             - settings: User preferences (partial update)
         """
+        from decimal import Decimal
+
         # Validate input
         errors = user_update_schema.validate(data)
         if errors:
@@ -218,13 +225,24 @@ class UserService:
             if validated.get("last_name") is not None:
                 user.last_name = validated["last_name"]
 
-            # Update nickname if provided
-            if validated.get("nickname") is not None:
-                user.nickname = validated["nickname"]
+            # Update salary_amount if provided
+            if validated.get("salary_amount") is not None:
+                user.salary_amount = Decimal(str(validated["salary_amount"]))
 
             # Update settings if provided (merge with existing)
             if validated.get("settings"):
                 cls._merge_settings(user, validated["settings"])
+
+            # =================================================================
+            # Auto-Activation Logic
+            # If user is pending and has required profile fields, activate
+            # =================================================================
+            if user.account_status == AccountStatus.PENDING:
+                if user.first_name and user.last_name:
+                    user.account_status = AccountStatus.ACTIVE
+                    logger.info(
+                        f"Auto-activated user after profile completion: {user.auth0_id}"
+                    )
 
             db.session.commit()
             logger.info(f"Updated profile for user: {user.auth0_id}")

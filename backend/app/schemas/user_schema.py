@@ -31,7 +31,7 @@ Schema Types:
 from typing import Optional
 from marshmallow import fields, validate, validates
 
-from app.schemas.base import BaseSchema, validate_not_blank, validate_no_spaces
+from app.schemas.base import BaseSchema, validate_not_blank
 
 
 # =============================================================================
@@ -98,12 +98,9 @@ class UserSchema(BaseSchema):
         {
             "id": "uuid-string",
             "email": "user@example.com",
-            "email_verified": true,
             "first_name": "John",
             "last_name": "Doe",
             "full_name": "John Doe",
-            "nickname": "john",
-            "picture": "https://...",
             "account_status": "active",
             "role": "user",
             "salary_amount": "5000.00",
@@ -122,10 +119,6 @@ class UserSchema(BaseSchema):
     # Profile fields (per ERD: first_name, last_name)
     email = fields.Email(dump_only=True, metadata={"description": "User email address"})
 
-    email_verified = fields.Boolean(
-        dump_only=True, metadata={"description": "Whether email is verified"}
-    )
-
     first_name = fields.String(
         dump_only=True, metadata={"description": "User's first name"}
     )
@@ -136,12 +129,6 @@ class UserSchema(BaseSchema):
 
     full_name = fields.String(
         dump_only=True, metadata={"description": "User's full name (computed)"}
-    )
-
-    nickname = fields.String(dump_only=True, metadata={"description": "Short nickname"})
-
-    picture = fields.Url(
-        dump_only=True, allow_none=True, metadata={"description": "Profile picture URL"}
     )
 
     # Status & Role fields (per ERD)
@@ -209,12 +196,6 @@ class UserPublicSchema(BaseSchema):
         dump_only=True, metadata={"description": "User's last name"}
     )
 
-    nickname = fields.String(dump_only=True, metadata={"description": "Short nickname"})
-
-    picture = fields.Url(
-        dump_only=True, allow_none=True, metadata={"description": "Profile picture URL"}
-    )
-
 
 # =============================================================================
 # USER UPDATE SCHEMA
@@ -228,11 +209,15 @@ class UserUpdateSchema(BaseSchema):
     Only allows updating specific fields.
     Auth0-managed fields (email, etc.) are not updatable here.
 
+    Auto-Activation:
+        When a user with 'pending' status provides first_name and last_name,
+        their account_status will be automatically set to 'active'.
+
     Example Request:
         {
             "first_name": "John",
             "last_name": "Smith",
-            "nickname": "newnick",
+            "salary_amount": "5000.00",
             "settings": {
                 "currency": "EUR"
             }
@@ -255,12 +240,12 @@ class UserUpdateSchema(BaseSchema):
         metadata={"description": "User's last name"},
     )
 
-    nickname = fields.String(
-        validate=[
-            validate.Length(min=1, max=100),
-        ],
+    salary_amount = fields.Decimal(
+        places=2,
+        as_string=True,
+        validate=validate.Range(min=0),
         load_default=None,
-        metadata={"description": "Short nickname"},
+        metadata={"description": "User's salary amount for budgeting"},
     )
 
     settings = fields.Nested(
@@ -280,13 +265,6 @@ class UserUpdateSchema(BaseSchema):
         """Validate last_name doesn't contain only whitespace."""
         if value is not None:
             validate_not_blank(value)
-
-    @validates("nickname")
-    def validate_nickname(self, value: Optional[str]) -> None:
-        """Validate nickname format."""
-        if value is not None:
-            validate_not_blank(value)
-            validate_no_spaces(value)
 
 
 # =============================================================================

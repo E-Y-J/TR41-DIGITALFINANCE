@@ -162,11 +162,8 @@ def _create_user_from_claims(claims: Dict[str, Any]) -> User:
     user = User(
         auth0_id=claims["sub"],
         email=claims.get("email"),
-        email_verified=claims.get("email_verified", False),
         first_name=first_name,
         last_name=last_name,
-        nickname=claims.get("nickname"),
-        picture=claims.get("picture"),
         last_login=datetime.now(timezone.utc),
         settings={
             "currency": "USD",  # Default currency
