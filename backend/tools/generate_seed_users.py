@@ -78,11 +78,11 @@ def generate(count, seed=None):
             "currency": random.choice(["USD", "EUR", "GBP", "AUD"]),
             "timezone": random.choice(["UTC", "America/Los_Angeles", "Europe/London"]),
             "theme": random.choice(["light", "dark"]),
-            "notifications": {"reminders": bool(random.getrandbits(1))}
+            "notifications": {"reminders": bool(random.getrandbits(1))},
         },
         "created_at": datetime.utcnow().isoformat(),
         "updated_at": datetime.utcnow().isoformat(),
-        "last_login": None
+        "last_login": None,
     }
 
     ariel_user = {
@@ -101,14 +101,15 @@ def generate(count, seed=None):
             "currency": random.choice(["USD", "EUR", "GBP", "AUD"]),
             "timezone": random.choice(["UTC", "America/Los_Angeles", "Europe/London"]),
             "theme": random.choice(["light", "dark"]),
-            "notifications": {"reminders": bool(random.getrandbits(1))}
+            "notifications": {"reminders": bool(random.getrandbits(1))},
         },
         "created_at": datetime.utcnow().isoformat(),
         "updated_at": datetime.utcnow().isoformat(),
-        "last_login": None
+        "last_login": None,
     }
 
     users.append(jae_user)
+    users.append(ariel_user)
 
     return {"generated_at": datetime.utcnow().isoformat() + "Z", "users": users}
 
