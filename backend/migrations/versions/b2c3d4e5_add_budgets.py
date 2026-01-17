@@ -32,8 +32,8 @@ from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
-revision = "add_budgets_table"
-down_revision = "add_categories_notifications_alerts"
+revision = "b2c3d4e5"
+down_revision = "add_cat_notifs_alerts"
 branch_labels = None
 depends_on = None
 
@@ -52,13 +52,13 @@ def upgrade():
         # Budget configuration
         sa.Column(
             "budget_type",
-            sa.Enum("TOTAL", "CATEGORY", name="budget_type_enum", native_enum=False),
+            sa.Enum("total", "category", name="budget_type_enum", native_enum=False),
             nullable=False,
         ),
         sa.Column("amount", sa.Numeric(precision=12, scale=2), nullable=False),
         sa.Column(
             "period",
-            sa.Enum("WEEKLY", "MONTHLY", name="budget_period_enum", native_enum=False),
+            sa.Enum("weekly", "monthly", name="budget_period_enum", native_enum=False),
             nullable=False,
         ),
         # Surplus tracking

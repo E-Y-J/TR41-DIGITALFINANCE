@@ -132,7 +132,13 @@ class Transaction(db.Model):
     )
 
     transaction_type: Mapped[TransactionType] = mapped_column(
-        Enum(TransactionType, name="transaction_type_enum", native_enum=False),
+        Enum(
+            TransactionType,
+            name="transaction_type_enum",
+            native_enum=False,
+            values_callable=lambda obj: [e.value for e in obj],
+            validate_strings=True,
+        ),
         nullable=False,
         index=True,
         doc="Transaction type: income or expense",
@@ -189,7 +195,13 @@ class Transaction(db.Model):
     )
 
     ai_source: Mapped[Optional[AISource]] = mapped_column(
-        Enum(AISource, name="ai_source_enum", native_enum=False),
+        Enum(
+            AISource,
+            name="ai_source_enum",
+            native_enum=False,
+            values_callable=lambda obj: [e.value for e in obj],
+            validate_strings=True,
+        ),
         nullable=True,
         index=True,
         doc="Source of categorization: huggingface, gemini, or user",

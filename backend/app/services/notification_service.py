@@ -117,7 +117,7 @@ class NotificationService:
         try:
             notification = Notification(
                 user_id=user_id,
-                type=notification_type,
+                notification_type=notification_type,
                 message=message,
                 data=data or {},
             )
@@ -370,7 +370,7 @@ class NotificationService:
             query = query.filter(Notification.status == status)
 
         if notification_type:
-            query = query.filter(Notification.type == notification_type)
+            query = query.filter(Notification.notification_type == notification_type)
 
         # Execute paginated query
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)

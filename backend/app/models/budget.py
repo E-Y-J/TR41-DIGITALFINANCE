@@ -185,7 +185,13 @@ class Budget(db.Model):
     # =========================================================================
 
     budget_type: Mapped[BudgetType] = mapped_column(
-        Enum(BudgetType, name="budget_type_enum", native_enum=False),
+        Enum(
+            BudgetType,
+            name="budget_type_enum",
+            native_enum=False,
+            values_callable=lambda obj: [e.value for e in obj],
+            validate_strings=True,
+        ),
         nullable=False,
         index=True,
         doc="Budget type: 'total' or 'category'",
@@ -198,7 +204,13 @@ class Budget(db.Model):
     )
 
     period: Mapped[BudgetPeriod] = mapped_column(
-        Enum(BudgetPeriod, name="budget_period_enum", native_enum=False),
+        Enum(
+            BudgetPeriod,
+            name="budget_period_enum",
+            native_enum=False,
+            values_callable=lambda obj: [e.value for e in obj],
+            validate_strings=True,
+        ),
         nullable=False,
         default=BudgetPeriod.MONTHLY,
         index=True,

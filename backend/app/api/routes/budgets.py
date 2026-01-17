@@ -23,6 +23,7 @@ Usage:
 from flask import Blueprint, request, g
 
 from app.auth.decorators import requires_auth
+from app.auth.user_sync import sync_user_from_claims
 from app.services.budget_service import BudgetService
 from app.schemas.budget_schema import (
     budget_create_schema,
@@ -100,10 +101,10 @@ def get_budgets():
             }
         }
     """
-    user_id = g.current_user.id
+    user = sync_user_from_claims(g.current_user)
     active_only = request.args.get("active_only", "true").lower() == "true"
 
-    budgets = BudgetService.get_budgets_with_spending(user_id, active_only)
+    budgets = BudgetService.get_budgets_with_spending(user.id, active_only)
 
     # Calculate meta information
     warning_count = sum(1 for b in budgets if b.get("is_warning"))
@@ -156,7 +157,7 @@ def create_budget():
             "period": "monthly"
         }
     """
-    user_id = g.current_user.id
+    user = sync_user_from_claims(g.current_user)
     data = request.get_json() or {}
 
     # Validate input
@@ -168,7 +169,7 @@ def create_budget():
     validated_data = budget_create_schema.load(data)
 
     # Create budget
-    budget = BudgetService.create_budget(user_id, validated_data)
+    budget = BudgetService.create_budget(user.id, validated_data)
 
     return {
         "success": True,
@@ -208,13 +209,13 @@ def get_budget(budget_id):
             "message": "Budget retrieved successfully"
         }
     """
-    user_id = g.current_user.id
+    user = sync_user_from_claims(g.current_user)
 
-    budget = BudgetService.get_budget_by_id(budget_id, user_id)
+    budget = BudgetService.get_budget_by_id(budget_id, user.id)
 
     # Get spending info
     status = BudgetService.check_budget_status(
-        user_id,
+        user.id,
         category_id=budget.category_id if budget.category_id else None,
     )
 
@@ -266,7 +267,7 @@ def update_budget(budget_id):
             "is_active": true
         }
     """
-    user_id = g.current_user.id
+    user = sync_user_from_claims(g.current_user)
     data = request.get_json() or {}
 
     # Validate input
@@ -278,7 +279,7 @@ def update_budget(budget_id):
     validated_data = budget_update_schema.load(data)
 
     # Update budget
-    budget = BudgetService.update_budget(budget_id, user_id, validated_data)
+    budget = BudgetService.update_budget(budget_id, user.id, validated_data)
 
     return {
         "success": True,
@@ -307,9 +308,9 @@ def delete_budget(budget_id):
             "message": "Budget deleted successfully"
         }
     """
-    user_id = g.current_user.id
+    user = sync_user_from_claims(g.current_user)
 
-    BudgetService.delete_budget(budget_id, user_id)
+    BudgetService.delete_budget(budget_id, user.id)
 
     return {
         "success": True,
@@ -355,13 +356,13 @@ def get_budget_status():
             "message": "Budget status retrieved successfully"
         }
     """
-    user_id = g.current_user.id
+    user = sync_user_from_claims(g.current_user)
 
     # Get total budget status
-    total_status = BudgetService.check_budget_status(user_id, category_id=None)
+    total_status = BudgetService.check_budget_status(user.id, category_id=None)
 
     # Get all budgets with spending
-    all_budgets = BudgetService.get_budgets_with_spending(user_id, active_only=True)
+    all_budgets = BudgetService.get_budgets_with_spending(user.id, active_only=True)
 
     # Filter category budgets
     category_budgets = [b for b in all_budgets if b.get("budget_type") == "category"]
@@ -435,9 +436,9 @@ def get_category_budget_status(category_id):
             "message": "Category budget status retrieved successfully"
         }
     """
-    user_id = g.current_user.id
+    user = sync_user_from_claims(g.current_user)
 
-    status = BudgetService.check_budget_status(user_id, category_id=category_id)
+    status = BudgetService.check_budget_status(user.id, category_id=category_id)
 
     return {
         "success": True,

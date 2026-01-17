@@ -33,9 +33,10 @@ def upgrade():
         sa.Column(
             "account_status",
             sa.Enum(
-                "PENDING",
-                "ACTIVE",
-                "SUSPENDED",
+                "pending",
+                "active",
+                "suspended",
+                "deactivated",
                 name="account_status_enum",
                 native_enum=False,
             ),
@@ -43,7 +44,7 @@ def upgrade():
         ),
         sa.Column(
             "role",
-            sa.Enum("USER", "ADMIN", name="user_role_enum", native_enum=False),
+            sa.Enum("user", "admin", name="user_role_enum", native_enum=False),
             nullable=False,
         ),
         sa.Column("salary_amount", sa.Numeric(precision=12, scale=2), nullable=False),
@@ -70,7 +71,7 @@ def upgrade():
         sa.Column(
             "transaction_type",
             sa.Enum(
-                "INCOME", "EXPENSE", name="transaction_type_enum", native_enum=False
+                "income", "expense", name="transaction_type_enum", native_enum=False
             ),
             nullable=False,
         ),

@@ -171,7 +171,15 @@ class User(db.Model):
     )
 
     role: Mapped[UserRole] = mapped_column(
-        Enum(UserRole, name="user_role_enum", native_enum=False),
+        Enum(
+            UserRole,
+            name="user_role_enum",
+            native_enum=False,
+            values_callable=lambda obj: [
+                e.value for e in obj
+            ],  # map to lowercase values
+            validate_strings=True,
+        ),
         default=UserRole.USER,
         nullable=False,
         index=True,

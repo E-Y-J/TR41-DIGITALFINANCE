@@ -38,13 +38,22 @@ from typing import Optional, Dict, Any, List, Tuple
 from calendar import monthrange
 
 from sqlalchemy import func, and_
+from sqlalchemy.exc import IntegrityError
+import logging
 
 from app.core.extensions import db
 from app.models.budget import Budget, WARNING_THRESHOLD
 from app.models.transaction import Transaction
 from app.models.category import Category
 from app.models.enums import BudgetType, BudgetPeriod, TransactionType
-from app.utils.errors import NotFoundError, ValidationError, ConflictError
+from app.utils.errors import (
+    NotFoundError,
+    ValidationError,
+    ConflictError,
+    InternalError,
+)
+
+logger = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -135,6 +144,10 @@ class BudgetService:
         """
         start, end = BudgetService.get_current_period_dates(period)
 
+        # Convert to string format since Transaction.date is stored as string (YYYY-MM-DD)
+        start_str = start.strftime("%Y-%m-%d")
+        end_str = end.strftime("%Y-%m-%d")
+
         result = (
             db.session.query(func.coalesce(func.sum(Transaction.amount), 0))
             .filter(
@@ -142,8 +155,8 @@ class BudgetService:
                     Transaction.user_id == user_id,
                     Transaction.category_id == category_id,
                     Transaction.transaction_type == TransactionType.EXPENSE,
-                    Transaction.date >= start.date(),
-                    Transaction.date <= end.date(),
+                    Transaction.date >= start_str,
+                    Transaction.date <= end_str,
                 )
             )
             .scalar()
@@ -175,14 +188,18 @@ class BudgetService:
         """
         start, end = BudgetService.get_current_period_dates(period)
 
+        # Convert to string format since Transaction.date is stored as string (YYYY-MM-DD)
+        start_str = start.strftime("%Y-%m-%d")
+        end_str = end.strftime("%Y-%m-%d")
+
         result = (
             db.session.query(func.coalesce(func.sum(Transaction.amount), 0))
             .filter(
                 and_(
                     Transaction.user_id == user_id,
                     Transaction.transaction_type == TransactionType.EXPENSE,
-                    Transaction.date >= start.date(),
-                    Transaction.date <= end.date(),
+                    Transaction.date >= start_str,
+                    Transaction.date <= end_str,
                 )
             )
             .scalar()
@@ -337,20 +354,31 @@ class BudgetService:
                     f"A {period.value} budget for this category already exists"
                 )
 
-        # Create budget
-        budget = Budget(
-            user_id=user_id,
-            category_id=category_id,
-            budget_type=budget_type,
-            amount=Decimal(str(data["amount"])),
-            period=period,
-            is_active=data.get("is_active", True),
-        )
+        # Create budget with proper error handling
+        try:
+            budget = Budget(
+                user_id=user_id,
+                category_id=category_id,
+                budget_type=budget_type,
+                amount=Decimal(str(data["amount"])),
+                period=period,
+                is_active=data.get("is_active", True),
+            )
 
-        db.session.add(budget)
-        db.session.commit()
+            db.session.add(budget)
+            db.session.commit()
 
-        return budget
+            logger.info(f"Created {budget_type.value} budget for user {user_id}")
+            return budget
+
+        except IntegrityError:
+            db.session.rollback()
+            logger.warning(f"Budget conflict for user {user_id}, period {period.value}")
+            raise ConflictError("A budget with this configuration already exists")
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Failed to create budget: {e}", exc_info=True)
+            raise InternalError("Failed to create budget")
 
     @staticmethod
     def update_budget(
@@ -398,8 +426,18 @@ class BudgetService:
         if "is_active" in data:
             budget.is_active = data["is_active"]
 
-        db.session.commit()
-        return budget
+        try:
+            db.session.commit()
+            logger.info(f"Updated budget {budget_id}")
+            return budget
+        except IntegrityError:
+            db.session.rollback()
+            logger.warning(f"Budget update conflict for budget {budget_id}")
+            raise ConflictError("A budget with this configuration already exists")
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Failed to update budget: {e}", exc_info=True)
+            raise InternalError("Failed to update budget")
 
     @staticmethod
     def delete_budget(budget_id: uuid.UUID, user_id: uuid.UUID) -> bool:
@@ -417,9 +455,15 @@ class BudgetService:
             NotFoundError: If budget not found
         """
         budget = BudgetService.get_budget_by_id(budget_id, user_id)
-        db.session.delete(budget)
-        db.session.commit()
-        return True
+        try:
+            db.session.delete(budget)
+            db.session.commit()
+            logger.info(f"Deleted budget {budget_id}")
+            return True
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Failed to delete budget: {e}", exc_info=True)
+            raise InternalError("Failed to delete budget")
 
     # =========================================================================
     # WARNING & ALERT CHECKS

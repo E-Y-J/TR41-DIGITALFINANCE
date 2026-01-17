@@ -166,14 +166,26 @@ class Alert(db.Model):
     # =========================================================================
 
     alert_type: Mapped[AlertType] = mapped_column(
-        db.Enum(AlertType, native_enum=False, length=50),
+        db.Enum(
+            AlertType,
+            native_enum=False,
+            length=50,
+            values_callable=lambda obj: [e.value for e in obj],
+            validate_strings=True,
+        ),
         nullable=False,
         index=True,
         doc="Type of alert",
     )
 
     severity: Mapped[AlertSeverity] = mapped_column(
-        db.Enum(AlertSeverity, native_enum=False, length=20),
+        db.Enum(
+            AlertSeverity,
+            native_enum=False,
+            length=20,
+            values_callable=lambda obj: [e.value for e in obj],
+            validate_strings=True,
+        ),
         nullable=False,
         default=AlertSeverity.MEDIUM,
         index=True,

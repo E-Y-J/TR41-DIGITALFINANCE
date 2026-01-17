@@ -88,7 +88,7 @@ def get_alerts():
     Requires:
         Authentication via Auth0
     """
-    user = sync_user_from_claims(g.jwt_claims)
+    user = sync_user_from_claims(g.current_user)
 
     # Parse query parameters
     page = request.args.get("page", 1, type=int)
@@ -154,7 +154,7 @@ def get_alert_count():
     Notes:
         Useful for showing badge count in UI.
     """
-    user = sync_user_from_claims(g.jwt_claims)
+    user = sync_user_from_claims(g.current_user)
 
     count = AlertService.get_active_count(user.id)
 
@@ -191,7 +191,7 @@ def dismiss_alert(alert_id: str):
         403: Alert doesn't belong to user
         404: Alert not found
     """
-    user = sync_user_from_claims(g.jwt_claims)
+    user = sync_user_from_claims(g.current_user)
 
     # Parse and validate UUID
     alert_uuid = parse_uuid(alert_id, "alert_id")
@@ -225,7 +225,7 @@ def dismiss_all_alerts():
     Requires:
         Authentication via Auth0
     """
-    user = sync_user_from_claims(g.jwt_claims)
+    user = sync_user_from_claims(g.current_user)
 
     # Dismiss all alerts
     count = AlertService.dismiss_all(user.id)

@@ -102,7 +102,7 @@ def get_notifications():
         }
     """
     # Sync user from JWT claims
-    user = sync_user_from_claims(g.jwt_claims)
+    user = sync_user_from_claims(g.current_user)
 
     # Parse pagination
     page, per_page = validate_pagination(
@@ -172,7 +172,7 @@ def get_unread_count():
         }
     """
     # Sync user from JWT claims
-    user = sync_user_from_claims(g.jwt_claims)
+    user = sync_user_from_claims(g.current_user)
 
     count = NotificationService.get_unread_count(user.id)
 
@@ -214,7 +214,7 @@ def mark_as_read(notification_id: str):
         }
     """
     # Sync user from JWT claims
-    user = sync_user_from_claims(g.jwt_claims)
+    user = sync_user_from_claims(g.current_user)
 
     # Parse and validate UUID
     uuid_obj = parse_uuid(notification_id, "notification_id")
@@ -252,7 +252,7 @@ def mark_all_as_read():
         }
     """
     # Sync user from JWT claims
-    user = sync_user_from_claims(g.jwt_claims)
+    user = sync_user_from_claims(g.current_user)
 
     count = NotificationService.mark_all_as_read(user.id)
 
@@ -289,7 +289,7 @@ def delete_notification(notification_id: str):
         }
     """
     # Sync user from JWT claims
-    user = sync_user_from_claims(g.jwt_claims)
+    user = sync_user_from_claims(g.current_user)
 
     # Parse and validate UUID
     uuid_obj = parse_uuid(notification_id, "notification_id")
@@ -326,7 +326,7 @@ def delete_all_read():
         }
     """
     # Sync user from JWT claims
-    user = sync_user_from_claims(g.jwt_claims)
+    user = sync_user_from_claims(g.current_user)
 
     count = NotificationService.delete_all_read(user.id)
 
