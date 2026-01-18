@@ -54,6 +54,7 @@ from app.models.enums import CategoryType
 
 if TYPE_CHECKING:
     from app.models.transaction import Transaction
+    from app.models.budget import Budget
 
 
 # =============================================================================
@@ -609,11 +610,29 @@ class Category(db.Model):
     )
 
     category_type: Mapped[CategoryType] = mapped_column(
-        Enum(CategoryType, name="category_type_enum", native_enum=False),
+        Enum(
+            CategoryType,
+            name="category_type_enum",
+            native_enum=False,
+            values_callable=lambda obj: [e.value for e in obj],
+            validate_strings=True,
+        ),
         nullable=False,
         default=CategoryType.EXPENSE,
         index=True,
         doc="Category type: income, expense, or both",
+    )
+
+    icon: Mapped[Optional[str]] = mapped_column(
+        String(50),
+        nullable=True,
+        doc="Icon name for frontend display",
+    )
+
+    color: Mapped[Optional[str]] = mapped_column(
+        String(7),
+        nullable=True,
+        doc="Hex color code for frontend display (e.g., #FF6B6B)",
     )
 
     is_system: Mapped[bool] = mapped_column(
@@ -675,6 +694,13 @@ class Category(db.Model):
         "Transaction",
         back_populates="original_category_rel",
         foreign_keys="Transaction.original_category_id",
+    )
+
+    # One Category can have many Budgets (1:N relationship)
+    # Users can set budgets per category
+    budgets: Mapped[List["Budget"]] = relationship(
+        "Budget",
+        back_populates="category",
     )
 
     # =========================================================================

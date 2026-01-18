@@ -98,21 +98,22 @@ def requires_auth(f: F) -> F:
         ...     return {"user_id": g.auth0_id}
     """
 
-
     @wraps(f)
     def decorated(*args: Any, **kwargs: Any) -> Any:
-# DEV IMPERSONATION (skip Auth0)
+        # DEV IMPERSONATION (skip Auth0)
         is_dev = os.getenv("FLASK_ENV") == "development"
         dev_impersonation = os.getenv("DEV_IMPERSONATION", "").lower() == "true"
 
         if not is_dev and request.headers.get("X-Dev-Auth0-Id"):
-            logger.critical("SECURITY: Dev impersonation header used outside development")
+            logger.critical(
+                "SECURITY: Dev impersonation header used outside development"
+            )
             raise UnauthorizedError("Invalid authentication method")
 
         # ℹ️ Header present but feature disabled (dev only)
         if is_dev and request.headers.get("X-Dev-Auth0-Id") and not dev_impersonation:
             logger.info(
-            "Dev impersonation header ignored because DEV_IMPERSONATION is not enabled"
+                "Dev impersonation header ignored because DEV_IMPERSONATION is not enabled"
             )
 
         # DEV IMPERSONATION (dev-only, explicit opt-in)
@@ -122,7 +123,9 @@ def requires_auth(f: F) -> F:
                 g.auth0_id = dev_auth0_id.strip()
                 g.current_user = {"sub": dev_auth0_id.strip()}
                 g.access_token = None
-                logger.warning(f"[DEV ONLY] impersonation active for auth0_id={dev_auth0_id.strip()}")
+                logger.warning(
+                    f"[DEV ONLY] impersonation active for auth0_id={dev_auth0_id.strip()}"
+                )
                 return f(*args, **kwargs)
         try:
             # Extract token from header

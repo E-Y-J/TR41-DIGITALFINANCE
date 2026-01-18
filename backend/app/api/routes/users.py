@@ -102,7 +102,8 @@ def update_current_user():
     Allowed Fields:
         - first_name: User's first name
         - last_name: User's last name
-        - nickname: Short nickname
+        - nickname: User's optional nickname/display name
+        - salary_amount: User's salary for budgeting
         - settings: User preferences (partial update)
 
     Returns:
@@ -119,7 +120,8 @@ def update_current_user():
         {
             "first_name": "John",
             "last_name": "Doe",
-            "nickname": "johnd"
+            "nickname": "JohnD",
+            "salary_amount": "5000.00"
         }
 
     Example Response:

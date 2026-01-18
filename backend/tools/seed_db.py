@@ -19,6 +19,7 @@ import sys
 # Auto-load .env from backend/.env if present (optional)
 try:
     from dotenv import load_dotenv
+
     env_path = Path(__file__).resolve().parents[1] / ".env"  # backend/.env
     if env_path.exists():
         load_dotenv(env_path)
@@ -30,10 +31,8 @@ REQUIRED_FIELDS = [
     "id",
     "auth0_id",
     "email",
-    "email_verified",
     "first_name",
     "last_name",
-    "nickname",
     "account_status",
     "role",
     "salary_amount",
@@ -49,7 +48,9 @@ def load_fixture(path):
         return payload["users"]
     if isinstance(payload, list):
         return payload
-    raise ValueError("Unsupported fixture format: expected { 'users': [...] } or a list.")
+    raise ValueError(
+        "Unsupported fixture format: expected { 'users': [...] } or a list."
+    )
 
 
 def validate_users(users):
@@ -71,7 +72,6 @@ def validate_users(users):
 
 
 def try_flask_insert(users, commit=False):
-    import sys
     from pathlib import Path
 
     # Add backend folder to sys.path so Python can find 'app'
@@ -104,11 +104,9 @@ def try_flask_insert(users, commit=False):
                     "id": u.get("id"),
                     "auth0_id": u.get("auth0_id"),
                     "email": u.get("email"),
-                    "email_verified": u.get("email_verified", False),
                     "first_name": u.get("first_name"),
                     "last_name": u.get("last_name"),
-                    "nickname": u.get("nickname"),
-                    "picture": u.get("picture"),
+                    "nickname": u.get("nickname"),  # Optional field
                     "account_status": u.get("account_status", "pending"),
                     "role": u.get("role", "USER"),
                     "salary_amount": u.get("salary_amount", "0.00"),
@@ -180,11 +178,8 @@ def fallback_sqlalchemy_insert(users, commit=False):
                 "id": u.get("id"),
                 "auth0_id": u.get("auth0_id"),
                 "email": u.get("email"),
-                "email_verified": u.get("email_verified", False),
                 "first_name": u.get("first_name"),
                 "last_name": u.get("last_name"),
-                "nickname": u.get("nickname"),
-                "picture": u.get("picture"),
                 "account_status": u.get("account_status", "pending"),
                 "role": u.get("role", "USER"),
                 "salary_amount": u.get("salary_amount", "0.00"),
@@ -213,9 +208,15 @@ def fallback_sqlalchemy_insert(users, commit=False):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Seed the database from a fixture JSON.")
+    parser = argparse.ArgumentParser(
+        description="Seed the database from a fixture JSON."
+    )
     parser.add_argument("--file", "-f", required=True, help="Path to fixture JSON file")
-    parser.add_argument("--commit", action="store_true", help="Actually commit the inserts (default: dry-run)")
+    parser.add_argument(
+        "--commit",
+        action="store_true",
+        help="Actually commit the inserts (default: dry-run)",
+    )
     args = parser.parse_args()
 
     fixture_path = args.file

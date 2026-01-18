@@ -84,6 +84,21 @@ from app.schemas.alert_schema import (
     alert_create_schema,
 )
 
+# Import budget schemas
+from app.schemas.budget_schema import (
+    BudgetSchema,
+    BudgetCreateSchema,
+    BudgetUpdateSchema,
+    BudgetWithSpendingSchema,
+    BudgetResponseSchema,
+    BudgetListResponseSchema,
+    budget_schema,
+    budget_create_schema,
+    budget_update_schema,
+    budget_with_spending_schema,
+    budget_list_schema,
+)
+
 __all__ = [
     # =========================================================================
     # Base schema and validators (from base.py)
@@ -147,4 +162,18 @@ __all__ = [
     "alert_list_schema",
     "alert_dismiss_schema",
     "alert_create_schema",
+    # =========================================================================
+    # Budget schemas
+    # =========================================================================
+    "BudgetSchema",
+    "BudgetCreateSchema",
+    "BudgetUpdateSchema",
+    "BudgetWithSpendingSchema",
+    "BudgetResponseSchema",
+    "BudgetListResponseSchema",
+    "budget_schema",
+    "budget_create_schema",
+    "budget_update_schema",
+    "budget_with_spending_schema",
+    "budget_list_schema",
 ]

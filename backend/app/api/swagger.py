@@ -739,78 +739,78 @@ Error responses:
             }
         },
         "responses": {
-        "UnauthorizedError": {
-            "description": "Unauthorized - missing or invalid token",
-            "content": {
-                "application/json": {
-                    "schema": {"$ref": "#/components/schemas/ErrorResponse"},
-                    "examples": {
-                        "authorization_header_missing": {
-                            "summary": "Authorization header missing",
-                            "value": {
-                                "error": {
-                                    "code": "UNAUTHORIZED",
-                                    "message": "Authorization header missing"
+            "UnauthorizedError": {
+                "description": "Unauthorized - missing or invalid token",
+                "content": {
+                    "application/json": {
+                        "schema": {"$ref": "#/components/schemas/ErrorResponse"},
+                        "examples": {
+                            "authorization_header_missing": {
+                                "summary": "Authorization header missing",
+                                "value": {
+                                    "error": {
+                                        "code": "UNAUTHORIZED",
+                                        "message": "Authorization header missing",
+                                    },
+                                    "success": False,
                                 },
-                                "success": False
+                            },
+                            "invalid_token": {
+                                "summary": "Invalid or expired token",
+                                "value": {
+                                    "error": {
+                                        "code": "UNAUTHORIZED",
+                                        "message": "Invalid or expired token",
+                                    },
+                                    "success": False,
+                                },
+                            },
+                        },
+                    }
+                },
+            },
+            "ValidationError": {
+                "description": "Validation error - bad request payload or params",
+                "content": {
+                    "application/json": {
+                        "schema": {"$ref": "#/components/schemas/ErrorResponse"},
+                        "examples": {
+                            "invalid_payload": {
+                                "summary": "Invalid payload",
+                                "value": {
+                                    "error": {
+                                        "code": "VALIDATION_ERROR",
+                                        "message": "One or more fields are invalid",
+                                        "details": {"field": "reason"},
+                                    },
+                                    "success": False,
+                                },
                             }
                         },
-                        "invalid_token": {
-                            "summary": "Invalid or expired token",
-                            "value": {
-                                "error": {
-                                    "code": "UNAUTHORIZED",
-                                    "message": "Invalid or expired token"
-                                },
-                                "success": False
-                            }
-                        }
                     }
-                }
-            }
+                },
+            },
+            "NotFoundError": {
+                "description": "Resource not found",
+                "content": {
+                    "application/json": {
+                        "schema": {"$ref": "#/components/schemas/ErrorResponse"},
+                        "examples": {
+                            "not_found": {
+                                "summary": "Entity not found",
+                                "value": {
+                                    "error": {
+                                        "code": "NOT_FOUND",
+                                        "message": "Resource not found",
+                                    },
+                                    "success": False,
+                                },
+                            }
+                        },
+                    }
+                },
+            },
         },
-        "ValidationError": {
-            "description": "Validation error - bad request payload or params",
-            "content": {
-                "application/json": {
-                    "schema": {"$ref": "#/components/schemas/ErrorResponse"},
-                    "examples": {
-                        "invalid_payload": {
-                            "summary": "Invalid payload",
-                            "value": {
-                                "error": {
-                                    "code": "VALIDATION_ERROR",
-                                    "message": "One or more fields are invalid",
-                                    "details": {"field": "reason"}
-                                },
-                                "success": False
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "NotFoundError": {
-            "description": "Resource not found",
-            "content": {
-                "application/json": {
-                    "schema": {"$ref": "#/components/schemas/ErrorResponse"},
-                    "examples": {
-                        "not_found": {
-                            "summary": "Entity not found",
-                            "value": {
-                                "error": {
-                                    "code": "NOT_FOUND",
-                                    "message": "Resource not found"
-                                },
-                                "success": False
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
         "schemas": {
             "User": {
                 "type": "object",
@@ -821,15 +821,17 @@ Error responses:
                         "description": "Auth0 user identifier",
                     },
                     "email": {"type": "string", "format": "email"},
-                    "email_verified": {"type": "boolean"},
                     "first_name": {"type": "string"},
                     "last_name": {"type": "string"},
+                    "nickname": {
+                        "type": "string",
+                        "nullable": True,
+                        "description": "Optional nickname/display name",
+                    },
                     "full_name": {
                         "type": "string",
                         "description": "Computed full name",
                     },
-                    "nickname": {"type": "string"},
-                    "picture": {"type": "string", "format": "uri", "nullable": True},
                     "account_status": {
                         "type": "string",
                         "enum": ["pending", "active", "suspended", "deactivated"],
@@ -870,7 +872,16 @@ Error responses:
                 "properties": {
                     "first_name": {"type": "string", "maxLength": 100},
                     "last_name": {"type": "string", "maxLength": 100},
-                    "nickname": {"type": "string", "maxLength": 50},
+                    "nickname": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "nullable": True,
+                        "description": "Optional nickname/display name",
+                    },
+                    "salary_amount": {
+                        "type": "string",
+                        "description": "Decimal as string for budgeting",
+                    },
                 },
             },
             "UserResponse": {
