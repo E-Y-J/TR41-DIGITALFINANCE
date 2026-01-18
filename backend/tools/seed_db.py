@@ -106,6 +106,7 @@ def try_flask_insert(users, commit=False):
                     "email": u.get("email"),
                     "first_name": u.get("first_name"),
                     "last_name": u.get("last_name"),
+                    "nickname": u.get("nickname"),  # Optional field
                     "account_status": u.get("account_status", "pending"),
                     "role": u.get("role", "USER"),
                     "salary_amount": u.get("salary_amount", "0.00"),

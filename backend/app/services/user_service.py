@@ -203,6 +203,7 @@ class UserService:
         Allowed Fields:
             - first_name: User's first name
             - last_name: User's last name
+            - nickname: User's optional nickname/display name
             - salary_amount: User's salary for budgeting
             - settings: User preferences (partial update)
         """
@@ -224,6 +225,10 @@ class UserService:
             # Update last_name if provided
             if validated.get("last_name") is not None:
                 user.last_name = validated["last_name"]
+
+            # Update nickname if provided (optional field)
+            if validated.get("nickname") is not None:
+                user.nickname = validated["nickname"]
 
             # Update salary_amount if provided
             if validated.get("salary_amount") is not None:

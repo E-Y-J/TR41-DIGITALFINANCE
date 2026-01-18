@@ -127,6 +127,12 @@ class UserSchema(BaseSchema):
         dump_only=True, metadata={"description": "User's last name"}
     )
 
+    nickname = fields.String(
+        dump_only=True,
+        allow_none=True,
+        metadata={"description": "User's optional nickname/display name"},
+    )
+
     full_name = fields.String(
         dump_only=True, metadata={"description": "User's full name (computed)"}
     )
@@ -238,6 +244,14 @@ class UserUpdateSchema(BaseSchema):
         ],
         load_default=None,
         metadata={"description": "User's last name"},
+    )
+
+    nickname = fields.String(
+        validate=[
+            validate.Length(max=100),
+        ],
+        load_default=None,
+        metadata={"description": "User's optional nickname/display name"},
     )
 
     salary_amount = fields.Decimal(

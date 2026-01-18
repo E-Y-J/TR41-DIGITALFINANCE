@@ -823,6 +823,11 @@ Error responses:
                     "email": {"type": "string", "format": "email"},
                     "first_name": {"type": "string"},
                     "last_name": {"type": "string"},
+                    "nickname": {
+                        "type": "string",
+                        "nullable": True,
+                        "description": "Optional nickname/display name",
+                    },
                     "full_name": {
                         "type": "string",
                         "description": "Computed full name",
@@ -867,6 +872,16 @@ Error responses:
                 "properties": {
                     "first_name": {"type": "string", "maxLength": 100},
                     "last_name": {"type": "string", "maxLength": 100},
+                    "nickname": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "nullable": True,
+                        "description": "Optional nickname/display name",
+                    },
+                    "salary_amount": {
+                        "type": "string",
+                        "description": "Decimal as string for budgeting",
+                    },
                 },
             },
             "UserResponse": {

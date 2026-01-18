@@ -13,8 +13,13 @@ This document describes the simplified User model and the required Auth0 configu
 | Field | Reason |
 |-------|--------|
 | `email_verified` | Trust Auth0 to handle email verification |
-| `nickname` | Not used in the application |
 | `picture` | Frontend gets profile picture directly from Auth0 |
+
+### Fields Kept as Optional
+
+| Field | Reason |
+|-------|--------|
+| `nickname` | Optional display name, synced from Auth0 or user-provided |
 
 ### Current User Model Structure
 
@@ -25,6 +30,7 @@ User Model:
 ├── email           # String - User email address
 ├── first_name      # String - From Auth0 given_name
 ├── last_name       # String - From Auth0 family_name
+├── nickname        # String (optional) - Display name
 ├── account_status  # Enum - pending/active/suspended/deactivated
 ├── role            # Enum - user/admin
 ├── salary_amount   # Decimal - For budgeting features
@@ -36,10 +42,10 @@ User Model:
 
 ### Files Modified
 
-1. `backend/app/models/user.py` - Removed fields from model
-2. `backend/app/schemas/user_schema.py` - Removed fields from schemas
+1. `backend/app/models/user.py` - Removed email_verified and picture fields
+2. `backend/app/schemas/user_schema.py` - Removed email_verified and picture fields
 3. `backend/app/auth/user_sync.py` - Simplified user creation from claims
-4. `backend/app/services/user_service.py` - Removed nickname handling
+4. `backend/app/services/user_service.py` - Handles nickname as optional field
 
 ---
 
@@ -165,7 +171,7 @@ flask db upgrade
 
 ```bash
 # Create migration for the column drops
-flask db migrate -m "Remove email_verified, nickname, picture from users"
+flask db migrate -m "Remove email_verified and picture from users"
 
 # Review the generated migration file
 # Then apply it
@@ -226,6 +232,7 @@ flask db upgrade
     "email": "user@example.com",
     "first_name": "John",
     "last_name": "Doe",
+    "nickname": "johnd",
     "full_name": "John Doe",
     "account_status": "active",
     "role": "user",
@@ -246,14 +253,16 @@ The frontend team needs to be aware:
 
 1. **Removed fields from API response:**
    - `email_verified` - No longer returned
-   - `nickname` - No longer returned
    - `picture` - No longer returned
 
-2. **Profile picture:**
+2. **Kept fields (optional):**
+   - `nickname` - Still available, synced from Auth0 or user-updatable via PATCH /api/users/me
+
+3. **Profile picture:**
    - Get directly from Auth0 via `auth0.getUser().picture`
    - Or use Auth0's ID token which contains the picture URL
 
-3. **Update any code** that references these removed fields
+4. **Update any code** that references the removed fields (`email_verified`, `picture`)
 
 ---
 
@@ -277,7 +286,6 @@ The frontend team needs to be aware:
 2. Or manually drop the columns:
    ```sql
    ALTER TABLE users DROP COLUMN IF EXISTS email_verified;
-   ALTER TABLE users DROP COLUMN IF EXISTS nickname;
    ALTER TABLE users DROP COLUMN IF EXISTS picture;
    ```
 

@@ -142,6 +142,10 @@ class User(db.Model):
         String(255), nullable=False, doc="User's last name"
     )
 
+    nickname: Mapped[Optional[str]] = mapped_column(
+        String(100), nullable=True, doc="User's optional nickname/display name"
+    )
+
     # =========================================================================
     # SETTINGS & PREFERENCES
     # =========================================================================
@@ -326,6 +330,7 @@ class User(db.Model):
             "email": self.email,
             "first_name": self.first_name,
             "last_name": self.last_name,
+            "nickname": self.nickname,
             "full_name": self.full_name,
             "account_status": self.account_status.value,
             "role": self.role.value,
@@ -360,10 +365,12 @@ class User(db.Model):
 
         # Map claims to user fields
         # Note: Auth0 provides 'given_name' and 'family_name' for first/last name
+        # 'nickname' is also provided by Auth0
         claim_mappings = {
             "email": "email",
             "given_name": "first_name",
             "family_name": "last_name",
+            "nickname": "nickname",
         }
 
         for claim_key, field_name in claim_mappings.items():

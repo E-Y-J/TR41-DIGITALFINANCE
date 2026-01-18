@@ -73,6 +73,7 @@ Content-Type: application/json
             "email": "john@example.com",
             "first_name": "",
             "last_name": "",
+            "nickname": null,
             "full_name": "",
             "account_status": "pending",
             "role": "user",
@@ -102,6 +103,7 @@ Content-Type: application/json
             "email": "john@example.com",
             "first_name": "John",
             "last_name": "Doe",
+            "nickname": "JohnD",
             "full_name": "John Doe",
             "account_status": "active",
             "role": "user",
@@ -181,6 +183,7 @@ Authorization: Bearer <access_token>
         "email": "john@example.com",
         "first_name": "John",
         "last_name": "Doe",
+        "nickname": "JohnD",
         "full_name": "John Doe",
         "account_status": "active",
         "role": "user",
@@ -227,6 +230,7 @@ Content-Type: application/json
 |-------|------|-------------|------------|
 | `first_name` | string | User's first name | Max 100 chars, not blank |
 | `last_name` | string | User's last name | Max 100 chars, not blank |
+| `nickname` | string | Optional display name | Max 100 chars, nullable |
 | `salary_amount` | decimal | Monthly salary | >= 0, 2 decimal places |
 | `settings` | object | User preferences | Merged with existing |
 

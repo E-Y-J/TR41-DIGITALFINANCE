@@ -156,6 +156,7 @@ def _create_user_from_claims(claims: Dict[str, Any]) -> User:
     Notes:
         This is an internal function - use sync_user_from_claims instead.
         Auth0 name is parsed into first_name and last_name.
+        Nickname is synced from Auth0 if provided.
     """
     first_name, last_name = _parse_name_from_claims(claims)
 
@@ -164,6 +165,7 @@ def _create_user_from_claims(claims: Dict[str, Any]) -> User:
         email=claims.get("email"),
         first_name=first_name,
         last_name=last_name,
+        nickname=claims.get("nickname"),  # Optional field from Auth0
         last_login=datetime.now(timezone.utc),
         settings={
             "currency": "USD",  # Default currency
