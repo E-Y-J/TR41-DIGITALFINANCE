@@ -186,7 +186,6 @@ def get_me():
                 "id": "uuid-string",
                 "auth0_id": "auth0|123...",
                 "email": "user@example.com",
-                "email_verified": true,
                 "first_name": "John",
                 "last_name": "Doe",
                 "account_status": "active",
@@ -203,13 +202,11 @@ def get_me():
         "id": str(user.id),
         "auth0_id": user.auth0_id,
         "email": user.email,
-        "email_verified": user.email_verified,
         "first_name": user.first_name,
         "last_name": user.last_name,
         "full_name": user.full_name,
         "account_status": user.account_status.value,
         "role": user.role.value,
-        "picture": user.picture,
     }
 
     return success_response(data=data, message="Authenticated")

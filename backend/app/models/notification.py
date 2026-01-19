@@ -52,7 +52,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List, TYPE_CHECKING
 
-from sqlalchemy import DateTime, Text, Enum, ForeignKey
+from sqlalchemy import DateTime, Text, String, Enum, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -135,8 +135,14 @@ class Notification(db.Model):
     # NOTIFICATION FIELDS
     # =========================================================================
 
-    type: Mapped[NotificationType] = mapped_column(
-        Enum(NotificationType, name="notification_type_enum", native_enum=False),
+    notification_type: Mapped[NotificationType] = mapped_column(
+        Enum(
+            NotificationType,
+            name="notification_type_enum",
+            native_enum=False,
+            values_callable=lambda obj: [e.value for e in obj],
+            validate_strings=True,
+        ),
         nullable=False,
         default=NotificationType.DEFAULT,
         index=True,
@@ -144,11 +150,23 @@ class Notification(db.Model):
     )
 
     status: Mapped[NotificationStatus] = mapped_column(
-        Enum(NotificationStatus, name="notification_status_enum", native_enum=False),
+        Enum(
+            NotificationStatus,
+            name="notification_status_enum",
+            native_enum=False,
+            values_callable=lambda obj: [e.value for e in obj],
+            validate_strings=True,
+        ),
         nullable=False,
         default=NotificationStatus.UNREAD,
         index=True,
         doc="Notification read status",
+    )
+
+    title: Mapped[Optional[str]] = mapped_column(
+        String(255),
+        nullable=True,
+        doc="Notification title",
     )
 
     message: Mapped[str] = mapped_column(
@@ -176,6 +194,12 @@ class Notification(db.Model):
         doc="Notification creation timestamp",
     )
 
+    read_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        doc="When notification was read",
+    )
+
     # =========================================================================
     # INDEXES
     # =========================================================================
@@ -183,8 +207,8 @@ class Notification(db.Model):
     __table_args__ = (
         # Composite index for user + status queries (get unread notifications)
         db.Index("idx_notification_user_status", "user_id", "status"),
-        # Composite index for user + type queries
-        db.Index("idx_notification_user_type", "user_id", "type"),
+        # Composite index for user + notification_type queries
+        db.Index("idx_notification_user_type", "user_id", "notification_type"),
         # Composite index for user + created_at (for sorting)
         db.Index("idx_notification_user_created", "user_id", "created_at"),
     )
@@ -205,7 +229,7 @@ class Notification(db.Model):
 
     def __repr__(self) -> str:
         """String representation of Notification."""
-        return f"<Notification {self.type.value}: {self.message[:30]}...>"
+        return f"<Notification {self.notification_type.value}: {self.message[:30]}...>"
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -228,11 +252,13 @@ class Notification(db.Model):
         return {
             "id": str(self.id),
             "user_id": str(self.user_id),
-            "type": self.type.value,
+            "type": self.notification_type.value,
             "status": self.status.value,
+            "title": self.title,
             "message": self.message,
             "data": self.data or {},
             "created_at": self.created_at.isoformat() if self.created_at else None,
+            "read_at": self.read_at.isoformat() if self.read_at else None,
         }
 
     def mark_as_read(self) -> None:
@@ -279,7 +305,7 @@ class Notification(db.Model):
             query = query.filter(cls.status == status)
 
         if notification_type:
-            query = query.filter(cls.type == notification_type)
+            query = query.filter(cls.notification_type == notification_type)
 
         return query.order_by(cls.created_at.desc()).all()
 

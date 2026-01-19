@@ -32,8 +32,8 @@ import uuid
 
 # revision identifiers, used by Alembic.
 # In add_categories_notifications_alerts.py
-revision = 'add_cat_notifs_alerts'  # <=32 chars
-down_revision = '748571261c46'      # points to previous migration
+revision = "add_cat_notifs_alerts"  # <=32 chars
+down_revision = "748571261c46"  # points to previous migration
 branch_labels = None
 depends_on = None
 
@@ -158,9 +158,9 @@ def upgrade():
         sa.Column(
             "category_type",
             sa.Enum(
-                "INCOME",
-                "EXPENSE",
-                "BOTH",
+                "income",
+                "expense",
+                "both",
                 name="category_type_enum",
                 native_enum=False,
             ),
@@ -168,6 +168,7 @@ def upgrade():
         ),
         sa.Column("icon", sa.String(length=50), nullable=True),
         sa.Column("color", sa.String(length=7), nullable=True),
+        sa.Column("is_system", sa.Boolean(), nullable=False, server_default="true"),
         sa.Column("display_order", sa.Integer(), nullable=False, server_default="0"),
         sa.Column("is_active", sa.Boolean(), nullable=False, server_default="true"),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
@@ -195,12 +196,12 @@ def upgrade():
         sa.Column(
             "notification_type",
             sa.Enum(
-                "DEFAULT",
-                "NEW_TRANSACTION",
-                "DELETED_TRANSACTION",
-                "EDITED_PROFILE",
-                "WEEKLY_SUMMARY_READY",
-                "CATEGORY_UPDATED",
+                "default",
+                "new_transaction",
+                "deleted_transaction",
+                "edited_profile",
+                "weekly_summary_ready",
+                "category_updated",
                 name="notification_type_enum",
                 native_enum=False,
             ),
@@ -209,8 +210,8 @@ def upgrade():
         sa.Column(
             "status",
             sa.Enum(
-                "UNREAD",
-                "READ",
+                "unread",
+                "read",
                 name="notification_status_enum",
                 native_enum=False,
             ),
@@ -258,11 +259,11 @@ def upgrade():
         sa.Column(
             "alert_type",
             sa.Enum(
-                "HIGH_SPENDING",
-                "LARGE_TRANSACTION",
-                "UNUSUAL_CATEGORY",
-                "BUDGET_WARNING",
-                "BUDGET_EXCEEDED",
+                "high_spending",
+                "large_transaction",
+                "unusual_category",
+                "budget_warning",
+                "budget_exceeded",
                 name="alert_type_enum",
                 native_enum=False,
             ),
@@ -271,10 +272,10 @@ def upgrade():
         sa.Column(
             "severity",
             sa.Enum(
-                "LOW",
-                "MEDIUM",
-                "HIGH",
-                "CRITICAL",
+                "low",
+                "medium",
+                "high",
+                "critical",
                 name="alert_severity_enum",
                 native_enum=False,
             ),
@@ -343,10 +344,10 @@ def upgrade():
             sa.Column(
                 "ai_source",
                 sa.Enum(
-                    "KEYWORD",
-                    "HUGGINGFACE",
-                    "GEMINI",
-                    "USER",
+                    "keyword",
+                    "huggingface",
+                    "gemini",
+                    "user",
                     name="ai_source_enum",
                     native_enum=False,
                 ),
@@ -423,7 +424,7 @@ def upgrade():
                 "id": cat["id"],
                 "name": cat["name"],
                 "description": cat["description"],
-                "category_type": cat["category_type"].upper(),
+                "category_type": cat["category_type"],
                 "icon": cat["icon"],
                 "color": cat["color"],
                 "display_order": cat["display_order"],

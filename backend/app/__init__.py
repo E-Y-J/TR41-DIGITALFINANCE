@@ -190,9 +190,14 @@ def _register_blueprints(app: Flask) -> None:
 
     app.register_blueprint(alerts_bp)  # url_prefix already set in blueprint
 
+    # Budget routes (spending limits management)
+    from app.api.routes.budgets import bp as budgets_bp
+
+    app.register_blueprint(budgets_bp)  # url_prefix already set in blueprint
+
     logger.debug(
         "Registered blueprints: auth, users, transactions, test, "
-        "categories, notifications, summary, alerts"
+        "categories, notifications, summary, alerts, budgets"
     )
 
 
