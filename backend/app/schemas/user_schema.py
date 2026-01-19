@@ -98,6 +98,7 @@ class UserSchema(BaseSchema):
         {
             "id": "uuid-string",
             "email": "user@example.com",
+            "email_verified": "false"
             "first_name": "John",
             "last_name": "Doe",
             "full_name": "John Doe",
@@ -119,6 +120,8 @@ class UserSchema(BaseSchema):
     # Profile fields (per ERD: first_name, last_name)
     email = fields.Email(dump_only=True, metadata={"description": "User email address"})
 
+    email_verified = fields.Boolean(dump_only=True, metatdata={"descrption": "User's email verified status"})
+    
     first_name = fields.String(
         dump_only=True, metadata={"description": "User's first name"}
     )

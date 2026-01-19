@@ -46,7 +46,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional, Dict, Any, TYPE_CHECKING
 
-from sqlalchemy import String, DateTime, Numeric, Enum
+from sqlalchemy import String, DateTime, Numeric, Enum, Boolean
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -126,8 +126,12 @@ class User(db.Model):
         doc="Auth0 user ID (sub claim)",
     )
 
-    email: Mapped[Optional[str]] = mapped_column(
-        String(255), unique=True, nullable=True, index=True, doc="User email address"
+    email: Mapped[[str]] = mapped_column(
+        String(255), unique=True, nullable=False, index=True, doc="User email address"
+    )
+    
+    email_verified: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False, doc="User's email verified status"
     )
 
     # =========================================================================

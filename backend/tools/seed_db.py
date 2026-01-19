@@ -14,6 +14,7 @@ import os
 import json
 import argparse
 from pathlib import Path
+import select
 import sys
 
 # Auto-load .env from backend/.env if present (optional)
@@ -31,6 +32,7 @@ REQUIRED_FIELDS = [
     "id",
     "auth0_id",
     "email",
+    "email_verified",
     "first_name",
     "last_name",
     "account_status",
@@ -99,23 +101,31 @@ def try_flask_insert(users, commit=False):
     try:
         with app.app_context():
             inserted = 0
+            skipped = 0
             for u in users:
+                existing_user = User.query.get(u.get("id"))
+                if existing_user:
+                    skipped += 1
+                    print(f"User {u.get('id')} already exists. Skipping.")
+                    continue
+                
                 row = {
                     "id": u.get("id"),
                     "auth0_id": u.get("auth0_id"),
                     "email": u.get("email"),
+                    "email_verified": u.get("email_verified", False),                    
                     "first_name": u.get("first_name"),
                     "last_name": u.get("last_name"),
-                    "nickname": u.get("nickname"),  # Optional field
+                    "nickname": u.get("nickname"),
                     "account_status": u.get("account_status", "pending"),
-                    "role": u.get("role", "USER"),
+                    "role": u.get("role", "user").lower(),            
                     "salary_amount": u.get("salary_amount", "0.00"),
                     "settings": u.get("settings", {}),
                     "created_at": u.get("created_at"),
                     "updated_at": u.get("updated_at"),
                     "last_login": u.get("last_login"),
                 }
-
+                
                 try:
                     obj = User(**row)
                 except TypeError:
@@ -131,10 +141,10 @@ def try_flask_insert(users, commit=False):
 
             if commit:
                 db.session.commit()
-                print(f"Flask: inserted {inserted} users (committed).")
+                print(f"Flask: Inserted {inserted}, Skipped {skipped}.")
             else:
                 db.session.rollback()
-                print(f"Flask: would insert {inserted} users (dry-run).")
+                print(f"Flask (Dry Run): Would Insert {inserted}, Skipped {skipped}.")
             return True
     except Exception as e:
         print("Flask insertion failed:", e)
@@ -145,6 +155,7 @@ def fallback_sqlalchemy_insert(users, commit=False):
     import os
     from sqlalchemy import create_engine, MetaData
     from sqlalchemy.exc import SQLAlchemyError
+    from sqlalchemy import select
 
     db_url = os.environ.get("DATABASE_URL")
     if not db_url:
@@ -173,27 +184,42 @@ def fallback_sqlalchemy_insert(users, commit=False):
     trans = conn.begin()
     try:
         inserted = 0
+        skipped = 0
+        
         for u in users:
+            user_id = u.get("id")
+            
+            stmt = select(users_table.c.id).where(users_table.c.id == user_id)
+            existing = conn.execute(stmt).fetchone()
+            
+            if existing:
+                skipped += 1
+                print(f"User {user_id} already exists. Skipping.")
+                continue
+
             row = {
-                "id": u.get("id"),
+                "id": user_id,
                 "auth0_id": u.get("auth0_id"),
                 "email": u.get("email"),
+                "email_verified": u.get("email_verified", False),
                 "first_name": u.get("first_name"),
                 "last_name": u.get("last_name"),
                 "account_status": u.get("account_status", "pending"),
-                "role": u.get("role", "USER"),
+                "role": u.get("role", "user").lower(),
                 "salary_amount": u.get("salary_amount", "0.00"),
                 "settings": json.dumps(u.get("settings", {})),
                 "created_at": u.get("created_at"),
                 "updated_at": u.get("updated_at"),
                 "last_login": u.get("last_login"),
             }
+            
+            # 3. INSERT
             conn.execute(users_table.insert().values(**row))
             inserted += 1
 
         if commit:
             trans.commit()
-            print(f"Fallback: inserted {inserted} users (committed).")
+            print(f"Fallback: Inserted {inserted}, Skipped {skipped}.")
         else:
             trans.rollback()
             print(f"Fallback: would insert {inserted} users (dry-run).")
