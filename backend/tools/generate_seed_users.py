@@ -108,6 +108,14 @@ def generate(count, seed=None):
         "updated_at": datetime.utcnow().isoformat(),
         "last_login": None
     }
+  
+  
+#     "email": "joeyvigil109329@gmail.com",
+  
+# : "https://dev-y4aqxr6uv6uiqqc6.us.auth0.com/",
+  
+# : "google-oauth2|104977996918702131537",
+    joseph_user ={ }
 
     users.append(jae_user)
 
