@@ -8,6 +8,7 @@ export const useGetUser = () => {
   return useQuery({
     queryKey: ["user"],
     queryFn: () => getUser(apiClient),
+    select: (response) => response.data,
     placeholderData: (previousData) => previousData,
     staleTime: 1000 * 60 * 60,
   });

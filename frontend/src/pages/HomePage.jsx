@@ -7,12 +7,10 @@ import { useGetUser } from "../hooks/queries/useGetUser";
 export default function HomePage() {
   const { data: user } = useGetUser();
 
-  console.log(user);
-
   return (
     <Box sx={{ bgcolor: "background.default", p: 1, minHeight: "100vh" }}>
       <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
-        Welcome, {user?.data.first_name || "User"}
+        Welcome, {user?.first_name || "User"}
       </Typography>
 
       <Box

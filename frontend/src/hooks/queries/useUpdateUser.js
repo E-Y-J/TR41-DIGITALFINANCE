@@ -10,12 +10,16 @@ export const useUpdateUser = () => {
 
   return useMutation({
     mutationFn: (formData) => updateUser(apiClient, formData),
-
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["user"] });
+    onSuccess: async (response) => {
+      queryClient.setQueryData(["user"], (oldCache) => {
+        return {
+          ...oldCache,
+          data: response.data,
+        };
+      });
       navigate("/home", { replace: true });
     },
-
+    select: (data) => data.data,
     onError: (error) => {
       console.error("Update failed:", error);
     },
