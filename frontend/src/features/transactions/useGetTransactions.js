@@ -6,6 +6,7 @@ export const useGetTransactions = (params = {}) => {
   const apiClient = useAxios();
   return useQuery({
     queryKey: ["transactions", params],
-    queryFn: getTransactions(apiClient, params),
+    queryFn: () => getTransactions(apiClient, params),
+    select: (data) => data.data.data,
   });
 };
