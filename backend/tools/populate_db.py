@@ -93,7 +93,7 @@ class Command:
             # MARK: Populate Specific Data
             self.stdout_write("Creating specific dev users...")
             self.create_specific_users(used_emails)
-            created_count += 2
+            created_count += 1
 
             try:
                 db.session.commit()
@@ -170,15 +170,6 @@ class Command:
                 "account_status": "active",
                 "role": "user"
             },
-            {
-                "auth0_id": "google-oauth2|104977996918702131537",
-                "email": "joeyvigil109329@gmail.com",
-                "first_name": "Joseph",
-                "last_name": "Vigil",
-                "nickname": "arielr",
-                "account_status": "active",
-                "role": "user"
-            }
         ]
 
         for u_data in specific_users:

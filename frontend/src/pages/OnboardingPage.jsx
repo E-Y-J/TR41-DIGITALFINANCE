@@ -11,14 +11,13 @@ import {
   InputAdornment,
   Fade,
 } from "@mui/material";
-import LogoutButton from "../components/LogoutButton";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import { useUpdateUser } from "../hooks/queries/useUpdateUser";
 import PageLoader from "../components/PageLoader";
 
 const OnboardingForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const { mutate, isPending, isError } = useUpdateUser();
+  const { mutate, isPending, isError, isSuccess, error } = useUpdateUser();
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -28,32 +27,43 @@ const OnboardingForm = () => {
   });
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitted(true);
 
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.nickName ||
-      !formData.annualSalary
-    ) {
+    const { firstName, lastName, nickName, annualSalary } = formData;
+
+    if (!firstName || !lastName || !nickName || !annualSalary) {
       return;
     }
 
     mutate({
-      first_name: formData.firstName,
-      last_name: formData.lastName,
-      nick_name: formData.nickName,
-      annual_salary: formData.annualSalary,
+      first_name: firstName,
+      last_name: lastName,
+      nick_name: nickName,
+      annual_salary: annualSalary,
       account_status: "active",
     });
+  };
+
+  // Reusable style object
+  const textFieldStyles = {
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 3,
+      backgroundColor: "#fff",
+      "&:hover": { backgroundColor: "#f9f9f9" },
+      "&.Mui-focused": {
+        backgroundColor: "#fff",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+      },
+    },
   };
 
   return (
@@ -81,7 +91,6 @@ const OnboardingForm = () => {
               backdropFilter: "blur(20px)",
             }}
           >
-            <LogoutButton />
             <Box textAlign="center">
               <Typography
                 variant="h3"
@@ -111,7 +120,7 @@ const OnboardingForm = () => {
                 severity="error"
                 sx={{ borderRadius: 3, border: "1px solid #ffcdd2" }}
               >
-                {isError?.message || "Something went wrong."}
+                {error?.message || "Something went wrong."}
               </Alert>
             )}
 
@@ -121,6 +130,7 @@ const OnboardingForm = () => {
               noValidate
               sx={{ display: "flex", flexDirection: "column", gap: 3 }}
             >
+              {/* Name Row */}
               <Box
                 sx={{
                   display: "flex",
@@ -129,105 +139,67 @@ const OnboardingForm = () => {
                 }}
               >
                 <TextField
-                  error={isSubmitted && !formData.firstName}
-                  helperText={
-                    isSubmitted && !formData.firstName ? "Required" : ""
-                  }
                   label="First Name"
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
+                  error={isSubmitted && !formData.firstName}
+                  helperText={
+                    isSubmitted && !formData.firstName ? "Required" : ""
+                  }
                   required
                   fullWidth
                   variant="outlined"
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: 3,
-                      backgroundColor: "#fff",
-                      "&:hover": { backgroundColor: "#f9f9f9" },
-                      "&.Mui-focused": {
-                        backgroundColor: "#fff",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                      },
-                    },
-                  }}
+                  sx={textFieldStyles}
                 />
-
                 <TextField
-                  error={isSubmitted && !formData.lastName}
-                  helperText={
-                    isSubmitted && !formData.lastName ? "Required" : ""
-                  }
                   label="Last Name"
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
+                  error={isSubmitted && !formData.lastName}
+                  helperText={
+                    isSubmitted && !formData.lastName ? "Required" : ""
+                  }
                   required
                   fullWidth
                   variant="outlined"
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: 3,
-                      backgroundColor: "#fff",
-                      "&:hover": { backgroundColor: "#f9f9f9" },
-                      "&.Mui-focused": {
-                        backgroundColor: "#fff",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                      },
-                    },
-                  }}
+                  sx={textFieldStyles}
                 />
               </Box>
+
               <TextField
-                error={isSubmitted && !formData.nickName}
-                helperText={isSubmitted && !formData.nickName ? "Required" : ""}
                 label="Nickname"
                 name="nickName"
                 value={formData.nickName}
                 onChange={handleChange}
+                error={isSubmitted && !formData.nickName}
+                helperText={isSubmitted && !formData.nickName ? "Required" : ""}
                 required
                 fullWidth
                 variant="outlined"
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: 3,
-                    backgroundColor: "#fff",
-                    "&:hover": { backgroundColor: "#f9f9f9" },
-                    "&.Mui-focused": {
-                      backgroundColor: "#fff",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                    },
-                  },
-                }}
+                sx={textFieldStyles}
               />
+
               <TextField
-                error={isSubmitted && !formData.annualSalary}
                 label="Annual Salary"
                 name="annualSalary"
                 value={formData.annualSalary}
                 onChange={handleChange}
+                error={isSubmitted && !formData.annualSalary}
                 helperText={
-                  isSubmitted && !formData.annualSalary
+                  !formData.annualSalary
                     ? "Salary is required"
                     : "Used to tailor your budget plan."
                 }
                 type="number"
+                required
+                fullWidth
+                variant="outlined"
+                sx={textFieldStyles}
                 onKeyDown={(e) =>
                   ["e", "E", "+", "-"].includes(e.key) && e.preventDefault()
                 }
-                fullWidth
-                variant="outlined"
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    borderRadius: 3,
-                    backgroundColor: "#fff",
-                    "&:hover": { backgroundColor: "#f9f9f9" },
-                    "&.Mui-focused": {
-                      backgroundColor: "#fff",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-                    },
-                  },
-                }}
                 slotProps={{
                   input: {
                     startAdornment: (
@@ -243,7 +215,7 @@ const OnboardingForm = () => {
               />
 
               <Button
-                disabled={isPending}
+                disabled={isPending || isSuccess}
                 type="submit"
                 variant="contained"
                 size="large"
@@ -260,7 +232,7 @@ const OnboardingForm = () => {
                   transition: "transform 0.2s",
                   "&:hover": {
                     transform: "scale(1.02)",
-                    boxShadow: "0 6px 20px 0 rgba(33, 150, 243, 0.60)",
+                    boxShadow: 6,
                   },
                 }}
               >
@@ -277,7 +249,7 @@ const OnboardingForm = () => {
             backgroundColor: "rgba(255, 255, 255, 0.5)",
             backdropFilter: "blur(5px)",
           }}
-          open={isPending}
+          open={isPending || isSuccess}
         >
           <PageLoader />
         </Backdrop>
