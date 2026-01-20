@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getUser } from "../../api/user";
-import { useAxios } from "../useAxios";
+import { useAxios } from "../../hooks/useAxios";
 
 export const useGetUser = () => {
   const apiClient = useAxios();

@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import PageLoader from "./components/PageLoader";
+import PageLoader from "./components/common/PageLoader";
 import DashboardLayout from "./layouts/DashboardLayout";
 
 import { AuthenticationGuard } from "./guard/AuthenticationGuard";

@@ -2,7 +2,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useEffect } from "react";
 import { Box } from "@mui/material";
-import PageLoader from "../components/PageLoader";
+import PageLoader from "../components/common/PageLoader";
 
 export const AuthenticationGuard = () => {
   const { isAuthenticated, isLoading, logout } = useAuth0();

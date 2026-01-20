@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { Box } from "@mui/material";
-import PageLoader from "../components/PageLoader";
-import { useGetUser } from "../hooks/queries/useGetUser";
+import PageLoader from "../components/common/PageLoader";
+import { useGetUser } from "../features/auth/useGetUser";
 
 export const UserGuard = () => {
   const { data: user, isLoading } = useGetUser();

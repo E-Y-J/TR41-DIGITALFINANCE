@@ -33,7 +33,7 @@ const LoanTracker = () => {
       {mock && mock.length > 0 ? (
         mock.map((loan) => {
           const percentagePaid = Math.round(
-            ((loan.amount - loan.left) / loan.amount) * 100
+            ((loan.amount - loan.left) / loan.amount) * 100,
           );
 
           return (

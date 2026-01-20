@@ -20,8 +20,8 @@ import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 
-import logo from "../../assets/logo.png";
-import logoCompact from "../../assets/logo-compact.png";
+import logo from "../assets/logo.png";
+import logoCompact from "../assets/logo-compact.png";
 
 const NavItem = ({ text, icon, path, onClick, open }) => {
   const location = useLocation();

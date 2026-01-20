@@ -12,7 +12,7 @@ import {
   Fade,
 } from "@mui/material";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import { useUpdateUser } from "../hooks/queries/useUpdateUser";
+import { useUpdateUser } from "../features/auth/useUpdateUser";
 import PageLoader from "../components/PageLoader";
 
 const OnboardingForm = () => {
