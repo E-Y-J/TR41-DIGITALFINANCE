@@ -2,12 +2,12 @@ import { BarChart } from "@mui/x-charts/BarChart";
 import { useTheme } from "@mui/material/styles";
 
 const dataset = [
-  { category: "Food", spent: 450, allocated: 600 },
-  { category: "Bills", spent: 980, allocated: 1000 },
-  { category: "Auto", spent: 320, allocated: 250 },
-  { category: "Education", spent: 150, allocated: 200 },
-  { category: "Shopping", spent: 410, allocated: 300 },
-  { category: "Entertainment", spent: 120, allocated: 150 },
+  { category: "Food", allocated: 600, spent: 450 },
+  { category: "Bills", allocated: 1000, spent: 980 },
+  { category: "Auto", allocated: 250, spent: 320 },
+  { category: "Education", allocated: 200, spent: 150 },
+  { category: "Shop", allocated: 300, spent: 410 },
+  { category: "Entertainment", allocated: 150, spent: 120 },
 ];
 
 const valueFormatter = (value) => `$${value}`;

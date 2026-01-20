@@ -1,11 +1,39 @@
-import { Box, Typography, Button, Paper } from "@mui/material";
+import { useState } from "react";
+import {
+  Box,
+  Typography,
+  Button,
+  Paper,
+  Tooltip,
+  IconButton,
+} from "@mui/material";
 import TransactionTable from "../components/dashboard/TransactionTable";
 import LoanTracker from "../components/dashboard/LoanTracker";
 import BudgetBarChart from "../components/dashboard/MonthlyTracker";
+import SpendingPie from "../components/dashboard/PieChart";
 import { useGetUser } from "../hooks/queries/useGetUser";
+
+import BarChartIcon from "@mui/icons-material/BarChart";
+import PieChartIcon from "@mui/icons-material/PieChart";
 
 export default function HomePage() {
   const { data: user } = useGetUser();
+  const [viewGraph, setViewGraph] = useState("graph");
+
+  const getButtonStyle = (isActive) => ({
+    color: isActive ? "#ffffff" : "text.secondary",
+    bgcolor: isActive ? "primary.main" : "transparent",
+    border: "1px solid",
+    borderColor: isActive ? "primary.main" : "grey.300",
+    borderRadius: 2,
+    p: 1,
+
+    "&:hover": {
+      bgcolor: isActive ? "primary.main" : "grey.100",
+
+      borderColor: isActive ? "primary.main" : "grey.400",
+    },
+  });
 
   return (
     <Box sx={{ bgcolor: "background.default", p: 1, minHeight: "100vh" }}>
@@ -51,18 +79,54 @@ export default function HomePage() {
           <Paper
             elevation={3}
             sx={{
-              p: 3,
+              p: { xs: 2, sm: 3 },
               display: "flex",
               flexDirection: "column",
               borderRadius: 4,
               border: "1px solid",
               borderColor: "grey.200",
+              height: "100%",
+              minHeight: 400,
             }}
           >
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-              My Monthly Spending
-            </Typography>
-            <BudgetBarChart />
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: { xs: "flex-start", sm: "center" },
+                justifyContent: "space-between",
+                gap: 2,
+                mb: 3,
+              }}
+            >
+              <Typography variant="h6" fontWeight="bold">
+                My Monthly Spending
+              </Typography>
+
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Tooltip title="View Bar Chart">
+                  <IconButton
+                    onClick={() => setViewGraph("graph")}
+                    sx={getButtonStyle(viewGraph === "graph")}
+                  >
+                    <BarChartIcon />
+                  </IconButton>
+                </Tooltip>
+
+                <Tooltip title="View Pie Chart">
+                  <IconButton
+                    onClick={() => setViewGraph("pie")}
+                    sx={getButtonStyle(viewGraph === "pie")}
+                  >
+                    <PieChartIcon />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </Box>
+
+            <Box sx={{ mt: 1, flexGrow: 1, position: "relative" }}>
+              {viewGraph === "graph" ? <BudgetBarChart /> : <SpendingPie />}
+            </Box>
           </Paper>
         </Box>
 
