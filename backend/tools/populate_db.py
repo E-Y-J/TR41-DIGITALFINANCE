@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Classes controlling the CLI command to populate the database with dummy data.
-Run with: python tools/populate_db.py --users 10
+Run with: python tools/populate_db.py --users 10 --transactions 50
 """
 
 # MARK: Imports
@@ -25,6 +25,8 @@ try:
     from app import create_app
     from app.core.extensions import db
     from app.models.user import User  
+    from app.models.category import Category
+    from app.models.transaction import Transaction, TransactionType, AISource
 except ImportError as e:
     print(f"Error importing Flask app: {e}")
     print(f"Current sys.path: {sys.path}")
@@ -78,45 +80,89 @@ class Command:
 
             # MARK: Populate Random Data
             self.stdout_write(f"Creating {num_users} random users...")
-            
+
+            # Seed categories FIRST (required for transactions)
+            Category.seed_defaults()
+            categories = Category.query.all()
+
+            if not categories:
+                raise RuntimeError(
+                    "No categories found after seed_defaults(). "
+                    "Check Category.seed_defaults()."
+                )
+
             created_count = 0
             used_emails = set()
+            users = []
 
+            # MARK: Create Random Users
             for _ in range(num_users):
                 user_data = self.make_fake_user_data(used_emails)
-                self.create_user_in_db(user_data)
+                user = self.create_user_in_db(user_data)
+                users.append(user)
                 created_count += 1
-                
-            for _ in range(num_transactions):
-                pass
 
             # MARK: Populate Specific Data
             self.stdout_write("Creating specific dev users...")
-            self.create_specific_users(used_emails)
-            created_count += 1
+            specific_users = self.create_specific_users(used_emails)
+            users.extend(specific_users)
+            created_count += len(specific_users)
+
+            db.session.commit()
+            self.stdout_write(
+                f"Successfully created {created_count} users total."
+            )
+
+            # MARK: Create Transactions
+            self.stdout_write(f"Creating {num_transactions} transactions...")
+            for _ in range(num_transactions):
+                transaction = self.make_fake_transaction(users, categories)
+                db.session.add(transaction)
 
             try:
                 db.session.commit()
                 self.stdout_write(
-                    f"Successfully created {created_count} users total.", 
+                    f"Successfully created {num_transactions} transactions."
                 )
             except Exception as e:
                 db.session.rollback()
-                self.stdout_write(f"Database commit failed: {e}")
+                self.stdout_write(f"Transaction commit failed: {e}")
+
+    # -------------------- Helper Methods --------------------
 
     # MARK: Helper Methods
     def clear_data(self):
         """
         Wipes existing data to prevent duplicate key errors.
         """
-        self.stdout_write("Clearing existing user data...")
-        try:
-            num_deleted = db.session.query(User).delete()
-            db.session.commit()
-            self.stdout_write(f"   - Deleted {num_deleted} existing users.")
-        except Exception as e:
-            db.session.rollback()
-            self.stdout_write(f"   - Error clearing data: {e}")
+        with self.app.app_context():
+
+            # Transactions first (FKs)
+            self.stdout_write("Clearing existing transaction data...")
+            try:
+                db.session.query(Transaction).delete()
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                self.stdout_write(f"   - Error clearing transactions: {e}")
+
+            # Categories next
+            self.stdout_write("Clearing existing category data...")
+            try:
+                db.session.query(Category).delete()
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                self.stdout_write(f"   - Error clearing categories: {e}")
+
+            # Users last
+            self.stdout_write("Clearing existing user data...")
+            try:
+                db.session.query(User).delete()
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                self.stdout_write(f"   - Error clearing users: {e}")
 
     def make_fake_user_data(self, used_emails: set) -> dict:
         """
@@ -131,8 +177,16 @@ class Command:
                 used_emails.add(email)
                 break
         
-        created_at = self.fake.date_time_between(start_date="-2y", end_date="now", tzinfo=timezone.utc)
-        updated_at = self.fake.date_time_between(start_date=created_at, end_date="now", tzinfo=timezone.utc)
+        created_at = self.fake.date_time_between(
+            start_date="-2y",
+            end_date="now",
+            tzinfo=timezone.utc
+        )
+        updated_at = self.fake.date_time_between(
+            start_date=created_at,
+            end_date="now",
+            tzinfo=timezone.utc
+        )
 
         return {
             "id": str(uuid.uuid4()),
@@ -147,16 +201,20 @@ class Command:
             "salary_amount": "0.00",
             "settings": {
                 "currency": random.choice(["USD", "EUR", "GBP", "AUD"]),
-                "timezone": random.choice(["UTC", "America/Los_Angeles", "Europe/London"]),
+                "timezone": random.choice(
+                    ["UTC", "America/Los_Angeles", "Europe/London"]
+                ),
                 "theme": random.choice(["light", "dark"]),
-                "notifications": {"reminders": bool(random.getrandbits(1))},
+                "notifications": {
+                    "reminders": bool(random.getrandbits(1))
+                },
             },
             "created_at": created_at,
             "updated_at": updated_at,
             "last_login": None,
         }
 
-    def create_specific_users(self, used_emails: set):
+    def create_specific_users(self, used_emails: set) -> list[User]:
         """
         Create the hardcoded users required for development.
         """
@@ -171,6 +229,7 @@ class Command:
                 "role": "user"
             },
         ]
+        created_users = []
 
         for u_data in specific_users:
             if u_data["email"] in used_emails:
@@ -193,9 +252,13 @@ class Command:
                 "updated_at": datetime.now(timezone.utc),
                 "last_login": None,
             }
-            self.create_user_in_db(full_data)
 
-    def create_user_in_db(self, data: dict):
+            user = self.create_user_in_db(full_data)
+            created_users.append(user)
+
+        return created_users
+
+    def create_user_in_db(self, data: dict) -> User:
         """
         Instantiate the User model and add it to the session.
         """
@@ -216,6 +279,46 @@ class Command:
             last_login=data["last_login"]
         )
         db.session.add(user)
+        return user
+
+    def make_fake_transaction(
+        self,
+        users: list[User],
+        categories: list[Category]
+    ) -> Transaction:
+        user = random.choice(users)
+        category = random.choice(categories)
+
+        amount = round(random.uniform(5.0, 500.0), 2)
+        tx_type = random.choice(list(TransactionType))
+        date = self.fake.date_time_between(
+            start_date="-1y",
+            end_date="now",
+            tzinfo=timezone.utc
+        )
+
+        ai_override = bool(random.getrandbits(1))
+        ai_source = None if ai_override else random.choice(list(AISource))
+        original_category = (
+            None if ai_override else random.choice(categories)
+        )
+
+        return Transaction(
+            user_id=user.id,
+            amount=amount,
+            transaction_type=tx_type.value,
+            date=date,
+            merchant_name=self.fake.company(),
+            category_id=category.id,
+            ai_confidence=(
+                random.uniform(0.5, 1.0) if not ai_override else None
+            ),
+            ai_source=ai_source.value if ai_source else None,
+            is_user_override=ai_override,
+            original_category_id=(
+                original_category.id if original_category else None
+            ),
+        )
 
     def stdout_write(self, message):
         """
