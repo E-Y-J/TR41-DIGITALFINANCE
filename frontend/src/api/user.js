@@ -1,5 +1,5 @@
 export const getUser = async (client) => {
-  const { data } = await client.get("/users/me");
+  const { data } = await client.post("/auth/callback");
   console.log(data);
   return data;
 };

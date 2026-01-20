@@ -142,7 +142,7 @@ class Command:
             "first_name": first,
             "last_name": last,
             "nickname": self.fake.user_name(),
-            "account_status": "pending",
+            "account_status": "active",
             "role": "user", 
             "salary_amount": "0.00",
             "settings": {
@@ -167,7 +167,7 @@ class Command:
                 "first_name": "Jae",
                 "last_name": "Seo",
                 "nickname": "jaeseo",
-                "account_status": "pending",
+                "account_status": "active",
                 "role": "user"
             },
             {

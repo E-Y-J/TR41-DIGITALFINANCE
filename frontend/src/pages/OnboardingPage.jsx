@@ -11,6 +11,7 @@ import {
   InputAdornment,
   Fade,
 } from "@mui/material";
+import LogoutButton from "../components/LogoutButton";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import { useUpdateUser } from "../hooks/queries/useUpdateUser";
 import PageLoader from "../components/PageLoader";
@@ -80,6 +81,7 @@ const OnboardingForm = () => {
               backdropFilter: "blur(20px)",
             }}
           >
+            <LogoutButton />
             <Box textAlign="center">
               <Typography
                 variant="h3"
