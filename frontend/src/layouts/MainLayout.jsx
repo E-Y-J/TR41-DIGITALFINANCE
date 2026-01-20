@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Box, Toolbar } from "@mui/material";
-import Navbar from "../components/navigation/Navbar";
+import Navbar from "./Navbar";
 
 const MainLayout = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
