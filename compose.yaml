@@ -30,7 +30,10 @@ services:
     command: sh -c "
       echo 'Starting Flask server ...' &&
       flask db upgrade &&
-      python tools/populate_db.py --users 20 &&
+      python tools/populate_db.py  \
+      --users 10 \
+      --transactions 50 \
+      &&
       flask run --host=0.0.0.0 --port=${BACKEND_PORT}
       "
     volumes:
