@@ -10,7 +10,7 @@ import argparse
 import json
 import random
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from faker import Faker
 
@@ -29,13 +29,14 @@ def make_user(fake: Faker, used_emails: set):
     # created_at is random in the past 2 years
     created_at = fake.date_time_between(start_date="-2y", end_date="now")
     # updated_at is between created_at and now
-    now = datetime.utcnow()
+    now = dnow = datetime.now(timezone.utc)
     updated_at = fake.date_time_between(start_date=created_at, end_date=now)
 
     return {
         "id": str(uuid.uuid4()),
         "auth0_id": str(uuid.uuid4()),
         "email": email,
+        "email_verified": False,
         "first_name": first,
         "last_name": last,
         "account_status": "pending",
@@ -80,15 +81,15 @@ def generate(count, seed=None):
             "theme": random.choice(["light", "dark"]),
             "notifications": {"reminders": bool(random.getrandbits(1))},
         },
-        "created_at": datetime.utcnow().isoformat(),
-        "updated_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
         "last_login": None,
     }
 
-    ariel_user = {
+    joseph_user = {
         "id": str(uuid.uuid4()),
-        "auth0_id": "google-oauth2|110513262768393412869",
-        "email": "jaeyseo0922@gmail.com",
+        "auth0_id": "google-oauth2|104977996918702131537",
+        "email": "joeyvigil109329@gmail.com",
         "email_verified": False,
         "first_name": "Ariel",
         "last_name": "Resendiz",
@@ -103,15 +104,17 @@ def generate(count, seed=None):
             "theme": random.choice(["light", "dark"]),
             "notifications": {"reminders": bool(random.getrandbits(1))},
         },
-        "created_at": datetime.utcnow().isoformat(),
-        "updated_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
         "last_login": None,
     }
+  
+    test ={ }
 
     users.append(jae_user)
-    users.append(ariel_user)
+    users.append(joseph_user)
 
-    return {"generated_at": datetime.utcnow().isoformat() + "Z", "users": users}
+    return {"generated_at": datetime.now(timezone.utc).isoformat() + "Z", "users": users}
 
 
 def main():

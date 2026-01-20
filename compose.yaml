@@ -26,9 +26,11 @@ services:
     build:
       context: ./backend
     container_name: flask_backend
+    restart: unless-stopped
     command: sh -c "
       echo 'Starting Flask server ...' &&
       flask db upgrade &&
+      python tools/populate_db.py --users 20 &&
       flask run --host=0.0.0.0 --port=${BACKEND_PORT}
       "
     volumes:
