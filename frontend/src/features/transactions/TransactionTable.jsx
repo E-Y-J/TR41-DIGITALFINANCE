@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -17,7 +17,7 @@ import {
   useTheme,
 } from "@mui/material";
 
-// mock values for testing
+// Icons
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import FastfoodIcon from "@mui/icons-material/Fastfood";
@@ -28,34 +28,44 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const rows = [
-  {
-    id: 1,
-    name: "Netflix Subscription",
-    date: "Jan 12, 2026",
-    amount: "$14.99",
-  },
-  { id: 2, name: "Apple Store", date: "Jan 12, 2026", amount: "$999.00" },
-  { id: 3, name: "Pizza Hut", date: "Jan 08, 2026", amount: "$35.50" },
-  { id: 4, name: "Uber Ride", date: "Jan 08, 2026", amount: "$12.20" },
-  { id: 5, name: "Salary Deposit", date: "Jan 01, 2026", amount: "+$4,500.00" },
-];
+const formatDate = (dateString) => {
+  if (!dateString) return "";
+  return new Date(dateString).toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  });
+};
 
-const getIcon = (name) => {
-  if (name.includes("Netflix") || name.includes("Subscription"))
+// needs to be fixed to match the corresponding categories
+const getIcon = (merchantName = "") => {
+  const lowerName = merchantName.toLowerCase();
+  if (lowerName.includes("netflix") || lowerName.includes("subscription"))
     return <SubscriptionsIcon fontSize="small" />;
-  if (name.includes("Pizza") || name.includes("Food"))
+  if (
+    lowerName.includes("pizza") ||
+    lowerName.includes("food") ||
+    lowerName.includes("burger")
+  )
     return <FastfoodIcon fontSize="small" />;
-  if (name.includes("Uber") || name.includes("Ride"))
+  if (lowerName.includes("uber") || lowerName.includes("lyft"))
     return <DirectionsCarIcon fontSize="small" />;
-  if (name.includes("Salary") || name.includes("Deposit"))
+  if (
+    lowerName.includes("salary") ||
+    lowerName.includes("deposit") ||
+    lowerName.includes("transfer")
+  )
     return <AttachMoneyIcon fontSize="small" />;
-  if (name.includes("Apple") || name.includes("Store"))
+  if (
+    lowerName.includes("apple") ||
+    lowerName.includes("amazon") ||
+    lowerName.includes("store")
+  )
     return <ShoppingBagIcon fontSize="small" />;
   return <LocalOfferIcon fontSize="small" />;
 };
 
-const TransactionTable = () => {
+const TransactionTable = ({ data }) => {
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -95,7 +105,7 @@ const TransactionTable = () => {
               Date
             </TableCell>
             <TableCell sx={{ ...headerStyle, pl: { xs: 0, sm: 2 } }}>
-              Receiver
+              Merchant
             </TableCell>
             <TableCell
               align="right"
@@ -108,13 +118,28 @@ const TransactionTable = () => {
         </TableHead>
 
         <TableBody>
-          {rows && rows.length > 0 ? (
-            rows.map((row, index) => {
-              const showDate = index === 0 || rows[index - 1].date !== row.date;
+          {data && data.length > 0 ? (
+            data.map((row, index) => {
+              // 3. Date Grouping Logic
+              // We must format BOTH dates to compare them, ignoring the specific time
+              const currentFormattedDate = formatDate(row.date);
+              const prevFormattedDate =
+                index > 0 ? formatDate(data[index - 1].date) : null;
+              const showDate =
+                index === 0 || currentFormattedDate !== prevFormattedDate;
+
+              // 4. Income vs Expense Logic
+              const isIncome =
+                row.transaction_type === "TransactionType.INCOME";
+              const amountColor = isIncome ? "success.main" : "text.primary";
+              const amountPrefix = isIncome ? "+" : ""; // Add '+' for income
+
+              // Format Amount as Currency
+              const formattedAmount = `${amountPrefix}$${parseFloat(row.amount).toFixed(2)}`;
 
               return (
                 <TableRow
-                  key={row.id}
+                  key={row.id} // Use the real UUID
                   sx={{
                     "& td, & th": {
                       py: 1.5,
@@ -129,6 +154,7 @@ const TransactionTable = () => {
                     },
                   }}
                 >
+                  {/* DATE CELL  */}
                   <TableCell
                     sx={{
                       pl: 0,
@@ -149,11 +175,12 @@ const TransactionTable = () => {
                           letterSpacing: "0.5px",
                         }}
                       >
-                        {row.date}
+                        {currentFormattedDate}
                       </Typography>
                     )}
                   </TableCell>
 
+                  {/* MERCHANT INFO CELL */}
                   <TableCell
                     component="th"
                     scope="row"
@@ -163,6 +190,7 @@ const TransactionTable = () => {
                     }}
                   >
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
+                      {/* Mobile Date Header */}
                       <Box sx={{ display: { xs: "block", sm: "none" }, mb: 1 }}>
                         {showDate && (
                           <Typography
@@ -174,7 +202,7 @@ const TransactionTable = () => {
                               letterSpacing: "0.5px",
                             }}
                           >
-                            {row.date}
+                            {currentFormattedDate}
                           </Typography>
                         )}
                       </Box>
@@ -196,7 +224,7 @@ const TransactionTable = () => {
                             borderRadius: 3,
                           }}
                         >
-                          {getIcon(row.name)}
+                          {getIcon(row.merchant_name)}
                         </Avatar>
                         <Box sx={{ minWidth: 0, flex: 1 }}>
                           <Typography
@@ -206,37 +234,37 @@ const TransactionTable = () => {
                             noWrap
                             sx={{ fontSize: "0.875rem" }}
                           >
-                            {row.name}
+                            {row.merchant_name || "Unknown Merchant"}
                           </Typography>
                           <Typography
                             variant="caption"
                             color="text.secondary"
                             sx={{ display: "block", mt: -0.2 }}
                           >
-                            (Type)
+                            {/* Fallback if category is null */}
+                            {row.category || "General"}
                           </Typography>
                         </Box>
                       </Box>
                     </Box>
                   </TableCell>
 
+                  {/* AMOUNT CELL */}
                   <TableCell align="right" sx={{ verticalAlign: "top" }}>
                     <Typography
                       variant="body2"
                       fontWeight={700}
                       sx={{
                         fontSize: "0.875rem",
-
                         mt: { xs: showDate ? 3.5 : 0.5, sm: 0.5 },
-                        color: row.amount.includes("+")
-                          ? "success.main"
-                          : "text.primary",
+                        color: amountColor,
                       }}
                     >
-                      {row.amount}
+                      {formattedAmount}
                     </Typography>
                   </TableCell>
 
+                  {/* ACTIONS CELL */}
                   <TableCell align="right" sx={{ pr: 0, verticalAlign: "top" }}>
                     <IconButton
                       disableFocusRipple
@@ -274,6 +302,8 @@ const TransactionTable = () => {
           )}
         </TableBody>
       </Table>
+
+      {/* Menu Logic */}
       <Menu
         anchorEl={anchorEl}
         open={open}

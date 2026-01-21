@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Outlet } from "react-router-dom";
-import { useGetUser } from "../hooks/queries/useGetUser";
+import { useGetUser } from "../features/auth/useGetUser";
 import {
   Box,
   Toolbar,
@@ -16,10 +16,10 @@ import { styled } from "@mui/material/styles";
 
 import ChatIcon from "@mui/icons-material/Chat";
 
-import Sidebar from "../components/navigation/Sidebar";
-import TopBar from "../components/navigation/Topbar";
-import ChatBubble from "../components/dashboard/Chat";
-import PageLoader from "../components/PageLoader";
+import Sidebar from "./Sidebar";
+import TopBar from "./Topbar";
+import ChatBubble from "../features/chat";
+import PageLoader from "../components/common/PageLoader";
 import Breadcrumb from "../components/common/Breadcrumb";
 
 const drawerWidth = 240;

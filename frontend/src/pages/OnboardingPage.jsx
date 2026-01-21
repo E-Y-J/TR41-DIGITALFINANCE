@@ -12,8 +12,8 @@ import {
   Fade,
 } from "@mui/material";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import { useUpdateUser } from "../hooks/queries/useUpdateUser";
-import PageLoader from "../components/PageLoader";
+import { useUpdateUser } from "../features/auth/useUpdateUser";
+import PageLoader from "../components/common/PageLoader";
 
 const OnboardingForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);

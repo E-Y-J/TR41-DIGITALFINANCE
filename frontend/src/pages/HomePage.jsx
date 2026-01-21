@@ -1,15 +1,23 @@
-import { Box, Typography, Button, Paper } from "@mui/material";
-import TransactionTable from "../components/dashboard/TransactionTable";
-import LoanTracker from "../components/dashboard/LoanTracker";
-import BudgetBarChart from "../components/dashboard/MonthlyTracker";
-import { useGetUser } from "../hooks/queries/useGetUser";
+import { Box, Typography } from "@mui/material";
+import { useGetUser } from "../features/auth/useGetUser";
+
+import AiInsightsWidget from "../features/ai-insights/AiInsightsWidget";
+import SpendingWidget from "../features/spending/SpendingWidget";
+import RecentTransactionsWidget from "../features/transactions/RecentTransactionsWidget";
+import ActiveLoansWidget from "../features/loans/ActiveLoansWidget";
 
 export default function HomePage() {
   const { data: user } = useGetUser();
 
   return (
-    <Box sx={{ bgcolor: "background.default", p: 1, minHeight: "100vh" }}>
-      <Typography variant="h4" gutterBottom sx={{ mb: 3 }}>
+    <Box
+      sx={{
+        bgcolor: "background.default",
+        p: { xs: 2, md: 3 },
+        minHeight: "100vh",
+      }}
+    >
+      <Typography variant="h4" gutterBottom sx={{ mb: 3, fontWeight: 700 }}>
         Welcome, {user?.first_name || "User"}
       </Typography>
 
@@ -18,117 +26,30 @@ export default function HomePage() {
           display: "grid",
           gridTemplateColumns: {
             xs: "1fr",
-            md: "1fr 1fr 1fr",
+            md: "repeat(3, 1fr)",
           },
           gap: 3,
           mb: 3,
         }}
       >
+        {/* AI Insights */}
         <Box sx={{ gridColumn: { md: "span 1" } }}>
-          <Paper
-            sx={{
-              p: 3,
-              height: "100%",
-              bgcolor: "primary.light",
-              color: "white",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-            }}
-            variant="outlined"
-          >
-            <Box>
-              <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
-                AI Insights
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                To be implemented with AI summary of your spending habits.
-              </Typography>
-            </Box>
-          </Paper>
+          <AiInsightsWidget />
         </Box>
+
+        {/* Spending Charts */}
         <Box sx={{ gridColumn: { md: "span 2" } }}>
-          <Paper
-            elevation={3}
-            sx={{
-              p: 3,
-              display: "flex",
-              flexDirection: "column",
-              borderRadius: 4,
-              border: "1px solid",
-              borderColor: "grey.200",
-            }}
-          >
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-              My Monthly Spending
-            </Typography>
-            <BudgetBarChart />
-          </Paper>
+          <SpendingWidget />
         </Box>
 
-        <Box sx={{ gridColumn: { md: "span 2", lg: "span 2" } }}>
-          <Paper
-            elevation={3}
-            sx={{
-              p: 3,
-              display: "flex",
-              flexDirection: "column",
-              borderRadius: 4,
-              height: { xs: "auto", md: 450 },
-              border: "1px solid",
-              borderColor: "grey.200",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 1.5,
-              }}
-            >
-              <Typography variant="h6" fontWeight={700}>
-                Transaction History
-              </Typography>
-              <Button
-                size="small"
-                sx={{
-                  textTransform: "none",
-                  fontWeight: 600,
-                  borderRadius: 2,
-                }}
-              >
-                View All
-              </Button>
-            </Box>
-
-            <Box sx={{ flexGrow: 1, overflow: "hidden" }}>
-              <TransactionTable />
-            </Box>
-          </Paper>
+        {/* Recent Transactions */}
+        <Box sx={{ gridColumn: { md: "span 2" } }}>
+          <RecentTransactionsWidget />
         </Box>
 
+        {/* Active Loans */}
         <Box sx={{ gridColumn: { md: "span 1" } }}>
-          <Paper
-            elevation={3}
-            sx={{
-              p: 3,
-              height: { xs: "auto", md: 450 },
-              display: "flex",
-              flexDirection: "column",
-              borderRadius: 4,
-              border: "1px solid",
-              borderColor: "grey.200",
-            }}
-          >
-            <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
-              Active Loans
-            </Typography>
-
-            <Box sx={{ flexGrow: 1 }}>
-              <LoanTracker />
-            </Box>
-          </Paper>
+          <ActiveLoansWidget />
         </Box>
       </Box>
     </Box>
