@@ -119,6 +119,10 @@ class Command:
                 transaction = self.make_fake_transaction(users, categories)
                 db.session.add(transaction)
 
+            for _ in range(15):
+                transaction = self.make_fake_transaction(specific_users, categories)
+                db.session.add(transaction)
+
             try:
                 db.session.commit()
                 self.stdout_write(
@@ -287,7 +291,6 @@ class Command:
         categories: list[Category]
     ) -> Transaction:
         user = random.choice(users)
-        category = random.choice(categories)
 
         amount = round(random.uniform(5.0, 500.0), 2)
         tx_type = random.choice(list(TransactionType))
@@ -297,11 +300,20 @@ class Command:
             tzinfo=timezone.utc
         )
 
-        ai_override = bool(random.getrandbits(1))
-        ai_source = None if ai_override else random.choice(list(AISource))
-        original_category = (
-            None if ai_override else random.choice(categories)
-        )
+        final_category = random.choice(categories)
+        is_override = bool(random.getrandbits(1))
+
+        if is_override:
+            original_category_obj = random.choice(categories)
+            ai_conf = None
+            ai_src = None
+            original_cat_id = original_category_obj.id
+
+        else:
+            original_category_obj = None
+            original_cat_id = None
+            ai_conf = random.uniform(0.75, 0.99)
+            ai_src = random.choice(list(AISource)).value
 
         return Transaction(
             user_id=user.id,
@@ -309,15 +321,12 @@ class Command:
             transaction_type=tx_type.value,
             date=date,
             merchant_name=self.fake.company(),
-            category_id=category.id,
-            ai_confidence=(
-                random.uniform(0.5, 1.0) if not ai_override else None
-            ),
-            ai_source=ai_source.value if ai_source else None,
-            is_user_override=ai_override,
-            original_category_id=(
-                original_category.id if original_category else None
-            ),
+            category=final_category.name,
+            category_id=final_category.id,
+            ai_confidence=ai_conf,
+            ai_source=ai_src,
+            is_user_override=is_override,
+            original_category_id=original_cat_id
         )
 
     def stdout_write(self, message):
