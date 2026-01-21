@@ -67,10 +67,17 @@ class CategorySchema(BaseSchema):
         metadata={"description": "Category description"},
     )
 
-    category_type = fields.String(
+    category_type = fields.Method(
+        "get_category_type",
         dump_only=True,
         metadata={"description": "Category type: income, expense, or both"},
     )
+
+    def get_category_type(self, obj):
+        """Extract the enum value as a string."""
+        if hasattr(obj.category_type, "value"):
+            return obj.category_type.value
+        return str(obj.category_type)
 
     is_system = fields.Boolean(
         dump_only=True,

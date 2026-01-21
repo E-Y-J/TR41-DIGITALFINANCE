@@ -380,11 +380,6 @@
           "nickname": {
             "type": "string"
           },
-          "picture": {
-            "format": "uri",
-            "nullable": true,
-            "type": "string"
-          },
           "role": {
             "enum": [
               "user",

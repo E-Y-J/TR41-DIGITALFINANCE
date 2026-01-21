@@ -85,10 +85,17 @@ class TransactionSchema(BaseSchema):
         metadata={"description": "Transaction amount"},
     )
 
-    transaction_type = fields.String(
+    transaction_type = fields.Method(
+        "get_transaction_type",
         dump_only=True,
         metadata={"description": "Transaction type: income or expense"},
     )
+
+    def get_transaction_type(self, obj):
+        """Extract enum value as string."""
+        if hasattr(obj.transaction_type, "value"):
+            return obj.transaction_type.value
+        return str(obj.transaction_type) if obj.transaction_type else None
 
     date = fields.String(
         dump_only=True,
@@ -118,6 +125,18 @@ class TransactionSchema(BaseSchema):
         metadata={"description": "Category ID (foreign key to categories table)"},
     )
 
+    category_name = fields.Method(
+        "get_category_name",
+        dump_only=True,
+        metadata={"description": "Category name (e.g., 'Food & Dining')"},
+    )
+
+    def get_category_name(self, obj):
+        """Get the category name from the relationship."""
+        if hasattr(obj, "category_rel") and obj.category_rel:
+            return obj.category_rel.name
+        return None
+
     category_obj = fields.Dict(
         keys=fields.String(),
         values=fields.Raw(),
@@ -132,11 +151,19 @@ class TransactionSchema(BaseSchema):
         metadata={"description": "AI confidence score (0.0 to 1.0)"},
     )
 
-    ai_source = fields.String(
+    ai_source = fields.Method(
+        "get_ai_source",
         dump_only=True,
-        allow_none=True,
         metadata={"description": "Source: huggingface, gemini, or user"},
     )
+
+    def get_ai_source(self, obj):
+        """Extract enum value as string."""
+        if obj.ai_source is None:
+            return None
+        if hasattr(obj.ai_source, "value"):
+            return obj.ai_source.value
+        return str(obj.ai_source)
 
     is_user_override = fields.Boolean(
         dump_only=True,

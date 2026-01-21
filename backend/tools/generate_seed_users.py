@@ -29,7 +29,7 @@ def make_user(fake: Faker, used_emails: set):
     # created_at is random in the past 2 years
     created_at = fake.date_time_between(start_date="-2y", end_date="now")
     # updated_at is between created_at and now
-    now = dnow = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc)
     updated_at = fake.date_time_between(start_date=created_at, end_date=now)
 
     return {
@@ -40,7 +40,7 @@ def make_user(fake: Faker, used_emails: set):
         "first_name": first,
         "last_name": last,
         "account_status": "pending",
-        "role": "USER",
+        "role": "user",
         "salary_amount": "0.00",
         "settings": {
             "currency": random.choice(["USD", "EUR", "GBP", "AUD"]),
@@ -71,9 +71,8 @@ def generate(count, seed=None):
         "first_name": "Jae",
         "last_name": "Seo",
         "nickname": fake.user_name(),
-        "picture": None,
         "account_status": "pending",
-        "role": "USER",
+        "role": "user",
         "salary_amount": "0.00",
         "settings": {
             "currency": random.choice(["USD", "EUR", "GBP", "AUD"]),
@@ -94,9 +93,8 @@ def generate(count, seed=None):
         "first_name": "Ariel",
         "last_name": "Resendiz",
         "nickname": fake.user_name(),
-        "picture": None,
         "account_status": "active",
-        "role": "USER",
+        "role": "user",
         "salary_amount": "0.00",
         "settings": {
             "currency": random.choice(["USD", "EUR", "GBP", "AUD"]),
@@ -108,13 +106,14 @@ def generate(count, seed=None):
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "last_login": None,
     }
-  
-    test ={ }
 
     users.append(jae_user)
     users.append(joseph_user)
 
-    return {"generated_at": datetime.now(timezone.utc).isoformat() + "Z", "users": users}
+    return {
+        "generated_at": datetime.now(timezone.utc).isoformat() + "Z",
+        "users": users,
+    }
 
 
 def main():
