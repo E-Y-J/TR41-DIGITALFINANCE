@@ -62,7 +62,8 @@ class NotificationSchema(BaseSchema):
     user_id = fields.UUID(dump_only=True, metadata={"description": "User ID (owner)"})
 
     # Notification fields
-    type = fields.String(
+    type = fields.Method(
+        "get_type",
         dump_only=True,
         metadata={
             "description": "Notification type",
@@ -77,10 +78,23 @@ class NotificationSchema(BaseSchema):
         },
     )
 
-    status = fields.String(
+    def get_type(self, obj):
+        """Extract enum value as string."""
+        if hasattr(obj.type, "value"):
+            return obj.type.value
+        return str(obj.type) if obj.type else None
+
+    status = fields.Method(
+        "get_status",
         dump_only=True,
         metadata={"description": "Notification status: unread or read"},
     )
+
+    def get_status(self, obj):
+        """Extract enum value as string."""
+        if hasattr(obj.status, "value"):
+            return obj.status.value
+        return str(obj.status) if obj.status else None
 
     message = fields.String(
         dump_only=True,
