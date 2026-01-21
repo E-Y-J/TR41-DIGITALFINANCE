@@ -14,7 +14,6 @@ import os
 import json
 import argparse
 from pathlib import Path
-import select
 import sys
 
 # Auto-load .env from backend/.env if present (optional)
@@ -108,24 +107,24 @@ def try_flask_insert(users, commit=False):
                     skipped += 1
                     print(f"User {u.get('id')} already exists. Skipping.")
                     continue
-                
+
                 row = {
                     "id": u.get("id"),
                     "auth0_id": u.get("auth0_id"),
                     "email": u.get("email"),
-                    "email_verified": u.get("email_verified", False),                    
+                    "email_verified": u.get("email_verified", False),
                     "first_name": u.get("first_name"),
                     "last_name": u.get("last_name"),
                     "nickname": u.get("nickname"),
                     "account_status": u.get("account_status", "pending"),
-                    "role": u.get("role", "user").lower(),            
+                    "role": u.get("role", "user").lower(),
                     "salary_amount": u.get("salary_amount", "0.00"),
                     "settings": u.get("settings", {}),
                     "created_at": u.get("created_at"),
                     "updated_at": u.get("updated_at"),
                     "last_login": u.get("last_login"),
                 }
-                
+
                 try:
                     obj = User(**row)
                 except TypeError:
@@ -185,13 +184,13 @@ def fallback_sqlalchemy_insert(users, commit=False):
     try:
         inserted = 0
         skipped = 0
-        
+
         for u in users:
             user_id = u.get("id")
-            
+
             stmt = select(users_table.c.id).where(users_table.c.id == user_id)
             existing = conn.execute(stmt).fetchone()
-            
+
             if existing:
                 skipped += 1
                 print(f"User {user_id} already exists. Skipping.")
@@ -212,7 +211,7 @@ def fallback_sqlalchemy_insert(users, commit=False):
                 "updated_at": u.get("updated_at"),
                 "last_login": u.get("last_login"),
             }
-            
+
             # 3. INSERT
             conn.execute(users_table.insert().values(**row))
             inserted += 1
