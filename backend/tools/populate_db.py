@@ -105,7 +105,6 @@ class Command:
             # MARK: Populate Specific Data
             self.stdout_write("Creating specific dev users...")
             specific_users = self.create_specific_users(used_emails)
-            users.extend(specific_users)
             created_count += len(specific_users)
 
             db.session.commit()
