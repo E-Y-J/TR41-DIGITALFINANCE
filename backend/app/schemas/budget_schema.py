@@ -85,13 +85,31 @@ class BudgetSchema(BaseSchema):
     category_name = fields.String(dump_only=True)
 
     # Budget configuration
-    budget_type = fields.String(
-        validate=validate.OneOf([t.value for t in BudgetType]),
+    budget_type = fields.Method(
+        "get_budget_type",
+        dump_only=True,
+        metadata={"description": "Budget type: total or category"},
     )
+
+    def get_budget_type(self, obj):
+        """Extract enum value as string."""
+        if hasattr(obj.budget_type, "value"):
+            return obj.budget_type.value
+        return str(obj.budget_type) if obj.budget_type else None
+
     amount = fields.Decimal(places=2, as_string=True)
-    period = fields.String(
-        validate=validate.OneOf([p.value for p in BudgetPeriod]),
+
+    period = fields.Method(
+        "get_period",
+        dump_only=True,
+        metadata={"description": "Budget period: weekly or monthly"},
     )
+
+    def get_period(self, obj):
+        """Extract enum value as string."""
+        if hasattr(obj.period, "value"):
+            return obj.period.value
+        return str(obj.period) if obj.period else None
 
     # Fixed threshold (read-only)
     warning_threshold = fields.Integer(dump_only=True)

@@ -474,61 +474,61 @@ DEFAULT_CATEGORIES = [
     {
         "name": "Food & Dining",
         "description": "Restaurants, groceries, fast food, coffee shops, food delivery",
-        "category_type": CategoryType.EXPENSE,
+        "category_type": CategoryType.BOTH,  # BOTH: Supports refunds (e.g., DoorDash refund)
         "display_order": 1,
     },
     {
         "name": "Transportation",
         "description": "Gas, rideshare, airlines, public transport, car rental",
-        "category_type": CategoryType.EXPENSE,
+        "category_type": CategoryType.BOTH,  # BOTH: Supports refunds (e.g., flight refund)
         "display_order": 2,
     },
     {
         "name": "Shopping & Retail",
         "description": "Online shopping, electronics, retail, fashion, home & garden",
-        "category_type": CategoryType.EXPENSE,
+        "category_type": CategoryType.BOTH,  # BOTH: Supports refunds (e.g., Amazon return)
         "display_order": 3,
     },
     {
         "name": "Entertainment & Recreation",
         "description": "Streaming, gaming, movies, music, sports",
-        "category_type": CategoryType.EXPENSE,
+        "category_type": CategoryType.BOTH,  # BOTH: Supports refunds (e.g., ticket refund)
         "display_order": 4,
     },
     {
         "name": "Healthcare & Medical",
         "description": "Medical, pharmacy, dental, vision, fitness",
-        "category_type": CategoryType.EXPENSE,
+        "category_type": CategoryType.BOTH,  # BOTH: Supports reimbursements (e.g., insurance)
         "display_order": 5,
     },
     {
         "name": "Utilities & Services",
         "description": "Electricity, water, gas, internet & phone, cable",
-        "category_type": CategoryType.EXPENSE,
+        "category_type": CategoryType.BOTH,  # BOTH: Supports refunds (e.g., overpayment)
         "display_order": 6,
     },
     {
         "name": "Financial Services",
         "description": "Banking, insurance, credit cards, investments, taxes",
-        "category_type": CategoryType.EXPENSE,
+        "category_type": CategoryType.BOTH,  # BOTH: Supports income (e.g., interest earned)
         "display_order": 7,
     },
     {
         "name": "Income",
         "description": "Salary, freelance, business, investments, government benefits",
-        "category_type": CategoryType.INCOME,
+        "category_type": CategoryType.INCOME,  # INCOME only: True income sources
         "display_order": 8,
     },
     {
         "name": "Government & Legal",
         "description": "Taxes, licenses, legal services, government fees",
-        "category_type": CategoryType.EXPENSE,
+        "category_type": CategoryType.BOTH,  # BOTH: Supports refunds (e.g., tax refund)
         "display_order": 9,
     },
     {
         "name": "Charity & Donations",
         "description": "Charitable, religious, community, political donations",
-        "category_type": CategoryType.EXPENSE,
+        "category_type": CategoryType.EXPENSE,  # EXPENSE only: Donations are not refunded
         "display_order": 10,
     },
     {

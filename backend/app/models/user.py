@@ -126,10 +126,10 @@ class User(db.Model):
         doc="Auth0 user ID (sub claim)",
     )
 
-    email: Mapped[[str]] = mapped_column(
+    email: Mapped[str] = mapped_column(
         String(255), unique=True, nullable=False, index=True, doc="User email address"
     )
-    
+
     email_verified: Mapped[bool] = mapped_column(
         Boolean, default=False, nullable=False, doc="User's email verified status"
     )

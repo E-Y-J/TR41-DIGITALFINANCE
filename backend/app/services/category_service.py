@@ -60,16 +60,16 @@ class CategoryService:
     Categories are pre-defined and seeded at application startup.
 
     The 11 default categories are:
-        - Food & Dining (EXPENSE)
-        - Transportation (EXPENSE)
-        - Shopping & Retail (EXPENSE)
-        - Entertainment & Recreation (EXPENSE)
-        - Healthcare & Medical (EXPENSE)
-        - Utilities & Services (EXPENSE)
-        - Financial Services (BOTH)
-        - Income (INCOME)
-        - Government & Legal (BOTH)
-        - Charity & Donations (EXPENSE)
+        - Food & Dining (BOTH) - Supports refunds
+        - Transportation (BOTH) - Supports refunds
+        - Shopping & Retail (BOTH) - Supports refunds
+        - Entertainment & Recreation (BOTH) - Supports refunds
+        - Healthcare & Medical (BOTH) - Supports reimbursements
+        - Utilities & Services (BOTH) - Supports refunds
+        - Financial Services (BOTH) - Supports interest income
+        - Income (INCOME) - True income only
+        - Government & Legal (BOTH) - Supports tax refunds
+        - Charity & Donations (EXPENSE) - Donations only
         - Unknown (BOTH) - Used when AI confidence is too low
 
     Example:
