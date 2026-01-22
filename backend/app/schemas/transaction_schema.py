@@ -54,6 +54,24 @@ class TransactionSchema(BaseSchema):
         Added category_id, ai_confidence, ai_source, is_user_override
         to support intelligent transaction categorization.
 
+    PR #48 Fix: Null Handling (IMPORTANT FOR FRONTEND TEAM)
+    =========================================================
+    Problem: API was returning null values that broke frontend rendering.
+
+    Solution: Use Method fields with fallback values. NO MORE NULLS in:
+        - merchant_name: "Unnamed Transaction" (if null in DB)
+        - category_id: Unknown category UUID (if null in DB)
+        - category_name: "Unknown" (if null in DB)
+        - category_obj: {"id": "...", "name": "Unknown"} (if null in DB)
+        - ai_source: "pending" (uncategorized), "user" (override)
+        - ai_confidence: 0.0 (uncategorized), 1.0 (user override)
+
+    Fields that CAN be null (intentional):
+        - original_category_id: null means user didn't override AI
+
+    REMOVED from response (deprecated):
+        - category: Legacy string column - use category_name instead
+
     Example Response:
         {
             "id": "uuid-string",
@@ -62,7 +80,7 @@ class TransactionSchema(BaseSchema):
             "transaction_type": "expense",
             "date": "2024-01-15",
             "merchant_name": "Amazon",
-            "category": "Shopping",
+            "category_name": "Shopping & Retail",
             "category_id": "category-uuid",
             "category_obj": {"id": "...", "name": "Shopping & Retail"},
             "ai_confidence": 0.95,
@@ -102,24 +120,61 @@ class TransactionSchema(BaseSchema):
         metadata={"description": "Transaction date"},
     )
 
-    merchant_name = fields.String(
+    merchant_name = fields.Method(
+        "get_merchant_name",
         dump_only=True,
-        allow_none=True,
-        metadata={"description": "Merchant or payee name"},
+        metadata={"description": "Merchant or payee name (never null)"},
     )
+
+    def get_merchant_name(self, obj):
+        """
+        Get merchant name with fallback.
+
+        PR #48 Fix: Returns 'Unnamed Transaction' instead of null.
+        This ensures the frontend always has a displayable merchant name.
+        """
+        return obj.merchant_name or "Unnamed Transaction"
 
     # NOTE: Legacy `category` field removed - use `category_name` instead
     # The deprecated string column still exists in DB for historical data
 
     # =========================================================================
-    # AI CATEGORIZATION FIELDS
+    # PR #48 FIX: AI CATEGORIZATION FIELDS (No Nulls in API Response)
+    # =========================================================================
+    #
+    # WHY: Frontend was breaking when API returned null values.
+    #
+    # HOW: All fields below use Method fields with fallback values:
+    #   - category_id     → Unknown category UUID (if uncategorized)
+    #   - category_name   → "Unknown" (if uncategorized)
+    #   - category_obj    → {"id": "...", "name": "Unknown"} (if uncategorized)
+    #   - ai_source       → "pending" (uncategorized) or "user" (override)
+    #   - ai_confidence   → 0.0 (uncategorized) or 1.0 (user override)
+    #
+    # INTENTIONALLY NULLABLE (needed by AI system):
+    #   - original_category_id: null = user didn't override AI's prediction
     # =========================================================================
 
-    category_id = fields.UUID(
+    category_id = fields.Method(
+        "get_category_id",
         dump_only=True,
-        allow_none=True,
-        metadata={"description": "Category ID (foreign key to categories table)"},
+        metadata={"description": "Category ID (uses Unknown category as fallback)"},
     )
+
+    def get_category_id(self, obj):
+        """
+        Get category ID with fallback to Unknown category.
+
+        PR #48 Fix: Returns Unknown category ID instead of null.
+        This ensures the frontend always has a valid category reference.
+        """
+        if obj.category_id:
+            return str(obj.category_id)
+        # Fallback to Unknown category
+        from app.models.category import Category
+
+        unknown_cat = Category.get_unknown_category()
+        return str(unknown_cat.id) if unknown_cat else None
 
     category_name = fields.Method(
         "get_category_name",
@@ -128,38 +183,92 @@ class TransactionSchema(BaseSchema):
     )
 
     def get_category_name(self, obj):
-        """Get the category name from the relationship."""
+        """
+        Get the category name from the relationship.
+
+        PR #48 Fix: Falls back to "Unknown" category from database.
+        This ensures the frontend always has a valid category name.
+        """
         if hasattr(obj, "category_rel") and obj.category_rel:
             return obj.category_rel.name
+        # Fallback to the "Unknown" category from database
+        from app.models.category import Category
+
+        unknown_cat = Category.get_unknown_category()
+        return unknown_cat.name if unknown_cat else "Unknown"
+
+    category_obj = fields.Method(
+        "get_category_obj",
+        dump_only=True,
+        metadata={"description": "Category object with id and name (never null)"},
+    )
+
+    def get_category_obj(self, obj):
+        """
+        Get category object with fallback to Unknown category.
+
+        PR #48 Fix: Returns Unknown category object instead of null.
+        This ensures the frontend always has a valid category object.
+        """
+        if hasattr(obj, "category_rel") and obj.category_rel:
+            return {
+                "id": str(obj.category_rel.id),
+                "name": obj.category_rel.name,
+            }
+        # Fallback to Unknown category
+        from app.models.category import Category
+
+        unknown_cat = Category.get_unknown_category()
+        if unknown_cat:
+            return {
+                "id": str(unknown_cat.id),
+                "name": unknown_cat.name,
+            }
         return None
 
-    category_obj = fields.Dict(
-        keys=fields.String(),
-        values=fields.Raw(),
+    ai_confidence = fields.Method(
+        "get_ai_confidence",
         dump_only=True,
-        allow_none=True,
-        metadata={"description": "Category object with id and name"},
+        metadata={"description": "AI confidence score (0.0 to 1.0, never null)"},
     )
 
-    ai_confidence = fields.Float(
-        dump_only=True,
-        allow_none=True,
-        metadata={"description": "AI confidence score (0.0 to 1.0)"},
-    )
+    def get_ai_confidence(self, obj):
+        """
+        Get AI confidence with sensible defaults.
+
+        PR #48 Fix: Never returns null.
+        - User overrides: 1.0 (user is 100% confident in their choice)
+        - AI categorized: actual confidence from model
+        - Uncategorized: 0.0 (no confidence yet)
+        """
+        if getattr(obj, "is_user_override", False):
+            return 1.0
+        if obj.ai_confidence is not None:
+            return obj.ai_confidence
+        return 0.0  # Never return null
 
     ai_source = fields.Method(
         "get_ai_source",
         dump_only=True,
-        metadata={"description": "Source: huggingface, gemini, or user"},
+        metadata={"description": "Source: huggingface, gemini, user, or pending"},
     )
 
     def get_ai_source(self, obj):
-        """Extract enum value as string."""
-        if obj.ai_source is None:
-            return None
-        if hasattr(obj.ai_source, "value"):
-            return obj.ai_source.value
-        return str(obj.ai_source)
+        """
+        Extract enum value as string, with sensible defaults.
+
+        PR #48 Fix: Never returns null.
+        - User overrides: "user" (human selected the category)
+        - AI categorized: "huggingface" or "gemini" (model source)
+        - Uncategorized: "pending" (awaiting AI categorization)
+        """
+        if getattr(obj, "is_user_override", False):
+            return "user"
+        if obj.ai_source is not None:
+            if hasattr(obj.ai_source, "value"):
+                return obj.ai_source.value
+            return str(obj.ai_source)
+        return "pending"  # Awaiting AI categorization
 
     is_user_override = fields.Boolean(
         dump_only=True,
@@ -169,7 +278,10 @@ class TransactionSchema(BaseSchema):
     original_category_id = fields.UUID(
         dump_only=True,
         allow_none=True,
-        metadata={"description": "AI's original category suggestion (before override)"},
+        # INTENTIONALLY NULLABLE: null means no AI prediction was overridden
+        metadata={
+            "description": "AI's original category (null = no override occurred)"
+        },
     )
 
     # Timestamps

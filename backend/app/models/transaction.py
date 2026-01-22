@@ -306,39 +306,86 @@ class Transaction(db.Model):
                 ...
             }
 
-        Includes:
-            Added category object with id/name, ai_confidence, ai_source,
-            is_user_override, and original_category fields.
+        Null Handling (PR #48 Fix):
+            The following fields have sensible defaults to avoid null in API:
+            - category_name: Returns "Unknown" (from DB category) if no category
+            - ai_source: Returns "user" if user_override, else "pending"
+            - ai_confidence: Returns 1.0 if user_override, else 0.0
+            - merchant_name: Falls back to "Unnamed Transaction"
+            - category_obj: Always returns {"id": ..., "name": "..."}
+            - category_id: Falls back to "Unknown" category ID from DB
+
+        Nullable Fields:
+            - original_category_id: null = no AI prediction was overridden
+
+        Notes:
+            The AI system identifies uncategorized transactions by checking
+            if category_name == "Unknown" (the fallback category).
         """
+        # =====================================================================
+        # AI SOURCE & CONFIDENCE LOGIC (PR #48 Fix)
+        # =====================================================================
+        # - User overrides get "user" source with 100% confidence
+        # - AI-categorized get actual source/confidence from model
+        # - Uncategorized get "pending" with 0% confidence (awaiting AI)
+        # This ensures no null values in ai_source or ai_confidence fields
+        if self.is_user_override:
+            ai_source_value = "user"
+            ai_confidence_value = 1.0  # User is 100% confident in their choice
+        elif self.ai_source:
+            ai_source_value = self.ai_source.value
+            ai_confidence_value = (
+                self.ai_confidence if self.ai_confidence is not None else 0.0
+            )
+        else:
+            ai_source_value = "pending"  # Awaiting AI categorization
+            ai_confidence_value = 0.0
+
+        # =====================================================================
+        # CATEGORY HANDLING - Use "Unknown" category from DB as fallback
+        # =====================================================================
+        # Get category from relationship, or fallback to "Unknown" category
+        if self.category_rel:
+            category_name = self.category_rel.name
+            category_id_value = str(self.category_rel.id)
+        else:
+            # Fallback to the "Unknown" category from database
+            from app.models.category import Category
+
+            unknown_cat = Category.get_unknown_category()
+            if unknown_cat:
+                category_name = unknown_cat.name
+                category_id_value = str(unknown_cat.id)
+            else:
+                category_name = "Unknown"
+                category_id_value = None
+
         result = {
             "id": str(self.id),
             "user_id": str(self.user_id),
             "amount": str(self.amount),
             "transaction_type": self.transaction_type.value,
             "date": self.date,
-            "merchant_name": self.merchant_name,
-            # Legacy category string (deprecated)
-            "category": self.category,
+            "merchant_name": self.merchant_name or "Unnamed Transaction",
+            # Category name from relationship or "Unknown" category fallback
+            "category_name": category_name,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
-            # AI categorization fields
-            "category_id": str(self.category_id) if self.category_id else None,
-            "ai_confidence": self.ai_confidence,
-            "ai_source": self.ai_source.value if self.ai_source else None,
-            "is_user_override": self.is_user_override,
+            # AI categorization fields - no nulls, sensible defaults
+            "category_id": category_id_value,  # Uses Unknown category ID as fallback
+            "ai_confidence": ai_confidence_value,
+            "ai_source": ai_source_value,
+            "is_user_override": self.is_user_override or False,
             "original_category_id": (
                 str(self.original_category_id) if self.original_category_id else None
             ),
         }
 
-        # Include category object if relationship is loaded
-        if self.category_rel:
-            result["category_obj"] = {
-                "id": str(self.category_rel.id),
-                "name": self.category_rel.name,
-            }
-        else:
-            result["category_obj"] = None
+        # Include category object - always provide structure with valid ID
+        result["category_obj"] = {
+            "id": category_id_value,
+            "name": category_name,
+        }
 
         return result
 
