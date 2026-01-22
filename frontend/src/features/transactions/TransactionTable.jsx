@@ -129,8 +129,8 @@ const TransactionTable = ({ data }) => {
                 index === 0 || currentFormattedDate !== prevFormattedDate;
 
               // 4. Income vs Expense Logic
-              const isIncome =
-                row.transaction_type === "TransactionType.INCOME";
+              // Backend returns lowercase string: "income" or "expense"
+              const isIncome = row.transaction_type === "income";
               const amountColor = isIncome ? "success.main" : "text.primary";
               const amountPrefix = isIncome ? "+" : ""; // Add '+' for income
 
@@ -241,8 +241,8 @@ const TransactionTable = ({ data }) => {
                             color="text.secondary"
                             sx={{ display: "block", mt: -0.2 }}
                           >
-                            {/* Fallback if category is null */}
-                            {row.category || "General"}
+                            {/* Use category_name from API (category field deprecated) */}
+                            {row.category_name || "General"}
                           </Typography>
                         </Box>
                       </Box>

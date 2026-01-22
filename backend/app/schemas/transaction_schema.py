@@ -108,12 +108,8 @@ class TransactionSchema(BaseSchema):
         metadata={"description": "Merchant or payee name"},
     )
 
-    # Legacy category field (deprecated, kept for backward compatibility)
-    category = fields.String(
-        dump_only=True,
-        allow_none=True,
-        metadata={"description": "[DEPRECATED] Transaction category string"},
-    )
+    # NOTE: Legacy `category` field removed - use `category_name` instead
+    # The deprecated string column still exists in DB for historical data
 
     # =========================================================================
     # AI CATEGORIZATION FIELDS
