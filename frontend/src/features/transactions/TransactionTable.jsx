@@ -18,15 +18,20 @@ import {
 } from "@mui/material";
 
 // Icons
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import FastfoodIcon from "@mui/icons-material/Fastfood";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-import SubscriptionsIcon from "@mui/icons-material/Subscriptions";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
+import TheaterComedyIcon from "@mui/icons-material/TheaterComedy";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
+import LightbulbIcon from "@mui/icons-material/Lightbulb";
+import GavelIcon from "@mui/icons-material/Gavel";
 
 const formatDate = (dateString) => {
   if (!dateString) return "";
@@ -37,32 +42,65 @@ const formatDate = (dateString) => {
   });
 };
 
-// needs to be fixed to match the corresponding categories
-const getIcon = (merchantName = "") => {
-  const lowerName = merchantName.toLowerCase();
-  if (lowerName.includes("netflix") || lowerName.includes("subscription"))
-    return <SubscriptionsIcon fontSize="small" />;
-  if (
-    lowerName.includes("pizza") ||
-    lowerName.includes("food") ||
-    lowerName.includes("burger")
-  )
+const getIcon = (categoryName = "") => {
+  const lowerName = categoryName.toLowerCase();
+
+  // Charity & Donations
+  if (lowerName.includes("charity") || lowerName.includes("donation")) {
+    return <VolunteerActivismIcon fontSize="small" />;
+  }
+
+  // Entertainment & Recreation
+  else if (
+    lowerName.includes("entertainment") ||
+    lowerName.includes("recreation")
+  ) {
+    return <TheaterComedyIcon fontSize="small" />;
+  }
+  // Financial Services
+  else if (lowerName.includes("financial")) {
+    return <AccountBalanceIcon fontSize="small" />;
+  }
+
+  // Food & Dining
+  else if (lowerName.includes("food") || lowerName.includes("dining")) {
     return <FastfoodIcon fontSize="small" />;
-  if (lowerName.includes("uber") || lowerName.includes("lyft"))
-    return <DirectionsCarIcon fontSize="small" />;
-  if (
-    lowerName.includes("salary") ||
-    lowerName.includes("deposit") ||
-    lowerName.includes("transfer")
-  )
+  }
+
+  // Government & Legal
+  else if (lowerName.includes("government") || lowerName.includes("legal")) {
+    return <GavelIcon fontSize="small" />;
+  }
+
+  // Healthcare & Medical
+  else if (lowerName.includes("health") || lowerName.includes("medical")) {
+    return <MedicalServicesIcon fontSize="small" />;
+  }
+
+  // Income
+  else if (lowerName.includes("income") || lowerName.includes("salary")) {
     return <AttachMoneyIcon fontSize="small" />;
-  if (
-    lowerName.includes("apple") ||
-    lowerName.includes("amazon") ||
-    lowerName.includes("store")
-  )
+  }
+
+  // Shopping & Retail
+  else if (lowerName.includes("shopping") || lowerName.includes("retail")) {
     return <ShoppingBagIcon fontSize="small" />;
-  return <LocalOfferIcon fontSize="small" />;
+  }
+
+  // Transportation
+  else if (lowerName.includes("transportation")) {
+    return <DirectionsCarIcon fontSize="small" />;
+  }
+
+  // Utilities & Services
+  else if (lowerName.includes("utilit") || lowerName.includes("services")) {
+    return <LightbulbIcon fontSize="small" />;
+  }
+
+  // Fallback Icon
+  else {
+    return <LocalOfferIcon fontSize="small" />;
+  }
 };
 
 const TransactionTable = ({ data }) => {
@@ -120,26 +158,24 @@ const TransactionTable = ({ data }) => {
         <TableBody>
           {data && data.length > 0 ? (
             data.map((row, index) => {
-              // 3. Date Grouping Logic
-              // We must format BOTH dates to compare them, ignoring the specific time
+              // Date Grouping Logic
               const currentFormattedDate = formatDate(row.date);
               const prevFormattedDate =
                 index > 0 ? formatDate(data[index - 1].date) : null;
               const showDate =
                 index === 0 || currentFormattedDate !== prevFormattedDate;
 
-              // 4. Income vs Expense Logic
-              // Backend returns lowercase string: "income" or "expense"
+              // Income vs Expense Logic
               const isIncome = row.transaction_type === "income";
               const amountColor = isIncome ? "success.main" : "text.primary";
-              const amountPrefix = isIncome ? "+" : ""; // Add '+' for income
+              const amountPrefix = isIncome ? "+" : "";
 
               // Format Amount as Currency
               const formattedAmount = `${amountPrefix}$${parseFloat(row.amount).toFixed(2)}`;
 
               return (
                 <TableRow
-                  key={row.id} // Use the real UUID
+                  key={row.id}
                   sx={{
                     "& td, & th": {
                       py: 1.5,
@@ -224,7 +260,7 @@ const TransactionTable = ({ data }) => {
                             borderRadius: 3,
                           }}
                         >
-                          {getIcon(row.merchant_name)}
+                          {getIcon(row.category_name)}
                         </Avatar>
                         <Box sx={{ minWidth: 0, flex: 1 }}>
                           <Typography
@@ -241,7 +277,6 @@ const TransactionTable = ({ data }) => {
                             color="text.secondary"
                             sx={{ display: "block", mt: -0.2 }}
                           >
-                            {/* Use category_name from API (category field deprecated) */}
                             {row.category_name || "General"}
                           </Typography>
                         </Box>
