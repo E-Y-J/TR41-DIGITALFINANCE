@@ -6,10 +6,8 @@ Run with: python tools/populate_db.py --users 10 --transactions 50
 
 # MARK: Imports
 import sys
-import os
 import random
 import uuid
-import json
 from pathlib import Path
 from datetime import datetime, timezone
 from argparse import ArgumentParser
@@ -17,14 +15,14 @@ from argparse import ArgumentParser
 from faker import Faker
 
 # MARK: Flask Setup & Pathing
-current_dir = Path(__file__).resolve().parent  
-backend_dir = current_dir.parent             
-sys.path.append(str(backend_dir))            
+current_dir = Path(__file__).resolve().parent
+backend_dir = current_dir.parent
+sys.path.append(str(backend_dir))
 
 try:
     from app import create_app
     from app.core.extensions import db
-    from app.models.user import User  
+    from app.models.user import User
     from app.models.category import Category
     from app.models.transaction import Transaction, TransactionType, AISource
 except ImportError as e:
@@ -38,6 +36,7 @@ class Command:
     """
     The populate_db CLI command for populating the database when starting the backend.
     """
+
     help = "Populate the database with dummy data"
 
     def __init__(self):
@@ -50,16 +49,13 @@ class Command:
         Add arguments into the parser.
         """
         parser.add_argument(
-            "--users", 
-            type=int, 
-            default=10, 
-            help="Number of random users to create"
+            "--users", type=int, default=10, help="Number of random users to create"
         )
         parser.add_argument(
             "--transactions",
             type=int,
             default=25,
-            help="Number of transaction objects to create"
+            help="Number of transaction objects to create",
         )
 
     def handle(self, args) -> None:
@@ -70,13 +66,8 @@ class Command:
         num_transactions = args.transactions
 
         with self.app.app_context():
-            
             # MARK: Clear Data
             self.clear_data()
-
-
-
-
 
             # MARK: Populate Random Data
             self.stdout_write(f"Creating {num_users} random users...")
@@ -108,9 +99,7 @@ class Command:
             created_count += len(specific_users)
 
             db.session.commit()
-            self.stdout_write(
-                f"Successfully created {created_count} users total."
-            )
+            self.stdout_write(f"Successfully created {created_count} users total.")
 
             # MARK: Create Transactions
             self.stdout_write(f"Creating {num_transactions} transactions...")
@@ -139,7 +128,6 @@ class Command:
         Wipes existing data to prevent duplicate key errors.
         """
         with self.app.app_context():
-
             # Transactions first (FKs)
             self.stdout_write("Clearing existing transaction data...")
             try:
@@ -179,16 +167,12 @@ class Command:
             if email not in used_emails:
                 used_emails.add(email)
                 break
-        
+
         created_at = self.fake.date_time_between(
-            start_date="-2y",
-            end_date="now",
-            tzinfo=timezone.utc
+            start_date="-2y", end_date="now", tzinfo=timezone.utc
         )
         updated_at = self.fake.date_time_between(
-            start_date=created_at,
-            end_date="now",
-            tzinfo=timezone.utc
+            start_date=created_at, end_date="now", tzinfo=timezone.utc
         )
 
         return {
@@ -200,7 +184,7 @@ class Command:
             "last_name": last,
             "nickname": self.fake.user_name(),
             "account_status": "active",
-            "role": "user", 
+            "role": "user",
             "salary_amount": "0.00",
             "settings": {
                 "currency": random.choice(["USD", "EUR", "GBP", "AUD"]),
@@ -208,9 +192,7 @@ class Command:
                     ["UTC", "America/Los_Angeles", "Europe/London"]
                 ),
                 "theme": random.choice(["light", "dark"]),
-                "notifications": {
-                    "reminders": bool(random.getrandbits(1))
-                },
+                "notifications": {"reminders": bool(random.getrandbits(1))},
             },
             "created_at": created_at,
             "updated_at": updated_at,
@@ -229,7 +211,7 @@ class Command:
                 "last_name": "Seo",
                 "nickname": "jaeseo",
                 "account_status": "active",
-                "role": "user"
+                "role": "user",
             },
         ]
         created_users = []
@@ -237,9 +219,9 @@ class Command:
         for u_data in specific_users:
             if u_data["email"] in used_emails:
                 continue
-            
+
             used_emails.add(u_data["email"])
-                        
+
             full_data = {
                 **u_data,
                 "id": str(uuid.uuid4()),
@@ -279,40 +261,42 @@ class Command:
             settings=data["settings"],
             created_at=data["created_at"],
             updated_at=data["updated_at"],
-            last_login=data["last_login"]
+            last_login=data["last_login"],
         )
         db.session.add(user)
         return user
 
     def make_fake_transaction(
-        self,
-        users: list[User],
-        categories: list[Category]
+        self, users: list[User], categories: list[Category]
     ) -> Transaction:
         user = random.choice(users)
 
-        amount = round(random.uniform(5.0, 500.0), 2)
+        # Pick transaction type first, then match category to type
         tx_type = random.choice(list(TransactionType))
+
+        # Filter categories that match the transaction type
+        # BOTH categories work for any transaction type
+        matching_categories = [
+            cat
+            for cat in categories
+            if cat.category_type.value == tx_type.value
+            or cat.category_type.value == "both"
+        ]
+
+        # Fallback to any category if no match (shouldn't happen)
+        if not matching_categories:
+            matching_categories = categories
+
+        category = random.choice(matching_categories)
+
+        amount = round(random.uniform(5.0, 500.0), 2)
         date = self.fake.date_time_between(
-            start_date="-1y",
-            end_date="now",
-            tzinfo=timezone.utc
+            start_date="-1y", end_date="now", tzinfo=timezone.utc
         )
 
-        final_category = random.choice(categories)
-        is_override = bool(random.getrandbits(1))
-
-        if is_override:
-            original_category_obj = random.choice(categories)
-            ai_conf = None
-            ai_src = None
-            original_cat_id = original_category_obj.id
-
-        else:
-            original_category_obj = None
-            original_cat_id = None
-            ai_conf = random.uniform(0.75, 0.99)
-            ai_src = random.choice(list(AISource)).value
+        ai_override = bool(random.getrandbits(1))
+        ai_source = None if ai_override else random.choice(list(AISource))
+        original_category = None if ai_override else random.choice(categories)
 
         return Transaction(
             user_id=user.id,
@@ -320,22 +304,22 @@ class Command:
             transaction_type=tx_type.value,
             date=date,
             merchant_name=self.fake.company(),
-            category=final_category.name,
-            category_id=final_category.id,
-            ai_confidence=ai_conf,
-            ai_source=ai_src,
-            is_user_override=is_override,
-            original_category_id=original_cat_id
+            category_id=category.id,
+            ai_confidence=(random.uniform(0.5, 1.0) if not ai_override else None),
+            ai_source=ai_source.value if ai_source else None,
+            is_user_override=ai_override,
+            original_category_id=(original_category.id if original_category else None),
         )
 
     def stdout_write(self, message):
         """
         Helper to print to console in BLUE all the time.
         """
-        blue = "\033[94m"   # Blue
-        reset = "\033[0m"   # Reset
-        
+        blue = "\033[94m"  # Blue
+        reset = "\033[0m"  # Reset
+
         print(f"{blue}{message}{reset}")
+
 
 if __name__ == "__main__":
     cmd = Command()

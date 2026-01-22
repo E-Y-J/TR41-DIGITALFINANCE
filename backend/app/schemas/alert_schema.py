@@ -23,7 +23,7 @@ Usage:
     data = alert_list_schema.dump(alerts)
 """
 
-from marshmallow import fields, validate, post_dump
+from marshmallow import fields, validate
 
 from app.schemas.base import BaseSchema
 from app.models.enums import AlertType, AlertSeverity
@@ -58,14 +58,29 @@ class AlertSchema(BaseSchema):
     id = fields.UUID(dump_only=True)
     user_id = fields.UUID(dump_only=True)
 
-    alert_type = fields.String(
+    alert_type = fields.Method(
+        "get_alert_type",
         dump_only=True,
         metadata={"description": "Type of alert"},
     )
-    severity = fields.String(
+
+    def get_alert_type(self, obj):
+        """Extract enum value as string."""
+        if hasattr(obj.alert_type, "value"):
+            return obj.alert_type.value
+        return str(obj.alert_type) if obj.alert_type else None
+
+    severity = fields.Method(
+        "get_severity",
         dump_only=True,
         metadata={"description": "Alert severity level"},
     )
+
+    def get_severity(self, obj):
+        """Extract enum value as string."""
+        if hasattr(obj.severity, "value"):
+            return obj.severity.value
+        return str(obj.severity) if obj.severity else None
 
     title = fields.String(
         dump_only=True,
@@ -114,15 +129,6 @@ class AlertSchema(BaseSchema):
         attribute="category_rel",
         metadata={"description": "Related category details"},
     )
-
-    @post_dump
-    def convert_enums(self, data, **kwargs):
-        """Convert enum values to strings for JSON response."""
-        if "alert_type" in data and hasattr(data["alert_type"], "value"):
-            data["alert_type"] = data["alert_type"].value
-        if "severity" in data and hasattr(data["severity"], "value"):
-            data["severity"] = data["severity"].value
-        return data
 
     class Meta:
         """Schema metadata."""

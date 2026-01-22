@@ -120,8 +120,10 @@ class UserSchema(BaseSchema):
     # Profile fields (per ERD: first_name, last_name)
     email = fields.Email(dump_only=True, metadata={"description": "User email address"})
 
-    email_verified = fields.Boolean(dump_only=True, metatdata={"descrption": "User's email verified status"})
-    
+    email_verified = fields.Boolean(
+        dump_only=True, metadata={"description": "User's email verified status"}
+    )
+
     first_name = fields.String(
         dump_only=True, metadata={"description": "User's first name"}
     )
@@ -141,15 +143,29 @@ class UserSchema(BaseSchema):
     )
 
     # Status & Role fields (per ERD)
-    account_status = fields.String(
+    account_status = fields.Method(
+        "get_account_status",
         dump_only=True,
         metadata={"description": "Account status: pending, active, or suspended"},
     )
 
-    role = fields.String(
+    def get_account_status(self, obj):
+        """Extract enum value as string."""
+        if hasattr(obj.account_status, "value"):
+            return obj.account_status.value
+        return str(obj.account_status) if obj.account_status else None
+
+    role = fields.Method(
+        "get_role",
         dump_only=True,
         metadata={"description": "User role: user or admin"},
     )
+
+    def get_role(self, obj):
+        """Extract enum value as string."""
+        if hasattr(obj.role, "value"):
+            return obj.role.value
+        return str(obj.role) if obj.role else None
 
     # Financial fields (per ERD)
     salary_amount = fields.Decimal(
