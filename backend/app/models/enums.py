@@ -324,6 +324,22 @@ class BudgetPeriod(enum.Enum):
     WEEKLY = "weekly"
     MONTHLY = "monthly"
 
+# =============================================================================
+# LOAN ENUMS
+# =============================================================================
+
+
+class LoanStatus(enum.Enum):
+    """
+    Loan status enumeration (MVP).
+
+    Values:
+        OPEN: Loan is active and being paid
+        CLOSED: Loan has been fully paid off
+    """
+
+    OPEN = "open"
+    CLOSED = "closed"
 
 # =============================================================================
 # MODULE EXPORTS
@@ -348,4 +364,6 @@ __all__ = [
     # Budget enums
     "BudgetType",
     "BudgetPeriod",
+    # Loan enums
+    "LoanStatus",
 ]
