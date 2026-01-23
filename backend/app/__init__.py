@@ -126,6 +126,15 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     # Initialize Swagger UI
     _init_swagger(app)
 
+    # =========================================================================
+    # AI MODEL PRELOADING (Option A - Microservice-ready)
+    # =========================================================================
+    # Preload AI models at startup to eliminate cold starts.
+    # This adds ~10-15 seconds to startup but ensures fast responses.
+    # When extracting to microservice, remove this section.
+    # =========================================================================
+    _preload_ai_models(app)
+
     logger.info("Application created successfully")
 
     return app
@@ -195,10 +204,75 @@ def _register_blueprints(app: Flask) -> None:
 
     app.register_blueprint(budgets_bp)  # url_prefix already set in blueprint
 
+    # =========================================================================
+    # AI Integration: Chat, Categorization, Insights Routes
+    # =========================================================================
+
+    # AI routes (chat, categorize, insights, clarifications)
+    from app.api.routes.ai import bp as ai_bp
+
+    app.register_blueprint(ai_bp)  # url_prefix already set in blueprint
+
     logger.debug(
         "Registered blueprints: auth, users, transactions, test, "
-        "categories, notifications, summary, alerts, budgets"
+        "categories, notifications, summary, alerts, budgets, ai"
     )
+
+
+# =============================================================================
+# AI MODEL PRELOADING
+# =============================================================================
+
+
+def _preload_ai_models(app: Flask) -> None:
+    """
+    Preload AI models at startup to eliminate cold starts.
+
+    MICROSERVICE-READY:
+        When extracting AI to a microservice, remove this function
+        and the call in create_app(). The AI service will handle
+        its own model loading.
+
+    Args:
+        app: Flask application instance
+
+    Configuration:
+        Set AI_PRELOAD=false in environment to disable preloading.
+        Useful for testing or when AI features are not needed.
+    """
+    import os
+
+    # Check if preloading is disabled
+    if os.getenv("AI_PRELOAD", "true").lower() == "false":
+        logger.info("AI preloading disabled (AI_PRELOAD=false)")
+        return
+
+    # Check if we're in testing mode
+    if app.config.get("TESTING", False):
+        logger.info("AI preloading skipped in testing mode")
+        return
+
+    try:
+        logger.info("=" * 60)
+        logger.info("PRELOADING AI MODELS (this may take 10-15 seconds)...")
+        logger.info("=" * 60)
+
+        from app.ai.service import initialize_ai_service
+
+        with app.app_context():
+            success = initialize_ai_service(preload=True)
+
+        if success:
+            logger.info("=" * 60)
+            logger.info("AI MODELS PRELOADED SUCCESSFULLY")
+            logger.info("=" * 60)
+        else:
+            logger.warning("AI preloading completed with warnings")
+
+    except Exception as e:
+        # Don't fail app startup if AI fails to load
+        logger.error(f"AI preloading failed (non-fatal): {e}")
+        logger.warning("AI features will use lazy loading instead")
 
 
 # =============================================================================

@@ -651,7 +651,7 @@ def mock_auth(mocker):
 
 ### Getting Help
 
-- **Backend issues:** Suryadi Zhang (suryadizhang86@gmail.com)
+- **Backend issues:** See README.md for team contacts
 - **Auth0 issues:** See `docs/FRONTEND_AUTH_INTEGRATION.md`
 - **Postman issues:** Check `shared/postman/README.md`
 
