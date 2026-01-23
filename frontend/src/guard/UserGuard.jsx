@@ -14,7 +14,7 @@ export const UserGuard = () => {
     );
   }
 
-  if (user.account_status === "AccountStatus.PENDING") {
+  if (user.account_status === "pending") {
     return <Navigate to="/onboarding" replace />;
   }
 

@@ -96,7 +96,6 @@ class Command:
             # MARK: Populate Specific Data
             self.stdout_write("Creating specific dev users...")
             specific_users = self.create_specific_users(used_emails)
-            users.extend(specific_users)
             created_count += len(specific_users)
 
             db.session.commit()
@@ -106,6 +105,10 @@ class Command:
             self.stdout_write(f"Creating {num_transactions} transactions...")
             for _ in range(num_transactions):
                 transaction = self.make_fake_transaction(users, categories)
+                db.session.add(transaction)
+
+            for _ in range(15):
+                transaction = self.make_fake_transaction(specific_users, categories)
                 db.session.add(transaction)
 
             try:

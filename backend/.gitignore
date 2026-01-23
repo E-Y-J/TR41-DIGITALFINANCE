@@ -113,3 +113,10 @@ logs/
 
 # Sentry
 .sentryclirc
+
+
+# AI model weights 
+transaction_classification_model/
+*.safetensors
+*.bin
+*.pt
