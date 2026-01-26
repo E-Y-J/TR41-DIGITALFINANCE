@@ -372,8 +372,6 @@ curl http://localhost:5001/api/health
 
 ## 📞 Contact
 
-**Backend Team:** Suryadi Zhang (suryadizhang86@gmail.com)
-
 For questions about:
 - API behavior → Backend team
 - Auth0 setup → Check `docs/FRONTEND_AUTH_INTEGRATION.md`

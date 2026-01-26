@@ -1,7 +1,7 @@
 # AI Categorization & Notifications Implementation Plan
 
 > **Status:** 🟡 FOUNDATION COMPLETE - AI INTEGRATION PENDING
-> **Prepared by:** Backend Team (Suryadi Zhang)
+> **Prepared by:** Backend Team
 > **Last Updated:** January 7, 2026
 
 ---
@@ -478,17 +478,17 @@ accelerate>=0.20.0            # Speed up model loading
 ### Phase 1: Database Foundation (Sprint 2 - Week 1) ✅ COMPLETE
 **Goal:** Create tables and basic CRUD
 
-| Task | Effort | Owner | Status |
-|------|--------|-------|--------|
-| Create `categories` model | 1 hr | Backend | ✅ Done |
-| Create `notifications` model | 1 hr | Backend | ✅ Done |
-| Modify `transactions` model | 1 hr | Backend | ✅ Done |
-| Create migration | 30 min | Backend | ✅ Done |
-| Seed category data | 30 min | Backend | ✅ Done |
-| Create schemas (category, notification) | 1 hr | Backend | ✅ Done |
-| Create services (category, notification) | 2 hr | Backend | ✅ Done |
-| Create API routes (categories, notifications) | 2 hr | Backend | ✅ Done |
-| Unit tests | 2 hr | Backend | ✅ Done (21 tests) |
+| Task | Effort | Status |
+|------|--------|--------|
+| Create `categories` model | 1 hr | ✅ Done |
+| Create `notifications` model | 1 hr | ✅ Done |
+| Modify `transactions` model | 1 hr | ✅ Done |
+| Create migration | 30 min | ✅ Done |
+| Seed category data | 30 min | ✅ Done |
+| Create schemas (category, notification) | 1 hr | ✅ Done |
+| Create services (category, notification) | 2 hr | ✅ Done |
+| Create API routes (categories, notifications) | 2 hr | ✅ Done |
+| Unit tests | 2 hr | ✅ Done (21 tests) |
 
 **Deliverable:** ✅ Working API endpoints for categories and notifications
 
@@ -497,15 +497,15 @@ accelerate>=0.20.0            # Speed up model loading
 ### Phase 2: AI Integration (Sprint 2 - Week 2) ⏳ PENDING
 **Goal:** Integrate HuggingFace model and Gemini fallback
 
-| Task | Effort | Owner | Status |
-|------|--------|-------|--------|
-| Download/setup HuggingFace model | 1 hr | Backend | ⏳ Pending |
-| Create `categorizer.py` service | 3 hr | Backend | ⏳ Pending |
-| Integrate with transaction creation | 2 hr | Backend | ⏳ Pending |
-| Setup Gemini API client | 1 hr | Backend | ⏳ Pending |
-| Implement fallback logic | 2 hr | Backend | ⏳ Pending |
-| Add user override functionality | 1 hr | Backend | ⏳ Pending |
-| Integration tests | 2 hr | Backend | ⏳ Pending |
+| Task | Effort | Status |
+|------|--------|--------|
+| Download/setup HuggingFace model | 1 hr | ⏳ Pending |
+| Create `categorizer.py` service | 3 hr | ⏳ Pending |
+| Integrate with transaction creation | 2 hr | ⏳ Pending |
+| Setup Gemini API client | 1 hr | ⏳ Pending |
+| Implement fallback logic | 2 hr | ⏳ Pending |
+| Add user override functionality | 1 hr | ⏳ Pending |
+| Integration tests | 2 hr | ⏳ Pending |
 
 **Deliverable:** Auto-categorization working on transaction creation
 
@@ -514,13 +514,13 @@ accelerate>=0.20.0            # Speed up model loading
 ### Phase 3: Spending Summaries (Sprint 2/3) ✅ FOUNDATION COMPLETE
 **Goal:** Implement summary endpoints for AI insights
 
-| Task | Effort | Owner | Status |
-|------|--------|-------|--------|
-| Create `summary_service.py` | 3 hr | Backend | ✅ Done |
-| Create summary routes | 2 hr | Backend | ✅ Done |
-| Optimize queries (indexes) | 1 hr | Backend | ⏳ Pending |
-| Add caching (optional) | 1 hr | Backend | ⏳ Optional |
-| Integration tests | 2 hr | Backend | ✅ Done |
+| Task | Effort | Status |
+|------|--------|--------|
+| Create `summary_service.py` | 3 hr | ✅ Done |
+| Create summary routes | 2 hr | ✅ Done |
+| Optimize queries (indexes) | 1 hr | ⏳ Pending |
+| Add caching (optional) | 1 hr | ⏳ Optional |
+| Integration tests | 2 hr | ✅ Done |
 
 **Deliverable:** ✅ Working summary endpoints (daily, weekly, monthly, yearly, YTD)
 
@@ -528,7 +528,7 @@ accelerate>=0.20.0            # Speed up model loading
 
 ## 🔗 Frontend Integration Points
 
-### For Joseph (Frontend Lead)
+### For Frontend Team
 
 **1. Categories API**
 - Fetch categories for dropdowns: `GET /api/categories`
@@ -623,8 +623,8 @@ accelerate>=0.20.0            # Speed up model loading
 
 - This plan focuses on **backend foundation** only
 - AI model fine-tuning is **out of scope** for Sprint 2
-- Frontend notification UI is Joseph's responsibility
-- Cybersecurity review (Monira) needed before production
+- Frontend notification UI handled by frontend team
+- Cybersecurity review needed before production
 - **UPDATE:** Phase 1 and Phase 3 Foundation complete - AI integration (Phase 2) is next
 
 ---

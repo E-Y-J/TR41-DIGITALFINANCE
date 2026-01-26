@@ -381,13 +381,6 @@ If you're stuck after following these steps:
    - Your `.env` file (mask passwords!)
    - Which step failed
 
-### Team Contacts
-
-| Role | Name | Email |
-|------|------|-------|
-| BE Lead (Sprint 2/3) | Suryadi Zhang | suryadizhang86@gmail.com |
-| BE Lead (Sprint 1/2) | Ariel Resendiz | resendiz.ariel6@gmail.com |
-
 ---
 
 ## 📚 Related Documentation

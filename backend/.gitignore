@@ -91,6 +91,15 @@ dmypy.json
 *.hdf5
 *.joblib
 *.model
+
+# HuggingFace model cache (downloaded models - too large for git)
+app/ai/model_store/
+model_store/
+*.safetensors
+*.bin
+*.onnx
+
+# Legacy patterns
 app/ai/model_store/*.pkl
 app/ai/model_store/*.joblib
 
@@ -115,7 +124,7 @@ logs/
 .sentryclirc
 
 
-# AI model weights 
+# AI model weights
 transaction_classification_model/
 *.safetensors
 *.bin

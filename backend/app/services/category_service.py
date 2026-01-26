@@ -331,21 +331,28 @@ class CategoryService:
         return None, 0.0
 
     @classmethod
-    def auto_categorize(cls, merchant_name: str) -> tuple[Category, float, str]:
+    def auto_categorize(
+        cls,
+        merchant_name: str,
+        amount: float = None,
+        transaction_type: str = None,
+    ) -> tuple[Category, float, str]:
         """
-        Auto-categorize a transaction using all available methods.
+        Auto-categorize a transaction using AI-powered categorization.
 
         This is the main entry point for auto-categorization.
-        Currently uses keyword matching; AI methods added later.
+        Uses the AI Orchestrator which implements tiered fallback:
 
         CATEGORIZATION FLOW:
         1. Try keyword matching (instant, no API calls)
-        2. [FUTURE] Try HuggingFace model
-        3. [FUTURE] Try Gemini API fallback
-        4. If all fail, return "Unknown" category
+        2. Try HuggingFace DistilBERT model (local, 80% accuracy)
+        3. Try Gemini API fallback (when HuggingFace confidence < 70%)
+        4. If all fail or confidence < 50%, return "Unknown" category
 
         Args:
             merchant_name: Transaction merchant name or description
+            amount: Optional transaction amount (helps with context)
+            transaction_type: Optional "expense" or "income"
 
         Returns:
             Tuple of (category, confidence, source)
@@ -357,26 +364,58 @@ class CategoryService:
             >>> category, conf, source = CategoryService.auto_categorize("Shell Gas")
             >>> print(f"{category.name} ({source}): {conf}")
             >>> # "Transportation (keyword): 1.0"
+
+        Notes:
+            - Keyword matching returns confidence 1.0 (exact matches)
+            - HuggingFace returns model confidence (typically 0.5-0.95)
+            - Gemini returns confidence from its assessment
+            - Results with alternatives have confidence < 70%
         """
-        # Step 1: Try keyword matching
-        category, confidence = cls.categorize_by_keyword(merchant_name)
-        if category:
-            return category, confidence, "keyword"
+        try:
+            # Try AI Orchestrator (handles all tiers)
+            from app.ai.orchestrator import get_orchestrator
 
-        # Step 2: [FUTURE] Try HuggingFace model
-        # category, confidence = cls.categorize_with_huggingface(merchant_name)
-        # if category and confidence >= 0.7:
-        #     return category, confidence, "huggingface"
+            orchestrator = get_orchestrator()
 
-        # Step 3: [FUTURE] Try Gemini fallback
-        # category, confidence = cls.categorize_with_gemini(merchant_name)
-        # if category and confidence >= 0.5:
-        #     return category, confidence, "gemini"
+            # Get categorization result
+            result = orchestrator.categorize(
+                merchant_name=merchant_name,
+                amount=amount,
+                transaction_type=transaction_type,
+            )
 
-        # Step 4: No match - return Unknown
-        unknown = cls.get_unknown_category()
-        logger.info(f"Auto-categorize failed for '{merchant_name}' -> Unknown")
-        return unknown, 0.0, "unknown"
+            # Get the category from the result
+            category_id = result.get("category_id")
+            confidence = result.get("confidence", 0.0)
+            source = result.get("source", "unknown")
+
+            if category_id:
+                category = cls.get_by_id(category_id)
+                if category:
+                    logger.info(
+                        f"Auto-categorize '{merchant_name}' -> "
+                        f"{category.name} ({source}: {confidence:.0%})"
+                    )
+                    return category, confidence, source
+
+            # Fall back to Unknown
+            unknown = cls.get_unknown_category()
+            return unknown, 0.0, "unknown"
+
+        except Exception as e:
+            logger.error(
+                f"AI categorization failed for '{merchant_name}': {e}",
+                exc_info=True,
+            )
+
+            # Fallback: Try keyword matching directly
+            category, confidence = cls.categorize_by_keyword(merchant_name)
+            if category:
+                return category, confidence, "keyword"
+
+            # Final fallback - return Unknown
+            unknown = cls.get_unknown_category()
+            return unknown, 0.0, "unknown"
 
     # =========================================================================
     # AI HELPER METHODS

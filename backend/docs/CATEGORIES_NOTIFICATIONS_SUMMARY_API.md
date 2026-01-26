@@ -762,5 +762,5 @@ pytest tests/integration/test_sprint2_endpoints.py -v
 ## 👥 Contact
 
 Questions about these endpoints:
-- **Backend:** Suryadi Zhang (suryadizhang86@gmail.com)
-- **Frontend:** Joseph Vigil (joeyvigil109329@gmail.com)
+- **Backend:** See README.md for team contacts
+- **Frontend:** See README.md for team contacts
