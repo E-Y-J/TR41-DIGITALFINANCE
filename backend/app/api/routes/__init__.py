@@ -30,6 +30,9 @@ from app.api.routes.summary import bp as summary_bp
 from app.api.routes.alerts import alerts_bp
 from app.api.routes.budgets import bp as budgets_bp
 
+# AI Integration: Chat, Categorization, Insights
+from app.api.routes.ai import bp as ai_bp
+
 __all__ = [
     # Core routes
     "auth_bp",
@@ -43,4 +46,6 @@ __all__ = [
     "summary_bp",
     "alerts_bp",
     "budgets_bp",
+    # AI Integration routes
+    "ai_bp",
 ]

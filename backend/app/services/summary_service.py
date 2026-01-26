@@ -298,14 +298,19 @@ class SummaryService:
         Returns:
             Dictionary with 'income' and 'expense' Decimal values
         """
+        # Convert dates to ISO strings for VARCHAR comparison
+        # Transaction.date is stored as VARCHAR per ERD specification
+        start_str = start_date.isoformat()
+        end_str = end_date.isoformat()
+
         # Query for income total
         income_result = (
             db.session.query(func.coalesce(func.sum(Transaction.amount), 0))
             .filter(
                 Transaction.user_id == user_id,
                 Transaction.transaction_type == TransactionType.INCOME,
-                Transaction.date >= start_date,
-                Transaction.date <= end_date,
+                Transaction.date >= start_str,
+                Transaction.date <= end_str,
             )
             .scalar()
         )
@@ -316,8 +321,8 @@ class SummaryService:
             .filter(
                 Transaction.user_id == user_id,
                 Transaction.transaction_type == TransactionType.EXPENSE,
-                Transaction.date >= start_date,
-                Transaction.date <= end_date,
+                Transaction.date >= start_str,
+                Transaction.date <= end_str,
             )
             .scalar()
         )
@@ -351,6 +356,10 @@ class SummaryService:
         if transaction_type is None:
             transaction_type = TransactionType.EXPENSE
 
+        # Convert dates to ISO strings for VARCHAR comparison
+        start_str = start_date.isoformat()
+        end_str = end_date.isoformat()
+
         # Query with category join
         # Note: category_id might be null for old transactions
         query = (
@@ -364,8 +373,8 @@ class SummaryService:
             .filter(
                 Transaction.user_id == user_id,
                 Transaction.transaction_type == transaction_type,
-                Transaction.date >= start_date,
-                Transaction.date <= end_date,
+                Transaction.date >= start_str,
+                Transaction.date <= end_str,
             )
             .group_by(
                 Transaction.category_id,
@@ -414,10 +423,14 @@ class SummaryService:
         Returns:
             Number of transactions
         """
+        # Convert dates to ISO strings for VARCHAR comparison
+        start_str = start_date.isoformat()
+        end_str = end_date.isoformat()
+
         return Transaction.query.filter(
             Transaction.user_id == user_id,
-            Transaction.date >= start_date,
-            Transaction.date <= end_date,
+            Transaction.date >= start_str,
+            Transaction.date <= end_str,
         ).count()
 
     # =========================================================================

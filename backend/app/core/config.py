@@ -203,6 +203,16 @@ class Config:
     AI_MODEL_PATH: str = os.getenv("AI_MODEL_PATH", "app/ai/model_store/")
     AI_CONFIDENCE_THRESHOLD: float = float(os.getenv("AI_CONFIDENCE_THRESHOLD", "0.7"))
 
+    # AI Model Enable/Disable Flags (for performance tuning or cost control)
+    AI_INTENT_CLASSIFIER_ENABLED: bool = os.getenv("AI_INTENT_CLASSIFIER_ENABLED", "1") == "1"
+    AI_CATEGORIZER_ENABLED: bool = os.getenv("AI_CATEGORIZER_ENABLED", "1") == "1"
+    AI_GUARDRAILS_ENABLED: bool = os.getenv("AI_GUARDRAILS_ENABLED", "1") == "1"
+    AI_GEMINI_ENABLED: bool = os.getenv("AI_GEMINI_ENABLED", "1") == "1"
+
+    # Gemini Configuration
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+
     # =============================================================================
     # FLASK-SQLALCHEMY COMPATIBILITY
     # These properties expose config values in the format Flask extensions expect

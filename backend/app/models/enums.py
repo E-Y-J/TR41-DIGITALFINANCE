@@ -154,7 +154,7 @@ class NotificationType(enum.Enum):
     """
     Notification type enumeration.
 
-    Defines the 6 core notification types for the application.
+    Defines the notification types for the application.
 
     Values:
         DEFAULT: Generic/system notification
@@ -163,6 +163,7 @@ class NotificationType(enum.Enum):
         EDITED_PROFILE: Profile updated notification
         WEEKLY_SUMMARY_READY: Weekly AI summary available
         CATEGORY_UPDATED: AI re-categorized a transaction
+        AI_CLARIFICATION: AI needs user clarification for categorization
 
     Notification System:
         Types requested by frontend team for notification UI.
@@ -179,6 +180,7 @@ class NotificationType(enum.Enum):
     EDITED_PROFILE = "edited_profile"
     WEEKLY_SUMMARY_READY = "weekly_summary_ready"
     CATEGORY_UPDATED = "category_updated"
+    AI_CLARIFICATION = "ai_clarification"
 
 
 class AISource(enum.Enum):
