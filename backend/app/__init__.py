@@ -195,9 +195,14 @@ def _register_blueprints(app: Flask) -> None:
 
     app.register_blueprint(budgets_bp)  # url_prefix already set in blueprint
 
+    # Loan routes
+    from app.api.routes.loan import bp as loans_bp
+
+    app.register_blueprint(loans_bp, url_prefix="/api/loans")
+
     logger.debug(
         "Registered blueprints: auth, users, transactions, test, "
-        "categories, notifications, summary, alerts, budgets"
+        "categories, notifications, summary, alerts, budgets, loans"
     )
 
 

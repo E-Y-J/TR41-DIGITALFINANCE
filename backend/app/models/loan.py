@@ -4,11 +4,11 @@
 # =============================================================================
 
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from decimal import Decimal
 from typing import Optional, TYPE_CHECKING
 
-from sqlalchemy import String, Date, DateTime, Numeric, Enum, ForeignKey
+from sqlalchemy import CheckConstraint, String, Date, DateTime, Numeric, Enum, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -28,11 +28,26 @@ class Loan(db.Model):
     MVP Scope:
         - Tracks original and remaining balance
         - Supports active vs closed loans
-        - Categorized under Financial Services by default
+        - Categorized under Financial Services by default (service layer assigns default)
     """
 
     __tablename__ = "loans"
 
+     __table_args__ = (
+        CheckConstraint(
+            "original_amount >= 0",
+            name="ck_loan_original_amount_positive",
+        ),
+        CheckConstraint(
+            "remaining_amount >= 0",
+            name="ck_loan_remaining_amount_positive",
+        ),
+        CheckConstraint(
+            "remaining_amount <= original_amount",
+            name="ck_loan_remaining_lte_original",
+        ),
+    )
+    
     # =========================================================================
     # PRIMARY KEY
     # =========================================================================
@@ -94,13 +109,13 @@ class Loan(db.Model):
         doc="Remaining loan balance",
     )
 
-    start_date: Mapped[Optional[datetime]] = mapped_column(
+    start_date: Mapped[Optional[date]] = mapped_column(
         Date,
         nullable=True,
         doc="Loan start date",
     )
 
-    end_date: Mapped[Optional[datetime]] = mapped_column(
+    end_date: Mapped[Optional[date]] = mapped_column(
         Date,
         nullable=True,
         doc="Loan payoff/closure date",
@@ -165,12 +180,19 @@ class Loan(db.Model):
         Percentage of loan paid off.
 
         Used by frontend progress ring.
+
+        Safe calculation: prevents negative values or >100%.
         """
         if self.original_amount == 0:
             return 0
 
-        paid = self.original_amount - self.remaining_amount
-        return int((paid / self.original_amount) * 100)
+        paid = max(self.original_amount - self.remaining_amount, Decimal("0"))
+        percentage = (paid / self.original_amount) * 100
+        return min(round(percentage), 100)
+
+    # =========================================================================
+    # REPRESENTATION
+    # =========================================================================
 
     def __repr__(self) -> str:
-        return f"<Loan {self.name} ({self.status.value})>"
+        return f"<Loan {self.name} ({self.status.value}) id={self.id}>"

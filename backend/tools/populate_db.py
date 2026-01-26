@@ -210,6 +210,15 @@ class Command:
                 "account_status": "active",
                 "role": "user",
             },
+            {
+                "auth0_id": "google-oauth2|115671326262146450498",
+                "email": "resendiz.ariel6@gmail.com",
+                "first_name": "Ariel",
+                "last_name": "Resendiz",
+                "nickname": "arielr",
+                "account_status": "active",
+                "role": "user"
+            },
         ]
         created_users = []
 
