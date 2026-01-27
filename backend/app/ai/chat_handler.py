@@ -86,42 +86,145 @@ class Intent:
 
 
 class ChatSession:
-    """Maintains state for a user's chat conversation."""
+    """
+    Maintains state for a user's chat conversation.
 
-    def __init__(self, user_id: UUID):
+    This class wraps the database-backed AISession model to provide
+    a compatible interface while persisting data across restarts.
+
+    The actual data is stored in:
+    - ai_sessions table: conversation history, last_intent
+    - pending_actions table: actions awaiting confirmation
+    """
+
+    def __init__(self, user_id: UUID, db_session=None):
         self.user_id = user_id
-        self.pending_action: Optional[Dict[str, Any]] = None
-        self.last_intent: Optional[str] = None
-        self.conversation_history: List[Dict[str, str]] = []
+        self._db_session = db_session  # SQLAlchemy AISession model
+        self._pending_action: Optional[Dict[str, Any]] = None
         self.created_at = datetime.now(timezone.utc)
         self.updated_at = datetime.now(timezone.utc)
 
+        # Load from DB if available
+        self._load_from_db()
+
+    def _load_from_db(self):
+        """Load session state from database."""
+        try:
+            from app.models.ai_session import AISession, PendingAction
+            from app.core.extensions import db
+
+            # Get or create DB session
+            self._db_session = AISession.get_or_create(self.user_id)
+            db.session.commit()
+
+            # Load pending action
+            pending = PendingAction.get_pending_for_user(self.user_id)
+            if pending and not pending.is_expired():
+                self._pending_action = pending.action_data
+                self._pending_action["_db_id"] = str(pending.id)
+
+        except Exception as e:
+            # Fallback to in-memory if DB unavailable
+            logger.warning(f"DB session load failed, using in-memory: {e}")
+            self._db_session = None
+
+    @property
+    def pending_action(self) -> Optional[Dict[str, Any]]:
+        """Get pending action."""
+        return self._pending_action
+
+    @property
+    def last_intent(self) -> Optional[str]:
+        """Get last intent from DB session."""
+        if self._db_session:
+            return self._db_session.last_intent
+        return None
+
+    @last_intent.setter
+    def last_intent(self, value: Optional[str]):
+        """Set last intent in DB session."""
+        if self._db_session:
+            self._db_session.last_intent = value
+            try:
+                from app.core.extensions import db
+                db.session.commit()
+            except Exception as e:
+                logger.warning(f"Failed to save last_intent: {e}")
+
+    @property
+    def conversation_history(self) -> List[Dict[str, str]]:
+        """Get conversation history from DB session."""
+        if self._db_session and self._db_session.conversation_history:
+            return list(self._db_session.conversation_history)
+        return []
+
     def add_message(self, role: str, content: str):
         """Add a message to conversation history."""
-        self.conversation_history.append(
-            {"role": role, "content": content, "timestamp": datetime.now(timezone.utc).isoformat()}
-        )
-        # Keep last 20 messages
-        if len(self.conversation_history) > 20:
-            self.conversation_history = self.conversation_history[-20:]
+        if self._db_session:
+            self._db_session.add_message(role, content)
+            try:
+                from app.core.extensions import db
+                db.session.commit()
+            except Exception as e:
+                logger.warning(f"Failed to save message: {e}")
         self.updated_at = datetime.now(timezone.utc)
 
     def set_pending_action(self, action: Dict[str, Any]):
         """Set a pending action that needs confirmation."""
-        self.pending_action = action
+        self._pending_action = action
         self.updated_at = datetime.now(timezone.utc)
+
+        # Store in DB
+        try:
+            from app.models.ai_session import PendingAction
+            from app.core.extensions import db
+
+            # Cancel any existing pending actions
+            existing = PendingAction.get_pending_for_user(self.user_id)
+            if existing:
+                existing.cancel()
+
+            # Create new pending action
+            db_action = PendingAction.create(
+                user_id=self.user_id,
+                action_type=action.get("type", "unknown"),
+                action_data=action,
+                session_id=self._db_session.id if self._db_session else None,
+            )
+            db.session.commit()
+
+            # Store DB ID for later reference
+            self._pending_action["_db_id"] = str(db_action.id)
+
+        except Exception as e:
+            logger.warning(f"Failed to save pending action to DB: {e}")
 
     def clear_pending_action(self):
         """Clear the pending action."""
-        self.pending_action = None
+        # Update DB
+        if self._pending_action and "_db_id" in self._pending_action:
+            try:
+                from app.models.ai_session import PendingAction
+                from app.core.extensions import db
+                from uuid import UUID as UUIDType
+
+                db_id = UUIDType(self._pending_action["_db_id"])
+                pending = PendingAction.query.get(db_id)
+                if pending:
+                    pending.confirm()
+                    db.session.commit()
+            except Exception as e:
+                logger.warning(f"Failed to clear pending action in DB: {e}")
+
+        self._pending_action = None
         self.updated_at = datetime.now(timezone.utc)
 
     def get_context(self) -> Dict[str, Any]:
         """Get session context for AI."""
         return {
-            "has_pending_action": bool(self.pending_action),
+            "has_pending_action": bool(self._pending_action),
             "pending_action_type": (
-                self.pending_action.get("type") if self.pending_action else None
+                self._pending_action.get("type") if self._pending_action else None
             ),
             "last_intent": self.last_intent,
             "message_count": len(self.conversation_history),
@@ -225,8 +328,10 @@ class ChatHandler:
         return self._sessions[user_id]
 
     def _cleanup_sessions(self):
-        """Remove expired sessions."""
+        """Remove expired sessions from memory and database."""
         now = datetime.now(timezone.utc)
+
+        # Clean in-memory cache
         expired = [
             uid
             for uid, session in self._sessions.items()
@@ -235,6 +340,20 @@ class ChatHandler:
         ]
         for uid in expired:
             del self._sessions[uid]
+
+        # Clean expired DB sessions (periodically, not every call)
+        if hasattr(self, "_last_db_cleanup"):
+            if (now - self._last_db_cleanup).total_seconds() < 300:  # Every 5 mins
+                return
+
+        try:
+            from app.models.ai_session import AISession, PendingAction
+
+            AISession.cleanup_expired()
+            PendingAction.cleanup_expired()
+            self._last_db_cleanup = now
+        except Exception as e:
+            logger.debug(f"DB cleanup skipped: {e}")
 
     def process_message(
         self,
