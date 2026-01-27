@@ -33,7 +33,7 @@ class Loan(db.Model):
 
     __tablename__ = "loans"
 
-     __table_args__ = (
+    __table_args__ = (
         CheckConstraint(
             "original_amount >= 0",
             name="ck_loan_original_amount_positive",
@@ -168,6 +168,7 @@ class Loan(db.Model):
 
     category: Mapped["Category"] = relationship(
         "Category",
+        backref="loans",
     )
 
     # =========================================================================

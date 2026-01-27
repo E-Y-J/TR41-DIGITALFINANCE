@@ -13,6 +13,7 @@ from app.schemas.loan_schema import (
     loan_schema,
     loan_list_schema,
     loan_create_schema,
+    loan_update_schema,
     )
 from app.utils.helpers import success_response
 from app.utils.errors import ValidationError
@@ -46,6 +47,10 @@ def get_loans():
     """
     user = g.current_user
     status_filter = request.args.get("status")
+    
+    if status_filter and status_filter not in ["open", "closed"]:
+        raise ValidationError("Invalid status filter. Must be 'open' or 'closed'.")
+
     
     loans = LoanService.get_all(user.id, status_filter=status_filter)
 
@@ -148,7 +153,8 @@ def update_loan(loan_id: str):
     except ValueError:
         raise ValidationError("Invalid loan_id UUID format")
 
-    updated_loan = LoanService.update(user.id, loan_uuid, data)
+    validated_data = loan_update_schema.load(data)
+    updated_loan = LoanService.update(user.id, loan_uuid, validated_data)
 
     return success_response(
         data=loan_schema.dump(updated_loan),

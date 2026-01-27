@@ -35,8 +35,8 @@ class LoanSchema(BaseSchema):
 
     # Foreign keys
     user_id = fields.UUID(dump_only=True)
-    budget_id = fields.UUID(allow_none=True)
-    category_id = fields.UUID(required=True)
+    budget_id = fields.UUID(dump_only=True, allow_none=True)
+    category_id = fields.UUID(dump_only=True)
 
     # Computed fields
     user_name = fields.String(dump_only=True)
@@ -111,9 +111,18 @@ class LoanUpdateSchema(BaseSchema):
 
     All fields optional.
     """
-
     class Meta:
         unknown = EXCLUDE
+
+    @validates_schema
+    def validate_close_with_balance(self, data, **kwargs):
+        if data.get("status") == LoanStatus.CLOSED.value:
+            remaining = data.get("remaining_amount")
+            if remaining is not None and remaining > 0:
+                raise ValidationError(
+                    "Cannot close a loan with a remaining balance greater than 0.",
+                    field_name="status",
+                )
 
     name = fields.String()
     original_amount = fields.Decimal(places=2, as_string=True, validate=validate.Range(min=Decimal("0.01")))
