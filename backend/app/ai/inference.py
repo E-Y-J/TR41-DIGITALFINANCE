@@ -85,20 +85,16 @@ class TransactionClassifier:
 
 if __name__ == "__main__":
     classifier = TransactionClassifier()
-    test_cases = ["Walmart", "Check #105", "Uber Trip"]
-    edge_cases = [
-        "SHELL OIL 12345",          
-        "SHELL POINT MORTGAGE",     
-        "CHECK #105",               
-        "TARGET DEBIT CARD PAY",    
-        "ATM WDL 554300",           
-        "7-ELEVEN"                  
+    hard_cases = [
+        "Costco Whse Gasoline Pump 04",
+        "Target Store CVS Pharmacy",
+        "Target Store groceries", 
+        "SQ *DR JOHNS PET SERVICES",
+        "Amazon Prime Video Subscription", 
+        "Amazon New Bicycle Parts",      
+        "7-Eleven Fuel Station"           
     ]
-    for tx in test_cases:
+
+    for tx in hard_cases:
         label, conf = classifier.predict(tx)
-        print(f"Input: {tx} | Predicted: {label} | Confidence: {conf}")
-        
-    print("\n--- EDGE CASES ---")
-    for tx in edge_cases:
-        label, conf = classifier.predict(tx)
-        print(f"Input: {tx} | Predicted: {label} | Confidence: {conf} ")
+        print(f"Input: {tx:<35} | Pred: {label:<20} | Conf: {conf:.1%}")
