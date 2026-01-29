@@ -28,6 +28,18 @@ export const AddTransactionModal = ({ open, onClose }) => {
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = () => {
+    const { merchant_name, amount, date } = form;
+
+    if (!merchant_name || !amount || !date) {
+      console.error("Cannot submit transaction: required fields are missing.", {
+        merchant_name,
+        amount,
+        date,
+      });
+      // Basic user feedback to prevent silent failure
+      window.alert("Please fill in Merchant, Amount, and Date before submitting.");
+      return;
+    }
     console.log("Submitting:", form);
     onClose();
   };
