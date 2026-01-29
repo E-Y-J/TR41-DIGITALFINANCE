@@ -148,8 +148,8 @@ const DashboardLayout = () => {
         sx={{
           flexGrow: 1,
           height: "100vh",
-          overflow: "hidden",
           display: "flex",
+          overflow: "auto",
           flexDirection: "column",
           bgcolor: "#F8FAFC",
         }}

@@ -146,7 +146,7 @@ const TransactionTable = ({ data = [], isDashboard = false }) => {
       <Table
         aria-label="transaction table"
         sx={{
-          tableLayout: "fixed",
+          width: "100%",
           minWidth: { xs: "100%", sm: 400 },
         }}
       >
@@ -226,7 +226,6 @@ const TransactionTable = ({ data = [], isDashboard = false }) => {
                       borderBottom: "1px solid",
                       borderColor: "divider",
                     },
-                    "&:last-child td": { borderBottom: 0 },
                     transition: "all 0.2s",
                     "&:hover": {
                       bgcolor: alpha(theme.palette.primary.main, 0.04),
@@ -370,16 +369,31 @@ const TransactionTable = ({ data = [], isDashboard = false }) => {
           ) : (
             <TableRow>
               <TableCell
-                colSpan={5}
+                colSpan={10}
                 align="center"
                 sx={{
-                  py: 8,
+                  py: 12,
                   color: "text.secondary",
                   fontSize: "1rem",
                   borderBottom: "none",
+                  width: "100%",
                 }}
               >
-                No transactions available.
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                >
+                  <Typography variant="body1">
+                    No transactions available.
+                  </Typography>
+                  <Typography variant="caption">
+                    Try adjusting your filters or search terms.
+                  </Typography>
+                </Box>
               </TableCell>
             </TableRow>
           )}

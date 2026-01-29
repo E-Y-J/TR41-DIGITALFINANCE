@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Box, Container, Paper, Backdrop } from "@mui/material";
-import { useUpdateUser } from "../features/auth/useUpdateUser";
+import { useUpdateUser } from "../features/onboarding/useUpdateUser";
 import PageLoader from "../components/common/PageLoader";
 import OnboardingFormView from "../features/onboarding/components/OnboardingFormView";
 
