@@ -10,7 +10,6 @@ const ChatBubble = ({ handleChatDrawerToggle, user }) => {
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
-  console.log(user);
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
 
@@ -76,7 +75,7 @@ const ChatBubble = ({ handleChatDrawerToggle, user }) => {
             setIsTyping(true);
             handleSendMessage();
           }}
-          user={user?.first_name || "User"}
+          user={user?.first_name ?? ""}
         />
       </Box>
 

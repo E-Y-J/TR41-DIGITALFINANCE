@@ -23,7 +23,7 @@ export const TransactionList = ({ filters, page, setPage }) => {
         </Box>
       ) : (
         <>
-          <TransactionTable data={transactions} showDescription={true} />
+          <TransactionTable data={transactions} />
           <TablePagination
             component="div"
             count={data?.total || 0}
