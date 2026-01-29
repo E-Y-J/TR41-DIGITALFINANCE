@@ -1,23 +1,22 @@
 import { useState, useEffect, useRef } from "react";
-import { Box, IconButton } from "@mui/material";
+import { Box, IconButton, Divider } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
-import MessageList from "./MessageList";
-import ChatInput from "./ChatInput";
+import MessageList from "./components/MessageList";
+import ChatInput from "./components/ChatInput";
 
-const ChatBubble = ({ handleChatDrawerToggle }) => {
+const ChatBubble = ({ handleChatDrawerToggle, user }) => {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
-
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
 
-    // Add User Message
+    // Add User Message, need to implement a way for the messages to be grouped to save in the chat history
     setMessages((prev) => [
       ...prev,
-      { id: Date.now(), text: inputValue, sender: "user" },
+      { id: Date.now(), text: inputValue, sender: user?.nickname || "User" },
     ]);
     setInputValue("");
     setIsTyping(true);
@@ -63,6 +62,7 @@ const ChatBubble = ({ handleChatDrawerToggle }) => {
           <CloseIcon />
         </IconButton>
       </Box>
+      <Divider />
 
       {/* Message List */}
       <Box sx={{ flexGrow: 1, overflowY: "auto", p: 1.75 }}>
@@ -70,6 +70,12 @@ const ChatBubble = ({ handleChatDrawerToggle }) => {
           messages={messages}
           isTyping={isTyping}
           messagesEndRef={messagesEndRef}
+          onSuggestionClick={(text) => {
+            setInputValue(text);
+            setIsTyping(true);
+            handleSendMessage();
+          }}
+          user={user?.first_name ?? ""}
         />
       </Box>
 
