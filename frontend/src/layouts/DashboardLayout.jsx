@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { useGetUser } from "../features/auth/useGetUser";
 import {
   Box,
@@ -71,6 +71,7 @@ const StyledDrawer = styled(MuiDrawer, {
 }));
 
 const DashboardLayout = () => {
+  const location = useLocation();
   const { logout } = useAuth0();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -80,7 +81,6 @@ const DashboardLayout = () => {
   const [desktopOpen, setDesktopOpen] = useState(false);
   const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
   const [isGlobalLoading, setIsGlobalLoading] = useState(false);
-
   const handleLogout = () => {
     setIsGlobalLoading(true);
     setTimeout(() => {
@@ -95,6 +95,8 @@ const DashboardLayout = () => {
   const handleChatDrawerToggle = () => {
     setChatDrawerOpen(!chatDrawerOpen);
   };
+
+  const isAiPage = location.pathname === "/home/ai-assistant";
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -145,62 +147,76 @@ const DashboardLayout = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          minHeight: "100vh",
-          overflow: "auto",
+          height: "100vh",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          bgcolor: "#F8FAFC",
         }}
       >
-        <Toolbar sx={{ minHeight: { xs: 48, sm: 64 } }} />
-        <Box sx={{ mb: 2 }}>
+        <Toolbar sx={{ minHeight: { xs: 48, sm: 64 }, flexShrink: 0 }} />
+        <Box sx={{ p: 3, pb: 0, flexShrink: 0 }}>
           <Breadcrumb />
         </Box>
-        <Outlet />
-        {/* Ai Assistant  */}
-        <Box sx={{ position: "fixed", bottom: 16, right: 16 }}>
-          <IconButton
-            aria-label="chat-assistant"
-            onClick={handleChatDrawerToggle}
-            sx={{
-              transition: "transform 0.15s ease-in-out",
-              p: 1.5,
-              backgroundColor: "primary.light",
-              color: "white",
-              boxShadow: 4,
-              "&:hover": {
-                backgroundColor: "primary.main",
-                transform: "translateY(-3px)",
-                boxShadow: 2,
-              },
-            }}
-          >
-            <ChatIcon sx={{ fontSize: { xs: 20, sm: 30 } }} />
-          </IconButton>
+        <Box sx={{ flexGrow: 1, minHeight: 0 }}>
+          <Outlet />
         </Box>
-        <Drawer
-          anchor="right"
-          variant="persistent"
-          open={chatDrawerOpen}
-          onClose={handleChatDrawerToggle}
-          sx={{
-            width: { xs: drawerWidth, sm: drawerWidth * 1.2 },
-            flexShrink: 0,
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              borderRadius: "24px 0 0 24px",
-              width: {
-                xs: drawerWidth,
-                sm: drawerWidth * 1.2,
-                md: drawerWidth * 1.4,
-              },
-              borderLeft: "2px solid",
-              borderColor: "divider",
-            },
-          }}
-        >
-          <ChatBubble handleChatDrawerToggle={handleChatDrawerToggle} />
-        </Drawer>
-      </Box>
+        {/* Ai Assistant  */}
 
+        {!isAiPage && (
+          <>
+            <Box
+              sx={{
+                position: "fixed",
+                bottom: 16,
+                right: 16,
+                zIndex: 1200,
+              }}
+            >
+              <IconButton
+                aria-label="chat-assistant"
+                onClick={handleChatDrawerToggle}
+                sx={{
+                  transition: "transform 0.15s ease-in-out",
+                  p: 1.5,
+                  backgroundColor: "primary.light",
+                  color: "white",
+                  boxShadow: 4,
+                  "&:hover": {
+                    backgroundColor: "primary.main",
+                    transform: "translateY(-3px)",
+                    boxShadow: 2,
+                  },
+                }}
+              >
+                <ChatIcon sx={{ fontSize: 28 }} />
+              </IconButton>
+            </Box>
+
+            <Drawer
+              anchor="right"
+              open={chatDrawerOpen}
+              onClose={handleChatDrawerToggle}
+              variant="temporary"
+              ModalProps={{ keepMounted: true }}
+              sx={{
+                "& .MuiDrawer-paper": {
+                  boxSizing: "border-box",
+                  width: { xs: "100%", sm: 400 },
+                  borderTopLeftRadius: 16,
+                  borderBottomLeftRadius: 16,
+                  boxShadow: "-4px 0 24px rgba(0,0,0,0.1)",
+                },
+              }}
+            >
+              <ChatBubble
+                handleChatDrawerToggle={handleChatDrawerToggle}
+                user={user}
+              />
+            </Drawer>
+          </>
+        )}
+      </Box>
       {/* Global Loader */}
       <Backdrop
         sx={{

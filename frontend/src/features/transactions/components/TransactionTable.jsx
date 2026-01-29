@@ -9,29 +9,27 @@ import {
   Box,
   Typography,
   Avatar,
-  IconButton,
   Menu,
   MenuItem,
   ListItemIcon,
   alpha,
   useTheme,
+  Chip,
 } from "@mui/material";
 
-// Icons
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
-import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
-import FastfoodIcon from "@mui/icons-material/Fastfood";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
 import TheaterComedyIcon from "@mui/icons-material/TheaterComedy";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
-import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
-import LightbulbIcon from "@mui/icons-material/Lightbulb";
+import FastfoodIcon from "@mui/icons-material/Fastfood";
 import GavelIcon from "@mui/icons-material/Gavel";
+import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
+import LightbulbIcon from "@mui/icons-material/Lightbulb";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 
 const formatDate = (dateString) => {
   if (!dateString) return "";
@@ -44,153 +42,197 @@ const formatDate = (dateString) => {
 
 const getIcon = (categoryName = "") => {
   const lowerName = categoryName.toLowerCase();
-
-  // Charity & Donations
-  if (lowerName.includes("charity") || lowerName.includes("donation")) {
+  if (lowerName.includes("charity"))
     return <VolunteerActivismIcon fontSize="small" />;
-  }
-
-  // Entertainment & Recreation
-  else if (
-    lowerName.includes("entertainment") ||
-    lowerName.includes("recreation")
-  ) {
+  if (lowerName.includes("entertainment"))
     return <TheaterComedyIcon fontSize="small" />;
-  }
-  // Financial Services
-  else if (lowerName.includes("financial")) {
+  if (lowerName.includes("financial"))
     return <AccountBalanceIcon fontSize="small" />;
-  }
-
-  // Food & Dining
-  else if (lowerName.includes("food") || lowerName.includes("dining")) {
-    return <FastfoodIcon fontSize="small" />;
-  }
-
-  // Government & Legal
-  else if (lowerName.includes("government") || lowerName.includes("legal")) {
-    return <GavelIcon fontSize="small" />;
-  }
-
-  // Healthcare & Medical
-  else if (lowerName.includes("health") || lowerName.includes("medical")) {
+  if (lowerName.includes("food")) return <FastfoodIcon fontSize="small" />;
+  if (lowerName.includes("government")) return <GavelIcon fontSize="small" />;
+  if (lowerName.includes("health"))
     return <MedicalServicesIcon fontSize="small" />;
-  }
-
-  // Income
-  else if (lowerName.includes("income") || lowerName.includes("salary")) {
-    return <AttachMoneyIcon fontSize="small" />;
-  }
-
-  // Shopping & Retail
-  else if (lowerName.includes("shopping") || lowerName.includes("retail")) {
+  if (lowerName.includes("income")) return <AttachMoneyIcon fontSize="small" />;
+  if (lowerName.includes("shopping"))
     return <ShoppingBagIcon fontSize="small" />;
-  }
-
-  // Transportation
-  else if (lowerName.includes("transportation")) {
+  if (lowerName.includes("transportation"))
     return <DirectionsCarIcon fontSize="small" />;
-  }
-
-  // Utilities & Services
-  else if (lowerName.includes("utilit") || lowerName.includes("services")) {
-    return <LightbulbIcon fontSize="small" />;
-  }
-
-  // Fallback Icon
-  else {
-    return <LocalOfferIcon fontSize="small" />;
-  }
+  if (lowerName.includes("utilit")) return <LightbulbIcon fontSize="small" />;
+  return <LocalOfferIcon fontSize="small" />;
 };
 
-const TransactionTable = ({ data }) => {
+const TransactionTable = ({ data = [], isDashboard = false }) => {
   const theme = useTheme();
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-
-  const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const [contextMenu, setContextMenu] = useState(null);
+  const [selectedRow, setSelectedRow] = useState(null);
 
   const handleMenuClose = () => {
-    setAnchorEl(null);
+    setContextMenu(null);
+  };
+
+  const handleRowClick = (event, row) => {
+    event.preventDefault();
+    setSelectedRow(row);
+    setContextMenu(
+      contextMenu === null
+        ? {
+            mouseX: event.clientX + 2,
+            mouseY: event.clientY - 6,
+          }
+        : null,
+    );
   };
 
   const headerStyle = {
     color: "text.secondary",
-    fontSize: "0.825rem",
-    fontWeight: 600,
+    fontSize: "0.75rem",
+    fontWeight: 700,
     textTransform: "uppercase",
-    letterSpacing: "1px",
+    letterSpacing: "0.5px",
     borderBottom: "1px solid",
     borderColor: "divider",
-    pb: 1,
+    pb: 1.5,
+    whiteSpace: "nowrap",
+  };
+
+  const getStatusChip = (status = "completed") => {
+    const s = status.toLowerCase();
+    let label = status;
+
+    if (s === "completed" || s === "posted") {
+      label = "Posted";
+    } else if (s === "pending") {
+      label = "Pending";
+    } else if (s === "failed") {
+      label = "Failed";
+    }
+
+    return (
+      <Chip
+        label={label}
+        size="small"
+        variant="outlined"
+        sx={{
+          height: 24,
+          fontSize: "0.75rem",
+          fontWeight: 600,
+          border: "1px solid",
+          borderColor:
+            s === "pending"
+              ? "warning.light"
+              : s === "completed"
+                ? "success.light"
+                : "error.light",
+          bgcolor:
+            s === "pending"
+              ? alpha(theme.palette.warning.main, 0.05)
+              : s === "completed"
+                ? alpha(theme.palette.success.main, 0.05)
+                : alpha(theme.palette.error.main, 0.05),
+          color:
+            s === "pending"
+              ? "warning.dark"
+              : s === "completed"
+                ? "success.dark"
+                : "error.dark",
+          "& .MuiChip-icon": { color: "inherit" },
+        }}
+      />
+    );
   };
 
   return (
-    <TableContainer sx={{ width: "100%", overflow: "hidden" }}>
-      <Table aria-label="transaction table" sx={{ tableLayout: "fixed" }}>
+    <TableContainer sx={{ width: "100%", overflowX: "auto" }}>
+      <Table
+        aria-label="transaction table"
+        sx={{
+          tableLayout: "fixed",
+          minWidth: { xs: "100%", sm: 400 },
+        }}
+      >
         <TableHead>
           <TableRow>
             <TableCell
               sx={{
                 ...headerStyle,
+                width: "120px",
                 pl: 0,
                 display: { xs: "none", sm: "table-cell" },
-                width: "25%",
               }}
             >
               Date
             </TableCell>
-            <TableCell sx={{ ...headerStyle, pl: { xs: 0, sm: 2 } }}>
+
+            <TableCell
+              sx={{
+                ...headerStyle,
+                pl: { xs: 0, sm: 2 },
+                width: "auto",
+              }}
+            >
               Merchant
             </TableCell>
+            {isDashboard ? null : (
+              <TableCell
+                sx={{
+                  ...headerStyle,
+                  width: "100px",
+                  minWidth: "100px",
+                  display: { xs: "none", md: "table-cell" },
+                }}
+              >
+                Status
+              </TableCell>
+            )}
+
             <TableCell
               align="right"
-              sx={{ ...headerStyle, width: { xs: "25%", sm: "20%" } }}
+              sx={{
+                ...headerStyle,
+                width: { xs: "90px", sm: "120px" },
+                minWidth: { xs: "90px", sm: "120px" },
+              }}
             >
               Amount
             </TableCell>
-            <TableCell sx={{ ...headerStyle, width: "40px", pr: 0 }} />
           </TableRow>
         </TableHead>
 
         <TableBody>
           {data && data.length > 0 ? (
             data.map((row, index) => {
-              // Date Grouping Logic
               const currentFormattedDate = formatDate(row.date);
               const prevFormattedDate =
                 index > 0 ? formatDate(data[index - 1].date) : null;
               const showDate =
                 index === 0 || currentFormattedDate !== prevFormattedDate;
-
-              // Income vs Expense Logic
               const isIncome = row.transaction_type === "income";
               const amountColor = isIncome ? "success.main" : "text.primary";
               const amountPrefix = isIncome ? "+" : "";
-
-              // Format Amount as Currency
               const formattedAmount = `${amountPrefix}$${parseFloat(row.amount).toFixed(2)}`;
+
+              const rowStatus =
+                row.status || (index === 0 ? "pending" : "completed");
 
               return (
                 <TableRow
                   key={row.id}
+                  hover
+                  onClick={(event) => handleRowClick(event, row)}
                   sx={{
-                    "& td, & th": {
-                      py: 1.5,
-                      borderBottom: "none",
+                    cursor: "pointer",
+                    "& td": {
+                      py: 2,
+                      borderBottom: "1px solid",
+                      borderColor: "divider",
                     },
-                    borderTop:
-                      showDate && index !== 0 ? "1px solid #f0f0f0" : "none",
-                    borderColor: "divider",
-                    transition: "background-color 0.2s",
+                    "&:last-child td": { borderBottom: 0 },
+                    transition: "all 0.2s",
                     "&:hover": {
                       bgcolor: alpha(theme.palette.primary.main, 0.04),
                     },
                   }}
                 >
-                  {/* DATE CELL  */}
                   <TableCell
                     sx={{
                       pl: 0,
@@ -216,17 +258,24 @@ const TransactionTable = ({ data }) => {
                     )}
                   </TableCell>
 
-                  {/* MERCHANT INFO CELL */}
                   <TableCell
                     component="th"
                     scope="row"
                     sx={{
                       verticalAlign: "top",
                       pl: { xs: 0, sm: 2 },
+                      width: "auto",
+                      maxWidth: 0,
+                      overflow: "hidden",
                     }}
                   >
-                    <Box sx={{ display: "flex", flexDirection: "column" }}>
-                      {/* Mobile Date Header */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        minWidth: 0,
+                      }}
+                    >
                       <Box sx={{ display: { xs: "block", sm: "none" }, mb: 1 }}>
                         {showDate && (
                           <Typography
@@ -247,7 +296,8 @@ const TransactionTable = ({ data }) => {
                         sx={{
                           display: "flex",
                           alignItems: "center",
-                          gap: 1.5,
+                          gap: 1,
+                          minWidth: 0,
                         }}
                       >
                         <Avatar
@@ -258,63 +308,61 @@ const TransactionTable = ({ data }) => {
                             width: 32,
                             height: 32,
                             borderRadius: 3,
+                            flexShrink: 0,
                           }}
                         >
                           {getIcon(row.category_name)}
                         </Avatar>
-                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Box sx={{ minWidth: 0, flex: 1, overflow: "hidden" }}>
                           <Typography
                             variant="body2"
                             fontWeight={600}
                             color="text.primary"
                             noWrap
-                            sx={{ fontSize: "0.875rem" }}
+                            sx={{
+                              fontSize: { xs: "0.8rem", sm: "0.875rem" },
+                              display: "block",
+                            }}
                           >
                             {row.merchant_name || "Unknown Merchant"}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            sx={{ display: "block", mt: -0.2 }}
-                          >
-                            {row.category_name || "General"}
                           </Typography>
                         </Box>
                       </Box>
                     </Box>
                   </TableCell>
 
-                  {/* AMOUNT CELL */}
-                  <TableCell align="right" sx={{ verticalAlign: "top" }}>
+                  {isDashboard ? null : (
+                    <TableCell
+                      sx={{
+                        verticalAlign: "middle",
+                        display: { xs: "none", md: "table-cell" },
+                      }}
+                    >
+                      {getStatusChip(rowStatus)}
+                    </TableCell>
+                  )}
+
+                  <TableCell
+                    align="right"
+                    sx={{
+                      verticalAlign: "top",
+                      pr: 0,
+                      width: { xs: "90px", sm: "120px" },
+                      minWidth: { xs: "90px", sm: "120px" },
+                    }}
+                  >
                     <Typography
                       variant="body2"
                       fontWeight={700}
+                      noWrap
                       sx={{
-                        fontSize: "0.875rem",
-                        mt: { xs: showDate ? 3.5 : 0.5, sm: 0.5 },
+                        fontSize: { xs: "0.8rem", sm: "0.875rem" },
+                        mt: { xs: showDate ? 3.2 : 0.5, sm: 0.5 },
                         color: amountColor,
                       }}
                     >
                       {formattedAmount}
                     </Typography>
-                  </TableCell>
-
-                  {/* ACTIONS CELL */}
-                  <TableCell align="right" sx={{ pr: 0, verticalAlign: "top" }}>
-                    <IconButton
-                      disableFocusRipple
-                      disableRipple
-                      disableTouchRipple
-                      size="small"
-                      onClick={handleMenuClick}
-                      sx={{
-                        color: "text.secondary",
-                        p: 0.5,
-                        mt: { xs: showDate ? 3 : 0, sm: 0 },
-                      }}
-                    >
-                      <MoreVertIcon fontSize="small" />
-                    </IconButton>
                   </TableCell>
                 </TableRow>
               );
@@ -322,7 +370,7 @@ const TransactionTable = ({ data }) => {
           ) : (
             <TableRow>
               <TableCell
-                colSpan={4}
+                colSpan={5}
                 align="center"
                 sx={{
                   py: 8,
@@ -338,33 +386,69 @@ const TransactionTable = ({ data }) => {
         </TableBody>
       </Table>
 
-      {/* Menu Logic */}
       <Menu
-        anchorEl={anchorEl}
-        open={open}
+        open={contextMenu !== null}
         onClose={handleMenuClose}
+        anchorReference="anchorPosition"
+        anchorPosition={
+          contextMenu !== null
+            ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+            : undefined
+        }
         slotProps={{
           paper: {
             elevation: 3,
             sx: {
               borderRadius: 2,
-              minWidth: 120,
+              minWidth: 180,
               overflow: "visible",
               filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-              mt: 1.5,
+              mt: 0,
             },
           },
         }}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={handleMenuClose}>
+        <Box
+          sx={{
+            px: 2,
+            py: 1.5,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            bgcolor: "grey.50",
+            outline: "none",
+          }}
+        >
+          <Typography
+            variant="caption"
+            display="block"
+            color="text.secondary"
+            fontWeight={700}
+            sx={{ fontSize: "0.7rem" }}
+          >
+            MANAGE
+          </Typography>
+          <Typography
+            variant="body2"
+            fontWeight={600}
+            noWrap
+            sx={{ maxWidth: 200 }}
+          >
+            {selectedRow?.merchant_name || "Transaction"}
+          </Typography>
+        </Box>
+
+        <MenuItem onClick={handleMenuClose} dense sx={{ py: 1, mt: 0.5 }}>
           <ListItemIcon>
             <EditIcon fontSize="small" />
           </ListItemIcon>
           Edit
         </MenuItem>
-        <MenuItem onClick={handleMenuClose} sx={{ color: "error.main" }}>
+
+        <MenuItem
+          onClick={handleMenuClose}
+          dense
+          sx={{ color: "error.main", py: 1 }}
+        >
           <ListItemIcon>
             <DeleteIcon fontSize="small" color="error" />
           </ListItemIcon>

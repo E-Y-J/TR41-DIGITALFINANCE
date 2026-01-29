@@ -12,7 +12,6 @@ export default function HomePage() {
   return (
     <Box
       sx={{
-        bgcolor: "background.default",
         p: { xs: 2, md: 3 },
         minHeight: "100vh",
       }}
