@@ -76,7 +76,7 @@ const ChatBubble = ({ handleChatDrawerToggle, user }) => {
             setIsTyping(true);
             handleSendMessage();
           }}
-          user={user.first_name}
+          user={user?.first_name ?? ""}
         />
       </Box>
 
