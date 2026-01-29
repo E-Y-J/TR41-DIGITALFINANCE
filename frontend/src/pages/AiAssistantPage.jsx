@@ -15,7 +15,7 @@ const MOCK_HISTORY = [
     date: "Today",
     messages: [
       { id: 101, sender: "user", text: "Help me plan my budget" },
-      { id: 102, sender: "ai", text: "Sure! Lets start with your income." },
+      { id: 102, sender: "ai", text: "Sure! Let's start with your income." },
     ],
   },
 ];
