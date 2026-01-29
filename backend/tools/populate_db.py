@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Classes controlling the CLI command to populate the database with dummy data.
-Run with: python tools/populate_db.py --users 10 --transactions 50
+Run with: python tools/populate_db.py --users 10
 """
 
 # MARK: Imports
@@ -9,8 +9,9 @@ import sys
 import random
 import uuid
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from argparse import ArgumentParser
+from decimal import Decimal
 
 from faker import Faker
 
@@ -25,6 +26,7 @@ try:
     from app.models.user import User
     from app.models.category import Category
     from app.models.transaction import Transaction, TransactionType, AISource
+    from app.models.loan import Loan, LoanStatus
 except ImportError as e:
     print(f"Error importing Flask app: {e}")
     print(f"Current sys.path: {sys.path}")
@@ -57,6 +59,12 @@ class Command:
             default=25,
             help="Number of transaction objects to create",
         )
+        parser.add_argument(
+            "--loans",
+            type=int,
+            default=10,
+            help="Number of loans to create for users",
+        )
 
     def handle(self, args) -> None:
         """
@@ -64,6 +72,7 @@ class Command:
         """
         num_users = args.users
         num_transactions = args.transactions
+        num_loans = args.loans
 
         with self.app.app_context():
             # MARK: Clear Data
@@ -99,26 +108,41 @@ class Command:
             created_count += len(specific_users)
 
             db.session.commit()
+            all_users = users + specific_users
             self.stdout_write(f"Successfully created {created_count} users total.")
 
-            # MARK: Create Transactions
-            self.stdout_write(f"Creating {num_transactions} transactions...")
-            for _ in range(num_transactions):
-                transaction = self.make_fake_transaction(users, categories)
-                db.session.add(transaction)
-
-            for _ in range(15):
-                transaction = self.make_fake_transaction(specific_users, categories)
-                db.session.add(transaction)
+            # -----------------------------
+            # Transactions for ALL USERS
+            # -----------------------------
+            self.stdout_write("Creating transactions for all users...")
+            for user in all_users:
+                for _ in range(5):  # 5 transactions per user
+                    transaction = self.make_fake_transaction([user], categories)
+                    db.session.add(transaction)
 
             try:
                 db.session.commit()
-                self.stdout_write(
-                    f"Successfully created {num_transactions} transactions."
-                )
+                self.stdout_write("Successfully created transactions for all users.")
             except Exception as e:
                 db.session.rollback()
                 self.stdout_write(f"Transaction commit failed: {e}")
+
+            # -----------------------------
+            # Loans for ALL USERS
+            # -----------------------------
+            if num_loans > 0:
+                self.stdout_write("Creating loans for all users...")
+                for user in all_users:
+                    for _ in range(3):  # 3 loans per user
+                        loan = self.make_fake_loan([user])
+                        db.session.add(loan)
+
+                try:
+                    db.session.commit()
+                    self.stdout_write("Successfully created loans for all users.")
+                except Exception as e:
+                    db.session.rollback()
+                    self.stdout_write(f"Loan commit failed: {e}")
 
     # -------------------- Helper Methods --------------------
 
@@ -136,6 +160,15 @@ class Command:
             except Exception as e:
                 db.session.rollback()
                 self.stdout_write(f"   - Error clearing transactions: {e}")
+
+            # Loans next
+            self.stdout_write("Clearing existing loan data...")
+            try:
+                db.session.query(Loan).delete()
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                self.stdout_write(f"   - Error clearing loans: {e}")
 
             # Categories next
             self.stdout_write("Clearing existing category data...")
@@ -318,6 +351,40 @@ class Command:
             ai_source=ai_source.value if ai_source else None,
             is_user_override=ai_override,
             original_category_id=(original_category.id if original_category else None),
+        )
+
+    # MARK: New Loan Methods
+    def make_fake_loan(self, users: list[User]) -> Loan:
+        """
+        Generate a random loan for a user.
+        """
+        user = random.choice(users)
+        original_amount = round(random.uniform(500, 20000), 2)
+        remaining_amount = round(random.uniform(0, original_amount), 2)
+        start_date = self.fake.date_between(start_date="-5y", end_date="today")
+        end_date = None
+        status = LoanStatus.OPEN
+
+        # Randomly mark some loans as closed
+        if remaining_amount == 0 or random.random() < 0.2:
+            remaining_amount = 0
+            status = LoanStatus.CLOSED
+            end_date = start_date + timedelta(days=random.randint(30, 365 * 5))
+
+        # Pick a category (default: Financial Services category)
+        category = Category.query.filter_by(name="Financial Services").first()
+        if not category:
+            category = random.choice(Category.query.all())
+
+        return Loan(
+            user_id=user.id,
+            category_id=category.id,
+            name=f"{self.fake.word().capitalize()} Loan",
+            original_amount=Decimal(original_amount),
+            remaining_amount=Decimal(remaining_amount),
+            start_date=start_date,
+            end_date=end_date,
+            status=status,
         )
 
     def stdout_write(self, message):

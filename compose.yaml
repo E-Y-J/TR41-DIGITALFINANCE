@@ -32,7 +32,6 @@ services:
       flask db upgrade &&
       python tools/populate_db.py  \
       --users 10 \
-      --transactions 50 \
       &&
       flask run --host=0.0.0.0 --port=${BACKEND_PORT}
       "
