@@ -1,7 +1,7 @@
 import { Box, Button, Alert, Fade } from "@mui/material";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import OnboardingTextField from "./OnboardingTextField";
-import FormHeader from "./FormHeader";
+import FormHeader from "./Formheader";
 
 const OnboardingFormView = ({
   formData,
