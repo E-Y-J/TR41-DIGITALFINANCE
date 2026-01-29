@@ -1,69 +1,36 @@
 import { useState } from "react";
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Container,
-  Paper,
-  Alert,
-  Backdrop,
-  InputAdornment,
-  Fade,
-} from "@mui/material";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import { Box, Container, Paper, Backdrop } from "@mui/material";
 import { useUpdateUser } from "../features/auth/useUpdateUser";
 import PageLoader from "../components/common/PageLoader";
+import OnboardingFormView from "../features/onboarding/components/OnboardingFormView";
 
-const OnboardingForm = () => {
+export default function OnboardingPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const { mutate, isPending, isError, isSuccess, error } = useUpdateUser();
-
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     nickName: "",
     annualSalary: "",
   });
+  const { mutate, isPending, isError, isSuccess, error } = useUpdateUser();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitted(true);
-
-    const { firstName, lastName, nickName, annualSalary } = formData;
-
-    if (!firstName || !lastName || !nickName || !annualSalary) {
-      return;
-    }
+    if (Object.values(formData).some((val) => !val)) return;
 
     mutate({
-      first_name: firstName,
-      last_name: lastName,
-      nick_name: nickName,
-      annual_salary: annualSalary,
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      nick_name: formData.nickName,
+      annual_salary: formData.annualSalary,
       account_status: "active",
     });
-  };
-
-  // Reusable style object
-  const textFieldStyles = {
-    "& .MuiOutlinedInput-root": {
-      borderRadius: 3,
-      backgroundColor: "#fff",
-      "&:hover": { backgroundColor: "#f9f9f9" },
-      "&.Mui-focused": {
-        backgroundColor: "#fff",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-      },
-    },
   };
 
   return (
@@ -73,181 +40,38 @@ const OnboardingForm = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: (theme) =>
-          `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.primary.light}20 100%)`,
+        bgcolor: "#F8FAFC",
       }}
     >
       <Container maxWidth="sm">
-        <Fade in={true} timeout={800}>
-          <Paper
-            elevation={2}
-            sx={{
-              p: { xs: 3, md: 5 },
-              display: "flex",
-              flexDirection: "column",
-              gap: 4,
-              borderRadius: 6,
-              backgroundColor: "rgba(255, 255, 255, 0.8)",
-              backdropFilter: "blur(20px)",
-            }}
-          >
-            <Box textAlign="center">
-              <Typography
-                variant="h3"
-                component="h1"
-                sx={{
-                  fontWeight: 800,
-                  mb: 1,
-                  background:
-                    "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
-              >
-                Welcome
-              </Typography>
-              <Typography
-                variant="body1"
-                color="text.secondary"
-                sx={{ fontWeight: 500 }}
-              >
-                Let's get your profile set up in seconds.
-              </Typography>
-            </Box>
-
-            {isError && (
-              <Alert
-                severity="error"
-                sx={{ borderRadius: 3, border: "1px solid #ffcdd2" }}
-              >
-                {error?.message || "Something went wrong."}
-              </Alert>
-            )}
-
-            <Box
-              component="form"
-              onSubmit={handleSubmit}
-              noValidate
-              sx={{ display: "flex", flexDirection: "column", gap: 3 }}
-            >
-              {/* Name Row */}
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 2,
-                  flexDirection: { xs: "column", sm: "row" },
-                }}
-              >
-                <TextField
-                  label="First Name"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  error={isSubmitted && !formData.firstName}
-                  helperText={
-                    isSubmitted && !formData.firstName ? "Required" : ""
-                  }
-                  required
-                  fullWidth
-                  variant="outlined"
-                  sx={textFieldStyles}
-                />
-                <TextField
-                  label="Last Name"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  error={isSubmitted && !formData.lastName}
-                  helperText={
-                    isSubmitted && !formData.lastName ? "Required" : ""
-                  }
-                  required
-                  fullWidth
-                  variant="outlined"
-                  sx={textFieldStyles}
-                />
-              </Box>
-
-              <TextField
-                label="Nickname"
-                name="nickName"
-                value={formData.nickName}
-                onChange={handleChange}
-                error={isSubmitted && !formData.nickName}
-                helperText={isSubmitted && !formData.nickName ? "Required" : ""}
-                required
-                fullWidth
-                variant="outlined"
-                sx={textFieldStyles}
-              />
-
-              <TextField
-                label="Annual Salary"
-                name="annualSalary"
-                value={formData.annualSalary}
-                onChange={handleChange}
-                error={isSubmitted && !formData.annualSalary}
-                helperText={
-                  !formData.annualSalary
-                    ? "Salary is required"
-                    : "Used to tailor your budget plan."
-                }
-                type="number"
-                required
-                fullWidth
-                variant="outlined"
-                sx={textFieldStyles}
-                onKeyDown={(e) =>
-                  ["e", "E", "+", "-"].includes(e.key) && e.preventDefault()
-                }
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <AttachMoneyIcon
-                          fontSize="small"
-                          sx={{ color: "primary.main" }}
-                        />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-
-              <Button
-                disabled={isPending || isSuccess}
-                type="submit"
-                variant="contained"
-                size="large"
-                sx={{
-                  mt: 1,
-                  py: 1.5,
-                  borderRadius: 3,
-                  textTransform: "none",
-                  fontSize: "1.1rem",
-                  fontWeight: 700,
-                  boxShadow: 4,
-                  background:
-                    "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
-                  transition: "transform 0.2s",
-                  "&:hover": {
-                    transform: "scale(1.02)",
-                    boxShadow: 6,
-                  },
-                }}
-              >
-                {isPending ? "Setting up..." : "Complete Setup"}
-              </Button>
-            </Box>
-          </Paper>
-        </Fade>
+        <Paper
+          elevation={0}
+          sx={{
+            p: { xs: 4, md: 6 },
+            borderRadius: 6,
+            border: "1px solid",
+            borderColor: "divider",
+            bgcolor: "background.paper",
+            boxShadow: "0 24px 48px rgba(0,0,0,0.04)",
+          }}
+        >
+          <OnboardingFormView
+            formData={formData}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+            isSubmitted={isSubmitted}
+            isPending={isPending}
+            isError={isError}
+            error={error}
+          />
+        </Paper>
 
         <Backdrop
           sx={{
             color: "#fff",
-            zIndex: (theme) => theme.zIndex.drawer + 999,
-            backgroundColor: "rgba(255, 255, 255, 0.5)",
-            backdropFilter: "blur(5px)",
+            zIndex: 1201,
+            bgcolor: "rgba(255, 255, 255, 0.6)",
+            backdropFilter: "blur(4px)",
           }}
           open={isPending || isSuccess}
         >
@@ -256,6 +80,4 @@ const OnboardingForm = () => {
       </Container>
     </Box>
   );
-};
-
-export default OnboardingForm;
+}
