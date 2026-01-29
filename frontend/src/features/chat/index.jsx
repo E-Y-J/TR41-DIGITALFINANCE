@@ -16,7 +16,7 @@ const ChatBubble = ({ handleChatDrawerToggle, user }) => {
     // Add User Message, need to implement a way for the messages to be grouped to save in the chat history
     setMessages((prev) => [
       ...prev,
-      { id: Date.now(), text: inputValue, sender: user.nickname },
+      { id: Date.now(), text: inputValue, sender: user?.nickname || "User" },
     ]);
     setInputValue("");
     setIsTyping(true);
