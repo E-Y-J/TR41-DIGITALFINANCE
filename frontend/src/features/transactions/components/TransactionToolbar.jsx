@@ -10,7 +10,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import AddTransactionModal from "./AddTransactionModal";
 
-export const TransactionToolbar = () => {
+export const TransactionToolbar = ({ filters, onFilterChange }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const theme = useTheme();
 
