@@ -55,6 +55,9 @@ from app.models.notification import Notification
 from app.models.alert import Alert
 from app.models.budget import Budget
 
+# AI Session models (Sprint 3)
+from app.models.ai_session import AISession, PendingAction, UserLearning
+
 __all__ = [
     # =========================================================================
     # Enums (from enums.py)
@@ -88,4 +91,8 @@ __all__ = [
     "Alert",
     "Budget",
     "Loan",
+    # AI Session models (Sprint 3)
+    "AISession",
+    "PendingAction",
+    "UserLearning",
 ]

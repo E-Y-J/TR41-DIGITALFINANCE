@@ -39,26 +39,30 @@ logger = logging.getLogger(__name__)
 # CONFIGURATION
 # =============================================================================
 
-# Confidence threshold - below this, return "Unknown"
-CONFIDENCE_THRESHOLD = float(os.getenv("AI_CONFIDENCE_THRESHOLD", "0.80"))
-
-
-# =============================================================================
-# SYSTEM CATEGORIES
-# =============================================================================
-
-SYSTEM_CATEGORIES = [
-    "Charity & Donations",
-    "Entertainment & Recreation",
-    "Financial Services",
-    "Food & Dining",
-    "Government & Legal",
-    "Healthcare & Medical",
-    "Income",
-    "Shopping & Retail",
-    "Transportation",
-    "Utilities & Services",
-]
+# Import centralized constants
+try:
+    from app.ai.constants import (
+        SYSTEM_CATEGORIES,
+        ConfidenceThresholds,
+        CATEGORY_KEYWORDS,
+    )
+    CONFIDENCE_THRESHOLD = ConfidenceThresholds.CATEGORY_HIGH
+except ImportError:
+    # Fallback if constants.py not available
+    CONFIDENCE_THRESHOLD = float(os.getenv("AI_CONFIDENCE_THRESHOLD", "0.80"))
+    SYSTEM_CATEGORIES = [
+        "Charity & Donations",
+        "Entertainment & Recreation",
+        "Financial Services",
+        "Food & Dining",
+        "Government & Legal",
+        "Healthcare & Medical",
+        "Income",
+        "Shopping & Retail",
+        "Transportation",
+        "Utilities & Services",
+    ]
+    CATEGORY_KEYWORDS = {}
 
 
 # =============================================================================

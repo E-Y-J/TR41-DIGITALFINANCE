@@ -541,12 +541,14 @@ class TransactionService:
 
         Allows users to manually correct AI-assigned categories.
         Stores the original category for analytics purposes.
+        Records correction for AI learning to improve future predictions.
 
         WHAT HAPPENS:
         1. Store current category as original_category_id (if not already overridden)
         2. Set new category_id
         3. Set is_user_override = True
         4. Set ai_source = USER
+        5. Record correction in UserLearning table for AI improvement
 
         Args:
             user: User instance (owner)
@@ -588,6 +590,35 @@ class TransactionService:
             transaction.ai_confidence = 1.0  # User is 100% confident
 
             db.session.commit()
+
+            # Record correction for AI learning (Sprint 3 DB persistence)
+            # This helps improve future predictions for this merchant
+            if transaction.merchant_name:
+                try:
+                    from app.ai.user_learning import get_learning_engine
+
+                    # Get original category name for learning
+                    original_cat_name = None
+                    if transaction.original_category_id:
+                        original_cat = CategoryService.get_by_id(
+                            transaction.original_category_id
+                        )
+                        original_cat_name = original_cat.name if original_cat else None
+
+                    engine = get_learning_engine()
+                    engine.record_correction(
+                        user_id=user.id,
+                        merchant_name=transaction.merchant_name,
+                        correct_category=new_category.name,
+                        original_category=original_cat_name,
+                        original_source=str(transaction.ai_source.value) if transaction.ai_source else None,
+                    )
+                    logger.debug(
+                        f"Recorded learning: {transaction.merchant_name} → {new_category.name}"
+                    )
+                except Exception as e:
+                    # Don't fail the update if learning fails
+                    logger.warning(f"Failed to record learning: {e}")
 
             logger.info(
                 f"User {user.id} overrode category for transaction {transaction_id} "

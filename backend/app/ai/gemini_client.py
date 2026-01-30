@@ -52,19 +52,27 @@ logger = logging.getLogger(__name__)
 # SYSTEM CATEGORIES
 # =============================================================================
 
-VALID_CATEGORIES = [
-    "Food & Dining",
-    "Transportation",
-    "Shopping & Retail",
-    "Entertainment & Recreation",
-    "Healthcare & Medical",
-    "Utilities & Services",
-    "Financial Services",
-    "Income",
-    "Government & Legal",
-    "Charity & Donations",
-    "Unknown",
-]
+# Import centralized constants
+try:
+    from app.ai.constants import SYSTEM_CATEGORIES, VALID_CATEGORIES, ModelConfig
+    # Add "Unknown" if not present
+    if "Unknown" not in VALID_CATEGORIES:
+        VALID_CATEGORIES = set(SYSTEM_CATEGORIES) | {"Unknown"}
+except ImportError:
+    # Fallback if constants.py not available
+    VALID_CATEGORIES = {
+        "Food & Dining",
+        "Transportation",
+        "Shopping & Retail",
+        "Entertainment & Recreation",
+        "Healthcare & Medical",
+        "Utilities & Services",
+        "Financial Services",
+        "Income",
+        "Government & Legal",
+        "Charity & Donations",
+        "Unknown",
+    }
 
 
 # =============================================================================
