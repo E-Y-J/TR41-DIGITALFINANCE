@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Paper } from "@mui/material";
 
 import TransactionFilters from "../features/transactions/components/TransactionFilters";
@@ -11,7 +11,16 @@ export default function TransactionsPage() {
     category: "All",
     type: "All",
   });
+  const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
   const [page, setPage] = useState(0);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(filters.search);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [filters.search]);
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
@@ -42,7 +51,11 @@ export default function TransactionsPage() {
           />
         </Box>
         <Box sx={{ width: "100%" }}>
-          <TransactionList filters={filters} page={page} setPage={setPage} />
+          <TransactionList
+            filters={{ ...filters, search: debouncedSearch }}
+            page={page}
+            setPage={setPage}
+          />
         </Box>
       </Paper>
     </Box>

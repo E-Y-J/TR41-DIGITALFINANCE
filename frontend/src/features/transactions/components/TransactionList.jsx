@@ -5,19 +5,22 @@ import { useGetTransactions } from "../useGetTransactions";
 
 export const TransactionList = ({ filters, page, setPage }) => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const { data, isLoading } = useGetTransactions({
+
+  // can implement filter by start and end date, sort by, sort order later
+  // by searching isn't implemented in the backend yet
+  const { data, isLoading, isFetching } = useGetTransactions({
     page: page + 1,
     per_page: rowsPerPage,
     search: filters.search,
     category: filters.category === "All" ? "" : filters.category,
-    type: filters.type === "All" ? "" : filters.type,
+    transaction_type: filters.type === "All" ? "" : filters.type,
   });
 
   const transactions = data?.items || [];
 
   return (
     <Box sx={{ width: "100%" }}>
-      {isLoading ? (
+      {isLoading || isFetching ? (
         <Box sx={{ p: 6, textAlign: "center" }}>
           <CircularProgress size={40} />
         </Box>
