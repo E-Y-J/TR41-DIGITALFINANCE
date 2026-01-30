@@ -417,12 +417,21 @@ class IntentClassifier:
         return self.model.encode(texts, convert_to_numpy=True)
 
     def _cosine_similarity(self, a: np.ndarray, b: np.ndarray) -> float:
-        """Compute cosine similarity between two vectors."""
-        norm_a = np.linalg.norm(a)
-        norm_b = np.linalg.norm(b)
-        if norm_a == 0 or norm_b == 0:
-            return 0.0
-        return float(np.dot(a, b) / (norm_a * norm_b))
+        """
+        Compute cosine similarity between two vectors.
+
+        Uses sentence_transformers.util.cos_sim for efficiency when available.
+        """
+        try:
+            from app.ai.utils import cos_sim
+            return cos_sim(a, b)
+        except ImportError:
+            # Fallback to manual computation
+            norm_a = np.linalg.norm(a)
+            norm_b = np.linalg.norm(b)
+            if norm_a == 0 or norm_b == 0:
+                return 0.0
+            return float(np.dot(a, b) / (norm_a * norm_b))
 
     def _classify_by_keywords(self, text: str) -> Tuple[str, float]:
         """

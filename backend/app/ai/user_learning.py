@@ -70,19 +70,16 @@ class UserLearningEngine:
     Learns from user corrections to improve categorization.
 
     Implements two levels of learning:
-    1. User-specific: Personal merchant → category mappings
-    2. Global: Aggregate patterns across all users
+    1. User-specific: Personal merchant → category mappings (DB-backed)
+    2. Global: Aggregate patterns across all users (computed from DB)
 
-    Attributes:
-        user_mappings: Dict of user_id → {merchant → category}
-        global_counts: Dict of merchant → {category → count}
-        correction_history: List of all corrections for analysis
+    Data is persisted in the user_learnings table to survive restarts.
 
     Example:
         >>> engine = UserLearningEngine()
         >>> engine.record_correction(user_id, "Local Shop", "Food & Dining")
         >>> category = engine.get_learned_category(user_id, "Local Shop")
-        >>> print(category)  # "Food & Dining"
+        >>> print(category)  # ("Food & Dining", 0.95, "user_learned")
     """
 
     _instance = None
@@ -102,28 +99,61 @@ class UserLearningEngine:
         if self._initialized:
             return
 
-        # User-specific learned mappings
-        # Structure: {user_id: {normalized_merchant: category_name}}
-        self._user_mappings: Dict[UUID, Dict[str, str]] = defaultdict(dict)
+        # In-memory cache for performance (DB is source of truth)
+        self._cache: Dict[UUID, Dict[str, str]] = defaultdict(dict)
+        self._cache_loaded: set = set()
 
-        # Global correction counts across all users
-        # Structure: {normalized_merchant: {category_name: count}}
+        # Global correction counts (loaded from DB on demand)
         self._global_counts: Dict[str, Dict[str, int]] = defaultdict(
             lambda: defaultdict(int)
         )
-
-        # Full correction history for analysis
-        self._correction_history: List[Dict[str, Any]] = []
-
-        # Statistics
-        self._stats = {
-            "total_corrections": 0,
-            "unique_merchants": 0,
-            "users_with_corrections": set(),
-        }
+        self._global_loaded = False
 
         self._initialized = True
-        logger.info("User Learning Engine initialized")
+        logger.info("User Learning Engine initialized (DB-backed)")
+
+    def _load_user_cache(self, user_id: UUID):
+        """Load user's learned mappings from DB into cache."""
+        if user_id in self._cache_loaded:
+            return
+
+        try:
+            from app.models.ai_session import UserLearning
+
+            learnings = UserLearning.get_all_for_user(user_id)
+            for learning in learnings:
+                self._cache[user_id][learning.merchant_normalized] = learning.category_name
+
+            self._cache_loaded.add(user_id)
+        except Exception as e:
+            logger.warning(f"Failed to load user cache from DB: {e}")
+
+    def _load_global_counts(self):
+        """Load global correction counts from DB."""
+        if self._global_loaded:
+            return
+
+        try:
+            from app.models.ai_session import UserLearning
+            from sqlalchemy import func
+            from app.core.extensions import db
+
+            # Aggregate counts per merchant/category
+            results = db.session.query(
+                UserLearning.merchant_normalized,
+                UserLearning.category_name,
+                func.count().label('count')
+            ).group_by(
+                UserLearning.merchant_normalized,
+                UserLearning.category_name
+            ).all()
+
+            for merchant, category, count in results:
+                self._global_counts[merchant][category] = count
+
+            self._global_loaded = True
+        except Exception as e:
+            logger.warning(f"Failed to load global counts from DB: {e}")
 
     def record_correction(
         self,
@@ -137,7 +167,7 @@ class UserLearningEngine:
         Record a user's category correction for learning.
 
         Called when a user changes the AI-assigned category of a transaction.
-        Updates both user-specific and global learning data.
+        Persists to database for durability across restarts.
 
         Args:
             user_id: User making the correction
@@ -148,54 +178,57 @@ class UserLearningEngine:
 
         Returns:
             Dictionary with learning update details
-
-        Example:
-            >>> engine.record_correction(
-            ...     user_id=uuid,
-            ...     merchant_name="Local Coffee Co",
-            ...     correct_category="Food & Dining",
-            ...     original_category="Shopping & Retail",
-            ...     original_source="huggingface"
-            ... )
         """
         # Normalize merchant name for consistent matching
         normalized = self._normalize_merchant(merchant_name)
 
-        # Update user-specific mapping
-        self._user_mappings[user_id][normalized] = correct_category
+        # Update database
+        try:
+            from app.models.ai_session import UserLearning
+            from app.core.extensions import db
 
-        # Update global counts
-        self._global_counts[normalized][correct_category] += 1
+            learning = UserLearning.record(
+                user_id=user_id,
+                merchant_name=merchant_name,
+                category_name=correct_category,
+                original_category=original_category,
+            )
+            db.session.commit()
 
-        # Record in history
-        correction_record = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "user_id": str(user_id),
-            "merchant_name": merchant_name,
-            "normalized_merchant": normalized,
-            "correct_category": correct_category,
-            "original_category": original_category,
-            "original_source": original_source,
-        }
-        self._correction_history.append(correction_record)
+            # Update cache
+            self._cache[user_id][normalized] = correct_category
 
-        # Update stats
-        self._stats["total_corrections"] += 1
-        self._stats["users_with_corrections"].add(str(user_id))
-        self._stats["unique_merchants"] = len(self._global_counts)
+            # Update global counts
+            self._global_counts[normalized][correct_category] += 1
 
-        logger.info(
-            f"Learned: '{merchant_name}' → {correct_category} "
-            f"(user: {str(user_id)[:8]}..., was: {original_category})"
-        )
+            logger.info(
+                f"Learned: '{merchant_name}' → {correct_category} "
+                f"(user: {str(user_id)[:8]}..., was: {original_category})"
+            )
 
-        return {
-            "learned": True,
-            "merchant": merchant_name,
-            "category": correct_category,
-            "is_new_merchant": normalized not in self._global_counts,
-            "global_count": self._global_counts[normalized][correct_category],
-        }
+            return {
+                "learned": True,
+                "merchant": merchant_name,
+                "category": correct_category,
+                "is_new_merchant": learning.correction_count == 1,
+                "global_count": self._global_counts[normalized][correct_category],
+            }
+
+        except Exception as e:
+            logger.error(f"Failed to record correction in DB: {e}", exc_info=True)
+
+            # Fall back to in-memory only
+            self._cache[user_id][normalized] = correct_category
+            self._global_counts[normalized][correct_category] += 1
+
+            return {
+                "learned": True,
+                "merchant": merchant_name,
+                "category": correct_category,
+                "is_new_merchant": True,
+                "global_count": self._global_counts[normalized][correct_category],
+                "persisted": False,
+            }
 
     def get_learned_category(
         self,
@@ -205,7 +238,8 @@ class UserLearningEngine:
         """
         Get learned category for a merchant.
 
-        First checks user-specific mappings, then falls back to global patterns.
+        First checks user-specific mappings (from DB), then falls back to
+        global patterns.
 
         Args:
             user_id: User to check mappings for
@@ -213,22 +247,32 @@ class UserLearningEngine:
 
         Returns:
             Tuple of (category_name, confidence, source) or None if not learned
-
-        Example:
-            >>> result = engine.get_learned_category(user_id, "Local Shop")
-            >>> if result:
-            ...     category, confidence, source = result
-            ...     print(f"{category} ({source})")  # "Food & Dining (user_learned)"
         """
         normalized = self._normalize_merchant(merchant_name)
 
+        # Load user cache from DB if needed
+        self._load_user_cache(user_id)
+
         # Check user-specific mapping first (highest priority)
-        if user_id in self._user_mappings:
-            if normalized in self._user_mappings[user_id]:
-                category = self._user_mappings[user_id][normalized]
+        if normalized in self._cache.get(user_id, {}):
+            category = self._cache[user_id][normalized]
+            return (category, LEARNED_CONFIDENCE, "user_learned")
+
+        # Also check DB directly as backup
+        try:
+            from app.models.ai_session import UserLearning
+
+            category = UserLearning.get_learned(user_id, merchant_name)
+            if category:
+                # Update cache
+                self._cache[user_id][normalized] = category
                 return (category, LEARNED_CONFIDENCE, "user_learned")
 
+        except Exception as e:
+            logger.debug(f"DB lookup failed: {e}")
+
         # Check global patterns
+        self._load_global_counts()
         if normalized in self._global_counts:
             category_counts = self._global_counts[normalized]
             if category_counts:
@@ -284,35 +328,79 @@ class UserLearningEngine:
 
     def get_user_learned_merchants(self, user_id: UUID) -> Dict[str, str]:
         """Get all learned merchant → category mappings for a user."""
-        return dict(self._user_mappings.get(user_id, {}))
+        self._load_user_cache(user_id)
+        return dict(self._cache.get(user_id, {}))
 
     def get_stats(self) -> Dict[str, Any]:
-        """Get learning engine statistics."""
-        return {
-            "total_corrections": self._stats["total_corrections"],
-            "unique_merchants_learned": self._stats["unique_merchants"],
-            "users_with_corrections": len(self._stats["users_with_corrections"]),
-            "global_patterns": len(
+        """Get learning engine statistics from database."""
+        try:
+            from app.models.ai_session import UserLearning
+            from sqlalchemy import func
+            from app.core.extensions import db
+
+            total = db.session.query(func.count(UserLearning.id)).scalar() or 0
+            unique_merchants = db.session.query(
+                func.count(func.distinct(UserLearning.merchant_normalized))
+            ).scalar() or 0
+            users_count = db.session.query(
+                func.count(func.distinct(UserLearning.user_id))
+            ).scalar() or 0
+
+            # Count global patterns
+            self._load_global_counts()
+            global_patterns = len(
                 [
                     m
                     for m, counts in self._global_counts.items()
                     if max(counts.values(), default=0) >= GLOBAL_PATTERN_THRESHOLD
                 ]
-            ),
-        }
+            )
+
+            return {
+                "total_corrections": total,
+                "unique_merchants_learned": unique_merchants,
+                "users_with_corrections": users_count,
+                "global_patterns": global_patterns,
+            }
+        except Exception as e:
+            logger.warning(f"Failed to get stats from DB: {e}")
+            return {
+                "total_corrections": 0,
+                "unique_merchants_learned": 0,
+                "users_with_corrections": 0,
+                "global_patterns": 0,
+            }
 
     def get_correction_history(
         self,
         user_id: Optional[UUID] = None,
         limit: int = 100,
     ) -> List[Dict[str, Any]]:
-        """Get correction history, optionally filtered by user."""
-        history = self._correction_history
+        """Get correction history from database."""
+        try:
+            from app.models.ai_session import UserLearning
 
-        if user_id:
-            history = [h for h in history if h["user_id"] == str(user_id)]
+            query = UserLearning.query
 
-        return history[-limit:]
+            if user_id:
+                query = query.filter(UserLearning.user_id == user_id)
+
+            learnings = query.order_by(UserLearning.updated_at.desc()).limit(limit).all()
+
+            return [
+                {
+                    "timestamp": learning.updated_at.isoformat(),
+                    "user_id": str(learning.user_id),
+                    "merchant_name": learning.merchant_normalized,
+                    "correct_category": learning.category_name,
+                    "original_category": learning.original_category,
+                    "correction_count": learning.correction_count,
+                }
+                for learning in learnings
+            ]
+        except Exception as e:
+            logger.warning(f"Failed to get correction history from DB: {e}")
+            return []
 
     def suggest_new_keywords(self) -> List[Dict[str, Any]]:
         """
@@ -382,14 +470,21 @@ class UserLearningEngine:
 
     def clear_user_data(self, user_id: UUID):
         """Clear all learned data for a specific user."""
-        if user_id in self._user_mappings:
-            del self._user_mappings[user_id]
+        # Clear from database
+        try:
+            from app.models.ai_session import UserLearning
+            from app.core.extensions import db
 
-        self._correction_history = [
-            h for h in self._correction_history if h["user_id"] != str(user_id)
-        ]
+            UserLearning.query.filter(UserLearning.user_id == user_id).delete()
+            db.session.commit()
+        except Exception as e:
+            logger.warning(f"Failed to clear user data from DB: {e}")
 
-        self._stats["users_with_corrections"].discard(str(user_id))
+        # Clear from cache
+        if user_id in self._cache:
+            del self._cache[user_id]
+        self._cache_loaded.discard(user_id)
+
         logger.info(f"Cleared learning data for user {user_id}")
 
 
