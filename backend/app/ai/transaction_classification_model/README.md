@@ -1,11 +1,13 @@
 # Fine-Tuned DistilBERT Transaction Categorizer
 
 ## 📍 Location
+
 ```
 backend/app/ai/transaction_classification_model/
 ```
 
 ## 🎯 Purpose
+
 This directory contains Jae's fine-tuned DistilBERT model for transaction categorization.
 The model classifies merchant names into one of 11 categories.
 
@@ -33,16 +35,16 @@ backend/app/ai/transaction_classification_model/
 
 ### File Details
 
-| File | Required | Description |
-|------|----------|-------------|
-| `config.json` | ✅ Yes | Model architecture config (num_labels, id2label, etc.) |
-| `pytorch_model.bin` | ✅ Yes* | PyTorch model weights (~250MB) |
-| `model.safetensors` | ✅ Yes* | Alternative format for weights |
-| `tokenizer_config.json` | ✅ Yes | Tokenizer configuration |
-| `vocab.txt` | ✅ Yes | BERT vocabulary (30522 tokens) |
-| `special_tokens_map.json` | Optional | Maps special tokens |
+| File                      | Required | Description                                            |
+| ------------------------- | -------- | ------------------------------------------------------ |
+| `config.json`             | ✅ Yes   | Model architecture config (num_labels, id2label, etc.) |
+| `pytorch_model.bin`       | ✅ Yes\* | PyTorch model weights (~250MB)                         |
+| `model.safetensors`       | ✅ Yes\* | Alternative format for weights                         |
+| `tokenizer_config.json`   | ✅ Yes   | Tokenizer configuration                                |
+| `vocab.txt`               | ✅ Yes   | BERT vocabulary (30522 tokens)                         |
+| `special_tokens_map.json` | Optional | Maps special tokens                                    |
 
-*Either `pytorch_model.bin` OR `model.safetensors` is required (not both).
+\*Either `pytorch_model.bin` OR `model.safetensors` is required (not both).
 
 ---
 
@@ -69,6 +71,7 @@ The model's `config.json` should have `id2label` mapping to these categories:
 ```
 
 **⚠️ These MUST match the database categories in:**
+
 - `backend/app/models/category.py` → `DEFAULT_CATEGORIES`
 - `backend/app/ai/constants.py` → `SYSTEM_CATEGORIES`
 
@@ -102,12 +105,14 @@ python tools/download_model.py --check
 ```
 
 Expected output:
+
 ```
 ✅ Fine-Tuned Categorizer
    Path: .../backend/app/ai/transaction_classification_model
 ```
 
 Or test directly:
+
 ```bash
 cd backend
 python -c "from app.ai.inference import TransactionClassifier; c = TransactionClassifier(); print(c.predict('Starbucks'))"
