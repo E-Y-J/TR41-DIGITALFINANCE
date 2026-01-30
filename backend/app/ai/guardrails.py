@@ -270,22 +270,26 @@ class Guardrails:
 
     def _semantic_score(self, text: str) -> float:
         """Calculate semantic similarity to finance topics."""
-        import numpy as np
-
         # Embed user text
         text_embedding = self.intent_classifier.embed_text(text)
 
-        # Cosine similarity to mean topic embedding
-        norm_text = np.linalg.norm(text_embedding)
-        norm_topic = np.linalg.norm(self.topic_embeddings)
+        # Use centralized cos_sim for consistency
+        try:
+            from app.ai.utils import cos_sim
+            return cos_sim(text_embedding, self.topic_embeddings)
+        except ImportError:
+            # Fallback to manual computation
+            import numpy as np
+            norm_text = np.linalg.norm(text_embedding)
+            norm_topic = np.linalg.norm(self.topic_embeddings)
 
-        if norm_text == 0 or norm_topic == 0:
-            return 0.0
+            if norm_text == 0 or norm_topic == 0:
+                return 0.0
 
-        similarity = np.dot(text_embedding, self.topic_embeddings) / (
-            norm_text * norm_topic
-        )
-        return float(similarity)
+            similarity = np.dot(text_embedding, self.topic_embeddings) / (
+                norm_text * norm_topic
+            )
+            return float(similarity)
 
     def _get_out_of_scope_response(self) -> str:
         """Get a varied out-of-scope response."""

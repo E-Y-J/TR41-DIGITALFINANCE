@@ -1,16 +1,23 @@
 import { Button } from "@mui/material";
 import DashboardWidget from "../../components/common/DashboardWidget";
-import TransactionTable from "./TransactionTable";
+import TransactionTable from "./components/TransactionTable";
 import { useGetTransactions } from "./useGetTransactions";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Box, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const RecentTransactionsWidget = () => {
+  const navigate = useNavigate();
   const { data, isLoading, isError } = useGetTransactions({
     per_page: 5,
     sort_by: "date",
     sort_order: "desc",
   });
+  const transactions = data?.items || [];
+
+  const navigateToAllTransactions = () => {
+    navigate("/home/transactions");
+  };
 
   if (isLoading) {
     return (
@@ -48,17 +55,24 @@ const RecentTransactionsWidget = () => {
       action={
         <Button
           size="small"
+          variant="outlined"
           sx={{
             textTransform: "none",
             fontWeight: 600,
             borderRadius: 2,
+            "&:hover": {
+              bgcolor: "primary.main",
+              color: "#ffffff",
+              borderColor: "primary.main",
+            },
           }}
+          onClick={navigateToAllTransactions}
         >
           View All
         </Button>
       }
     >
-      <TransactionTable data={data} />
+      <TransactionTable data={transactions} isDashboard={true} />
     </DashboardWidget>
   );
 };

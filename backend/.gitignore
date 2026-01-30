@@ -124,8 +124,14 @@ logs/
 .sentryclirc
 
 
-# AI model weights
-transaction_classification_model/
+# AI model weights (large files, shared separately)
+# Keep README.md for documentation, ignore actual model files
+app/ai/transaction_classification_model/*.bin
+app/ai/transaction_classification_model/*.safetensors
+app/ai/transaction_classification_model/*.pt
+app/ai/transaction_classification_model/*.json
+app/ai/transaction_classification_model/*.txt
+!app/ai/transaction_classification_model/README.md
 *.safetensors
 *.bin
 *.pt

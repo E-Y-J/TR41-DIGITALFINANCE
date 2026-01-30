@@ -2,25 +2,19 @@ import { Box, TextField, IconButton } from "@mui/material";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import SendIcon from "@mui/icons-material/Send";
 
-const ChatInput = ({ inputValue, setInputValue, onSend }) => {
+const ChatInput = ({ inputValue, setInputValue, onSend, noBorder = false }) => {
   return (
-    <Box
-      sx={{
-        p: 2,
-        borderTop: "1px solid",
-        borderColor: "divider",
-        paddingBottom: "calc(16px + env(safe-area-inset-bottom))",
-      }}
-    >
+    <Box sx={{ p: noBorder ? 0 : 2 }}>
       <Box
         sx={{
           p: 1.25,
           borderRadius: 3,
-          border: "1px solid",
+          border: noBorder ? "none" : "1px solid",
           borderColor: "divider",
-          boxShadow: 1,
-          transition: "box-shadow 0.2s, border-color 0.2s",
-          "&:focus-within": { borderColor: "primary.main" },
+          boxShadow: noBorder ? "none" : 1,
+          "&:focus-within": {
+            borderColor: noBorder ? "transparent" : "primary.main",
+          },
         }}
       >
         <TextField
@@ -40,7 +34,7 @@ const ChatInput = ({ inputValue, setInputValue, onSend }) => {
           slotProps={{ input: { disableUnderline: true } }}
           sx={{
             "& .MuiInputBase-root": { fontSize: "0.95rem" },
-            "& textarea": { resize: "none", scrollbarGutter: "stable" },
+            "& textarea": { resize: "none" },
           }}
         />
 
