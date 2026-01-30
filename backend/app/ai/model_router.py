@@ -67,7 +67,7 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 
 # Confidence thresholds
-CATEGORIZATION_THRESHOLD = 0.70  # Below this, use Gemini fallback
+CATEGORIZATION_THRESHOLD = 0.99  # Below this, use Gemini fallback
 INTENT_THRESHOLD = 0.70  # Below this, intent is uncertain
 
 

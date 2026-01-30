@@ -6,7 +6,7 @@
 Add AI session tables: ai_sessions, pending_actions, user_learnings
 
 Revision ID: 20260126_add_ai_sessions
-Revises: b2c3d4e5_add_budgets
+Revises: 0288d252f0a7
 Create Date: 2026-01-26
 
 These tables replace in-memory storage to prevent data loss on restart:
@@ -21,7 +21,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = "20260126_add_ai_sessions"
-down_revision = "b2c3d4e5_add_budgets"
+down_revision = "0288d252f0a7"
 branch_labels = None
 depends_on = None
 

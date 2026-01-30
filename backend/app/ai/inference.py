@@ -48,7 +48,7 @@ class TransactionClassifier:
         
         return clean_text 
 
-    def predict(self, raw_text):
+    def predict(self, raw_text, temperature=1.5):
         """
         Take a raw string, predict the category, and apply business logic (thresholds).
         Returns: (Label String, Confidence Score Float)
@@ -68,7 +68,9 @@ class TransactionClassifier:
             outputs = self.model(**inputs)
 
             # Convert to Probability since the model outputs logits (raw scores)
-            probs = torch.nn.functional.softmax(outputs.logits, dim=-1)
+            # Dividing logits by T > 1.0 "softens" the distribution and lowers confidence
+            scaled_logits = outputs.logits / temperature 
+            probs = torch.nn.functional.softmax(scaled_logits, dim=-1)            
             
             # Get the highest probability and its corresponding label
             score, predicted_id = torch.max(probs, dim=1)
@@ -81,20 +83,3 @@ class TransactionClassifier:
                 return "Unknown", confidence
             else:
                 return label, confidence
-        
-
-if __name__ == "__main__":
-    classifier = TransactionClassifier()
-    hard_cases = [
-        "Costco Whse Gasoline Pump 04",
-        "Target Store CVS Pharmacy",
-        "Target Store groceries", 
-        "SQ *DR JOHNS PET SERVICES",
-        "Amazon Prime Video Subscription", 
-        "Amazon New Bicycle Parts",      
-        "7-Eleven Fuel Station"           
-    ]
-
-    for tx in hard_cases:
-        label, conf = classifier.predict(tx)
-        print(f"Input: {tx:<35} | Pred: {label:<20} | Conf: {conf:.1%}")
