@@ -15,7 +15,7 @@ down:
 
 clear:
 	@echo "Clearing all containers and volumes..."
-	docker compose --env-file .env.dev down -v --rmi all --remove-orphans
+	docker compose --env-file .env.dev down -v --remove-orphans
 
 view-data:
 	@echo "Viewing data in the database..."
