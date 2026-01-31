@@ -4,3 +4,8 @@ export const getTransactions = async (apiClient, params = {}) => {
   });
   return data;
 };
+
+export const createTransaction = async (apiClient, transactionData) => {
+  const data = await apiClient.post("/transactions", transactionData);
+  return data;
+};
