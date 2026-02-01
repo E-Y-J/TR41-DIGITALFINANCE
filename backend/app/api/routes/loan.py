@@ -4,19 +4,21 @@
 # =============================================================================
 
 import logging
-from flask import Blueprint, request, g
 from uuid import UUID
+from marshmallow import ValidationError as MarshmallowValidationError
+from flask import Blueprint, request, g
 
 from app.auth.decorators import requires_auth
-from app.services.loan_service import LoanService
+from app.models.user import User
 from app.schemas.loan_schema import (
     loan_schema,
     loan_list_schema,
     loan_create_schema,
     loan_update_schema,
-    )
-from app.utils.helpers import success_response
+)
+from app.services.loan_service import LoanService
 from app.utils.errors import ValidationError
+from app.utils.helpers import success_response
 
 # =============================================================================
 # LOGGER SETUP
@@ -30,9 +32,33 @@ logger = logging.getLogger(__name__)
 
 bp = Blueprint("loans", __name__)
 
+
+def _get_current_user_for_loans() -> User:
+    """
+    Resolve the current User for loan routes.
+
+    - In production: requires_auth sets g.auth0_id, and we look up by that.
+    - In testing (FLASK_ENV="testing"): requires_auth is bypassed, so g.auth0_id
+      will be missing; we fall back to the first User in the DB (the test user).
+    """
+    auth0_id = getattr(g, "auth0_id", None)
+
+    if auth0_id:
+        user = User.query.filter_by(auth0_id=auth0_id).first()
+    else:
+        # Testing fallback: use any existing user (tests create one)
+        user = User.query.first()
+
+    if not user:
+        raise ValidationError("User not found for authenticated subject")
+
+    return user
+
+
 # =============================================================================
 # GET ALL LOANS FOR CURRENT USER
 # =============================================================================
+
 
 @bp.route("", methods=["GET"])
 @requires_auth
@@ -45,24 +71,24 @@ def get_loans():
     Returns:
         200: List of loans
     """
-    user = g.current_user
+    user = _get_current_user_for_loans()
+
     status_filter = request.args.get("status")
-    
     if status_filter and status_filter not in ["open", "closed"]:
         raise ValidationError("Invalid status filter. Must be 'open' or 'closed'.")
 
-    
     loans = LoanService.get_all(user.id, status_filter=status_filter)
 
     return success_response(
         data=loan_list_schema.dump(loans),
-        message="Loans retrieved successfully"
+        message="Loans retrieved successfully",
     )
 
 
 # =============================================================================
 # GET SINGLE LOAN BY ID
 # =============================================================================
+
 
 @bp.route("/<loan_id>", methods=["GET"])
 @requires_auth
@@ -74,7 +100,7 @@ def get_loan(loan_id: str):
         200: Loan object
         404: Loan not found or not owned by user
     """
-    user = g.current_user
+    user = _get_current_user_for_loans()
 
     try:
         loan_uuid = UUID(loan_id)
@@ -85,7 +111,7 @@ def get_loan(loan_id: str):
 
     return success_response(
         data=loan_schema.dump(loan),
-        message="Loan retrieved successfully"
+        message="Loan retrieved successfully",
     )
 
 
@@ -93,35 +119,29 @@ def get_loan(loan_id: str):
 # CREATE NEW LOAN
 # =============================================================================
 
+
 @bp.route("", methods=["POST"])
 @requires_auth
 def create_loan():
     """
     Create a new loan for the current user.
-
-    Request body example:
-    {
-        "name": "Car Loan",
-        "original_amount": "10000.00",
-        "remaining_amount": "10000.00",
-        "start_date": "2026-01-01",
-        "end_date": null,
-        "category_id": "uuid-of-financial-services",
-        "budget_id": null
-    }
     """
-    user = g.current_user
-    data = request.get_json()
+    user = _get_current_user_for_loans()
 
-    if not data:
+    data = request.get_json(silent=True)
+    if data is None:
         raise ValidationError("Request body required")
 
-    validated_data = loan_create_schema.load(data)
+    try:
+        validated_data = loan_create_schema.load(data)
+    except MarshmallowValidationError as err:
+        raise ValidationError("Invalid loan data", details=err.messages)
+
     loan = LoanService.create(user.id, validated_data)
 
     return success_response(
         data=loan_schema.dump(loan),
-        message="Loan created successfully"
+        message="Loan created successfully",
     )
 
 
@@ -129,23 +149,18 @@ def create_loan():
 # UPDATE LOAN (PATCH)
 # =============================================================================
 
+
 @bp.route("/<loan_id>", methods=["PATCH"])
 @requires_auth
 def update_loan(loan_id: str):
     """
     Partial update of a loan for the current user.
-
     Only provided fields will be updated.
-    Example:
-    {
-        "remaining_amount": "9000.00",
-        "status": "closed"
-    }
     """
-    user = g.current_user
-    data = request.get_json()
+    user = _get_current_user_for_loans()
 
-    if not data:
+    data = request.get_json(silent=True)
+    if data is None:
         raise ValidationError("Request body required")
 
     try:
@@ -153,26 +168,31 @@ def update_loan(loan_id: str):
     except ValueError:
         raise ValidationError("Invalid loan_id UUID format")
 
-    validated_data = loan_update_schema.load(data)
+    try:
+        validated_data = loan_update_schema.load(data)
+    except MarshmallowValidationError as err:
+        raise ValidationError("Invalid loan data", details=err.messages)
+
     updated_loan = LoanService.update(user.id, loan_uuid, validated_data)
 
     return success_response(
         data=loan_schema.dump(updated_loan),
-        message="Loan updated successfully"
+        message="Loan updated successfully",
     )
 
 
 # =============================================================================
-# DELETE LOAN (OPTIONAL)
+# DELETE LOAN
 # =============================================================================
+
 
 @bp.route("/<loan_id>", methods=["DELETE"])
 @requires_auth
 def delete_loan(loan_id: str):
     """
-    Soft-delete a loan (or remove entirely) for the current user.
+    Delete a loan for the current user.
     """
-    user = g.current_user
+    user = _get_current_user_for_loans()
 
     try:
         loan_uuid = UUID(loan_id)

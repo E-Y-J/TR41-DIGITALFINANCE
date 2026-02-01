@@ -171,12 +171,26 @@ class LoanService:
 
     @staticmethod
     def _populate_related_names(loans: List[Loan]) -> None:
-        """Populate user_name, category_name, budget_name for a list of loans."""
+        """Populate user_name, category_name, budget_name for a list of loans.
+        
+        Note:
+            Budget model does not have a 'name' column. We derive a friendly label
+            from its type/category instead.
+        """
         for loan in loans:
             loan.user_name = loan.user.nickname if loan.user else None
             loan.category_name = loan.category.name if loan.category else None
-            loan.budget_name = loan.budget.name if loan.budget else None
 
+            budget = loan.budget
+            if budget is None:
+                loan.budget_name = None
+            else:
+                if budget.is_total_budget:
+                    loan.budget_name = "Total budget"
+                elif budget.category:
+                    loan.budget_name = f"{budget.category.name} budget"
+                else:
+                    loan.budget_name = "Category budget"
 
 # =============================================================================
 # MODULE EXPORTS
