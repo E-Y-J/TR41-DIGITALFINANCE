@@ -7,7 +7,7 @@ import { AuthenticationGuard } from "./guard/AuthenticationGuard";
 import { UserGuard } from "./guard/UserGuard";
 import { PublicRoute } from "./guard/PublicRoute";
 
-// Lazy Import to reduce initial bundle size
+// Lazy Import
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
@@ -15,10 +15,14 @@ const BudgetPage = lazy(() => import("./pages/BudgetPage"));
 const TransactionPage = lazy(() => import("./pages/TransactionPage"));
 const AiAssistantPage = lazy(() => import("./pages/AiAssistantPage"));
 
+const CallbackPage = () => {
+  return <PageLoader />;
+};
+
 const App = () => {
   return (
     <Routes>
-      {/* PUBLIC ROUTES */}
+      {/* 1. PUBLIC ROUTES */}
       <Route
         path="/"
         element={
@@ -30,7 +34,10 @@ const App = () => {
         }
       />
 
-      {/* AUTHENTICATED ROUTES */}
+      {/* 2. CALLBACK ROUTE  */}
+      <Route path="/callback" element={<CallbackPage />} />
+
+      {/* 3. AUTHENTICATED ROUTES */}
       <Route element={<AuthenticationGuard />}>
         <Route
           path="/onboarding"

@@ -81,8 +81,10 @@ const DashboardLayout = () => {
   const [desktopOpen, setDesktopOpen] = useState(false);
   const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
   const [isGlobalLoading, setIsGlobalLoading] = useState(false);
+
   const handleLogout = () => {
     setIsGlobalLoading(true);
+    sessionStorage.removeItem("app_session_active");
     setTimeout(() => {
       logout({ logoutParams: { returnTo: window.location.origin } });
     }, 500);

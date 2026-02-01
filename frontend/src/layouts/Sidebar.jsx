@@ -1,16 +1,12 @@
-import { useLocation, useNavigate } from "react-router-dom";
 import {
   Box,
   List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Divider,
   Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import AppNavLink from "../components/common/AppNavLink";
 
 import TimelineIcon from "@mui/icons-material/Timeline";
 import PaymentIcon from "@mui/icons-material/Payment";
@@ -22,77 +18,6 @@ import LogoutIcon from "@mui/icons-material/Logout";
 
 import logo from "../assets/logo.png";
 import logoCompact from "../assets/logo-compact.png";
-
-const NavItem = ({ text, icon, path, onClick, open }) => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const isSelected = path ? location.pathname === path : false;
-
-  const handleClick = () => {
-    if (onClick) {
-      onClick();
-    } else if (path) {
-      navigate(path);
-    }
-  };
-
-  return (
-    <ListItem disablePadding sx={{ mb: 0.5, display: "block" }}>
-      <ListItemButton
-        selected={isSelected}
-        onClick={handleClick}
-        sx={{
-          minHeight: 48,
-          justifyContent: open ? "initial" : "center",
-          px: 2.5,
-          borderRadius: 0,
-          color: "text.secondary",
-          transition: "justify-content 0.2s",
-
-          "&.Mui-selected": {
-            bgcolor: "secondary.light",
-            color: "primary.main",
-            "&:hover": { bgcolor: "secondary.main" },
-            "& .MuiListItemIcon-root": { color: "primary.main" },
-          },
-          "&:hover": {
-            bgcolor: "action.hover",
-            color: "primary.main",
-            "& .MuiListItemIcon-root": { color: "primary.main" },
-          },
-        }}
-      >
-        <ListItemIcon
-          sx={{
-            minWidth: 0,
-            mr: open ? 2 : "auto",
-            justifyContent: "center",
-            color: "inherit",
-            transition: "margin 0.2s",
-          }}
-        >
-          {icon}
-        </ListItemIcon>
-
-        <ListItemText
-          primary={text}
-          sx={{
-            opacity: open ? 1 : 0,
-            whiteSpace: "nowrap",
-            transition: "opacity 0.2s ease-in-out",
-            visibility: open ? "visible" : "hidden",
-          }}
-          slotProps={{
-            primary: {
-              fontSize: "0.95rem",
-              fontWeight: isSelected ? 600 : 400,
-            },
-          }}
-        />
-      </ListItemButton>
-    </ListItem>
-  );
-};
 
 const Sidebar = ({ handleLogout, open }) => {
   const theme = useTheme();
@@ -199,7 +124,7 @@ const Sidebar = ({ handleLogout, open }) => {
       <Box sx={{ flexGrow: 1, overflowY: "auto", overflowX: "hidden", mt: 1 }}>
         <List>
           {MENU_ITEMS.map((item) => (
-            <NavItem key={item.text} {...item} open={isOpen} />
+            <AppNavLink key={item.text} {...item} open={isOpen} isSidebar />
           ))}
         </List>
       </Box>
@@ -247,7 +172,7 @@ const Sidebar = ({ handleLogout, open }) => {
           </Box>
           <List>
             {SETTINGS_ITEMS.map((item) => (
-              <NavItem key={item.text} {...item} open={isOpen} />
+              <AppNavLink key={item.text} {...item} open={isOpen} isSidebar />
             ))}
           </List>
         </Box>
