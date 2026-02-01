@@ -10,14 +10,23 @@ export const useGetTransactions = (params = {}) => {
     queryFn: () => getTransactions(apiClient, params),
     select: (response) => {
       const serverData = response.data;
-      if (serverData.data) {
-        return {
-          items: serverData.data,
-          total: serverData.total || serverData.count || serverData.data.length,
-        };
-      }
 
-      return { items: [], total: 0 };
+      if (!serverData || !serverData.data) {
+        return { items: [], total: 0 };
+      }
+      const totalCount =
+        serverData.meta?.total ??
+        serverData.total ??
+        serverData.count ??
+        serverData.data.length;
+
+      return {
+        items: serverData.data,
+        total: totalCount,
+        meta: serverData.meta,
+      };
     },
+
+    placeholderData: (previousData) => previousData,
   });
 };
