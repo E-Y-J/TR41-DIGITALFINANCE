@@ -1,1079 +1,1090 @@
 {
-	"info": {
-		"_postman_id": "673d66e7-3e28-425f-a3ae-0c2412f55401",
-		"name": "Digital Finance Tracker API (Cleaned)",
-		"description": "## Digital Finance Tracker API Collection\n\n- Use `{{baseUrl}}` for server URL (e.g., http://localhost:8000)\n- Use `{{bearerToken}}` variable for Auth0 JWT when calling protected endpoints.\n\n**Key Flows**:\n- Test connection with `/api/test` and `/health`\n- Use `/api/auth/*` endpoints for login/auth flows\n- Use `/api/users/*` for user profile/settings\n- Use `/api/transactions/*` for transaction data\n\nMore info: Contact support@digitalfinance.com",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "46729974",
-		"_collection_link": "https://ar-8007029.postman.co/workspace/Flask-API~0ffc4100-54ee-41e2-9281-5b0ed8822808/collection/46729974-673d66e7-3e28-425f-a3ae-0c2412f55401?action=share&source=collection_link&creator=46729974"
-	},
-	"item": [
-		{
-			"name": "Health / Test",
-			"item": [
-				{
-					"name": "API Root",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"pm.test('Status code is 200', function () {",
-									"  pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test('Body contains name/version/status/docs', function () {",
-									"  var json = pm.response.json();",
-									"  pm.expect(json).to.have.property('name');",
-									"  pm.expect(json).to.have.property('version');",
-									"  pm.expect(json).to.have.property('status');",
-									"  pm.expect(json).to.have.property('docs');",
-									"});"
-								]
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								""
-							]
-						},
-						"description": "Get API information and status. This endpoint returns an unwrapped object (no success/data/message)."
-					},
-					"response": []
-				},
-				{
-					"name": "Health Check",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Basic status + content-type checks\r",
-									"pm.test('Status code is 200', () => {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test('Content-Type is application/json', () => {\r",
-									"  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
-									"});\r",
-									"\r",
-									"// Parse response once\r",
-									"let json;\r",
-									"try {\r",
-									"  json = pm.response.json();\r",
-									"} catch (e) {\r",
-									"  pm.test('Response is valid JSON', () => {\r",
-									"    throw new Error('Response body is not valid JSON');\r",
-									"  });\r",
-									"}\r",
-									"\r",
-									"// Body shape checks\r",
-									"pm.test('Body contains status and service', () => {\r",
-									"  pm.expect(json).to.have.property('status');\r",
-									"  pm.expect(json).to.have.property('service');\r",
-									"});\r",
-									"\r",
-									"// Optional stricter check (uncomment to enforce)\r",
-									"pm.test('status is healthy', () => {\r",
-									"  pm.expect(json.status).to.eql('healthy');\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/health",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"health"
-							]
-						},
-						"description": "Check if the API service is healthy (no authentication required)."
-					},
-					"response": []
-				},
-				{
-					"name": "Test Connection",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Basic status + content-type checks\r",
-									"pm.test('Status code is 200', () => {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test('Content-Type is application/json', () => {\r",
-									"  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
-									"});\r",
-									"\r",
-									"// Top-level shape checks\r",
-									"pm.test('Response has success, message, data', () => {\r",
-									"  const json = pm.response.json();\r",
-									"  pm.expect(json).to.have.property('success');\r",
-									"  pm.expect(json).to.have.property('message');\r",
-									"  pm.expect(json).to.have.property('data');\r",
-									"});\r",
-									"\r",
-									"// Data object checks\r",
-									"pm.test('Data contains status, api_version, service', () => {\r",
-									"  const data = pm.response.json().data || {};\r",
-									"  pm.expect(data).to.have.property('status');\r",
-									"  pm.expect(data).to.have.property('api_version');\r",
-									"  pm.expect(data).to.have.property('service');\r",
-									"});\r",
-									"\r",
-									"//Optional stricter checks (uncomment if you want to enforce exact values)\r",
-									"pm.test('success is true', () => {\r",
-									"  pm.expect(pm.response.json().success).to.be.true;\r",
-									"});\r",
-									"\r",
-									"pm.test('api_version is 1.0.0', () => {\r",
-									"  pm.expect(pm.response.json().data.api_version).to.eql('1.0.0');\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/test",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"test"
-							]
-						},
-						"description": "Test Frontend/Backend connectivity. Returns version/info. No authentication required."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Authentication",
-			"item": [
-				{
-					"name": "Auth0 Callback-Authenticated",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Authenticated /api/auth/callback - Post-response tests\r",
-									"\r",
-									"// Basic status + content-type checks\r",
-									"pm.test('Status code is 200', () => {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});\r",
-									"pm.test('Content-Type is application/json', () => {\r",
-									"  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
-									"});\r",
-									"\r",
-									"// Parse response once and fail fast if invalid JSON\r",
-									"let json;\r",
-									"let parsed = true;\r",
-									"try {\r",
-									"  json = pm.response.json();\r",
-									"} catch (e) {\r",
-									"  parsed = false;\r",
-									"  pm.test('Response is valid JSON', () => {\r",
-									"    throw new Error('Response is not valid JSON');\r",
-									"  });\r",
-									"}\r",
-									"\r",
-									"// If parsing failed, skip the rest\r",
-									"if (!parsed) {\r",
-									"  // Stop here — other tests depend on valid JSON\r",
-									"  return;\r",
-									"}\r",
-									"\r",
-									"// Standard envelope checks\r",
-									"pm.test('Response has success, data, message', () => {\r",
-									"  pm.expect(json).to.have.property('success');\r",
-									"  pm.expect(json).to.have.property('data');\r",
-									"  pm.expect(json).to.have.property('message');\r",
-									"});\r",
-									"\r",
-									"// Check success is true\r",
-									"pm.test('success is true', () => {\r",
-									"  pm.expect(json.success).to.be.true;\r",
-									"});\r",
-									"\r",
-									"// Ensure data is an object (user)\r",
-									"pm.test('data is an object', () => {\r",
-									"  pm.expect(json.data).to.be.an('object');\r",
-									"});\r",
-									"\r",
-									"// Basic user shape checks (safe because data is object)\r",
-									"pm.test('User object contains id, auth0_id, email', () => {\r",
-									"  const user = json.data;\r",
-									"  pm.expect(user).to.have.property('id');\r",
-									"  pm.expect(user).to.have.property('auth0_id');\r",
-									"  pm.expect(user).to.have.property('email');\r",
-									"});\r",
-									"\r",
-									"// Validate id looks like a UUID (RFC4122-like)\r",
-									"pm.test('User id looks like a UUID', () => {\r",
-									"  const id = (json.data && json.data.id) || '';\r",
-									"  pm.expect(id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);\r",
-									"});\r",
-									"\r",
-									"// Conditional email checks:\r",
-									"// - if expectedUserEmail is set in env, assert equality\r",
-									"// - else if bearerToken is present, assert an email string is present\r",
-									"// - else allow email to be absent (useful for test tokens / CI)\r",
-									"const expectedEmail = pm.environment.get('expectedUserEmail');\r",
-									"const bearer = pm.environment.get('bearerToken');\r",
-									"\r",
-									"if (expectedEmail) {\r",
-									"  pm.test('email matches expected', () => {\r",
-									"    pm.expect(json.data.email).to.eql(expectedEmail);\r",
-									"  });\r",
-									"} else if (bearer) {\r",
-									"  pm.test('email present in token/profile', () => {\r",
-									"    pm.expect(json.data.email).to.be.a('string');\r",
-									"  });\r",
-									"} else {\r",
-									"  pm.test('email may be absent in test token (or no token provided)', () => {\r",
-									"    pm.expect([null, undefined, '']).to.include(json.data.email) || pm.expect(json.data.email).to.be.a('string');\r",
-									"  });\r",
-									"}\r",
-									"\r",
-									"/* Optional stricter checks — uncomment if your environment guarantees these fields\r",
-									"pm.test('email is expected', () => {\r",
-									"  pm.expect(json.data.email).to.eql(pm.environment.get('expectedUserEmail'));\r",
-									"});\r",
-									"\r",
-									"pm.test('user has created_at timestamp', () => {\r",
-									"  pm.expect(json.data).to.have.property('created_at');\r",
-									"});\r",
-									"*/"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/callback",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"callback"
-							]
-						},
-						"description": "Sync user after Auth0 login. Frontend calls this after tokens are received from Auth0.\n\n**Requires JWT auth.**"
-					},
-					"response": []
-				},
-				{
-					"name": "Auth0 Callback-Unauthenticated",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Expect 401 + UNAUTHORIZED when Authorization header is missing\r",
-									"pm.test('Status code is 401', () => {\r",
-									"  pm.response.to.have.status(401);\r",
-									"});\r",
-									"\r",
-									"pm.test('Content-Type is application/json', () => {\r",
-									"  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
-									"});\r",
-									"\r",
-									"let json = {};\r",
-									"try { json = pm.response.json(); } catch (e) { /* handled below */ }\r",
-									"\r",
-									"pm.test('Error envelope present', () => {\r",
-									"  pm.expect(json).to.have.property('success');\r",
-									"  pm.expect(json.success).to.be.false;\r",
-									"  pm.expect(json).to.have.property('error');\r",
-									"  pm.expect(json.error).to.have.property('code');\r",
-									"  pm.expect(json.error).to.have.property('message');\r",
-									"});\r",
-									"\r",
-									"pm.test('Error code is UNAUTHORIZED (missing header)', () => {\r",
-									"  pm.expect(json.error.code).to.eql('UNAUTHORIZED');\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/callback",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"callback"
-							]
-						},
-						"description": "Sync user after Auth0 login. Frontend calls this after tokens are received from Auth0.\n\n**Requires JWT auth.**"
-					},
-					"response": []
-				},
-				{
-					"name": "Auth0 Callback-Invalid Token",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Expect 401 (or the status your API returns) + TOKEN_INVALID when token format/contents is invalid\r",
-									"pm.test('Status code is 401', () => {\r",
-									"  pm.response.to.have.status(401);\r",
-									"});\r",
-									"\r",
-									"pm.test('Content-Type is application/json', () => {\r",
-									"  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
-									"});\r",
-									"\r",
-									"let json = {};\r",
-									"try { json = pm.response.json(); } catch (e) { /* handled below */ }\r",
-									"\r",
-									"pm.test('Error envelope present', () => {\r",
-									"  pm.expect(json).to.have.property('success');\r",
-									"  pm.expect(json.success).to.be.false;\r",
-									"  pm.expect(json).to.have.property('error');\r",
-									"  pm.expect(json.error).to.have.property('code');\r",
-									"  pm.expect(json.error).to.have.property('message');\r",
-									"});\r",
-									"\r",
-									"pm.test('Error code is TOKEN_INVALID (invalid token)', () => {\r",
-									"  pm.expect(json.error.code).to.eql('TOKEN_INVALID');\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{invalidBearer}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/callback",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"callback"
-							]
-						},
-						"description": "Sync user after Auth0 login. Frontend calls this after tokens are received from Auth0.\n\n**Requires JWT auth.**"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Current User",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/me",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"me"
-							]
-						},
-						"description": "Get the currently authenticated user's info.\n\n**Requires JWT auth.**"
-					},
-					"response": []
-				},
-				{
-					"name": "Check Auth Status",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/status",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"status"
-							]
-						},
-						"description": "Check if the user is authenticated (checks JWT validity)."
-					},
-					"response": []
-				},
-				{
-					"name": "Logout Instructions",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"logout"
-							]
-						},
-						"description": "Get instructions for client-side logout.\n\n**No authentication required.**"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Users",
-			"item": [
-				{
-					"name": "User Settings",
-					"item": [
-						{
-							"name": "Get Settings",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{bearerToken}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "application/json"
-									}
-								],
-								"url": {
-									"raw": "{{baseUrl}}/api/users/me/settings",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"users",
-										"me",
-										"settings"
-									]
-								},
-								"description": "Get the user's settings (currency, notifications, theme, timezone).\n\n**Requires JWT auth.**"
-							},
-							"response": []
-						},
-						{
-							"name": "Update Settings",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{bearerToken}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "PATCH",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "application/json"
-									},
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{ \"currency\": \"USD\", \"theme\": \"dark\", \"timezone\": \"America/Los_Angeles\", \"notifications\": {\"reminders\": true} }"
-								},
-								"url": {
-									"raw": "{{baseUrl}}/api/users/me/settings",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"api",
-										"users",
-										"me",
-										"settings"
-									]
-								},
-								"description": "Update user settings (currency, theme, timezone, notification preferences).\n\n**Sample body:**\n```\n{\n  \"currency\": \"USD\",\n  \"theme\": \"dark\",\n  \"timezone\": \"America/New_York\",\n  \"notifications\": { \"reminders\": true }\n}\n```"
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Get Profile",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/users/me",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"users",
-								"me"
-							]
-						},
-						"description": "Get the logged-in user's profile data.\n\n**Requires JWT auth.**"
-					},
-					"response": []
-				},
-				{
-					"name": "Update Profile",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{ \"first_name\": \"John\", \"last_name\": \"Doe\", \"nickname\": \"JD\" }"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/users/me",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"users",
-								"me"
-							]
-						},
-						"description": "Update user's profile (first/last name, nickname).\n\n**Requires JWT auth.**\n\n**Sample body:**\n```\n{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"nickname\": \"JD\"\n}\n```"
-					},
-					"response": []
-				},
-				{
-					"name": "Deactivate Account",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/users/me/deactivate",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"users",
-								"me",
-								"deactivate"
-							]
-						},
-						"description": "Deactivate the current user's account (soft delete, can be reactivated via support).\n\n**Requires JWT auth.**"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Transactions",
-			"item": [
-				{
-					"name": "List Transactions",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/transactions?page=1&per_page=20&transaction_type=&category=&start_date=&end_date=&sort_by=date&sort_order=desc",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"transactions"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "per_page",
-									"value": "20"
-								},
-								{
-									"key": "transaction_type",
-									"value": ""
-								},
-								{
-									"key": "category",
-									"value": ""
-								},
-								{
-									"key": "start_date",
-									"value": ""
-								},
-								{
-									"key": "end_date",
-									"value": ""
-								},
-								{
-									"key": "sort_by",
-									"value": "date"
-								},
-								{
-									"key": "sort_order",
-									"value": "desc"
-								}
-							]
-						},
-						"description": "Get a paginated list of user's transactions (filter/sort by type, date, category, etc).\n\n**Requires JWT auth.**"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Transaction",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/transactions/8d7c9177-f546-4486-a5a1-f42bf018fd45",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"transactions",
-								"8d7c9177-f546-4486-a5a1-f42bf018fd45"
-							]
-						},
-						"description": "Get a single transaction by ID.\n\n**Requires JWT auth.**\n\nSet the `:id` path variable to your transaction's UUID."
-					},
-					"response": []
-				},
-				{
-					"name": "Create Transaction",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"transaction_type\": \"income\",\n  \"amount\": \"125.50\",\n  \"date\": \"2022-09-01\",\n  \"category\": \"Salary\",\n  \"merchant_name\": \"Company.\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/transactions",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"transactions"
-							]
-						},
-						"description": "Create a new transaction for the user.\n\n**Requires JWT auth.**\n\nSample body:\n```\n{\n  \"transaction_type\": \"income\",\n  \"amount\": \"125.50\",\n  \"date\": \"2022-09-01\",\n  \"category\": \"Salary\",\n  \"merchant_name\": \"Company Inc.\"\n}\n```"
-					},
-					"response": []
-				},
-				{
-					"name": "Update Transaction",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"transaction_type\": \"expense\",\n  \"amount\": \"18.00\",\n  \"date\": \"2022-09-02\",\n  \"category\": \"Lunch\",\n  \"merchant_name\": \"Cafe\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/transactions/8d7c9177-f546-4486-a5a1-f42bf018fd45",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"transactions",
-								"8d7c9177-f546-4486-a5a1-f42bf018fd45"
-							]
-						},
-						"description": "Update an existing transaction.\n\n**Requires JWT auth.**\nSet `:id` to transaction UUID.\nSample body:\n```\n{\n  \"transaction_type\": \"expense\",\n  \"amount\": \"18.00\",\n  \"date\": \"2022-09-02\",\n  \"category\": \"Lunch\",\n  \"merchant_name\": \"Cafe\"\n}\n```"
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Transaction",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/transactions/8d7c9177-f546-4486-a5a1-f42bf018fd45",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"transactions",
-								"8d7c9177-f546-4486-a5a1-f42bf018fd45"
-							]
-						},
-						"description": "Delete a user's transaction by ID.\n\n**Requires JWT auth.**"
-					},
-					"response": []
-				},
-				{
-					"name": "Transaction Summary",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/api/transactions/summary?start_date=2022-01-01&end_date=2022-12-31",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"transactions",
-								"summary"
-							],
-							"query": [
-								{
-									"key": "start_date",
-									"value": "2022-01-01"
-								},
-								{
-									"key": "end_date",
-									"value": "2022-12-31"
-								}
-							]
-						},
-						"description": "Get summary stats for user's transactions.\n\n**Requires JWT auth.** Query params: `start_date`, `end_date`."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "README / How To Use",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/docs",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"docs"
-					]
-				},
-				"description": "Welcome to the Digital Finance Tracker API Postman Collection!\n\n**Setup:**\n\n- Set the `baseUrl` variable to your local/staging/prod server.\n    \n- For protected endpoints, set the `bearerToken` variable (copy your Auth0 JWT here).\n    \n\n**Key flows:**\n\n- Start with Auth endpoints to get a valid token.\n    \n- Test API health and connectivity with `/health` and `/api/test`.\n    \n- All error/success response formats follow a strict API contract (see descriptions).\n    \n\nContact the backend team with questions or for credentials.\n\nFull instructions available in the README.md within this folder."
-			},
-			"response": []
-		}
-	],
-	"variable": [
-		{
-			"key": "baseUrl",
-			"value": "http://localhost:8000"
-		},
-		{
-			"key": "bearerToken",
-			"value": ""
-		}
-	]
+  "info": {
+    "_postman_id": "673d66e7-3e28-425f-a3ae-0c2412f55401",
+    "name": "Digital Finance Tracker API (Cleaned)",
+    "description": "## Digital Finance Tracker API Collection\n\n- Use `{{baseUrl}}` for server URL (e.g., http://localhost:8000)\n- Use `{{bearerToken}}` variable for Auth0 JWT when calling protected endpoints.\n\n**Key Flows**:\n- Test connection with `/api/test` and `/health`\n- Use `/api/auth/*` endpoints for login/auth flows\n- Use `/api/users/*` for user profile/settings\n- Use `/api/transactions/*` for transaction data\n\nMore info: Contact support@digitalfinance.com",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "46729974",
+    "_collection_link": "https://ar-8007029.postman.co/workspace/Flask-API~0ffc4100-54ee-41e2-9281-5b0ed8822808/collection/46729974-673d66e7-3e28-425f-a3ae-0c2412f55401?action=share&source=collection_link&creator=46729974"
+  },
+  "item": [
+    {
+      "name": "Health / Test",
+      "item": [
+        {
+          "name": "API Root",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Body contains name/version/status/docs', function () {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('name');",
+                  "  pm.expect(json).to.have.property('version');",
+                  "  pm.expect(json).to.have.property('status');",
+                  "  pm.expect(json).to.have.property('docs');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Get API information and status. This endpoint returns an unwrapped object (no success/data/message)."
+          },
+          "response": []
+        },
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Basic status + content-type checks\r",
+                  "pm.test('Status code is 200', () => {\r",
+                  "  pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('Content-Type is application/json', () => {\r",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+                  "});\r",
+                  "\r",
+                  "// Parse response once\r",
+                  "let json;\r",
+                  "try {\r",
+                  "  json = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "  pm.test('Response is valid JSON', () => {\r",
+                  "    throw new Error('Response body is not valid JSON');\r",
+                  "  });\r",
+                  "}\r",
+                  "\r",
+                  "// Body shape checks\r",
+                  "pm.test('Body contains status and service', () => {\r",
+                  "  pm.expect(json).to.have.property('status');\r",
+                  "  pm.expect(json).to.have.property('service');\r",
+                  "});\r",
+                  "\r",
+                  "// Optional stricter check (uncomment to enforce)\r",
+                  "pm.test('status is healthy', () => {\r",
+                  "  pm.expect(json.status).to.eql('healthy');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Check if the API service is healthy (no authentication required)."
+          },
+          "response": []
+        },
+        {
+          "name": "Test Connection",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Basic status + content-type checks\r",
+                  "pm.test('Status code is 200', () => {\r",
+                  "  pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('Content-Type is application/json', () => {\r",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+                  "});\r",
+                  "\r",
+                  "// Top-level shape checks\r",
+                  "pm.test('Response has success, message, data', () => {\r",
+                  "  const json = pm.response.json();\r",
+                  "  pm.expect(json).to.have.property('success');\r",
+                  "  pm.expect(json).to.have.property('message');\r",
+                  "  pm.expect(json).to.have.property('data');\r",
+                  "});\r",
+                  "\r",
+                  "// Data object checks\r",
+                  "pm.test('Data contains status, api_version, service', () => {\r",
+                  "  const data = pm.response.json().data || {};\r",
+                  "  pm.expect(data).to.have.property('status');\r",
+                  "  pm.expect(data).to.have.property('api_version');\r",
+                  "  pm.expect(data).to.have.property('service');\r",
+                  "});\r",
+                  "\r",
+                  "//Optional stricter checks (uncomment if you want to enforce exact values)\r",
+                  "pm.test('success is true', () => {\r",
+                  "  pm.expect(pm.response.json().success).to.be.true;\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('api_version is 1.0.0', () => {\r",
+                  "  pm.expect(pm.response.json().data.api_version).to.eql('1.0.0');\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "test"]
+            },
+            "description": "Test Frontend/Backend connectivity. Returns version/info. No authentication required."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Auth0 Callback-Authenticated",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Authenticated /api/auth/callback - Post-response tests\r",
+                  "\r",
+                  "// Basic status + content-type checks\r",
+                  "pm.test('Status code is 200', () => {\r",
+                  "  pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "pm.test('Content-Type is application/json', () => {\r",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+                  "});\r",
+                  "\r",
+                  "// Parse response once and fail fast if invalid JSON\r",
+                  "let json;\r",
+                  "let parsed = true;\r",
+                  "try {\r",
+                  "  json = pm.response.json();\r",
+                  "} catch (e) {\r",
+                  "  parsed = false;\r",
+                  "  pm.test('Response is valid JSON', () => {\r",
+                  "    throw new Error('Response is not valid JSON');\r",
+                  "  });\r",
+                  "}\r",
+                  "\r",
+                  "// If parsing failed, skip the rest\r",
+                  "if (!parsed) {\r",
+                  "  // Stop here — other tests depend on valid JSON\r",
+                  "  return;\r",
+                  "}\r",
+                  "\r",
+                  "// Standard envelope checks\r",
+                  "pm.test('Response has success, data, message', () => {\r",
+                  "  pm.expect(json).to.have.property('success');\r",
+                  "  pm.expect(json).to.have.property('data');\r",
+                  "  pm.expect(json).to.have.property('message');\r",
+                  "});\r",
+                  "\r",
+                  "// Check success is true\r",
+                  "pm.test('success is true', () => {\r",
+                  "  pm.expect(json.success).to.be.true;\r",
+                  "});\r",
+                  "\r",
+                  "// Ensure data is an object (user)\r",
+                  "pm.test('data is an object', () => {\r",
+                  "  pm.expect(json.data).to.be.an('object');\r",
+                  "});\r",
+                  "\r",
+                  "// Basic user shape checks (safe because data is object)\r",
+                  "pm.test('User object contains id, auth0_id, email', () => {\r",
+                  "  const user = json.data;\r",
+                  "  pm.expect(user).to.have.property('id');\r",
+                  "  pm.expect(user).to.have.property('auth0_id');\r",
+                  "  pm.expect(user).to.have.property('email');\r",
+                  "});\r",
+                  "\r",
+                  "// Validate id looks like a UUID (RFC4122-like)\r",
+                  "pm.test('User id looks like a UUID', () => {\r",
+                  "  const id = (json.data && json.data.id) || '';\r",
+                  "  pm.expect(id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);\r",
+                  "});\r",
+                  "\r",
+                  "// Conditional email checks:\r",
+                  "// - if expectedUserEmail is set in env, assert equality\r",
+                  "// - else if bearerToken is present, assert an email string is present\r",
+                  "// - else allow email to be absent (useful for test tokens / CI)\r",
+                  "const expectedEmail = pm.environment.get('expectedUserEmail');\r",
+                  "const bearer = pm.environment.get('bearerToken');\r",
+                  "\r",
+                  "if (expectedEmail) {\r",
+                  "  pm.test('email matches expected', () => {\r",
+                  "    pm.expect(json.data.email).to.eql(expectedEmail);\r",
+                  "  });\r",
+                  "} else if (bearer) {\r",
+                  "  pm.test('email present in token/profile', () => {\r",
+                  "    pm.expect(json.data.email).to.be.a('string');\r",
+                  "  });\r",
+                  "} else {\r",
+                  "  pm.test('email may be absent in test token (or no token provided)', () => {\r",
+                  "    pm.expect([null, undefined, '']).to.include(json.data.email) || pm.expect(json.data.email).to.be.a('string');\r",
+                  "  });\r",
+                  "}\r",
+                  "\r",
+                  "/* Optional stricter checks — uncomment if your environment guarantees these fields\r",
+                  "pm.test('email is expected', () => {\r",
+                  "  pm.expect(json.data.email).to.eql(pm.environment.get('expectedUserEmail'));\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('user has created_at timestamp', () => {\r",
+                  "  pm.expect(json.data).to.have.property('created_at');\r",
+                  "});\r",
+                  "*/"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/callback",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "callback"]
+            },
+            "description": "Sync user after Auth0 login. Frontend calls this after tokens are received from Auth0.\n\n**Requires JWT auth.**"
+          },
+          "response": []
+        },
+        {
+          "name": "Auth0 Callback-Unauthenticated",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Expect 401 + UNAUTHORIZED when Authorization header is missing\r",
+                  "pm.test('Status code is 401', () => {\r",
+                  "  pm.response.to.have.status(401);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('Content-Type is application/json', () => {\r",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+                  "});\r",
+                  "\r",
+                  "let json = {};\r",
+                  "try { json = pm.response.json(); } catch (e) { /* handled below */ }\r",
+                  "\r",
+                  "pm.test('Error envelope present', () => {\r",
+                  "  pm.expect(json).to.have.property('success');\r",
+                  "  pm.expect(json.success).to.be.false;\r",
+                  "  pm.expect(json).to.have.property('error');\r",
+                  "  pm.expect(json.error).to.have.property('code');\r",
+                  "  pm.expect(json.error).to.have.property('message');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('Error code is UNAUTHORIZED (missing header)', () => {\r",
+                  "  pm.expect(json.error.code).to.eql('UNAUTHORIZED');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/callback",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "callback"]
+            },
+            "description": "Sync user after Auth0 login. Frontend calls this after tokens are received from Auth0.\n\n**Requires JWT auth.**"
+          },
+          "response": []
+        },
+        {
+          "name": "Auth0 Callback-Invalid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Expect 401 (or the status your API returns) + TOKEN_INVALID when token format/contents is invalid\r",
+                  "pm.test('Status code is 401', () => {\r",
+                  "  pm.response.to.have.status(401);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('Content-Type is application/json', () => {\r",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');\r",
+                  "});\r",
+                  "\r",
+                  "let json = {};\r",
+                  "try { json = pm.response.json(); } catch (e) { /* handled below */ }\r",
+                  "\r",
+                  "pm.test('Error envelope present', () => {\r",
+                  "  pm.expect(json).to.have.property('success');\r",
+                  "  pm.expect(json.success).to.be.false;\r",
+                  "  pm.expect(json).to.have.property('error');\r",
+                  "  pm.expect(json.error).to.have.property('code');\r",
+                  "  pm.expect(json.error).to.have.property('message');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test('Error code is TOKEN_INVALID (invalid token)', () => {\r",
+                  "  pm.expect(json.error.code).to.eql('TOKEN_INVALID');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{invalidBearer}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/callback",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "callback"]
+            },
+            "description": "Sync user after Auth0 login. Frontend calls this after tokens are received from Auth0.\n\n**Requires JWT auth.**"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Get the currently authenticated user's info.\n\n**Requires JWT auth.**"
+          },
+          "response": []
+        },
+        {
+          "name": "Check Auth Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "status"]
+            },
+            "description": "Check if the user is authenticated (checks JWT validity)."
+          },
+          "response": []
+        },
+        {
+          "name": "Logout Instructions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Get instructions for client-side logout.\n\n**No authentication required.**"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "User Settings",
+          "item": [
+            {
+              "name": "Get Settings",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me/settings",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "me", "settings"]
+                },
+                "description": "Get the user's settings (currency, notifications, theme, timezone).\n\n**Requires JWT auth.**"
+              },
+              "response": []
+            },
+            {
+              "name": "Update Settings",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{ \"currency\": \"USD\", \"theme\": \"dark\", \"timezone\": \"America/Los_Angeles\", \"notifications\": {\"reminders\": true} }"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/me/settings",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "users", "me", "settings"]
+                },
+                "description": "Update user settings (currency, theme, timezone, notification preferences).\n\n**Sample body:**\n```\n{\n  \"currency\": \"USD\",\n  \"theme\": \"dark\",\n  \"timezone\": \"America/New_York\",\n  \"notifications\": { \"reminders\": true }\n}\n```"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "me"]
+            },
+            "description": "Get the logged-in user's profile data.\n\n**Requires JWT auth.**"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"first_name\": \"John\", \"last_name\": \"Doe\", \"nickname\": \"JD\" }"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "me"]
+            },
+            "description": "Update user's profile (first/last name, nickname).\n\n**Requires JWT auth.**\n\n**Sample body:**\n```\n{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"nickname\": \"JD\"\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Deactivate Account",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me/deactivate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "me", "deactivate"]
+            },
+            "description": "Deactivate the current user's account (soft delete, can be reactivated via support).\n\n**Requires JWT auth.**"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "List Transactions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions?page=1&per_page=20&transaction_type=&category=&start_date=&end_date=&sort_by=date&sort_order=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                },
+                {
+                  "key": "transaction_type",
+                  "value": ""
+                },
+                {
+                  "key": "category",
+                  "value": ""
+                },
+                {
+                  "key": "start_date",
+                  "value": ""
+                },
+                {
+                  "key": "end_date",
+                  "value": ""
+                },
+                {
+                  "key": "sort_by",
+                  "value": "date"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "desc"
+                }
+              ]
+            },
+            "description": "Get a paginated list of user's transactions (filter/sort by type, date, category, etc).\n\n**Requires JWT auth.**"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transaction",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/8d7c9177-f546-4486-a5a1-f42bf018fd45",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "transactions",
+                "8d7c9177-f546-4486-a5a1-f42bf018fd45"
+              ]
+            },
+            "description": "Get a single transaction by ID.\n\n**Requires JWT auth.**\n\nSet the `:id` path variable to your transaction's UUID."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Transaction",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transaction_type\": \"income\",\n  \"amount\": \"125.50\",\n  \"date\": \"2022-09-01\",\n  \"category\": \"Salary\",\n  \"merchant_name\": \"Company.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions"]
+            },
+            "description": "Create a new transaction for the user.\n\n**Requires JWT auth.**\n\nSample body:\n```\n{\n  \"transaction_type\": \"income\",\n  \"amount\": \"125.50\",\n  \"date\": \"2022-09-01\",\n  \"category\": \"Salary\",\n  \"merchant_name\": \"Company Inc.\"\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Transaction",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"transaction_type\": \"expense\",\n  \"amount\": \"18.00\",\n  \"date\": \"2022-09-02\",\n  \"category\": \"Lunch\",\n  \"merchant_name\": \"Cafe\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/8d7c9177-f546-4486-a5a1-f42bf018fd45",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "transactions",
+                "8d7c9177-f546-4486-a5a1-f42bf018fd45"
+              ]
+            },
+            "description": "Update an existing transaction.\n\n**Requires JWT auth.**\nSet `:id` to transaction UUID.\nSample body:\n```\n{\n  \"transaction_type\": \"expense\",\n  \"amount\": \"18.00\",\n  \"date\": \"2022-09-02\",\n  \"category\": \"Lunch\",\n  \"merchant_name\": \"Cafe\"\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Transaction",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/8d7c9177-f546-4486-a5a1-f42bf018fd45",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "transactions",
+                "8d7c9177-f546-4486-a5a1-f42bf018fd45"
+              ]
+            },
+            "description": "Delete a user's transaction by ID.\n\n**Requires JWT auth.**"
+          },
+          "response": []
+        },
+        {
+          "name": "Transaction Summary",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/summary?start_date=2022-01-01&end_date=2022-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions", "summary"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2022-01-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2022-12-31"
+                }
+              ]
+            },
+            "description": "Get summary stats for user's transactions.\n\n**Requires JWT auth.** Query params: `start_date`, `end_date`."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Loans",
+      "item": [
+        {
+          "name": "List Loans",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{bearerToken}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/loans",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loans"]
+            },
+            "description": "Get a list of all loans for the authenticated user.\nSupports optional query params: `status=open|closed`."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Loan",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{bearerToken}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/loans/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loans", ":id"]
+            },
+            "description": "Get a single loan by ID.\nSet `:id` to the loan's UUID.\n**Requires JWT auth.**"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Loan",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{bearerToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Car Loan\",\n  \"original_amount\": \"15000.00\",\n  \"remaining_amount\": \"15000.00\",\n  \"category_id\": \"<category_uuid>\",\n  \"budget_id\": \"<optional_budget_uuid>\",\n  \"status\": \"open\",\n  \"start_date\": \"2026-01-01\",\n  \"end_date\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/loans",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loans"]
+            },
+            "description": "Create a new loan for the authenticated user.\n**Requires JWT auth.**\nSample body shown."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Loan",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{bearerToken}}", "type": "string" }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"remaining_amount\": \"12000.00\",\n  \"status\": \"open\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/loans/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loans", ":id"]
+            },
+            "description": "Update an existing loan.\nSet `:id` to loan UUID.\n**Requires JWT auth.**"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Loan",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{bearerToken}}", "type": "string" }
+              ]
+            },
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/loans/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "loans", ":id"]
+            },
+            "description": "Soft-delete a loan by ID.\n**Requires JWT auth.**"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "README / How To Use",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/docs",
+          "host": ["{{baseUrl}}"],
+          "path": ["docs"]
+        },
+        "description": "Welcome to the Digital Finance Tracker API Postman Collection!\n\n**Setup:**\n\n- Set the `baseUrl` variable to your local/staging/prod server.\n    \n- For protected endpoints, set the `bearerToken` variable (copy your Auth0 JWT here).\n    \n\n**Key flows:**\n\n- Start with Auth endpoints to get a valid token.\n    \n- Test API health and connectivity with `/health` and `/api/test`.\n    \n- All error/success response formats follow a strict API contract (see descriptions).\n    \n\nContact the backend team with questions or for credentials.\n\nFull instructions available in the README.md within this folder."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "bearerToken",
+      "value": ""
+    }
+  ]
 }

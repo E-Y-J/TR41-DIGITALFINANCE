@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Box, Tooltip, IconButton } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import PieChartIcon from "@mui/icons-material/PieChart";
 import DashboardWidget from "../../components/common/DashboardWidget";
@@ -7,6 +9,7 @@ import BudgetBarChart from "./components/BudgetBarChart";
 import BudgetBreakdownPie from "./components/BudgetBreakdownPie";
 
 const SpendingWidget = () => {
+  const navigate = useNavigate();
   const [viewGraph, setViewGraph] = useState("graph");
 
   const getButtonStyle = (isActive) => ({
@@ -39,6 +42,15 @@ const SpendingWidget = () => {
           sx={getButtonStyle(viewGraph === "pie")}
         >
           <PieChartIcon />
+        </IconButton>
+      </Tooltip>
+
+      <Tooltip title="View Summary">
+        <IconButton
+          onClick={() => navigate("/home/budget")}
+          sx={getButtonStyle(viewGraph === "summary")}
+        >
+          <ArrowForwardIcon />
         </IconButton>
       </Tooltip>
     </Box>

@@ -47,6 +47,7 @@ from app.models.enums import (
 # Import models
 from app.models.user import User
 from app.models.transaction import Transaction
+from app.models.loan import Loan
 
 # AI Foundation models
 from app.models.category import Category
@@ -89,6 +90,7 @@ __all__ = [
     "Notification",
     "Alert",
     "Budget",
+    "Loan",
     # AI Session models (Sprint 3)
     "AISession",
     "PendingAction",

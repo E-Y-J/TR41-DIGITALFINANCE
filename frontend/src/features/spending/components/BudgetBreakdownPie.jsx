@@ -11,7 +11,7 @@ import {
   formatCurrency,
 } from "../../../utils/chartHelpers";
 
-import { ChartControls } from "../../../components/common/ChartControls";
+import ChartControls from "../../../components/common/ChartControls";
 import { PieCenterLabel, CustomLegend } from "./PieChartExtras";
 
 const fullDataset = generateChartData();
@@ -23,7 +23,6 @@ export default function BudgetBreakdownPie() {
   const { page, totalPages, currentData, handleNext, handlePrev, setIsPaused } =
     useChartPagination(fullDataset);
 
-  // Transformations
   const chartData = useMemo(
     () => transformDataForPie(currentData),
     [currentData],

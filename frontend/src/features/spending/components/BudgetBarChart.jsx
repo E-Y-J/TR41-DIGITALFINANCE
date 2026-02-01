@@ -5,7 +5,7 @@ import { Box, Stack, useMediaQuery } from "@mui/material";
 import { useChartPagination } from "../../../hooks/useChartPagination";
 import { generateChartData } from "../../../utils/chartHelpers";
 
-import { ChartControls } from "../../../components/common/ChartControls";
+import ChartControls from "../../../components/common/ChartControls";
 
 const fullDataset = generateChartData();
 
@@ -29,6 +29,39 @@ const BudgetBarChart = () => {
         <BarChart
           dataset={currentData}
           layout="horizontal"
+          grid={{ vertical: true }}
+          yAxis={[
+            {
+              scaleType: "band",
+              dataKey: "category",
+              categoryGapRatio: 0.3,
+              barGapRatio: 0.1,
+              tickLabelStyle: {
+                fontSize: isMobile ? 10 : 12,
+                angle: 0,
+                textAnchor: "end",
+                fill: theme.palette.text.secondary,
+                fontWeight: 500,
+              },
+            },
+          ]}
+          xAxis={[
+            {
+              tickNumber: isMobile ? 3 : 6,
+
+              valueFormatter: (value) => `$${value}`,
+
+              tickLabelStyle: {
+                fontSize: isMobile ? 10 : 12,
+                fill: theme.palette.text.secondary,
+              },
+
+              labelStyle: {
+                fontSize: isMobile ? 12 : 14,
+                transform: `translateY(${isMobile ? 5 : 0}px)`,
+              },
+            },
+          ]}
           series={[
             {
               dataKey: "spent",
@@ -45,12 +78,11 @@ const BudgetBarChart = () => {
               borderRadius: 4,
             },
           ]}
-          // ... Axis config ...
           height={350}
           margin={{
             left: isMobile ? 10 : 20,
-            right: isMobile ? 10 : 30,
-            top: 50,
+            right: isMobile ? 10 : 20,
+            top: 20,
             bottom: 20,
           }}
           slotProps={{
