@@ -8,6 +8,7 @@ export const useGetTransactions = (params = {}) => {
   return useQuery({
     queryKey: ["transactions", params],
     queryFn: () => getTransactions(apiClient, params),
+    refetchOnWindowFocus: false,
     select: (response) => {
       const serverData = response.data;
 

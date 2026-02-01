@@ -10,7 +10,11 @@ export const useGetUser = () => {
     queryFn: () => getUser(apiClient),
     select: (response) => response.data,
     placeholderData: (previousData) => previousData,
-    staleTime: 1000 * 60 * 60,
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 60 * 24,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };
 
