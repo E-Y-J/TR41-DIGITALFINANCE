@@ -1,4 +1,14 @@
-import { Menu, MenuItem, ListItemIcon, Box, Typography } from "@mui/material";
+import {
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Box,
+  Typography,
+  Divider,
+  alpha,
+  useTheme,
+} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -9,6 +19,13 @@ const TransactionActionMenu = ({
   onEdit,
   onDelete,
 }) => {
+  const theme = useTheme();
+
+  const handleAction = (actionCallback) => {
+    if (actionCallback) actionCallback(selectedRow);
+    onClose();
+  };
+
   return (
     <Menu
       open={contextMenu !== null}
@@ -19,74 +36,93 @@ const TransactionActionMenu = ({
           ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
           : undefined
       }
+      transformOrigin={{ vertical: "top", horizontal: "left" }}
       slotProps={{
         paper: {
-          elevation: 3,
+          elevation: 0,
           sx: {
-            borderRadius: 2,
-            minWidth: 180,
+            minWidth: 200,
+            borderRadius: 3,
+            border: `1px solid ${theme.palette.divider}`,
+            boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)",
             overflow: "visible",
-            filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-            mt: 0,
+            mt: 1.5,
           },
         },
       }}
     >
       <Box
-        sx={{
-          px: 2,
-          py: 1.5,
-          borderBottom: "1px solid",
-          borderColor: "divider",
-          bgcolor: "grey.50",
-          outline: "none",
-        }}
+        sx={{ px: 2.5, py: 1.5, bgcolor: alpha(theme.palette.grey[50], 0.5) }}
       >
         <Typography
           variant="caption"
           display="block"
-          color="text.secondary"
-          fontWeight={700}
-          sx={{ fontSize: "0.7rem", letterSpacing: "0.5px" }}
+          sx={{
+            fontWeight: 700,
+            color: "text.disabled",
+            fontSize: "0.65rem",
+            letterSpacing: 1,
+            mb: 0.5,
+          }}
         >
-          MANAGE
+          MANAGE TRANSACTION
         </Typography>
         <Typography
-          variant="body2"
-          fontWeight={600}
+          variant="subtitle2"
           noWrap
-          sx={{ maxWidth: 200 }}
+          sx={{
+            fontWeight: 600,
+            color: "text.primary",
+            maxWidth: 180,
+          }}
         >
-          {selectedRow?.merchant_name || "Transaction"}
+          {selectedRow?.merchant_name || "Select Action"}
         </Typography>
       </Box>
 
+      <Divider />
+
       <MenuItem
-        onClick={() => {
-          if (onEdit) onEdit(selectedRow);
-          onClose();
+        onClick={() => handleAction(onEdit)}
+        sx={{
+          mx: 1,
+          mt: 1,
+          borderRadius: 1.5,
+          "&:hover": {
+            bgcolor: alpha(theme.palette.primary.main, 0.08),
+            "& .MuiListItemIcon-root": { color: "primary.main" },
+          },
         }}
-        dense
-        sx={{ py: 1, mt: 0.5 }}
       >
-        <ListItemIcon>
+        <ListItemIcon sx={{ minWidth: 32, color: "text.secondary" }}>
           <EditIcon fontSize="small" />
         </ListItemIcon>
-        Edit
+        <ListItemText
+          primary="Edit Details"
+          primaryTypographyProps={{ variant: "body2", fontWeight: 500 }}
+        />
       </MenuItem>
 
       <MenuItem
-        onClick={() => {
-          if (onDelete) onDelete(selectedRow);
-          onClose();
+        onClick={() => handleAction(onDelete)}
+        sx={{
+          mx: 1,
+          my: 0.5,
+          mb: 1,
+          borderRadius: 1.5,
+          color: "error.main",
+          "&:hover": {
+            bgcolor: alpha(theme.palette.error.main, 0.08),
+          },
         }}
-        dense
-        sx={{ color: "error.main", py: 1 }}
       >
-        <ListItemIcon>
-          <DeleteIcon fontSize="small" color="error" />
+        <ListItemIcon sx={{ minWidth: 32, color: "error.main" }}>
+          <DeleteIcon fontSize="small" />
         </ListItemIcon>
-        Delete
+        <ListItemText
+          primary="Delete"
+          primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
+        />
       </MenuItem>
     </Menu>
   );
