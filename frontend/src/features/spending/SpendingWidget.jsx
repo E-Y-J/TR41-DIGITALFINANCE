@@ -3,8 +3,8 @@ import { Box, Tooltip, IconButton } from "@mui/material";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import PieChartIcon from "@mui/icons-material/PieChart";
 import DashboardWidget from "../../components/common/DashboardWidget";
-import BudgetBarChart from "./MonthlyTracker";
-import SpendingPie from "./PieChart";
+import BudgetBarChart from "./components/BudgetBarChart";
+import BudgetBreakdownPie from "./components/BudgetBreakdownPie";
 
 const SpendingWidget = () => {
   const [viewGraph, setViewGraph] = useState("graph");
@@ -47,7 +47,7 @@ const SpendingWidget = () => {
   return (
     <DashboardWidget title="My Monthly Spending" action={headerActions}>
       <Box sx={{ mt: 1, height: "100%", width: "100%" }}>
-        {viewGraph === "graph" ? <BudgetBarChart /> : <SpendingPie />}
+        {viewGraph === "graph" ? <BudgetBarChart /> : <BudgetBreakdownPie />}
       </Box>
     </DashboardWidget>
   );

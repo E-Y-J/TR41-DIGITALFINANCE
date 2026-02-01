@@ -20,18 +20,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { useCreateTransaction } from "../useCreateTransaction";
 
-const CATEGORIES = [
-  "Food & Dining",
-  "Transportation",
-  "Shopping & Retail",
-  "Entertainment & Recreation",
-  "Healthcare & Medical",
-  "Utilities & Services",
-  "Financial Services",
-  "Income",
-  "Government & Legal",
-  "Charity & Donations",
-];
+import { CATEGORIES } from "../../../utils/constants";
 
 const shrink = keyframes`
   from { width: 100%; }

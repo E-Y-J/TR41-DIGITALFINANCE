@@ -15,18 +15,7 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import MoneyOffIcon from "@mui/icons-material/MoneyOff";
 import AppsIcon from "@mui/icons-material/Apps";
 
-const CATEGORIES = [
-  "Food & Dining",
-  "Transportation",
-  "Shopping & Retail",
-  "Entertainment & Recreation",
-  "Healthcare & Medical",
-  "Utilities & Services",
-  "Financial Services",
-  "Income",
-  "Government & Legal",
-  "Charity & Donations",
-];
+import { CATEGORIES } from "../../../utils/constants";
 
 export const TransactionFilters = ({ filters, onFilterChange }) => {
   const handleChange = (field, value) => {
