@@ -58,6 +58,25 @@ export const TransactionFilters = ({ filters, onFilterChange }) => {
     },
   });
 
+  const styledMenuItem = {
+    borderRadius: 2,
+    mx: 1,
+    my: 0.5,
+    typography: "body2",
+    transition: "all 0.2s",
+
+    "&:hover": {
+      bgcolor: "grey.100",
+      transform: "translateY(-1px)",
+    },
+
+    "&.Mui-selected": {
+      bgcolor: "primary.main",
+      color: "white",
+      fontWeight: 600,
+    },
+  };
+
   const textFieldStyles = {
     flex: 1,
     "& .MuiOutlinedInput-root": {
@@ -129,11 +148,31 @@ export const TransactionFilters = ({ filters, onFilterChange }) => {
                 </InputAdornment>
               ),
             },
+            select: {
+              MenuProps: {
+                PaperProps: {
+                  elevation: 3,
+                  sx: {
+                    maxHeight: 300,
+                    borderRadius: 3,
+                    mt: 1,
+                    bgcolor: "background.paper",
+                    boxShadow: "0px 4px 20px rgba(0,0,0,0.1)",
+                    "& .MuiList-root": {
+                      p: 1,
+                    },
+                  },
+                },
+                disableScrollLock: true,
+              },
+            },
           }}
         >
-          <MenuItem value="All">All Categories</MenuItem>
+          <MenuItem value="All" sx={styledMenuItem}>
+            All Categories
+          </MenuItem>
           {CATEGORIES.map((cat) => (
-            <MenuItem key={cat} value={cat}>
+            <MenuItem key={cat} value={cat} sx={styledMenuItem}>
               {cat}
             </MenuItem>
           ))}
