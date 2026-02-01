@@ -394,7 +394,7 @@ class CategoryService:
                 if category:
                     logger.info(
                         f"Auto-categorize '{merchant_name}' -> "
-                        f"{category.name} ({source}: {confidence:.0%})"
+                        f"{category.name} ({source}: {confidence:%})"
                     )
                     return category, confidence, source
 

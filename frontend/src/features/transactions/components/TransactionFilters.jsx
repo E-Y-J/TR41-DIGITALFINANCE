@@ -18,12 +18,14 @@ import AppsIcon from "@mui/icons-material/Apps";
 const CATEGORIES = [
   "Food & Dining",
   "Transportation",
-  "Utilities",
-  "Entertainment",
-  "Shopping",
+  "Shopping & Retail",
+  "Entertainment & Recreation",
   "Healthcare & Medical",
+  "Utilities & Services",
   "Financial Services",
   "Income",
+  "Government & Legal",
+  "Charity & Donations",
 ];
 
 export const TransactionFilters = ({ filters, onFilterChange }) => {

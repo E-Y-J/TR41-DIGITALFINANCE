@@ -261,7 +261,7 @@ class Config:
         """Load database configuration from environment."""
         self.database = DatabaseConfig(
             url=os.getenv("DATABASE_URL", ""),
-            echo=self.DEBUG,
+            echo=os.getenv("SQLALCHEMY_ECHO", "0") == "1", 
             pool_size=int(os.getenv("DB_POOL_SIZE", "5")),
             pool_recycle=int(os.getenv("DB_POOL_RECYCLE", "3600")),
         )
