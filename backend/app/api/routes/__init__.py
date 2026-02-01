@@ -21,6 +21,7 @@ from app.api.routes.auth import bp as auth_bp
 from app.api.routes.users import bp as users_bp
 from app.api.routes.transactions import bp as transactions_bp
 from app.api.routes.test import bp as test_bp
+from app.api.routes.loan import bp as loans_bp
 
 # AI Foundation: Categorization, Notifications & Analytics
 from app.api.routes.categories import bp as categories_bp
@@ -38,6 +39,7 @@ __all__ = [
     "users_bp",
     "transactions_bp",
     "test_bp",
+    "loans_bp",
     # AI Foundation routes
     "categories_bp",
     "notifications_bp",

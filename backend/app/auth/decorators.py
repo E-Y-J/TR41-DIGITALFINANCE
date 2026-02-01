@@ -100,6 +100,12 @@ def requires_auth(f: F) -> F:
 
     @wraps(f)
     def decorated(*args: Any, **kwargs: Any) -> Any:
+        # TESTING SHORTCUT: bypass real auth in unit/integration tests
+        # FLASK_ENV is set to "testing" in tests/conftest.py
+        if os.getenv("FLASK_ENV") == "testing":
+            logger.warning("requires_auth: TESTING shortcut active, bypassing Auth0")
+            return f(*args, **kwargs)
+        
         # DEV IMPERSONATION (skip Auth0)
         is_dev = os.getenv("FLASK_ENV") == "development"
         dev_impersonation = os.getenv("DEV_IMPERSONATION", "").lower() == "true"

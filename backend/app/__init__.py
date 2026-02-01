@@ -204,20 +204,24 @@ def _register_blueprints(app: Flask) -> None:
 
     app.register_blueprint(budgets_bp)  # url_prefix already set in blueprint
 
-    # =========================================================================
-    # AI Integration: Chat, Categorization, Insights Routes
-    # =========================================================================
-
     # AI routes (chat, categorize, insights, clarifications)
     from app.api.routes.ai import bp as ai_bp
 
     app.register_blueprint(ai_bp)  # url_prefix already set in blueprint
+    
+    # Loan routes
+    from app.api.routes.loan import bp as loans_bp
+
+    app.register_blueprint(loans_bp, url_prefix="/api/loans")
+
+    # =========================================================================
+    # AI Integration: Chat, Categorization, Insights Routes
+    # =========================================================================
 
     logger.debug(
         "Registered blueprints: auth, users, transactions, test, "
-        "categories, notifications, summary, alerts, budgets, ai"
+        "categories, notifications, summary, alerts, budgets, ai, loans"
     )
-
 
 # =============================================================================
 # AI MODEL PRELOADING

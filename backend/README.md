@@ -490,11 +490,11 @@ venv\Scripts\activate
 <summary>Optional: Adjust number of users or output file</summary>
 
 ```bash
-# Example: 10 users and 50 transactions
-python tools/populate_db.py --users 10 --transactions 50
+# Example: 10 users, transactions and loans default
+python tools/populate_db.py --users 10
 
-# Example: 20 users and 100 transactions
-python tools/populate_db.py --users 20 --transactions 100
+# Example: 20 users, transactions and loans default
+python tools/populate_db.py --users 20 
 
 cd ..
 ```
