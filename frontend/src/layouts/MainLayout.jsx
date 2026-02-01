@@ -1,19 +1,12 @@
-import { useState } from "react";
 import { Box, Toolbar } from "@mui/material";
 import Navbar from "./Navbar";
+import Footer from "../features/landing/Footer";
 
 const MainLayout = ({ children }) => {
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  // Toggle mobile drawer -> needs to be implemented in the navbar
-  const handleMobileDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
-
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", flexDirection: "column" }}>
       {/* Navbar */}
-      <Navbar handleMobileDrawerToggle={handleMobileDrawerToggle} />
+      <Navbar />
 
       {/* Main Page Content */}
       <Box
@@ -22,6 +15,11 @@ const MainLayout = ({ children }) => {
       >
         <Toolbar />
         {children}
+      </Box>
+
+      {/* Footer */}
+      <Box component="footer" sx={{ width: "100%", mt: "auto" }}>
+        <Footer />
       </Box>
     </Box>
   );
