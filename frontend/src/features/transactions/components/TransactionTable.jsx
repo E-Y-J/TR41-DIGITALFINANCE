@@ -11,7 +11,7 @@ import EmptyState from "../../../components/common/EmptyState";
 import TransactionActionMenu from "./TransactionActionMenu";
 
 import { TransactionRow } from "./TransactionRow";
-import { formatDate } from "../../../utils/transactionUtils";
+import { formatDate } from "../../../utils/constants";
 
 const headerStyle = {
   color: "text.secondary",

@@ -27,3 +27,12 @@ export const CATEGORY_COLORS = {
 export const getCategoryColor = (categoryName) => {
   return CATEGORY_COLORS[categoryName] || "#BDBDBD";
 };
+
+export const formatDate = (dateString) => {
+  if (!dateString) return "";
+  return new Date(dateString).toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  });
+};

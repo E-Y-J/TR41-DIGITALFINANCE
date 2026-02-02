@@ -1,58 +1,45 @@
 import { LineChart } from "@mui/x-charts/LineChart";
-import { useTheme, alpha } from "@mui/material/styles";
-import { Box, Typography, Paper } from "@mui/material";
-import SentimentDissatisfiedIcon from "@mui/icons-material/SentimentDissatisfied";
+import { useTheme } from "@mui/material/styles";
+import { Box, useMediaQuery } from "@mui/material";
 
-const NoDataView = () => (
-  <Paper
-    variant="outlined"
-    sx={{
-      height: 500,
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      bgcolor: (theme) => alpha(theme.palette.action.hover, 0.5),
-      borderStyle: "dashed",
-      borderColor: "divider",
-    }}
-  >
-    <SentimentDissatisfiedIcon
-      sx={{ fontSize: 48, color: "text.secondary", mb: 2 }}
-    />
-    <Typography color="text.primary" fontWeight={600}>
-      No spending data found
-    </Typography>
-    <Typography variant="caption" color="text.secondary">
-      Try selecting a different month or category.
-    </Typography>
-  </Paper>
-);
+import EmptyState from "../../../components/common/EmptyState";
 
 const DailySpendingChart = ({ data, isLoading }) => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   if (!isLoading && (!data || data.length === 0)) {
-    return <NoDataView />;
+    return (
+      <EmptyState
+        header="No Transactions Found"
+        text="We couldn't find any transactions matching your filters. Try adjusting your date or category."
+      />
+    );
   }
 
-  const chartMargin = { top: 20, right: 30, bottom: 80, left: 70 };
+  const chartHeight = isMobile ? 350 : 500;
+
+  const chartMargin = {
+    top: 10,
+    right: isMobile ? 10 : 30,
+    bottom: 20,
+    left: isMobile ? 10 : 30,
+  };
 
   return (
-    <Box sx={{ width: "100%", height: 500 }}>
+    <Box sx={{ width: "100%", height: chartHeight }}>
       <svg width={0} height={0}>
         <defs>
-          <linearGradient id="spentGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop
-              offset="0%"
-              stopColor={theme.palette.primary.main}
-              stopOpacity={0.3}
-            />
-            <stop
-              offset="100%"
-              stopColor={theme.palette.primary.main}
-              stopOpacity={0.0}
-            />
+          <linearGradient id="lineTemperature" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stopColor="#2196f3" />
+            <stop offset="50%" stopColor="#9c27b0" />
+            <stop offset="100%" stopColor="#f44336" />
+          </linearGradient>
+
+          <linearGradient id="areaTemperature" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stopColor="#2196f3" stopOpacity={0.3} />
+            <stop offset="50%" stopColor="#9c27b0" stopOpacity={0.3} />
+            <stop offset="100%" stopColor="#f44336" stopOpacity={0.3} />
           </linearGradient>
         </defs>
       </svg>
@@ -66,62 +53,66 @@ const DailySpendingChart = ({ data, isLoading }) => {
           {
             scaleType: "point",
             dataKey: "day",
-            label: "Date",
-            tickLabelStyle: {
-              fontSize: 10,
-              angle: -45,
-              textAnchor: "end",
-              fill: theme.palette.text.secondary,
-            },
+            label: "",
+            tickLabelStyle: { display: "none" },
           },
         ]}
         yAxis={[
           {
-            label: "Amount ($)",
+            label: isMobile ? "" : "Amount ($)",
             valueFormatter: (value) => `$${value}`,
             tickLabelStyle: {
-              fontSize: 12,
+              fontSize: isMobile ? 10 : 12,
               fill: theme.palette.text.secondary,
             },
           },
         ]}
         series={[
           {
+            id: "spent",
             dataKey: "spent",
             label: "Spent",
-            color: theme.palette.primary.main,
+            valueFormatter: (value) => `$${value}`,
+            color: "#2196f3",
             showMark: false,
             curve: "natural",
-
             area: true,
             connectNulls: true,
             disableHighlight: false,
           },
           {
+            id: "allocated",
             dataKey: "allocated",
             label: "Allocated",
-            color: theme.palette.grey[400],
+            valueFormatter: (value) => `$${value}`,
+            color: theme.palette.text.secondary,
             showMark: false,
             curve: "step",
-            lineStyle: {
-              strokeDasharray: "8 4",
-              strokeWidth: 2,
-            },
             disableHighlight: true,
           },
         ]}
         sx={{
-          "& .MuiAreaElement-root": {
-            fill: "url(#spentGradient)",
+          "& .MuiAreaElement-series-spent": {
+            fill: "url(#areaTemperature)",
+          },
+          "& .MuiLineElement-series-spent": {
+            stroke: "url(#lineTemperature)",
+            strokeWidth: 4,
           },
         }}
         slotProps={{
           legend: {
             hidden: false,
-            position: { vertical: "top", horizontal: "right" },
+            position: {
+              vertical: "top",
+              horizontal: isMobile ? "middle" : "right",
+            },
             padding: 0,
             itemMarkWidth: 10,
             itemMarkHeight: 10,
+            labelStyle: {
+              fontSize: isMobile ? 12 : 12,
+            },
           },
         }}
       />
