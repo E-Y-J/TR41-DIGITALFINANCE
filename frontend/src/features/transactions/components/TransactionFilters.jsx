@@ -17,7 +17,62 @@ import AppsIcon from "@mui/icons-material/Apps";
 
 import { CATEGORIES } from "../../../utils/constants";
 
-export const TransactionFilters = ({ filters, onFilterChange }) => {
+const getButtonStyle = (isActive) => ({
+  textTransform: "none",
+  fontWeight: 600,
+  borderRadius: 2,
+  px: 2,
+  minWidth: "fit-content",
+  color: isActive ? "common.white" : "text.secondary",
+  bgcolor: isActive ? "primary.main" : "transparent",
+  border: "1px solid",
+  borderColor: isActive ? "primary.main" : "divider",
+  "&:hover": {
+    bgcolor: isActive ? "primary.dark" : "action.hover",
+    borderColor: isActive ? "primary.dark" : "grey.400",
+  },
+});
+
+const styledMenuItem = {
+  borderRadius: 2,
+  mx: 1,
+  my: 0.5,
+  typography: "body2",
+  transition: "all 0.2s",
+
+  "&:hover": {
+    bgcolor: "grey.100",
+    transform: "translateY(-1px)",
+  },
+
+  "&.Mui-selected": {
+    bgcolor: "primary.main",
+    color: "white",
+    fontWeight: 600,
+  },
+  "&.Mui-selected:hover": {
+    bgcolor: "primary.light",
+  },
+};
+
+const textFieldStyles = {
+  flex: 1,
+  "& .MuiOutlinedInput-root": {
+    borderRadius: 3,
+    backgroundColor: "grey.50",
+    transition: "all 0.2s ease-in-out",
+    "&:hover": {
+      backgroundColor: "#f9f9f9",
+      "& .MuiOutlinedInput-notchedOutline": { borderColor: "grey.400" },
+    },
+    "&.Mui-focused": {
+      backgroundColor: "#fff",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+    },
+  },
+};
+
+const TransactionFilters = ({ filters, onFilterChange }) => {
   const handleChange = (field, value) => {
     onFilterChange({ ...filters, [field]: value });
   };
@@ -30,39 +85,6 @@ export const TransactionFilters = ({ filters, onFilterChange }) => {
     filters.search?.trim() !== "" ||
     (filters.category !== "All" && filters.category !== "") ||
     (filters.type !== "All" && filters.type !== "");
-
-  const getButtonStyle = (isActive) => ({
-    textTransform: "none",
-    fontWeight: 600,
-    borderRadius: 2,
-    px: 2,
-    minWidth: "fit-content",
-    color: isActive ? "common.white" : "text.secondary",
-    bgcolor: isActive ? "primary.main" : "transparent",
-    border: "1px solid",
-    borderColor: isActive ? "primary.main" : "divider",
-    "&:hover": {
-      bgcolor: isActive ? "primary.dark" : "action.hover",
-      borderColor: isActive ? "primary.dark" : "grey.400",
-    },
-  });
-
-  const textFieldStyles = {
-    flex: 1,
-    "& .MuiOutlinedInput-root": {
-      borderRadius: 3,
-      backgroundColor: "grey.50",
-      transition: "all 0.2s ease-in-out",
-      "&:hover": {
-        backgroundColor: "#f9f9f9",
-        "& .MuiOutlinedInput-notchedOutline": { borderColor: "grey.400" },
-      },
-      "&.Mui-focused": {
-        backgroundColor: "#fff",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-      },
-    },
-  };
 
   return (
     <Box
@@ -118,11 +140,31 @@ export const TransactionFilters = ({ filters, onFilterChange }) => {
                 </InputAdornment>
               ),
             },
+            select: {
+              MenuProps: {
+                PaperProps: {
+                  elevation: 3,
+                  sx: {
+                    maxHeight: 300,
+                    borderRadius: 3,
+                    mt: 1,
+                    bgcolor: "background.paper",
+                    boxShadow: "0px 4px 20px rgba(0,0,0,0.1)",
+                    "& .MuiList-root": {
+                      p: 1,
+                    },
+                  },
+                },
+                disableScrollLock: true,
+              },
+            },
           }}
         >
-          <MenuItem value="All">All Categories</MenuItem>
+          <MenuItem value="All" sx={styledMenuItem}>
+            All Categories
+          </MenuItem>
           {CATEGORIES.map((cat) => (
-            <MenuItem key={cat} value={cat}>
+            <MenuItem key={cat} value={cat} sx={styledMenuItem}>
               {cat}
             </MenuItem>
           ))}
@@ -134,9 +176,7 @@ export const TransactionFilters = ({ filters, onFilterChange }) => {
           display: "flex",
           alignItems: "center",
           gap: 1.5,
-
           ml: { xs: 0, lg: "auto" },
-
           width: { xs: "100%", sm: "auto" },
           justifyContent: { xs: "space-between", sm: "flex-start" },
           pl: { xs: 0, lg: 2 },
