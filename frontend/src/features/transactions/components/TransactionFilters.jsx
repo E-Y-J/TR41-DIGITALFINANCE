@@ -1,6 +1,5 @@
 import {
   TextField,
-  MenuItem,
   InputAdornment,
   IconButton,
   Tooltip,
@@ -9,24 +8,12 @@ import {
 } from "@mui/material";
 
 import SearchIcon from "@mui/icons-material/Search";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import MoneyOffIcon from "@mui/icons-material/MoneyOff";
 import AppsIcon from "@mui/icons-material/Apps";
 
-const CATEGORIES = [
-  "Food & Dining",
-  "Transportation",
-  "Shopping & Retail",
-  "Entertainment & Recreation",
-  "Healthcare & Medical",
-  "Utilities & Services",
-  "Financial Services",
-  "Income",
-  "Government & Legal",
-  "Charity & Donations",
-];
+import CategorySelect from "../../../components/common/CategorySelect";
 
 const getButtonStyle = (isActive) => ({
   textTransform: "none",
@@ -43,28 +30,6 @@ const getButtonStyle = (isActive) => ({
     borderColor: isActive ? "primary.dark" : "grey.400",
   },
 });
-
-const styledMenuItem = {
-  borderRadius: 2,
-  mx: 1,
-  my: 0.5,
-  typography: "body2",
-  transition: "all 0.2s",
-
-  "&:hover": {
-    bgcolor: "grey.100",
-    transform: "translateY(-1px)",
-  },
-
-  "&.Mui-selected": {
-    bgcolor: "primary.main",
-    color: "white",
-    fontWeight: 600,
-  },
-  "&.Mui-selected:hover": {
-    bgcolor: "primary.light",
-  },
-};
 
 const textFieldStyles = {
   flex: 1,
@@ -132,54 +97,14 @@ const TransactionFilters = ({ filters, onFilterChange }) => {
           }}
         />
 
-        <TextField
-          select
-          label="Category"
-          size="small"
-          value={filters.category || "All"}
-          onChange={(e) => handleChange("category", e.target.value)}
+        <CategorySelect
+          value={filters.category}
+          onChange={(val) => handleChange("category", val)}
           sx={{
-            ...textFieldStyles,
             minWidth: { xs: 140, sm: 180 },
             flex: "0 1 auto",
           }}
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <FilterListIcon fontSize="small" color="action" />
-                </InputAdornment>
-              ),
-            },
-            select: {
-              MenuProps: {
-                PaperProps: {
-                  elevation: 3,
-                  sx: {
-                    maxHeight: 300,
-                    borderRadius: 3,
-                    mt: 1,
-                    bgcolor: "background.paper",
-                    boxShadow: "0px 4px 20px rgba(0,0,0,0.1)",
-                    "& .MuiList-root": {
-                      p: 1,
-                    },
-                  },
-                },
-                disableScrollLock: true,
-              },
-            },
-          }}
-        >
-          <MenuItem value="All" sx={styledMenuItem}>
-            All Categories
-          </MenuItem>
-          {CATEGORIES.map((cat) => (
-            <MenuItem key={cat} value={cat} sx={styledMenuItem}>
-              {cat}
-            </MenuItem>
-          ))}
-        </TextField>
+        />
       </Box>
 
       <Box

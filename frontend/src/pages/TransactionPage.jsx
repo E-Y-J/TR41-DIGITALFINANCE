@@ -1,38 +1,26 @@
-import { useState, useEffect } from "react";
 import { Box, Paper } from "@mui/material";
-
 import TransactionFilters from "../features/transactions/components/TransactionFilters";
 import TransactionToolbar from "../features/transactions/components/TransactionToolbar";
 import TransactionList from "../features/transactions/components/TransactionList";
+import { useTransactionsPage } from "../hooks/useTransactionsPage";
 
 export default function TransactionsPage() {
-  const [filters, setFilters] = useState({
-    search: "",
-    category: "All",
-    type: "All",
-  });
-  const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
-  const [page, setPage] = useState(0);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(filters.search);
-    }, 500);
-
-    return () => clearTimeout(handler);
-  }, [filters.search]);
-
-  const handleFilterChange = (newFilters) => {
-    setFilters(newFilters);
-    setPage(0);
-  };
+  const {
+    transactions,
+    totalCount,
+    isLoading,
+    filters,
+    page,
+    rowsPerPage,
+    onFilterChange,
+    onPageChange,
+    onRowsPerPageChange,
+  } = useTransactionsPage();
 
   return (
     <Box sx={{ p: 3, maxWidth: 1200, mx: "auto" }}>
-      <TransactionToolbar
-        filters={filters}
-        onFilterChange={handleFilterChange}
-      />
+      <TransactionToolbar filters={filters} onFilterChange={onFilterChange} />
+
       <Paper
         elevation={3}
         sx={{
@@ -44,17 +32,22 @@ export default function TransactionsPage() {
           flexDirection: "column",
         }}
       >
-        <Box sx={{ bgcolor: "white" }}>
+        <Box sx={{ mb: 2 }}>
           <TransactionFilters
             filters={filters}
-            onFilterChange={handleFilterChange}
+            onFilterChange={onFilterChange}
           />
         </Box>
+
         <Box sx={{ width: "100%" }}>
           <TransactionList
-            filters={{ ...filters, search: debouncedSearch }}
+            transactions={transactions}
+            totalCount={totalCount}
             page={page}
-            setPage={setPage}
+            rowsPerPage={rowsPerPage}
+            onPageChange={onPageChange}
+            onRowsPerPageChange={onRowsPerPageChange}
+            isLoading={isLoading}
           />
         </Box>
       </Paper>

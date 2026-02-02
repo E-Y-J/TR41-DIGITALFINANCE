@@ -10,15 +10,6 @@ import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 
-export const formatDate = (dateString) => {
-  if (!dateString) return "";
-  return new Date(dateString).toLocaleDateString("en-US", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-  });
-};
-
 export const getIcon = (categoryName = "") => {
   const lowerName = categoryName.toLowerCase();
 
