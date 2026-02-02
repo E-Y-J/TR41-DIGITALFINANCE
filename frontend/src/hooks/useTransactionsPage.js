@@ -6,6 +6,8 @@ export const useTransactionsPage = () => {
     search: "",
     category: "All",
     type: "All",
+    sort_by: "date",
+    sort_order: "desc",
   });
   const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
   const [page, setPage] = useState(0);
