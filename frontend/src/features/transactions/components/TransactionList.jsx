@@ -16,6 +16,8 @@ export const TransactionList = ({ filters, page, setPage }) => {
     transaction_type: filters.type === "All" ? "" : filters.type,
   });
 
+  console.log(data);
+
   const transactions = data?.items || [];
 
   return (
