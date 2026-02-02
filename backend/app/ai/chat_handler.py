@@ -57,6 +57,25 @@ import threading
 logger = logging.getLogger(__name__)
 
 
+def _serialize_for_json(obj: Any) -> Any:
+    """
+    Recursively convert objects to JSON-serializable types.
+
+    Handles UUID, Decimal, datetime, and nested dicts/lists.
+    """
+    if isinstance(obj, UUID):
+        return str(obj)
+    elif isinstance(obj, Decimal):
+        return float(obj)
+    elif isinstance(obj, datetime):
+        return obj.isoformat()
+    elif isinstance(obj, dict):
+        return {k: _serialize_for_json(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [_serialize_for_json(item) for item in obj]
+    return obj
+
+
 # =============================================================================
 # INTENT TYPES
 # =============================================================================
@@ -174,7 +193,7 @@ class ChatSession:
         self._pending_action = action
         self.updated_at = datetime.now(timezone.utc)
 
-        # Store in DB
+        # Store in DB - serialize UUIDs and other non-JSON types
         try:
             from app.models.ai_session import PendingAction
             from app.core.extensions import db
@@ -184,11 +203,14 @@ class ChatSession:
             if existing:
                 existing.cancel()
 
+            # Serialize action data to ensure JSON compatibility
+            serialized_action = _serialize_for_json(action)
+
             # Create new pending action
             db_action = PendingAction.create(
                 user_id=self.user_id,
                 action_type=action.get("type", "unknown"),
-                action_data=action,
+                action_data=serialized_action,
                 session_id=self._db_session.id if self._db_session else None,
             )
             db.session.commit()

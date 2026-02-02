@@ -560,6 +560,22 @@ def get_health():
     except Exception:
         components["guardrails"] = "unavailable"
 
+    # Check RAG
+    try:
+        from app.ai.rag import get_rag_engine
+        rag = get_rag_engine()
+        components["rag"] = "ok" if rag.is_enabled else "unavailable"
+    except Exception:
+        components["rag"] = "unavailable"
+
+    # Check Recurring Detector
+    try:
+        from app.ai.recurring_detector import get_recurring_detector
+        recurring = get_recurring_detector()
+        components["recurring_detector"] = "ok" if recurring.is_initialized else "unavailable"
+    except Exception:
+        components["recurring_detector"] = "unavailable"
+
     # Determine overall status
     unavailable_count = sum(1 for v in components.values() if v == "unavailable")
     if unavailable_count >= 2:
@@ -572,6 +588,301 @@ def get_health():
         "components": components,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }), 200 if overall_status != "unhealthy" else 503
+
+
+# =============================================================================
+# RECURRING TRANSACTIONS ENDPOINTS
+# =============================================================================
+
+
+@bp.route("/recurring", methods=["GET"])
+@requires_auth
+def get_recurring_patterns():
+    """
+    Get detected recurring transaction patterns.
+
+    Analyzes user's transaction history to identify subscriptions
+    and regular bills.
+
+    Query Parameters:
+        force_refresh (bool): Force recalculation (ignore cache)
+
+    Response:
+        {
+            "success": true,
+            "data": {
+                "patterns": [
+                    {
+                        "merchant_name": "Netflix",
+                        "category_name": "Entertainment",
+                        "average_amount": 15.99,
+                        "interval": "monthly",
+                        "next_expected": "2026-02-01",
+                        "confidence": 0.95
+                    }
+                ],
+                "monthly_total": 150.00,
+                "pattern_count": 5
+            }
+        }
+    """
+    try:
+        from app.ai.recurring_detector import get_recurring_detector
+
+        force_refresh = request.args.get("force_refresh", "false").lower() == "true"
+
+        user_id = UUID(g.user.id) if hasattr(g, "user") else None
+        if not user_id:
+            return jsonify({
+                "success": False,
+                "error": {"code": "UNAUTHORIZED", "message": "User not found"},
+            }), 401
+
+        detector = get_recurring_detector()
+        patterns = detector.detect_patterns(user_id, force_refresh=force_refresh)
+        monthly_totals = detector.get_monthly_recurring_total(user_id)
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "patterns": [p.to_dict() for p in patterns],
+                "monthly_total": monthly_totals["monthly_total"],
+                "yearly_projected": monthly_totals["yearly_projected"],
+                "pattern_count": monthly_totals["pattern_count"],
+                "by_category": monthly_totals["by_category"],
+            }
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Get recurring patterns failed: {e}", exc_info=True)
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "RECURRING_FAILED",
+                "message": "Could not detect recurring patterns",
+            }
+        }), 500
+
+
+@bp.route("/recurring/upcoming", methods=["GET"])
+@requires_auth
+def get_upcoming_bills():
+    """
+    Get predicted upcoming recurring bills.
+
+    Query Parameters:
+        days (int): Days to look ahead (default: 30, max: 90)
+
+    Response:
+        {
+            "success": true,
+            "data": {
+                "upcoming": [
+                    {
+                        "merchant_name": "Netflix",
+                        "expected_amount": 15.99,
+                        "expected_date": "2026-02-01",
+                        "days_until": 5
+                    }
+                ],
+                "total_expected": 45.99
+            }
+        }
+    """
+    try:
+        from app.ai.recurring_detector import get_recurring_detector
+
+        days_ahead = min(request.args.get("days", 30, type=int), 90)
+
+        user_id = UUID(g.user.id) if hasattr(g, "user") else None
+        if not user_id:
+            return jsonify({
+                "success": False,
+                "error": {"code": "UNAUTHORIZED", "message": "User not found"},
+            }), 401
+
+        detector = get_recurring_detector()
+        upcoming = detector.get_upcoming_bills(user_id, days_ahead=days_ahead)
+
+        total_expected = sum(b["expected_amount"] for b in upcoming)
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "upcoming": upcoming,
+                "total_expected": round(total_expected, 2),
+                "days_ahead": days_ahead,
+            }
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Get upcoming bills failed: {e}", exc_info=True)
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "UPCOMING_FAILED",
+                "message": "Could not predict upcoming bills",
+            }
+        }), 500
+
+
+@bp.route("/recurring/missed", methods=["GET"])
+@requires_auth
+def get_missed_payments():
+    """
+    Check for potentially missed recurring payments.
+
+    Returns payments that were expected but haven't occurred.
+
+    Response:
+        {
+            "success": true,
+            "data": {
+                "missed": [
+                    {
+                        "merchant_name": "Spotify",
+                        "expected_amount": 9.99,
+                        "expected_date": "2026-01-15",
+                        "days_overdue": 5
+                    }
+                ],
+                "count": 1
+            }
+        }
+    """
+    try:
+        from app.ai.recurring_detector import get_recurring_detector
+
+        user_id = UUID(g.user.id) if hasattr(g, "user") else None
+        if not user_id:
+            return jsonify({
+                "success": False,
+                "error": {"code": "UNAUTHORIZED", "message": "User not found"},
+            }), 401
+
+        detector = get_recurring_detector()
+        missed = detector.check_missed_payments(user_id)
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "missed": missed,
+                "count": len(missed),
+            }
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Check missed payments failed: {e}", exc_info=True)
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "MISSED_CHECK_FAILED",
+                "message": "Could not check missed payments",
+            }
+        }), 500
+
+
+@bp.route("/rag/stats", methods=["GET"])
+@requires_auth
+def get_rag_stats():
+    """
+    Get RAG engine statistics.
+
+    Response:
+        {
+            "success": true,
+            "data": {
+                "is_enabled": true,
+                "total_vectors": 150,
+                "users_indexed": 5
+            }
+        }
+    """
+    try:
+        from app.ai.rag import get_rag_engine
+
+        engine = get_rag_engine()
+        stats = engine.get_stats()
+
+        return jsonify({
+            "success": True,
+            "data": stats
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Get RAG stats failed: {e}", exc_info=True)
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "RAG_STATS_FAILED",
+                "message": "Could not get RAG statistics",
+            }
+        }), 500
+
+
+@bp.route("/rag/query", methods=["POST"])
+@requires_auth
+def query_rag():
+    """
+    Query transactions using natural language via RAG.
+
+    Request Body:
+        {
+            "query": "coffee shop purchases",
+            "top_k": 10
+        }
+
+    Response:
+        {
+            "success": true,
+            "data": {
+                "results": [
+                    {"merchant_name": "Starbucks", "amount": 5.50, "similarity": 0.85}
+                ]
+            }
+        }
+    """
+    try:
+        from app.ai.rag import get_rag_engine
+
+        data = request.get_json() or {}
+        query = data.get("query", "").strip()
+        top_k = min(data.get("top_k", 10), 50)
+
+        if not query:
+            return jsonify({
+                "success": False,
+                "error": {"code": "VALIDATION_ERROR", "message": "Query is required"},
+            }), 400
+
+        user_id = UUID(g.user.id) if hasattr(g, "user") else None
+        if not user_id:
+            return jsonify({
+                "success": False,
+                "error": {"code": "UNAUTHORIZED", "message": "User not found"},
+            }), 401
+
+        engine = get_rag_engine()
+        results = engine.query_transactions(user_id, query, top_k=top_k)
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "results": results,
+                "query": query,
+                "count": len(results),
+            }
+        }), 200
+
+    except Exception as e:
+        logger.error(f"RAG query failed: {e}", exc_info=True)
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "RAG_QUERY_FAILED",
+                "message": "Could not query transactions",
+            }
+        }), 500
 
 
 # =============================================================================

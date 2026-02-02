@@ -1,3 +1,28 @@
+# =============================================================================
+# Digital Finance Tracker - Auth Decorator Unit Tests
+# PURPOSE: Unit tests for authentication decorators
+# =============================================================================
+"""
+Auth Decorator Unit Tests
+
+Tests for the @requires_auth and @optional_auth decorators:
+- Valid token authentication flow
+- Dev impersonation mode (enabled/disabled)
+- Production security (no dev headers allowed)
+- Invalid token handling
+- Optional auth fallback behavior
+- Helper functions (get_current_user, is_authenticated)
+
+Testing Strategy:
+    - Set FLASK_ENV='production' to bypass testing shortcut and test
+      actual auth flow with mocked Auth0 functions
+    - Reset to 'testing' after each test to restore normal behavior
+
+Note:
+    The decorators have a testing shortcut when FLASK_ENV='testing'
+    that bypasses all auth. To test the actual auth flow, we
+    temporarily set FLASK_ENV='production' and mock the Auth0 calls.
+"""
 import os
 import pytest
 from flask import Flask, g, request
@@ -45,6 +70,9 @@ def fake_get_token_from_header(auth_header):
 @patch("app.auth.decorators.get_user_id_from_claims", side_effect=fake_get_user_id_from_claims)
 @patch("app.auth.decorators.get_token_from_header", side_effect=fake_get_token_from_header)
 def test_requires_auth_valid_token(mock_token, mock_get_id, mock_validate, client):
+    # Set to production to bypass testing shortcut and test actual auth flow with mocks
+    os.environ["FLASK_ENV"] = "production"
+
     @requires_auth
     def route():
         return g.auth0_id
@@ -53,6 +81,9 @@ def test_requires_auth_valid_token(mock_token, mock_get_id, mock_validate, clien
     assert route() == "auth0|123"
     assert g.current_user["sub"] == "auth0|123"
     assert g.access_token == "good"
+
+    # Reset to testing after test
+    os.environ["FLASK_ENV"] = "testing"
 
 def test_requires_auth_dev_impersonation_enabled(client):
     os.environ["FLASK_ENV"] = "development"

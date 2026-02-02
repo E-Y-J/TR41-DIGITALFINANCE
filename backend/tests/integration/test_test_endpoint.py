@@ -15,39 +15,8 @@ Tests:
 """
 
 import pytest
-from app import create_app
 
-
-# =============================================================================
-# FIXTURES
-# =============================================================================
-
-
-@pytest.fixture
-def app():
-    """
-    Create application instance for testing.
-
-    Returns:
-        Flask app configured for testing
-    """
-    app = create_app("testing")
-    app.config["TESTING"] = True
-    yield app
-
-
-@pytest.fixture
-def client(app):
-    """
-    Create test client for making requests.
-
-    Args:
-        app: Flask application fixture
-
-    Returns:
-        Flask test client
-    """
-    return app.test_client()
+# Note: Uses fixtures from tests/conftest.py (app, client, db_session)
 
 
 # =============================================================================
