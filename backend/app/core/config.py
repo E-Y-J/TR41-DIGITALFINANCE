@@ -261,7 +261,7 @@ class Config:
         """Load database configuration from environment."""
         self.database = DatabaseConfig(
             url=os.getenv("DATABASE_URL", ""),
-            echo=os.getenv("SQLALCHEMY_ECHO", "0") == "1", 
+            echo=os.getenv("SQLALCHEMY_ECHO", "0") == "1",
             pool_size=int(os.getenv("DB_POOL_SIZE", "5")),
             pool_recycle=int(os.getenv("DB_POOL_RECYCLE", "3600")),
         )
@@ -338,7 +338,16 @@ class DevelopmentConfig(Config):
 
 
 class TestingConfig(Config):
-    """Testing configuration with test database."""
+    """
+    Testing configuration - requires PostgreSQL.
+
+    Note: SQLite is NOT supported because models use PostgreSQL-specific
+    types (JSONB, UUID). Tests must run against PostgreSQL either:
+    - Locally with a test database
+    - In Docker with the postgres container
+
+    Set DATABASE_URL to a test PostgreSQL database when running tests.
+    """
 
     ENV = "testing"
     TESTING = True
@@ -347,9 +356,8 @@ class TestingConfig(Config):
     def __init__(self):
         """Initialize with test-specific settings."""
         super().__init__()
-        # Use SQLite for tests if no test database URL provided
-        if not self.database.url:
-            self.database = DatabaseConfig(url="sqlite:///:memory:", echo=False)
+        # NOTE: SQLite is NOT supported - models use JSONB and UUID
+        # Tests must connect to PostgreSQL (use docker compose for tests)
 
     def validate(self) -> None:
         """Skip validation in testing."""

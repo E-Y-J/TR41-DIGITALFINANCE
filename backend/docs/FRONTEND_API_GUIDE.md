@@ -14,6 +14,8 @@ This document provides comprehensive API documentation for the frontend team to 
 4. [Categories](#categories)
 5. [Transactions](#transactions)
 6. [Alerts & Notifications](#alerts--notifications)
+7. [AI Features](#ai-features)
+8. [Recurring Transactions](#recurring-transactions)
 
 ---
 
@@ -646,6 +648,226 @@ Content-Type: application/json
 
 ---
 
+## AI Features
+
+The AI system provides intelligent features for categorization, chat, and insights.
+
+### AI Health Check
+
+```http
+GET /api/v1/ai/health
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "data": {
+        "status": "healthy",
+        "ai_components": {
+            "categorizer": { "status": "ready" },
+            "intent_classifier": { "status": "ready" },
+            "guardrails": { "status": "ready" },
+            "anomaly_detector": { "status": "ready" },
+            "rag_engine": { "status": "ready" },
+            "recurring_detector": { "status": "ready" }
+        }
+    }
+}
+```
+
+### Chat with AI
+
+```http
+POST /api/v1/ai/chat
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+    "message": "How much did I spend on food last month?",
+    "session_id": "optional-session-uuid"
+}
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "data": {
+        "response": "Based on your transactions, you spent $450.00 on food last month...",
+        "session_id": "session-uuid",
+        "intent": "spending_summary",
+        "confidence": 0.92
+    }
+}
+```
+
+### AI-Powered Categorization
+
+```http
+POST /api/v1/ai/categorize
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+    "merchant_name": "STARBUCKS",
+    "amount": 5.75,
+    "description": "Coffee purchase"
+}
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "data": {
+        "category": "Food & Dining",
+        "category_id": "uuid",
+        "confidence": 0.95,
+        "source": "huggingface"
+    }
+}
+```
+
+### RAG Query (Natural Language Transaction Search)
+
+```http
+POST /api/v1/ai/rag/query
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+    "query": "coffee purchases",
+    "limit": 5
+}
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "data": {
+        "transactions": [
+            {
+                "transaction_id": "uuid",
+                "merchant_name": "Starbucks",
+                "category_name": "Food & Dining",
+                "amount": 5.75,
+                "similarity": 0.92
+            }
+        ]
+    }
+}
+```
+
+---
+
+## Recurring Transactions
+
+Detect and track recurring transactions like subscriptions and bills.
+
+### Get Recurring Patterns
+
+```http
+GET /api/v1/ai/recurring
+Authorization: Bearer <access_token>
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "data": {
+        "patterns": [
+            {
+                "merchant_name": "Netflix",
+                "category_name": "Entertainment",
+                "average_amount": 15.99,
+                "interval": "monthly",
+                "confidence": 0.95,
+                "status": "active",
+                "transaction_count": 6,
+                "next_expected_date": "2026-02-15",
+                "days_until_next": 19
+            },
+            {
+                "merchant_name": "Spotify",
+                "category_name": "Entertainment",
+                "average_amount": 9.99,
+                "interval": "monthly",
+                "confidence": 0.92,
+                "status": "active",
+                "transaction_count": 8,
+                "next_expected_date": "2026-02-01",
+                "days_until_next": 5
+            }
+        ]
+    }
+}
+```
+
+### Get Upcoming Bills
+
+```http
+GET /api/v1/ai/recurring/upcoming?days=30
+Authorization: Bearer <access_token>
+```
+
+**Query Parameters:**
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `days` | integer | 30 | Days to look ahead |
+
+**Response:**
+```json
+{
+    "success": true,
+    "data": {
+        "upcoming": [
+            {
+                "merchant_name": "Spotify",
+                "expected_amount": 9.99,
+                "expected_date": "2026-02-01",
+                "days_until": 5
+            },
+            {
+                "merchant_name": "Netflix",
+                "expected_amount": 15.99,
+                "expected_date": "2026-02-15",
+                "days_until": 19
+            }
+        ],
+        "total_expected": 25.98
+    }
+}
+```
+
+### Get Missed Payments
+
+```http
+GET /api/v1/ai/recurring/missed
+Authorization: Bearer <access_token>
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "data": {
+        "missed": [
+            {
+                "merchant_name": "Gym Membership",
+                "expected_amount": 29.99,
+                "expected_date": "2026-01-15",
+                "days_overdue": 12
+            }
+        ]
+    }
+}
+```
+
+---
+
 ## Error Codes
 
 | Code | HTTP Status | Description |
@@ -704,5 +926,19 @@ Content-Type: application/json
 - [ ] Poll `GET /api/alerts` periodically
 - [ ] Show budget warning/exceeded alerts prominently
 - [ ] Allow dismissing alerts via `PATCH /api/alerts/<id>/dismiss`
+
+### AI Chat Integration
+- [ ] Implement chat interface for AI assistant
+- [ ] Call `POST /api/v1/ai/chat` with user messages
+- [ ] Maintain session_id for conversation continuity
+- [ ] Display AI responses with confidence indicators
+- [ ] Handle different intents (spending_summary, add_transaction, etc.)
+
+### Recurring Transactions
+- [ ] Call `GET /api/v1/ai/recurring` for detected subscriptions
+- [ ] Display list with merchant, amount, interval
+- [ ] Call `GET /api/v1/ai/recurring/upcoming` for upcoming bills
+- [ ] Show calendar/timeline view of expected payments
+- [ ] Alert on missed payments via `GET /api/v1/ai/recurring/missed`
 
 ---

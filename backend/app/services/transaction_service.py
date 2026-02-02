@@ -347,6 +347,50 @@ class TransactionService:
                     # Don't fail transaction creation if alert fails
                     logger.warning(f"Failed to check budget alerts: {alert_error}")
 
+            # =================================================================
+            # Check for anomalies (large transactions, unusual spending, etc.)
+            # =================================================================
+            if tx_type == TransactionType.EXPENSE:
+                try:
+                    from app.ai.anomaly_detector import get_detector
+
+                    detector = get_detector()
+                    anomalies = detector.check_transaction(
+                        user_id=user.id,
+                        transaction=transaction,
+                        create_alerts=True,  # Auto-create Alert records
+                    )
+                    if anomalies:
+                        logger.info(
+                            f"Anomaly alert(s) triggered for user {user.id}: "
+                            f"{[a['type'] for a in anomalies]}"
+                        )
+                except Exception as anomaly_error:
+                    # Don't fail transaction creation if anomaly check fails
+                    logger.warning(f"Failed to check anomalies: {anomaly_error}")
+
+            # =================================================================
+            # Index transaction for RAG (semantic search)
+            # =================================================================
+            if tx_type == TransactionType.EXPENSE and category_id and validated.get("merchant_name"):
+                try:
+                    from app.ai.rag import get_rag_engine
+                    from app.models.category import Category
+
+                    category = Category.query.get(category_id)
+                    if category:
+                        rag_engine = get_rag_engine()
+                        rag_engine.index_transaction(
+                            user_id=user.id,
+                            transaction_id=transaction.id,
+                            merchant_name=validated["merchant_name"],
+                            category_name=category.name,
+                            amount=float(transaction.amount),
+                        )
+                except Exception as rag_error:
+                    # Don't fail transaction creation if RAG indexing fails
+                    logger.warning(f"Failed to index for RAG: {rag_error}")
+
             return transaction
 
         except Exception as e:

@@ -101,10 +101,7 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     if config.database:
         app.config["SQLALCHEMY_DATABASE_URI"] = config.database.url
         app.config["SQLALCHEMY_ECHO"] = config.database.echo
-        app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-            "pool_size": config.database.pool_size,
-            "pool_recycle": config.database.pool_recycle,
-        }
+        # Engine options are set via SQLALCHEMY_ENGINE_OPTIONS property in Config
 
     # Configure logging
     _configure_logging(app)
@@ -208,15 +205,11 @@ def _register_blueprints(app: Flask) -> None:
     from app.api.routes.ai import bp as ai_bp
 
     app.register_blueprint(ai_bp)  # url_prefix already set in blueprint
-    
+
     # Loan routes
     from app.api.routes.loan import bp as loans_bp
 
     app.register_blueprint(loans_bp, url_prefix="/api/loans")
-
-    # =========================================================================
-    # AI Integration: Chat, Categorization, Insights Routes
-    # =========================================================================
 
     logger.debug(
         "Registered blueprints: auth, users, transactions, test, "
