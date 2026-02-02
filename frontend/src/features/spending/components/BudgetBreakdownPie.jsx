@@ -16,7 +16,7 @@ import { PieCenterLabel, CustomLegend } from "./PieChartExtras";
 
 const fullDataset = generateChartData();
 
-export default function BudgetBreakdownPie() {
+const BudgetBreakdownPie = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -88,4 +88,6 @@ export default function BudgetBreakdownPie() {
       />
     </Stack>
   );
-}
+};
+
+export default BudgetBreakdownPie;

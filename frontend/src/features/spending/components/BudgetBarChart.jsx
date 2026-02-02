@@ -30,6 +30,7 @@ const BudgetBarChart = () => {
           dataset={currentData}
           layout="horizontal"
           grid={{ vertical: true }}
+          borderRadius={3}
           yAxis={[
             {
               scaleType: "band",
