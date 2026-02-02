@@ -26,6 +26,11 @@ export const useTransactionsPage = () => {
     per_page: rowsPerPage,
     search: debouncedSearch,
     category: filters.category === "All" ? "" : filters.category,
+    // To be implemented
+    // start_date: filters.start_date || "",
+    // end_date: filters.end_date || "",
+    sort_by: filters.sort_by,
+    sort_order: filters.sort_order,
     transaction_type: filters.type === "All" ? "" : filters.type,
   });
 
