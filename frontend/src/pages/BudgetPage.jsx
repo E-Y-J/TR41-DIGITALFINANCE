@@ -1,4 +1,4 @@
-import { Box, Typography, Container, Paper } from "@mui/material";
+import { Box, Typography, Paper } from "@mui/material";
 
 import SpendingFilters from "../features/spending/components/SpendingFilters";
 import DailySpendingChart from "../features/spending/components/DailySpendingChart";
