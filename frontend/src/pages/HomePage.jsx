@@ -31,24 +31,20 @@ export default function HomePage() {
           mb: 3,
         }}
       >
-        {/* AI Insights */}
-        <Box sx={{ gridColumn: { md: "span 1" } }}>
-          <AiInsightsWidget />
-        </Box>
-
-        {/* Spending Charts */}
         <Box sx={{ gridColumn: { md: "span 2" } }}>
           <SpendingWidget />
         </Box>
 
-        {/* Recent Transactions */}
-        <Box sx={{ gridColumn: { md: "span 2" } }}>
-          <RecentTransactionsWidget />
-        </Box>
-
-        {/* Active Loans */}
         <Box sx={{ gridColumn: { md: "span 1" } }}>
           <ActiveLoansWidget />
+        </Box>
+
+        <Box sx={{ gridColumn: { md: "span 1" } }}>
+          <AiInsightsWidget />
+        </Box>
+
+        <Box sx={{ gridColumn: { md: "span 2" } }}>
+          <RecentTransactionsWidget />
         </Box>
       </Box>
     </Box>
