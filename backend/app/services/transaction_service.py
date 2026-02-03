@@ -143,7 +143,9 @@ class TransactionService:
         page: int = 1,
         per_page: int = 20,
         transaction_type: Optional[str] = None,
-        category: Optional[str] = None,
+        category_id: Optional[UUID] = None,
+        category_name: Optional[str] = None,
+        merchant_name: Optional[str] = None,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
         sort_by: str = "date",
@@ -157,7 +159,9 @@ class TransactionService:
             page: Page number (1-indexed)
             per_page: Items per page (max 100)
             transaction_type: Filter by type ('income' or 'expense')
-            category: Filter by category
+            category_id: Filter by category UUID
+            category_name: Filter by category name (will be resolved/created)
+            merchant_name: Filter by merchant name
             start_date: Filter transactions on or after this date (YYYY-MM-DD)
             end_date: Filter transactions on or before this date (YYYY-MM-DD)
             sort_by: Sort field ('date', 'amount', 'created_at')
@@ -192,14 +196,32 @@ class TransactionService:
                     "Must be 'income' or 'expense'"
                 )
 
-        if category:
-            query = query.filter(Transaction.category == category)
+        if category_id:
+            query = query.filter(Transaction.category_id == category_id)
+            
+        elif category_name:
+            from app.services.category_service import CategoryService
+            
+            name=category_name.strip()
+            
+            if name:
+                # Try to find existing category by name
+                category = CategoryService.get_by_name(name)
+                if category:
+                    query = query.filter(Transaction.category_id == category.id)
+                else:
+                    # Unknown category name - no results for this filter
+                    query = query.filter(False)
+                
 
         if start_date:
             query = query.filter(Transaction.date >= start_date)
 
         if end_date:
             query = query.filter(Transaction.date <= end_date)
+            
+        if merchant_name:
+            query = query.filter(Transaction.merchant_name.ilike(f"%{merchant_name}%"))
 
         # Apply sorting
         sort_column = getattr(Transaction, sort_by, Transaction.date)
@@ -313,7 +335,7 @@ class TransactionService:
                 transaction_type=tx_type,
                 date=validated["date"],
                 merchant_name=validated.get("merchant_name"),
-                category=validated.get("category"),  # Legacy field (deprecated)
+                # Legacy 'category' field intentionally not set here anymore
                 # AI categorization fields
                 category_id=category_id,
                 ai_confidence=ai_confidence,
@@ -456,8 +478,7 @@ class TransactionService:
             if "merchant_name" in validated:
                 transaction.merchant_name = validated["merchant_name"]
 
-            if "category" in validated:
-                transaction.category = validated["category"]
+            # Legacy 'category' field intentionally not updated anymore
 
             db.session.commit()
 
