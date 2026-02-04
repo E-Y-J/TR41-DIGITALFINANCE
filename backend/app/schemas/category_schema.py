@@ -25,7 +25,7 @@ Schema Types:
     - CategoryListSchema: For serializing lists
 """
 
-from marshmallow import fields
+from marshmallow import fields, validate
 
 from app.schemas.base import BaseSchema
 
@@ -40,7 +40,7 @@ class CategorySchema(BaseSchema):
     Full category schema for API responses.
 
     Used when returning category data to frontend.
-    Categories are read-only for users.
+    System categories are read-only; custom categories can be modified.
 
     Example Response:
         {
@@ -48,6 +48,8 @@ class CategorySchema(BaseSchema):
             "name": "Food & Dining",
             "description": "Restaurants, groceries, fast food...",
             "category_type": "expense",
+            "is_system": true,
+            "is_custom": false,
             "display_order": 1
         }
     """
@@ -84,9 +86,138 @@ class CategorySchema(BaseSchema):
         metadata={"description": "Whether this is a system category"},
     )
 
+    is_custom = fields.Method(
+        "get_is_custom",
+        dump_only=True,
+        metadata={"description": "Whether this is a user-created custom category"},
+    )
+
+    def get_is_custom(self, obj):
+        """Check if category is user-created."""
+        return obj.user_id is not None
+
+    user_id = fields.UUID(
+        dump_only=True,
+        allow_none=True,
+        metadata={"description": "Owner user ID (null for system categories)"},
+    )
+
     display_order = fields.Integer(
         dump_only=True,
         metadata={"description": "Display order for frontend"},
+    )
+
+    icon = fields.String(
+        dump_only=True,
+        allow_none=True,
+        metadata={"description": "Icon name for frontend display"},
+    )
+
+    color = fields.String(
+        dump_only=True,
+        allow_none=True,
+        metadata={"description": "Hex color code (e.g., #FF6B6B)"},
+    )
+
+
+# =============================================================================
+# CATEGORY CREATE/UPDATE SCHEMAS
+# =============================================================================
+
+
+class CategoryCreateSchema(BaseSchema):
+    """
+    Schema for creating a custom category.
+
+    Request Body Example:
+        {
+            "name": "Pet Expenses",
+            "description": "Pet food, vet visits, grooming",
+            "category_type": "expense",
+            "icon": "paw",
+            "color": "#8B5CF6"
+        }
+    """
+
+    name = fields.String(
+        required=True,
+        validate=validate.Length(min=2, max=100),
+        metadata={"description": "Category name (2-100 characters)"},
+    )
+
+    description = fields.String(
+        required=False,
+        allow_none=True,
+        validate=validate.Length(max=500),
+        metadata={"description": "Category description (optional)"},
+    )
+
+    category_type = fields.String(
+        required=False,
+        load_default="expense",
+        validate=validate.OneOf(["income", "expense", "both"]),
+        metadata={"description": "Category type: income, expense, or both"},
+    )
+
+    icon = fields.String(
+        required=False,
+        allow_none=True,
+        validate=validate.Length(max=50),
+        metadata={"description": "Icon name for frontend display"},
+    )
+
+    color = fields.String(
+        required=False,
+        allow_none=True,
+        validate=validate.Regexp(r"^#[0-9A-Fa-f]{6}$", error="Must be a valid hex color (e.g., #FF6B6B)"),
+        metadata={"description": "Hex color code (e.g., #FF6B6B)"},
+    )
+
+
+class CategoryUpdateSchema(BaseSchema):
+    """
+    Schema for updating a custom category.
+
+    All fields are optional - only provided fields will be updated.
+
+    Request Body Example:
+        {
+            "name": "Pet Care",
+            "color": "#10B981"
+        }
+    """
+
+    name = fields.String(
+        required=False,
+        validate=validate.Length(min=2, max=100),
+        metadata={"description": "Category name (2-100 characters)"},
+    )
+
+    description = fields.String(
+        required=False,
+        allow_none=True,
+        validate=validate.Length(max=500),
+        metadata={"description": "Category description"},
+    )
+
+    category_type = fields.String(
+        required=False,
+        validate=validate.OneOf(["income", "expense", "both"]),
+        metadata={"description": "Category type: income, expense, or both"},
+    )
+
+    icon = fields.String(
+        required=False,
+        allow_none=True,
+        validate=validate.Length(max=50),
+        metadata={"description": "Icon name for frontend display"},
+    )
+
+    color = fields.String(
+        required=False,
+        allow_none=True,
+        validate=validate.Regexp(r"^#[0-9A-Fa-f]{6}$", error="Must be a valid hex color (e.g., #FF6B6B)"),
+        metadata={"description": "Hex color code (e.g., #FF6B6B)"},
     )
 
 
@@ -138,6 +269,8 @@ class CategoryListResponseSchema(BaseSchema):
 # Singleton instances for reuse
 category_schema = CategorySchema()
 category_list_schema = CategorySchema(many=True)
+category_create_schema = CategoryCreateSchema()
+category_update_schema = CategoryUpdateSchema()
 
 
 # =============================================================================
@@ -147,9 +280,13 @@ category_list_schema = CategorySchema(many=True)
 __all__ = [
     # Schema classes
     "CategorySchema",
+    "CategoryCreateSchema",
+    "CategoryUpdateSchema",
     "CategoryResponseSchema",
     "CategoryListResponseSchema",
     # Schema instances
     "category_schema",
     "category_list_schema",
+    "category_create_schema",
+    "category_update_schema",
 ]

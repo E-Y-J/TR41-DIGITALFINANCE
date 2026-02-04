@@ -27,9 +27,6 @@ class LoanSchema(BaseSchema):
         - progress_percentage
     """
 
-    class Meta:
-        ordered = True
-
     # Primary key
     id = fields.UUID(dump_only=True)
 
@@ -101,7 +98,7 @@ class LoanCreateSchema(BaseSchema):
     end_date = fields.Date(allow_none=True)
     status = fields.String(
         validate=validate.OneOf([s.value for s in LoanStatus]),
-        missing=LoanStatus.OPEN.value,  # defaults to OPEN
+        load_default=LoanStatus.OPEN.value,  # defaults to OPEN
     )
 
 

@@ -69,7 +69,9 @@ def list_transactions():
         page (int): Page number, default 1
         per_page (int): Items per page, default 20, max 100
         transaction_type (str): Filter by 'income' or 'expense'
-        category (str): Filter by category
+        category_id (str): Filter by category UUID
+        category_name (str): Filter by category name (will be resolved to ID)
+        merchant_name (str): Filter by merchant name
         start_date (str): Filter by start date (YYYY-MM-DD)
         end_date (str): Filter by end date (YYYY-MM-DD)
         sort_by (str): Sort field ('date', 'amount', 'created_at')
@@ -111,7 +113,14 @@ def list_transactions():
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 20, type=int)
     transaction_type = request.args.get("transaction_type")
-    category = request.args.get("category")
+
+    raw_category_id = request.args.get("category_id")
+    category_id = parse_uuid(raw_category_id, "category_id") if raw_category_id else None
+
+    # category name filter (e.g. "Government & Legal")
+    category_name = request.args.get("category")
+
+    merchant_query = request.args.get("merchant_name")
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
     sort_by = request.args.get("sort_by", "date")
@@ -123,7 +132,9 @@ def list_transactions():
         page=page,
         per_page=per_page,
         transaction_type=transaction_type,
-        category=category,
+        category_id=category_id,
+        category_name=category_name,
+        merchant_name=merchant_query,
         start_date=start_date,
         end_date=end_date,
         sort_by=sort_by,

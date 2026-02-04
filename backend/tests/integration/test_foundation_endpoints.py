@@ -41,8 +41,9 @@ class TestFoundationEndpoints:
     # ENDPOINT AVAILABILITY - Verify endpoints are registered
     # =========================================================================
 
-    def test_categories_endpoint_available(self, client):
+    def test_categories_endpoint_available(self, client, user):
         """Test GET /api/categories is registered."""
+        # Note: user fixture ensures test user exists with email
         response = client.get("/api/categories")
         assert response.status_code == 200
 
@@ -55,8 +56,9 @@ class TestFoundationEndpoints:
 class TestCategoryRoutes:
     """Test category-specific routing."""
 
-    def test_categories_endpoint_exists(self, client):
+    def test_categories_endpoint_exists(self, client, user):
         """Verify categories endpoint is registered and returns data."""
+        # Note: user fixture ensures test user exists with email
         response = client.get("/api/categories")
         assert response.status_code == 200
 

@@ -12,6 +12,7 @@ This module defines API endpoints for budget management:
 - PUT /api/budgets/<id> - Update a budget
 - DELETE /api/budgets/<id> - Delete a budget
 - GET /api/budgets/status - Get budget status summary
+- GET /api/budgets/suggestions - Get AI-powered budget suggestions
 
 All endpoints require authentication.
 
@@ -444,6 +445,84 @@ def get_category_budget_status(category_id):
         "success": True,
         "data": status,
         "message": "Category budget status retrieved successfully",
+    }, 200
+
+
+# =============================================================================
+# BUDGET SUGGESTIONS (AI-POWERED)
+# =============================================================================
+
+
+@bp.route("/suggestions", methods=["GET"])
+@requires_auth
+def get_budget_suggestions():
+    """
+    Get AI-powered budget suggestions based on spending history.
+
+    Analyzes the user's spending patterns and suggests realistic
+    budget amounts for each category based on historical spending.
+
+    Query Parameters:
+        months (int): Number of months to analyze (1-12, default: 3)
+
+    Returns:
+        200: Budget suggestions with analysis
+        401: Not authenticated
+
+    Example Response:
+        {
+            "success": true,
+            "data": {
+                "suggestions": [
+                    {
+                        "category_id": "uuid",
+                        "category_name": "Food & Dining",
+                        "average_monthly_spending": 450.00,
+                        "suggested_amount": 500.00,
+                        "variability": 15.5,
+                        "variability_level": "moderate",
+                        "months_analyzed": 3,
+                        "has_existing_budget": true,
+                        "current_budget_amount": 400.00,
+                        "recommendation": "increase",
+                        "recommendation_reason": "Your spending averages $450/month..."
+                    },
+                    ...
+                ],
+                "total_suggested_budget": 2500.00,
+                "analysis_period": {
+                    "start_date": "2025-11-01",
+                    "end_date": "2026-02-03",
+                    "months_analyzed": 3
+                },
+                "income_summary": {
+                    "total_income_period": 15000.00,
+                    "average_monthly_income": 5000.00
+                },
+                "savings_potential": 2500.00,
+                "recommendation_summary": {
+                    "total_categories": 8,
+                    "needs_budget": 3,
+                    "needs_increase": 2,
+                    "needs_decrease": 1,
+                    "on_track": 2
+                }
+            },
+            "message": "Budget suggestions generated successfully"
+        }
+    """
+    user = sync_user_from_claims(g.current_user)
+
+    # Parse query parameters
+    months = request.args.get("months", 3, type=int)
+    months = max(1, min(months, 12))  # Clamp to 1-12
+
+    suggestions = BudgetService.get_budget_suggestions(user.id, num_months=months)
+
+    return {
+        "success": True,
+        "data": suggestions,
+        "message": "Budget suggestions generated successfully",
     }, 200
 
 

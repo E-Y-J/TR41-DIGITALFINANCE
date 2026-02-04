@@ -1,8 +1,10 @@
 # Frontend API Integration Guide
 
+> **Last Updated:** February 3, 2026
+
 ## Overview
 
-This document provides comprehensive API documentation for the frontend team to integrate with the backend services. It covers all recent implementations including user authentication flow, profile management, and the new budget system.
+This document provides comprehensive API documentation for the frontend team to integrate with the backend services. It covers all implementations including user authentication flow, profile management, budget system, custom categories, budget suggestions, AI chat history, and transaction filters.
 
 ---
 
@@ -11,11 +13,14 @@ This document provides comprehensive API documentation for the frontend team to 
 1. [Authentication & User Onboarding Flow](#authentication--user-onboarding-flow)
 2. [User Profile Management](#user-profile-management)
 3. [Budget System](#budget-system)
-4. [Categories](#categories)
-5. [Transactions](#transactions)
-6. [Alerts & Notifications](#alerts--notifications)
-7. [AI Features](#ai-features)
-8. [Recurring Transactions](#recurring-transactions)
+4. [Budget Suggestions](#budget-suggestions)
+5. [Categories](#categories)
+6. [Custom Categories](#custom-categories)
+7. [Transactions](#transactions)
+8. [Alerts & Notifications](#alerts--notifications)
+9. [AI Features](#ai-features)
+10. [AI Chat History](#ai-chat-history)
+11. [Recurring Transactions](#recurring-transactions)
 
 ---
 
@@ -566,6 +571,64 @@ Authorization: Bearer <access_token>
 
 ---
 
+## Budget Suggestions
+
+Get AI-powered budget suggestions based on spending history.
+
+### Get Budget Suggestions
+
+```http
+GET /api/budgets/suggestions
+Authorization: Bearer <access_token>
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "data": {
+        "suggestions": [
+            {
+                "category_id": "550e8400-e29b-41d4-a716-446655440001",
+                "category_name": "Food & Dining",
+                "suggested_amount": "450.00",
+                "average_spending": "425.00",
+                "spending_trend": "stable",
+                "confidence": 0.85,
+                "reasoning": "Based on 3 months of consistent spending around $400-450"
+            },
+            {
+                "category_id": "550e8400-e29b-41d4-a716-446655440002",
+                "category_name": "Transportation",
+                "suggested_amount": "200.00",
+                "average_spending": "175.00",
+                "spending_trend": "increasing",
+                "confidence": 0.78,
+                "reasoning": "Spending has increased 15% over the last 2 months"
+            }
+        ],
+        "total_suggested": "1250.00",
+        "salary_percentage": 25.0,
+        "analysis_period": {
+            "start_date": "2025-11-01",
+            "end_date": "2026-02-01",
+            "months_analyzed": 3
+        }
+    },
+    "message": "Budget suggestions generated successfully"
+}
+```
+
+**Spending Trend Values:**
+| Trend | Description |
+|-------|-------------|
+| `stable` | Spending consistent (±10%) |
+| `increasing` | Spending trending up (>10%) |
+| `decreasing` | Spending trending down (>10%) |
+| `variable` | Spending fluctuates significantly |
+
+---
+
 ## Categories
 
 ### Get All Categories
@@ -625,7 +688,223 @@ Authorization: Bearer <access_token>
 
 ---
 
+## Custom Categories
+
+Users can create, update, and delete custom categories in addition to system categories.
+
+### Create Custom Category
+
+```http
+POST /api/categories
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+    "name": "Side Hustle Income",
+    "category_type": "income",
+    "description": "Freelance and gig economy income",
+    "icon": "briefcase",
+    "color": "#4CAF50"
+}
+```
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | Yes | Category name (1-100 chars) |
+| `category_type` | string | Yes | `income`, `expense`, or `both` |
+| `description` | string | No | Optional description |
+| `icon` | string | No | Icon identifier |
+| `color` | string | No | Hex color code (e.g., `#FF6B6B`) |
+
+**Response (201 Created):**
+```json
+{
+    "success": true,
+    "data": {
+        "id": "550e8400-e29b-41d4-a716-446655440099",
+        "name": "Side Hustle Income",
+        "category_type": "income",
+        "description": "Freelance and gig economy income",
+        "icon": "briefcase",
+        "color": "#4CAF50",
+        "display_order": 12,
+        "is_system": false,
+        "user_id": "user-uuid"
+    },
+    "message": "Category created successfully"
+}
+```
+
+**Error Response (409 Conflict):**
+```json
+{
+    "success": false,
+    "error": {
+        "code": "CONFLICT_ERROR",
+        "message": "A category with this name already exists"
+    }
+}
+```
+
+### Update Custom Category
+
+```http
+PUT /api/categories/<category_id>
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+    "name": "Freelance Income",
+    "description": "Updated description",
+    "color": "#2196F3"
+}
+```
+
+**Allowed Update Fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | New category name |
+| `description` | string | New description |
+| `icon` | string | New icon identifier |
+| `color` | string | New hex color |
+| `category_type` | string | New type (income/expense/both) |
+
+**⚠️ Important:** You can only update categories where `is_system: false` (custom categories). System categories cannot be modified.
+
+**Response (200 OK):**
+```json
+{
+    "success": true,
+    "data": {
+        "id": "550e8400-e29b-41d4-a716-446655440099",
+        "name": "Freelance Income",
+        "category_type": "income",
+        "description": "Updated description",
+        "icon": "briefcase",
+        "color": "#2196F3",
+        "display_order": 12,
+        "is_system": false
+    },
+    "message": "Category updated successfully"
+}
+```
+
+**Error Response (403 Forbidden):**
+```json
+{
+    "success": false,
+    "error": {
+        "code": "FORBIDDEN",
+        "message": "Cannot modify system categories"
+    }
+}
+```
+
+### Delete Custom Category
+
+```http
+DELETE /api/categories/<category_id>
+Authorization: Bearer <access_token>
+```
+
+**⚠️ Important:**
+- Only custom categories (`is_system: false`) can be deleted
+- Transactions using this category will be reassigned to "Unknown" category
+
+**Response (200 OK):**
+```json
+{
+    "success": true,
+    "message": "Category deleted successfully"
+}
+```
+
+**Error Response (403 Forbidden):**
+```json
+{
+    "success": false,
+    "error": {
+        "code": "FORBIDDEN",
+        "message": "Cannot delete system categories"
+    }
+}
+```
+
+---
+
 ## Transactions
+
+### Get Transactions
+
+```http
+GET /api/transactions
+Authorization: Bearer <access_token>
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `page` | int | 1 | Page number (1-indexed) |
+| `per_page` | int | 20 | Items per page (max 100) |
+| `start_date` | date | - | Filter from date (YYYY-MM-DD) |
+| `end_date` | date | - | Filter to date (YYYY-MM-DD) |
+| `type` | string | - | Filter by `income` or `expense` |
+| `category_id` | uuid | - | Filter by category UUID |
+| `category` | string | - | Filter by category name (partial match) |
+| `merchant_name` | string | - | Filter by merchant (partial match) |
+| `min_amount` | decimal | - | Filter minimum amount |
+| `max_amount` | decimal | - | Filter maximum amount |
+| `sort_by` | string | date | Sort field: `date`, `amount`, `merchant_name` |
+| `sort_order` | string | desc | Sort order: `asc` or `desc` |
+
+**Filter Examples:**
+
+```http
+# Filter by category ID
+GET /api/transactions?category_id=550e8400-e29b-41d4-a716-446655440001
+
+# Filter by category name (case-insensitive partial match)
+GET /api/transactions?category=Food
+
+# Filter by merchant name (case-insensitive partial match)
+GET /api/transactions?merchant_name=starbucks
+
+# Combine multiple filters
+GET /api/transactions?category=Food&merchant_name=mcdonald&start_date=2026-01-01
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "data": [
+        {
+            "id": "txn-uuid",
+            "amount": "45.00",
+            "description": "Lunch",
+            "merchant_name": "Restaurant ABC",
+            "transaction_type": "expense",
+            "category": {
+                "id": "category-uuid",
+                "name": "Food & Dining"
+            },
+            "date": "2026-01-15",
+            "created_at": "2026-01-15T12:00:00Z"
+        }
+    ],
+    "meta": {
+        "page": 1,
+        "per_page": 20,
+        "total": 150,
+        "total_pages": 8
+    },
+    "message": "Transactions retrieved successfully"
+}
+```
 
 ### Create Transaction (Triggers Budget Alert)
 
@@ -759,6 +1038,77 @@ Content-Type: application/json
     }
 }
 ```
+
+---
+
+## AI Chat History
+
+Retrieve conversation history for the AI chat feature.
+
+### Get Chat History
+
+```http
+GET /api/ai/history
+Authorization: Bearer <access_token>
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `page` | int | 1 | Page number |
+| `per_page` | int | 20 | Items per page (max 100) |
+| `session_id` | uuid | - | Filter by specific session |
+
+**Response:**
+```json
+{
+    "success": true,
+    "data": {
+        "conversations": [
+            {
+                "id": "conv-uuid-1",
+                "session_id": "session-uuid",
+                "user_message": "How much did I spend on food?",
+                "ai_response": "Based on your transactions, you spent $450 on food this month...",
+                "intent": "spending_summary",
+                "confidence": 0.92,
+                "created_at": "2026-02-03T10:30:00Z"
+            },
+            {
+                "id": "conv-uuid-2",
+                "session_id": "session-uuid",
+                "user_message": "What about last month?",
+                "ai_response": "Last month you spent $380 on food, which is $70 less than this month...",
+                "intent": "spending_comparison",
+                "confidence": 0.88,
+                "created_at": "2026-02-03T10:31:00Z"
+            }
+        ]
+    },
+    "meta": {
+        "page": 1,
+        "per_page": 20,
+        "total": 45,
+        "total_pages": 3
+    },
+    "message": "Chat history retrieved successfully"
+}
+```
+
+### Get Session Conversations
+
+Retrieve all messages from a specific chat session:
+
+```http
+GET /api/ai/history?session_id=session-uuid-here
+Authorization: Bearer <access_token>
+```
+
+**Use Cases:**
+- Display previous AI conversations in chat interface
+- Allow users to continue previous sessions
+- Show conversation context for debugging
 
 ---
 
@@ -940,5 +1290,34 @@ Authorization: Bearer <access_token>
 - [ ] Call `GET /api/v1/ai/recurring/upcoming` for upcoming bills
 - [ ] Show calendar/timeline view of expected payments
 - [ ] Alert on missed payments via `GET /api/v1/ai/recurring/missed`
+
+### Custom Categories
+- [ ] Display custom categories alongside system categories
+- [ ] Show `is_system: false` badge for user-created categories
+- [ ] Implement "Create Category" form with name, type, color, icon
+- [ ] Call `POST /api/categories` to create custom categories
+- [ ] Allow editing custom categories via `PUT /api/categories/<id>`
+- [ ] Allow deleting custom categories via `DELETE /api/categories/<id>`
+- [ ] Handle 403 error when trying to modify system categories
+- [ ] Handle 409 conflict error for duplicate names
+
+### Budget Suggestions
+- [ ] Call `GET /api/budgets/suggestions` to get AI-powered suggestions
+- [ ] Display suggested amounts per category
+- [ ] Show spending trends (stable/increasing/decreasing/variable)
+- [ ] Show confidence levels for suggestions
+- [ ] Allow one-click budget creation from suggestions
+
+### AI Chat History
+- [ ] Call `GET /api/ai/history` to retrieve past conversations
+- [ ] Display conversation history in chat interface
+- [ ] Allow filtering by session_id for specific conversations
+- [ ] Implement pagination for large history
+
+### Transaction Filters
+- [ ] Add category dropdown filter (by name) on transactions page
+- [ ] Add category_id filter for precise category matching
+- [ ] Add merchant name search/filter field
+- [ ] Combine multiple filters for advanced search
 
 ---

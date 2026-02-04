@@ -45,6 +45,8 @@ from datetime import datetime, timezone
 
 import numpy as np
 
+from app.core.extensions import db
+
 logger = logging.getLogger(__name__)
 
 
@@ -709,7 +711,7 @@ class RAGEngine:
 
             indexed = 0
             for tx in transactions:
-                category = Category.query.get(tx.category_id)
+                category = db.session.get(Category, tx.category_id)
                 if category and tx.merchant_name:
                     success = self.index_transaction(
                         user_id=user_id,

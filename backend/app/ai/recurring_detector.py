@@ -391,7 +391,8 @@ class RecurringDetector:
         if sorted_transactions[0].category_id:
             try:
                 from app.models.category import Category
-                category = Category.query.get(sorted_transactions[0].category_id)
+                from app.core.extensions import db
+                category = db.session.get(Category, sorted_transactions[0].category_id)
                 if category:
                     category_name = category.name
                     category_id = str(sorted_transactions[0].category_id)

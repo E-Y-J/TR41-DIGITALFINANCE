@@ -43,6 +43,8 @@ import threading
 
 from sqlalchemy import func, and_
 
+from app.core.extensions import db
+
 logger = logging.getLogger(__name__)
 
 
@@ -339,7 +341,7 @@ class AnomalyDetector:
                 return None
 
             amounts = [float(t.amount) for t in transactions]
-            category = Category.query.get(category_id)
+            category = db.session.get(Category, category_id)
 
             baseline = {
                 "category_id": str(category_id),
@@ -369,7 +371,7 @@ class AnomalyDetector:
         try:
             from app.models.category import Category
 
-            category = Category.query.get(category_id)
+            category = db.session.get(Category, category_id)
             return category.name if category else "Unknown"
         except Exception:
             return "Unknown"
@@ -486,7 +488,7 @@ class AnomalyDetector:
             top_categories = []
             for cat_id, total, count in category_spending:
                 if cat_id:
-                    category = Category.query.get(cat_id)
+                    category = db.session.get(Category, cat_id)
                     top_categories.append(
                         {
                             "category_id": str(cat_id),

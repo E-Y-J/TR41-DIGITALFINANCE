@@ -120,7 +120,7 @@ class CategoryService:
         Example:
             >>> category = CategoryService.get_by_id(uuid.UUID("..."))
         """
-        category = Category.query.get(category_id)
+        category = db.session.get(Category, category_id)
 
         if category is None:
             logger.debug(f"Category not found by ID: {category_id}")
@@ -457,3 +457,294 @@ class CategoryService:
         # No match found - AI service should use Unknown category
         logger.debug(f"No category match for AI label: {ai_label}")
         return None
+
+    # =========================================================================
+    # CUSTOM CATEGORY CRUD OPERATIONS
+    # =========================================================================
+
+    @classmethod
+    def get_for_user(cls, user_id: UUID) -> List[Category]:
+        """
+        Get all categories available to a user (system + custom).
+
+        Args:
+            user_id: User's UUID
+
+        Returns:
+            List of Category instances (system first, then custom)
+
+        Example:
+            >>> categories = CategoryService.get_for_user(user_id)
+        """
+        return Category.get_for_user(user_id)
+
+    @classmethod
+    def get_user_custom_categories(cls, user_id: UUID) -> List[Category]:
+        """
+        Get only user's custom categories.
+
+        Args:
+            user_id: User's UUID
+
+        Returns:
+            List of user's custom Category instances
+        """
+        return Category.get_user_custom_categories(user_id)
+
+    @classmethod
+    def create_custom_category(
+        cls,
+        user_id: UUID,
+        name: str,
+        description: Optional[str] = None,
+        category_type: CategoryType = CategoryType.EXPENSE,
+        icon: Optional[str] = None,
+        color: Optional[str] = None,
+    ) -> Category:
+        """
+        Create a custom category for a user.
+
+        Args:
+            user_id: User's UUID (owner)
+            name: Category name (must be unique for user)
+            description: Optional category description
+            category_type: income, expense, or both (default: expense)
+            icon: Optional icon name for frontend
+            color: Optional hex color code (e.g., #FF6B6B)
+
+        Returns:
+            Created Category instance
+
+        Raises:
+            ValidationError: If category name already exists for user
+            ValidationError: If trying to use a system category name
+
+        Example:
+            >>> category = CategoryService.create_custom_category(
+            ...     user_id, "Pet Expenses", "Pet food, vet visits, etc."
+            ... )
+        """
+        from app.utils.errors import ValidationError, ConflictError
+
+        # Validate name
+        name = name.strip()
+        if not name or len(name) < 2:
+            raise ValidationError("Category name must be at least 2 characters")
+
+        if len(name) > 100:
+            raise ValidationError("Category name must be 100 characters or less")
+
+        # Check if name conflicts with system category
+        system_cat = Category.query.filter(
+            db.func.lower(Category.name) == name.lower(),
+            Category.is_system == True,
+        ).first()
+
+        if system_cat:
+            raise ConflictError(
+                f"Cannot create category '{name}' - a system category with this name exists"
+            )
+
+        # Check if user already has a category with this name
+        existing = Category.query.filter(
+            db.func.lower(Category.name) == name.lower(),
+            Category.user_id == user_id,
+        ).first()
+
+        if existing:
+            raise ConflictError(
+                f"You already have a category named '{name}'"
+            )
+
+        # Get max display_order for user's categories
+        max_order = (
+            db.session.query(db.func.max(Category.display_order))
+            .filter(Category.user_id == user_id)
+            .scalar()
+        ) or 100  # Start custom categories at 100+
+
+        # Create the category
+        category = Category(
+            name=name,
+            description=description,
+            category_type=category_type,
+            icon=icon,
+            color=color,
+            is_system=False,
+            user_id=user_id,
+            display_order=max_order + 1,
+        )
+
+        db.session.add(category)
+        db.session.commit()
+
+        logger.info(f"Created custom category '{name}' for user {user_id}")
+        return category
+
+    @classmethod
+    def update_custom_category(
+        cls,
+        category_id: UUID,
+        user_id: UUID,
+        **updates,
+    ) -> Category:
+        """
+        Update a user's custom category.
+
+        Args:
+            category_id: Category's UUID
+            user_id: User's UUID (must be owner)
+            **updates: Fields to update (name, description, category_type, icon, color)
+
+        Returns:
+            Updated Category instance
+
+        Raises:
+            NotFoundError: If category not found
+            ValidationError: If trying to update a system category
+            ValidationError: If new name conflicts with existing
+
+        Example:
+            >>> updated = CategoryService.update_custom_category(
+            ...     category_id, user_id, name="Pet Care", color="#FF6B6B"
+            ... )
+        """
+        from app.utils.errors import ValidationError, ConflictError
+
+        # Get the category
+        category = db.session.get(Category, category_id)
+
+        if not category:
+            raise NotFoundError("Category not found")
+
+        # Verify ownership
+        if category.is_system:
+            raise ValidationError("Cannot modify system categories")
+
+        if category.user_id != user_id:
+            raise NotFoundError("Category not found")  # Hide existence from other users
+
+        # Handle name update with conflict check
+        if "name" in updates and updates["name"]:
+            new_name = updates["name"].strip()
+
+            if new_name.lower() != category.name.lower():
+                # Check for conflicts
+                conflict = Category.query.filter(
+                    db.func.lower(Category.name) == new_name.lower(),
+                    db.or_(
+                        Category.is_system == True,
+                        Category.user_id == user_id,
+                    ),
+                    Category.id != category_id,
+                ).first()
+
+                if conflict:
+                    raise ConflictError(f"Category name '{new_name}' already exists")
+
+                category.name = new_name
+
+        # Update other fields
+        if "description" in updates:
+            category.description = updates["description"]
+
+        if "category_type" in updates and updates["category_type"]:
+            category.category_type = updates["category_type"]
+
+        if "icon" in updates:
+            category.icon = updates["icon"]
+
+        if "color" in updates:
+            category.color = updates["color"]
+
+        db.session.commit()
+
+        logger.info(f"Updated custom category {category_id} for user {user_id}")
+        return category
+
+    @classmethod
+    def delete_custom_category(
+        cls,
+        category_id: UUID,
+        user_id: UUID,
+        reassign_to: Optional[UUID] = None,
+    ) -> bool:
+        """
+        Delete a user's custom category.
+
+        Args:
+            category_id: Category's UUID
+            user_id: User's UUID (must be owner)
+            reassign_to: Optional category ID to reassign transactions to
+
+        Returns:
+            True if deleted successfully
+
+        Raises:
+            NotFoundError: If category not found
+            ValidationError: If trying to delete a system category
+            ValidationError: If category has transactions and no reassign target
+
+        Example:
+            >>> CategoryService.delete_custom_category(category_id, user_id)
+        """
+        from app.utils.errors import ValidationError
+        from app.models.transaction import Transaction
+
+        # Get the category
+        category = db.session.get(Category, category_id)
+
+        if not category:
+            raise NotFoundError("Category not found")
+
+        # Verify ownership
+        if category.is_system:
+            raise ValidationError("Cannot delete system categories")
+
+        if category.user_id != user_id:
+            raise NotFoundError("Category not found")
+
+        # Check for associated transactions
+        transaction_count = Transaction.query.filter(
+            Transaction.category_id == category_id
+        ).count()
+
+        if transaction_count > 0:
+            if reassign_to:
+                # Validate reassign target
+                target = db.session.get(Category, reassign_to)
+                if not target:
+                    raise ValidationError("Reassign target category not found")
+
+                # Must be accessible to user
+                if not target.is_system and target.user_id != user_id:
+                    raise ValidationError("Invalid reassign target")
+
+                # Reassign transactions
+                Transaction.query.filter(
+                    Transaction.category_id == category_id
+                ).update({"category_id": reassign_to})
+
+                logger.info(
+                    f"Reassigned {transaction_count} transactions from "
+                    f"{category_id} to {reassign_to}"
+                )
+            else:
+                # Default: reassign to Unknown
+                unknown = cls.get_unknown_category()
+                Transaction.query.filter(
+                    Transaction.category_id == category_id
+                ).update({"category_id": unknown.id})
+
+                logger.info(
+                    f"Reassigned {transaction_count} transactions from "
+                    f"{category_id} to Unknown"
+                )
+
+        # Soft delete (mark inactive) or hard delete
+        # Using soft delete to preserve data integrity
+        category.is_active = False
+        db.session.commit()
+
+        logger.info(f"Deleted custom category {category_id} for user {user_id}")
+        return True

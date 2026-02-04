@@ -69,11 +69,6 @@ class BudgetSchema(BaseSchema):
         updated_at: Update timestamp
     """
 
-    class Meta:
-        """Schema configuration."""
-
-        ordered = True
-
     # Primary key
     id = fields.UUID(dump_only=True)
 
@@ -260,11 +255,6 @@ class BudgetWithSpendingSchema(BaseSchema):
         is_warning: Whether spending has reached warning threshold
         is_exceeded: Whether budget has been exceeded
     """
-
-    class Meta:
-        """Schema configuration."""
-
-        ordered = True
 
     # Include all base budget fields
     id = fields.UUID(dump_only=True)
