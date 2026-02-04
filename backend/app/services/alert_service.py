@@ -280,7 +280,7 @@ class AlertService:
         Raises:
             NotFoundError: If alert not found
         """
-        alert = Alert.query.get(alert_id)
+        alert = db.session.get(Alert, alert_id)
 
         if alert is None:
             logger.debug(f"Alert not found by ID: {alert_id}")

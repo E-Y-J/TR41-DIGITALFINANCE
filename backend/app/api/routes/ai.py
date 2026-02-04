@@ -8,6 +8,7 @@ AI Routes Module
 This module provides API endpoints for AI features:
 - Transaction categorization
 - Chat interactions (NLP commands)
+- Chat history retrieval
 - Spending insights
 - Clarification handling
 - Health monitoring
@@ -15,6 +16,7 @@ This module provides API endpoints for AI features:
 Endpoints:
     POST /api/v1/ai/categorize - Categorize a transaction
     POST /api/v1/ai/chat - Send chat message
+    GET  /api/v1/ai/chat/history - Get user's chat history
     GET  /api/v1/ai/insights - Get spending insights
     GET  /api/v1/ai/clarifications - Get pending clarifications
     POST /api/v1/ai/clarifications/{id}/resolve - Resolve a clarification
@@ -199,6 +201,110 @@ def chat():
             "error": {
                 "code": "CHAT_FAILED",
                 "message": "Could not process your message",
+            }
+        }), 500
+
+
+# =============================================================================
+# CHAT HISTORY ENDPOINT
+# =============================================================================
+
+
+@bp.route("/chat/history", methods=["GET"])
+@requires_auth
+def get_chat_history():
+    """
+    Get all chat history for the authenticated user.
+
+    Returns all chat sessions with conversation history, ordered by
+    most recent first. Supports pagination.
+
+    Query Parameters:
+        page (int): Page number, 1-indexed (default: 1)
+        per_page (int): Sessions per page, max 50 (default: 20)
+        include_inactive (bool): Include expired sessions (default: false)
+
+    Response:
+        {
+            "success": true,
+            "data": {
+                "sessions": [
+                    {
+                        "id": "uuid",
+                        "conversation_history": [
+                            {
+                                "role": "user",
+                                "content": "Add $50 for lunch",
+                                "timestamp": "2026-02-03T10:30:00Z"
+                            },
+                            {
+                                "role": "assistant",
+                                "content": "I'll add a $50 expense...",
+                                "timestamp": "2026-02-03T10:30:01Z"
+                            }
+                        ],
+                        "last_intent": "create_transaction",
+                        "is_active": true,
+                        "created_at": "2026-02-03T10:00:00Z",
+                        "updated_at": "2026-02-03T10:30:01Z"
+                    }
+                ]
+            },
+            "meta": {
+                "page": 1,
+                "per_page": 20,
+                "total": 5,
+                "has_more": false
+            }
+        }
+    """
+    try:
+        from app.models.ai_session import AISession
+
+        user_id = UUID(g.user.id) if hasattr(g, "user") else None
+        if not user_id:
+            return jsonify({
+                "success": False,
+                "error": {"code": "UNAUTHORIZED", "message": "User not found"},
+            }), 401
+
+        # Parse query parameters
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 20, type=int)
+        include_inactive = request.args.get("include_inactive", "false").lower() == "true"
+
+        # Validate pagination
+        page = max(1, page)
+        per_page = max(1, min(per_page, 50))
+
+        # Get sessions
+        sessions, total, has_more = AISession.get_all_for_user(
+            user_id=user_id,
+            include_inactive=include_inactive,
+            page=page,
+            per_page=per_page,
+        )
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "sessions": [session.to_dict() for session in sessions],
+            },
+            "meta": {
+                "page": page,
+                "per_page": per_page,
+                "total": total,
+                "has_more": has_more,
+            }
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Get chat history failed: {e}", exc_info=True)
+        return jsonify({
+            "success": False,
+            "error": {
+                "code": "CHAT_HISTORY_FAILED",
+                "message": "Could not retrieve chat history",
             }
         }), 500
 

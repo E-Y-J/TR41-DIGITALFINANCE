@@ -91,7 +91,7 @@ class UserService:
         Example:
             >>> user = UserService.get_by_id(uuid.UUID("..."))
         """
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
 
         if user is None:
             logger.debug(f"User not found by ID: {user_id}")

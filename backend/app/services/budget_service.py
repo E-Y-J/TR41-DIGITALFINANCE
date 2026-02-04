@@ -335,7 +335,7 @@ class BudgetService:
 
         # Validate category exists for category budgets
         if budget_type == BudgetType.CATEGORY:
-            category = Category.query.get(category_id)
+            category = db.session.get(Category, category_id)
             if not category:
                 raise ValidationError("Category not found")
 
@@ -701,7 +701,7 @@ class BudgetService:
         if category_id:
             from app.models.category import Category
 
-            category = Category.query.get(category_id)
+            category = db.session.get(Category, category_id)
             if category:
                 category_name = category.name
 
@@ -752,6 +752,229 @@ class BudgetService:
                 }
 
         return None
+
+    # =========================================================================
+    # BUDGET SUGGESTIONS (AI-POWERED)
+    # =========================================================================
+
+    @staticmethod
+    def get_budget_suggestions(
+        user_id: uuid.UUID,
+        num_months: int = 3,
+    ) -> Dict[str, Any]:
+        """
+        Generate AI-powered budget suggestions based on spending history.
+
+        Analyzes the user's spending patterns over the past N months
+        and suggests realistic budget amounts for each category.
+
+        Algorithm:
+            1. Calculate average monthly spending per category
+            2. Calculate spending variability (std dev)
+            3. Suggest budget = average + small buffer (10-20%)
+            4. Flag categories with high variability
+            5. Compare with current budgets if set
+
+        Args:
+            user_id: User's UUID
+            num_months: Number of months to analyze (default: 3)
+
+        Returns:
+            Dictionary with:
+                - suggestions: List of category budget suggestions
+                - total_suggested: Suggested total monthly budget
+                - analysis_period: Period analyzed
+                - income_summary: Income data for context
+
+        Example:
+            >>> suggestions = BudgetService.get_budget_suggestions(user_id)
+            >>> for s in suggestions["suggestions"]:
+            ...     print(f"{s['category']}: ${s['suggested_amount']}")
+        """
+        from datetime import date
+        from sqlalchemy import func, and_
+        from collections import defaultdict
+
+        today = date.today()
+        num_months = min(max(num_months, 1), 12)  # Clamp to 1-12
+
+        # Calculate date range for analysis
+        # Go back num_months from the start of current month
+        start_month = today.month - num_months
+        start_year = today.year
+        while start_month <= 0:
+            start_month += 12
+            start_year -= 1
+        start_date = date(start_year, start_month, 1)
+        end_date = today
+
+        start_str = start_date.isoformat()
+        end_str = end_date.isoformat()
+
+        # Get all expense transactions in the period
+        transactions = Transaction.query.filter(
+            and_(
+                Transaction.user_id == user_id,
+                Transaction.transaction_type == TransactionType.EXPENSE,
+                Transaction.date >= start_str,
+                Transaction.date <= end_str,
+            )
+        ).all()
+
+        # Group spending by category and month
+        category_monthly: Dict[uuid.UUID, Dict[str, Decimal]] = defaultdict(
+            lambda: defaultdict(Decimal)
+        )
+
+        for txn in transactions:
+            if txn.category_id:
+                month_key = txn.date[:7]  # YYYY-MM
+                category_monthly[txn.category_id][month_key] += abs(txn.amount)
+
+        # Get category names
+        category_ids = list(category_monthly.keys())
+        categories = {
+            cat.id: cat.name
+            for cat in Category.query.filter(Category.id.in_(category_ids)).all()
+        }
+
+        # Get current budgets for comparison
+        current_budgets = {
+            b.category_id: b
+            for b in Budget.query.filter(
+                and_(
+                    Budget.user_id == user_id,
+                    Budget.is_active == True,
+                    Budget.category_id.isnot(None),
+                )
+            ).all()
+        }
+
+        # Calculate suggestions per category
+        suggestions = []
+        total_suggested = Decimal("0")
+
+        for cat_id, monthly_spending in category_monthly.items():
+            if not monthly_spending:
+                continue
+
+            amounts = list(monthly_spending.values())
+            avg_spending = sum(amounts) / len(amounts)
+
+            # Calculate variability
+            if len(amounts) > 1:
+                mean = avg_spending
+                variance = sum((x - mean) ** 2 for x in amounts) / len(amounts)
+                std_dev = variance ** Decimal("0.5")
+                variability = float(std_dev / mean * 100) if mean > 0 else 0
+            else:
+                std_dev = Decimal("0")
+                variability = 0
+
+            # Suggest budget with buffer
+            # Higher variability = larger buffer (10-25%)
+            if variability > 30:
+                buffer_pct = Decimal("0.25")
+                variability_note = "high"
+            elif variability > 15:
+                buffer_pct = Decimal("0.15")
+                variability_note = "moderate"
+            else:
+                buffer_pct = Decimal("0.10")
+                variability_note = "low"
+
+            suggested = avg_spending * (1 + buffer_pct)
+            # Round to nearest 5 or 10 for cleaner numbers
+            suggested = round(suggested / 5) * 5
+            suggested = max(suggested, Decimal("10"))  # Minimum $10
+
+            total_suggested += suggested
+
+            # Compare with current budget
+            current_budget = current_budgets.get(cat_id)
+            current_amount = current_budget.amount if current_budget else None
+
+            suggestion = {
+                "category_id": str(cat_id),
+                "category_name": categories.get(cat_id, "Unknown"),
+                "average_monthly_spending": float(round(avg_spending, 2)),
+                "suggested_amount": float(suggested),
+                "variability": round(variability, 1),
+                "variability_level": variability_note,
+                "months_analyzed": len(amounts),
+                "has_existing_budget": current_budget is not None,
+                "current_budget_amount": float(current_amount) if current_amount else None,
+            }
+
+            # Add recommendation
+            if current_budget:
+                diff = suggested - current_amount
+                if diff > 20:
+                    suggestion["recommendation"] = "increase"
+                    suggestion["recommendation_reason"] = (
+                        f"Your spending averages ${avg_spending:.0f}/month, "
+                        f"but budget is ${current_amount:.0f}"
+                    )
+                elif diff < -20:
+                    suggestion["recommendation"] = "decrease"
+                    suggestion["recommendation_reason"] = (
+                        f"You're budgeting ${current_amount:.0f} but only spending "
+                        f"~${avg_spending:.0f}/month on average"
+                    )
+                else:
+                    suggestion["recommendation"] = "keep"
+                    suggestion["recommendation_reason"] = "Budget aligns with spending"
+            else:
+                suggestion["recommendation"] = "create"
+                suggestion["recommendation_reason"] = (
+                    f"No budget set. You spend ~${avg_spending:.0f}/month here"
+                )
+
+            suggestions.append(suggestion)
+
+        # Sort by average spending (highest first)
+        suggestions.sort(key=lambda x: x["average_monthly_spending"], reverse=True)
+
+        # Get income for context
+        income_result = (
+            db.session.query(func.coalesce(func.sum(Transaction.amount), 0))
+            .filter(
+                and_(
+                    Transaction.user_id == user_id,
+                    Transaction.transaction_type == TransactionType.INCOME,
+                    Transaction.date >= start_str,
+                    Transaction.date <= end_str,
+                )
+            )
+            .scalar()
+        )
+        total_income = Decimal(str(income_result or 0))
+        avg_monthly_income = total_income / num_months if num_months > 0 else Decimal("0")
+
+        # Calculate savings potential
+        savings_potential = avg_monthly_income - total_suggested if avg_monthly_income > 0 else Decimal("0")
+
+        return {
+            "suggestions": suggestions,
+            "total_suggested_budget": float(total_suggested),
+            "analysis_period": {
+                "start_date": start_str,
+                "end_date": end_str,
+                "months_analyzed": num_months,
+            },
+            "income_summary": {
+                "total_income_period": float(total_income),
+                "average_monthly_income": float(round(avg_monthly_income, 2)),
+            },
+            "savings_potential": float(round(savings_potential, 2)),
+            "recommendation_summary": {
+                "total_categories": len(suggestions),
+                "needs_budget": sum(1 for s in suggestions if s["recommendation"] == "create"),
+                "needs_increase": sum(1 for s in suggestions if s["recommendation"] == "increase"),
+                "needs_decrease": sum(1 for s in suggestions if s["recommendation"] == "decrease"),
+                "on_track": sum(1 for s in suggestions if s["recommendation"] == "keep"),
+            },
+        }
 
 
 # =============================================================================

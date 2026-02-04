@@ -231,7 +231,7 @@ class ChatSession:
                 from uuid import UUID as UUIDType
 
                 db_id = UUIDType(self._pending_action["_db_id"])
-                pending = PendingAction.query.get(db_id)
+                pending = db.session.get(PendingAction, db_id)
                 if pending:
                     pending.confirm()
                     db.session.commit()
@@ -1279,7 +1279,7 @@ Just ask naturally and I'll help!"""
         data = action.get("data", {})
 
         # Get user
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
         if not user:
             raise ValueError("User not found")
 

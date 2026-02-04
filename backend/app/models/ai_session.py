@@ -183,6 +183,44 @@ class AISession(db.Model):
         }
 
     @classmethod
+    def get_all_for_user(
+        cls,
+        user_id: uuid.UUID,
+        include_inactive: bool = False,
+        page: int = 1,
+        per_page: int = 20,
+    ) -> tuple:
+        """
+        Get all chat sessions for a user with pagination.
+
+        Args:
+            user_id: User's UUID
+            include_inactive: Whether to include expired/inactive sessions
+            page: Page number (1-indexed)
+            per_page: Number of sessions per page
+
+        Returns:
+            Tuple of (sessions list, total count, has_more)
+        """
+        query = cls.query.filter(cls.user_id == user_id)
+
+        if not include_inactive:
+            query = query.filter(cls.is_active == True)
+
+        # Order by most recent first
+        query = query.order_by(cls.updated_at.desc())
+
+        # Get total count
+        total = query.count()
+
+        # Apply pagination
+        sessions = query.offset((page - 1) * per_page).limit(per_page).all()
+
+        has_more = (page * per_page) < total
+
+        return sessions, total, has_more
+
+    @classmethod
     def cleanup_expired(cls) -> int:
         """
         Mark expired sessions as inactive.

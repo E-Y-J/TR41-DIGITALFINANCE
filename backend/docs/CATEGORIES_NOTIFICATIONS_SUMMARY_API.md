@@ -1,15 +1,16 @@
 # Categories, Notifications & Summary API Documentation
 
-> **Status:** Foundation Complete
+> **Status:** Complete
 > **For:** Frontend Team, QA (Swagger & Postman Updates)
-> **Last Updated:** January 7, 2026
+> **Last Updated:** February 3, 2026
 
 ---
 
 ## 📋 Overview
 
 This document describes the API endpoints for:
-- **Categories** - Transaction categorization (11 defaults)
+- **Categories** - Transaction categorization (11 defaults + custom categories)
+- **Custom Categories** - Create, update, delete user categories
 - **Notifications** - User notification system (6 types)
 - **Alerts** - Financial anomaly alerts (foundation)
 - **Summary** - Spending summaries (daily/weekly/monthly/yearly/ytd)
@@ -135,6 +136,156 @@ Authorization: Bearer <token>
     "error": {
         "code": "NOT_FOUND",
         "message": "Category not found"
+    }
+}
+```
+
+---
+
+### POST `/api/categories`
+
+Create a custom category for the user.
+
+**Request:**
+```
+POST /api/categories
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+    "name": "Side Hustle Income",
+    "category_type": "income",
+    "description": "Freelance and gig economy income",
+    "icon": "briefcase",
+    "color": "#4CAF50"
+}
+```
+
+**Request Body:**
+| Field | Type | Required | Validation |
+|-------|------|----------|------------|
+| `name` | string | Yes | 1-100 characters |
+| `category_type` | string | Yes | `income`, `expense`, or `both` |
+| `description` | string | No | Max 500 characters |
+| `icon` | string | No | Icon identifier |
+| `color` | string | No | Valid hex color (e.g., `#FF6B6B`) |
+
+**Response (201 Created):**
+```json
+{
+    "success": true,
+    "message": "Category created successfully",
+    "data": {
+        "id": "uuid-string",
+        "name": "Side Hustle Income",
+        "category_type": "income",
+        "description": "Freelance and gig economy income",
+        "icon": "briefcase",
+        "color": "#4CAF50",
+        "is_system": false,
+        "display_order": 12,
+        "user_id": "user-uuid"
+    }
+}
+```
+
+**Error Response (409 Conflict):**
+```json
+{
+    "success": false,
+    "error": {
+        "code": "CONFLICT_ERROR",
+        "message": "A category with this name already exists"
+    }
+}
+```
+
+---
+
+### PUT `/api/categories/{id}`
+
+Update a custom category. System categories cannot be modified.
+
+**Request:**
+```
+PUT /api/categories/uuid-string
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+    "name": "Freelance Income",
+    "description": "Updated description",
+    "color": "#2196F3"
+}
+```
+
+**Allowed Fields:**
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | New category name |
+| `description` | string | New description |
+| `category_type` | string | New type |
+| `icon` | string | New icon |
+| `color` | string | New hex color |
+
+**Response (200 OK):**
+```json
+{
+    "success": true,
+    "message": "Category updated successfully",
+    "data": {
+        "id": "uuid-string",
+        "name": "Freelance Income",
+        "category_type": "income",
+        "description": "Updated description",
+        "icon": "briefcase",
+        "color": "#2196F3",
+        "is_system": false,
+        "display_order": 12
+    }
+}
+```
+
+**Error Response (403 Forbidden):**
+```json
+{
+    "success": false,
+    "error": {
+        "code": "FORBIDDEN",
+        "message": "Cannot modify system categories"
+    }
+}
+```
+
+---
+
+### DELETE `/api/categories/{id}`
+
+Delete a custom category. System categories cannot be deleted.
+
+**Request:**
+```
+DELETE /api/categories/uuid-string
+Authorization: Bearer <token>
+```
+
+**⚠️ Important:** Transactions using this category will be reassigned to "Unknown" category.
+
+**Response (200 OK):**
+```json
+{
+    "success": true,
+    "message": "Category deleted successfully"
+}
+```
+
+**Error Response (403 Forbidden):**
+```json
+{
+    "success": false,
+    "error": {
+        "code": "FORBIDDEN",
+        "message": "Cannot delete system categories"
     }
 }
 ```
@@ -747,15 +898,16 @@ All endpoints follow this error format:
 ## 🧪 Test Coverage
 
 All endpoints have integration tests in:
-`backend/tests/integration/test_sprint2_endpoints.py`
+- `backend/tests/integration/test_sprint2_endpoints.py`
+- `backend/tests/integration/test_comprehensive_deployment.py`
 
 Run tests:
 ```bash
 cd backend
-pytest tests/integration/test_sprint2_endpoints.py -v
+pytest tests/integration/ -v
 ```
 
-**Result:** 21 tests passing ✅
+**Result:** 126 tests passing ✅
 
 ---
 

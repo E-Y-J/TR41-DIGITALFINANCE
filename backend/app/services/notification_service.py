@@ -284,7 +284,7 @@ class NotificationService:
         Example:
             >>> notification = NotificationService.get_by_id(uuid.UUID("..."))
         """
-        notification = Notification.query.get(notification_id)
+        notification = db.session.get(Notification, notification_id)
 
         if notification is None:
             logger.debug(f"Notification not found by ID: {notification_id}")

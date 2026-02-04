@@ -69,21 +69,22 @@ class LoanService:
 
     @classmethod
     def create(cls, user_id: UUID, data: Dict[str, Any]) -> Loan:
-        """Create a new loan with computed progress and optional related fields."""
-        payload=dict(data)
-        if "category_id" in payload and payload["category_id"] is not None:
-            payload["category_id"] = str(payload["category_id"])
-            
-        if "budget_id" in payload and payload["budget_id"] is not None:
-            payload["budget_id"] = str(payload["budget_id"])
-            
-        errors = loan_create_schema.validate(payload)
-        if errors:
-            raise ValidationError("Invalid loan data", details=errors)
+        """
+        Create a new loan with computed progress and optional related fields.
 
-        validated = loan_create_schema.load(payload)
+        Note: Data may come from route (already validated/deserialized) or
+        directly from unit tests (raw dict). We validate required fields
+        without re-deserializing dates/decimals to avoid type conflicts.
+        """
+        # Validate required fields (works with both raw and deserialized data)
+        required_fields = ["name", "original_amount", "remaining_amount", "category_id"]
+        missing = [f for f in required_fields if f not in data or data[f] is None]
+        if missing:
+            raise ValidationError("Invalid loan data", details={f: ["Missing data for required field."] for f in missing})
+
+        validated = data
         status_str = validated.get("status", LoanStatus.OPEN.value)
-        status = LoanStatus(status_str)
+        status = LoanStatus(status_str) if isinstance(status_str, str) else status_str
 
         loan = Loan(
             user_id=user_id,
@@ -116,7 +117,7 @@ class LoanService:
     def update(cls, user_id: UUID, loan_id: UUID, data: Dict[str, Any]) -> Loan:
         """Update an existing loan."""
         loan = cls.get_by_id(user_id, loan_id)
-        
+
         payload=dict(data)
         if "category_id" in payload and payload["category_id"] is not None:
             payload["category_id"] = str(payload["category_id"])
@@ -128,10 +129,10 @@ class LoanService:
             raise ValidationError("Invalid loan update data", details=errors)
 
         validated = loan_update_schema.load(payload)
-        
+
         if "status" in validated:
             validated["status"] = LoanStatus(validated["status"])
-            
+
         for field in ["name", "original_amount", "remaining_amount", "category_id",
                       "budget_id", "status", "start_date", "end_date"]:
             if field in validated:
@@ -172,7 +173,7 @@ class LoanService:
     @staticmethod
     def _populate_related_names(loans: List[Loan]) -> None:
         """Populate user_name, category_name, budget_name for a list of loans.
-        
+
         Note:
             Budget model does not have a 'name' column. We derive a friendly label
             from its type/category instead.

@@ -45,7 +45,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List, TYPE_CHECKING
 
-from sqlalchemy import String, Boolean, DateTime, Text, Integer, Enum
+from sqlalchemy import String, Boolean, DateTime, Text, Integer, Enum, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -55,6 +55,7 @@ from app.models.enums import CategoryType
 if TYPE_CHECKING:
     from app.models.transaction import Transaction
     from app.models.budget import Budget
+    from app.models.user import User
 
 
 # =============================================================================
@@ -595,12 +596,20 @@ class Category(db.Model):
     # CATEGORY FIELDS
     # =========================================================================
 
+    # User ID for custom categories (NULL for system categories)
+    user_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+        doc="Owner user ID (NULL for system categories)",
+    )
+
     name: Mapped[str] = mapped_column(
         String(100),
-        unique=True,
         nullable=False,
         index=True,
-        doc="Category name (unique)",
+        doc="Category name (unique per user or system)",
     )
 
     description: Mapped[Optional[str]] = mapped_column(
@@ -638,8 +647,8 @@ class Category(db.Model):
     is_system: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,
-        default=True,
-        doc="System category (cannot be deleted)",
+        default=False,
+        doc="System category (cannot be deleted by users)",
     )
 
     display_order: Mapped[int] = mapped_column(
@@ -703,6 +712,21 @@ class Category(db.Model):
         back_populates="category",
     )
 
+    # Relationship to User (for custom categories)
+    user = relationship(
+        "User",
+        backref="custom_categories",
+        foreign_keys=[user_id],
+    )
+
+    # Unique constraint: category name must be unique per user (or unique among system categories)
+    __table_args__ = (
+        db.UniqueConstraint(
+            "name", "user_id",
+            name="uq_category_name_per_user"
+        ),
+    )
+
     # =========================================================================
     # METHODS
     # =========================================================================
@@ -725,7 +749,9 @@ class Category(db.Model):
                 "name": "Food & Dining",
                 "description": "Restaurants, groceries...",
                 "category_type": "expense",
-                "display_order": 1
+                "display_order": 1,
+                "is_system": true,
+                "is_custom": false
             }
         """
         return {
@@ -734,7 +760,11 @@ class Category(db.Model):
             "description": self.description,
             "category_type": self.category_type.value,
             "is_system": self.is_system,
+            "is_custom": self.user_id is not None,
+            "user_id": str(self.user_id) if self.user_id else None,
             "display_order": self.display_order,
+            "icon": self.icon,
+            "color": self.color,
         }
 
     # =========================================================================
@@ -832,6 +862,7 @@ class Category(db.Model):
                     category_type=cat_data["category_type"],
                     display_order=cat_data["display_order"],
                     is_system=True,
+                    user_id=None,  # System categories have no owner
                 )
                 db.session.add(category)
                 created.append(category)
@@ -840,6 +871,95 @@ class Category(db.Model):
             db.session.commit()
 
         return created
+
+    @classmethod
+    def get_for_user(cls, user_id: uuid.UUID) -> List["Category"]:
+        """
+        Get all categories available to a user (system + user's custom).
+
+        Args:
+            user_id: User's UUID
+
+        Returns:
+            List of Category instances (system categories first, then custom)
+
+        Example:
+            >>> categories = Category.get_for_user(user_id)
+        """
+        from sqlalchemy import or_
+
+        return (
+            cls.query.filter(
+                cls.is_active == True,
+                or_(
+                    cls.is_system == True,  # System categories
+                    cls.user_id == user_id,  # User's custom categories
+                ),
+            )
+            .order_by(cls.is_system.desc(), cls.display_order, cls.name)
+            .all()
+        )
+
+    @classmethod
+    def get_user_custom_categories(cls, user_id: uuid.UUID) -> List["Category"]:
+        """
+        Get only user's custom categories.
+
+        Args:
+            user_id: User's UUID
+
+        Returns:
+            List of user's custom Category instances
+
+        Example:
+            >>> custom = Category.get_user_custom_categories(user_id)
+        """
+        return (
+            cls.query.filter(
+                cls.is_active == True,
+                cls.user_id == user_id,
+            )
+            .order_by(cls.name)
+            .all()
+        )
+
+    @classmethod
+    def get_by_name_for_user(
+        cls,
+        name: str,
+        user_id: Optional[uuid.UUID] = None,
+    ) -> Optional["Category"]:
+        """
+        Get category by name, checking user's custom categories first.
+
+        Args:
+            name: Category name
+            user_id: Optional user ID (to check custom categories)
+
+        Returns:
+            Category instance or None
+
+        Example:
+            >>> category = Category.get_by_name_for_user("Pet Expenses", user_id)
+        """
+        from sqlalchemy import or_, func
+
+        # Check user's custom category first (if user_id provided)
+        if user_id:
+            custom = cls.query.filter(
+                func.lower(cls.name) == name.lower(),
+                cls.user_id == user_id,
+                cls.is_active == True,
+            ).first()
+            if custom:
+                return custom
+
+        # Fall back to system category
+        return cls.query.filter(
+            func.lower(cls.name) == name.lower(),
+            cls.is_system == True,
+            cls.is_active == True,
+        ).first()
 
 
 # =============================================================================

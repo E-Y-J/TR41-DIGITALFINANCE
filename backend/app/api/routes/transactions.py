@@ -116,7 +116,7 @@ def list_transactions():
 
     raw_category_id = request.args.get("category_id")
     category_id = parse_uuid(raw_category_id, "category_id") if raw_category_id else None
-    
+
     # category name filter (e.g. "Government & Legal")
     category_name = request.args.get("category")
 
