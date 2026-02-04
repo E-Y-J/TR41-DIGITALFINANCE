@@ -24,8 +24,11 @@ export const useTransactionsPage = () => {
   const { data, isLoading, isFetching } = useGetTransactions({
     page: page + 1,
     per_page: rowsPerPage,
-    search: debouncedSearch,
-    category: filters.category === "All" ? "" : filters.category,
+    merchant_name: debouncedSearch || undefined,
+    category:
+      filters.category === "All" || !filters.category
+        ? undefined
+        : filters.category,
     // To be implemented
     // start_date: filters.start_date || "",
     // end_date: filters.end_date || "",
