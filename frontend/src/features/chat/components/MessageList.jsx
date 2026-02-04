@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import { memo, useEffect } from "react";
 import {
   Box,
   Stack,
@@ -91,7 +91,14 @@ const MessageItem = memo(({ msg, isAI, isLast }) => {
           ) : (
             <Typography
               variant="body2"
-              sx={{ fontWeight: 500, lineHeight: 1.5 }}
+              sx={{
+                fontWeight: 500,
+                lineHeight: 1.5,
+                fontSize: { xs: "0.9rem", sm: "0.875rem" },
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+                overflowWrap: "anywhere",
+              }}
             >
               {msg.text}
             </Typography>
@@ -109,6 +116,17 @@ export const MessageList = ({
   onSuggestionClick,
   user,
 }) => {
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [messages, isTyping, messagesEndRef]);
+
   if (messages.length === 0) {
     return (
       <MessageEmptyState onSuggestionClick={onSuggestionClick} user={user} />
@@ -127,7 +145,7 @@ export const MessageList = ({
       ))}
 
       {isTyping && <TypingIndicator />}
-      <div ref={messagesEndRef} style={{ float: "left", clear: "both" }} />
+      <div ref={messagesEndRef} />
     </Stack>
   );
 };

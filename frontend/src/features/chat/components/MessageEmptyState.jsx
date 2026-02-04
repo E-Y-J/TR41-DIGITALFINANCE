@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import PieChartIcon from "@mui/icons-material/PieChart";
 
 const SUGGESTIONS = [
   {
@@ -19,9 +19,9 @@ const SUGGESTIONS = [
     icon: <ChatBubbleOutlineIcon />,
   },
   {
-    text: "Current account balance",
-    fullText: "What is my current account balance?",
-    icon: <AccountBalanceWalletIcon />,
+    text: "Monthly budget status",
+    fullText: "How am I doing on my budget for this month?",
+    icon: <PieChartIcon />,
   },
   {
     text: "Insights on spending habits",
@@ -43,11 +43,11 @@ const MessageEmptyState = ({ onSuggestionClick, user }) => {
         alignItems: "center",
         justifyContent: "center",
         p: { xs: 2, sm: 4 },
-        maxWidth: 450,
+        maxWidth: 850,
         margin: "0 auto",
       }}
     >
-      <Box sx={{ textAlign: "center", mb: 4 }}>
+      <Box sx={{ textAlign: "center", mb: 6 }}>
         <Typography
           variant={isMobile ? "h5" : "h4"}
           fontWeight={800}
@@ -67,13 +67,18 @@ const MessageEmptyState = ({ onSuggestionClick, user }) => {
           color="text.secondary"
           sx={{ px: 2, lineHeight: 1.5 }}
         >
-          How can I help you make sense of your money today?
+          How can I assist you?
         </Typography>
       </Box>
 
-      <Grid container spacing={1.5} sx={{ width: "100%" }}>
+      <Grid
+        container
+        spacing={2}
+        justifyContent="center"
+        sx={{ width: "100%" }}
+      >
         {SUGGESTIONS.map((item, index) => (
-          <Grid item xs={12} key={index}>
+          <Grid item xs={12} sm={4} key={index}>
             <Grow in timeout={400 + index * 150}>
               <Card
                 elevation={0}
@@ -81,12 +86,13 @@ const MessageEmptyState = ({ onSuggestionClick, user }) => {
                   borderRadius: 4,
                   border: "1px solid",
                   borderColor: "divider",
+                  height: "100%",
                   transition: "all 0.2s ease-in-out",
                   "&:hover": {
                     borderColor: "primary.main",
                     bgcolor: "rgba(25, 118, 210, 0.02)",
-                    transform: "translateY(-2px)",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+                    transform: "translateY(-4px)",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.06)",
                   },
                 }}
               >
@@ -94,10 +100,11 @@ const MessageEmptyState = ({ onSuggestionClick, user }) => {
                   onClick={() => onSuggestionClick(item.fullText)}
                   sx={{
                     p: 2,
+                    height: "100%",
                     display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
                     justifyContent: "flex-start",
-                    alignItems: "center",
-                    gap: 2,
                   }}
                 >
                   <Box
@@ -105,30 +112,29 @@ const MessageEmptyState = ({ onSuggestionClick, user }) => {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      flexShrink: 0,
                       width: 44,
                       height: 44,
                       borderRadius: "12px",
                       bgcolor: "primary.lighter",
                       color: "primary.main",
+                      mb: 2,
                       "& svg": { fontSize: 22 },
                     }}
                   >
                     {item.icon}
                   </Box>
 
-                  <Box sx={{ textAlign: "left" }}>
-                    <Typography
-                      variant="body2"
-                      fontWeight={600}
-                      sx={{ lineHeight: 1.2, mb: 0.2 }}
-                    >
-                      {item.text}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Tap to ask
-                    </Typography>
-                  </Box>
+                  <Typography
+                    variant="body2"
+                    fontWeight={700}
+                    sx={{
+                      lineHeight: 1.4,
+                      textAlign: "left",
+                      color: "text.primary",
+                    }}
+                  >
+                    {item.text}
+                  </Typography>
                 </CardActionArea>
               </Card>
             </Grow>

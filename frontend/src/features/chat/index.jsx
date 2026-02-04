@@ -85,8 +85,6 @@ const ChatBubble = ({ handleChatDrawerToggle, user }) => {
           messagesEndRef={messagesEndRef}
           onSuggestionClick={(text) => {
             setInputValue(text);
-            setIsTyping(true);
-            handleSendMessage();
           }}
           user={user?.first_name ?? ""}
         />

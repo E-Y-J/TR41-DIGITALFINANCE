@@ -38,12 +38,20 @@ export default function AiAssistantPage() {
       <Stack sx={{ flex: 1, minWidth: 0 }}>
         <MobileChatHeader onOpenHistory={() => c.setMobileHistoryOpen(true)} />
 
-        <Box sx={{ flex: 1, overflowY: "auto" }}>
+        <Box
+          sx={{
+            flexGrow: 1,
+            overflowY: "auto",
+            display: "flex",
+            flexDirection: "column",
+            overflowX: "hidden",
+          }}
+        >
           <MessageList
             messages={c.displayMessages}
             isTyping={c.isTyping}
             messagesEndRef={c.messagesEndRef}
-            onSuggestionClick={c.handleSendMessage}
+            onSuggestionClick={c.suggestionClickHandler}
             user={c.user?.first_name}
           />
         </Box>
