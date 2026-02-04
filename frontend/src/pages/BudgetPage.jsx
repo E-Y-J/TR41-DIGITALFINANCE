@@ -1,25 +1,16 @@
-import { Box, Typography, Paper } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
-import SpendingFilters from "../features/spending/components/SpendingFilters";
-import DailySpendingChart from "../features/spending/components/DailySpendingChart";
+import ViewMonthly from "../features/budget/components/ViewMonthly";
+import ViewDay from "../features/budget/components/ViewDay";
 
-import { useSpendingPage } from "../hooks/useSpendingPage";
+import { useMonthlySpending } from "../hooks/useMonthlySpending";
+import { useDailyBreakdown } from "../hooks/useDailyBreakdown";
+import { useGetUser } from "../features/auth/useGetUser";
 
 const BudgetPage = () => {
-  const {
-    selectedDate,
-    setSelectedDate,
-    selectedCategory,
-    setSelectedCategory,
-    chartData,
-    isLoading,
-    accountCreatedAt,
-  } = useSpendingPage();
-
-  const headerDate = new Intl.DateTimeFormat("en-US", {
-    month: "long",
-    year: "numeric",
-  }).format(selectedDate);
+  const monthly = useMonthlySpending();
+  const daily = useDailyBreakdown();
+  const { data: user } = useGetUser();
 
   return (
     <Box sx={{ p: 3, maxWidth: 1200, mx: "auto" }}>
@@ -36,60 +27,32 @@ const BudgetPage = () => {
         </Typography>
       </Box>
 
-      <Paper
-        elevation={3}
-        sx={{
-          p: { xs: 2, sm: 3 },
-          borderRadius: 4,
-          border: "1px solid",
-          borderColor: "grey.200",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <Box
-          sx={{
-            mb: 3,
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            alignItems: { xs: "flex-start", md: "center" },
-            justifyContent: "space-between",
-            gap: 2,
-          }}
-        >
-          <Box>
-            <Typography
-              variant="h6"
-              component="h2"
-              fontWeight={700}
-              lineHeight={1.2}
-            >
-              Daily Spending vs. Budget
-            </Typography>
-
-            <Typography variant="body2" color="text.secondary">
-              {headerDate}
-            </Typography>
-          </Box>
-
-          <Box sx={{ width: { xs: "100%", md: "auto" } }}>
-            <SpendingFilters
-              selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
-              selectedDate={selectedDate}
-              setSelectedDate={setSelectedDate}
-              accountCreatedAt={accountCreatedAt}
-            />
-          </Box>
-        </Box>
-        <Box>
-          <DailySpendingChart
-            selectedDate={selectedDate}
-            data={chartData}
-            isLoading={isLoading}
-          />
-        </Box>
-      </Paper>
+      <Box sx={{ mb: 5 }}>
+        <ViewMonthly
+          selectedCategory={monthly.selectedCategory}
+          setSelectedCategory={monthly.setSelectedCategory}
+          selectedDate={monthly.selectedDate}
+          setSelectedDate={monthly.setSelectedDate}
+          accountCreatedAt={
+            user?.created_at ? new Date(user.created_at) : new Date()
+          }
+          chartData={monthly.chartData}
+          isLoading={monthly.isLoading}
+        />
+      </Box>
+      <Box sx={{ mb: 5 }}>
+        <ViewDay
+          specificDate={daily.specificDate}
+          setSpecificDate={daily.setSpecificDate}
+          specificCategory={daily.specificCategory}
+          setSpecificCategory={daily.setSpecificCategory}
+          accountCreatedAt={
+            user?.created_at ? new Date(user.created_at) : new Date()
+          }
+          dailyCategoryData={daily.dailyCategoryData}
+          isLoading={daily.isLoading}
+        />
+      </Box>
     </Box>
   );
 };

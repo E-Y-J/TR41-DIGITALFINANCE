@@ -2,7 +2,7 @@ import { Box, Typography } from "@mui/material";
 import { useGetUser } from "../features/auth/useGetUser";
 
 import AiInsightsWidget from "../features/ai-insights/AiInsightsWidget";
-import SpendingWidget from "../features/spending/SpendingWidget";
+import BudgetWidget from "../features/budget/BudgetWidget";
 import RecentTransactionsWidget from "../features/transactions/RecentTransactionsWidget";
 import ActiveLoansWidget from "../features/loans/ActiveLoansWidget";
 
@@ -32,7 +32,7 @@ export default function HomePage() {
         }}
       >
         <Box sx={{ gridColumn: { md: "span 2" } }}>
-          <SpendingWidget />
+          <BudgetWidget />
         </Box>
 
         <Box sx={{ gridColumn: { md: "span 1" } }}>

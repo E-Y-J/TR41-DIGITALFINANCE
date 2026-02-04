@@ -3,6 +3,35 @@ import { CATEGORIES, getCategoryColor } from "./constants";
 
 export const formatCurrency = (value) => `$${value.toLocaleString()}`;
 
+export const getMonthYearOptions = (userStartYear) => {
+  const options = [];
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+
+  for (let year = currentYear; year >= userStartYear; year--) {
+    const startMonth = year === currentYear ? currentMonth : 11;
+
+    for (let month = startMonth; month >= 0; month--) {
+      const date = new Date(year, month);
+      const label = date.toLocaleString("default", {
+        month: "short",
+        year: "numeric",
+      });
+      const value = `${year}-${String(month + 1).padStart(2, "0")}`;
+
+      options.push({ label, value });
+    }
+  }
+  return options;
+};
+
+export const getDefaultMonth = () => {
+  const d = new Date();
+  d.setMonth(d.getMonth() - 1);
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  return `${d.getFullYear()}-${month}`;
+};
 export const generateChartData = () => {
   return CATEGORIES.map((cat) => ({
     category: cat,
