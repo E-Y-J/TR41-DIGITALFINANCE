@@ -1,9 +1,8 @@
-import { Button } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import DashboardWidget from "../../components/common/DashboardWidget";
 import TransactionTable from "./components/TransactionTable";
 import { useGetTransactions } from "./useGetTransactions";
 import CircularProgress from "@mui/material/CircularProgress";
-import { Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const RecentTransactionsWidget = () => {

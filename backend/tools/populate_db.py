@@ -24,6 +24,7 @@ try:
     from app import create_app
     from app.core.extensions import db
     from app.models.user import User
+    from app.models.ai_session import AISession
     from app.models.category import Category
     from app.models.transaction import Transaction, TransactionType, AISource
     from app.models.loan import Loan, LoanStatus
@@ -133,7 +134,7 @@ class Command:
             if num_loans > 0:
                 self.stdout_write("Creating loans for all users...")
                 for user in all_users:
-                    for _ in range(3):  # 3 loans per user
+                    for _ in range(5):  # 3 loans per user
                         loan = self.make_fake_loan([user])
                         db.session.add(loan)
 
@@ -143,6 +144,17 @@ class Command:
                 except Exception as e:
                     db.session.rollback()
                     self.stdout_write(f"Loan commit failed: {e}")
+            
+            self.stdout_write("Populating AI Sessions, Pending Actions, and User Learnings...")
+            for user in all_users:
+                self.populate_ai_data(user)
+
+            try:
+                db.session.commit()
+                self.stdout_write("Successfully populated all data.")
+            except Exception as e:
+                db.session.rollback()
+                self.stdout_write(f"Commit failed: {e}")
 
     # -------------------- Helper Methods --------------------
 
@@ -152,6 +164,14 @@ class Command:
         Wipes existing data to prevent duplicate key errors.
         """
         with self.app.app_context():
+            
+            try:
+                db.session.query(AISession).delete()
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                self.stdout_write(f"   - Error clearing AI sessions: {e}")
+            
             # Transactions first (FKs)
             self.stdout_write("Clearing existing transaction data...")
             try:
@@ -275,7 +295,7 @@ class Command:
                     "theme": "dark",
                     "notifications": {"reminders": True},
                 },
-                "created_at": datetime.now(timezone.utc),
+                "created_at": datetime(2025, 6, 1, tzinfo=timezone.utc),
                 "updated_at": datetime.now(timezone.utc),
                 "last_login": None,
             }
@@ -307,6 +327,7 @@ class Command:
         )
         db.session.add(user)
         return user
+    
 
     def make_fake_transaction(
         self, users: list[User], categories: list[Category]
@@ -386,6 +407,63 @@ class Command:
             end_date=end_date,
             status=status,
         )
+        
+    # MARK: AI Session Methods
+    def make_fake_chat_history(self) -> list:
+        """
+        Helper to create a realistic JSON conversation structure.
+        """
+        # Pairs of potential interactions
+        templates = [
+            ("How much have I spent on groceries this month?", 
+             "You have spent $342.15 on groceries so far this month across 12 transactions."),
+            ("Add a $15.50 expense for lunch at Chipotle today.", 
+             "I've prepared a transaction for $15.50 at Chipotle. Should I categorize this as 'Food & Dining'?"),
+            ("Show me my budget status for Entertainment.", 
+             "You have $45.00 remaining in your Entertainment budget for February."),
+            ("Remind me about my car loan payment.", 
+             "Your next car loan payment of $350.00 is due in 4 days (February 7th).")
+        ]
+        
+        history = []
+        # Randomly pick 1 to 3 exchanges
+        num_exchanges = random.randint(1, 3)
+        selected_templates = random.sample(templates, num_exchanges)
+        
+        for user_msg, ai_msg in selected_templates:
+            timestamp = datetime.now(timezone.utc).isoformat()
+            history.append({
+                "role": "user",
+                "content": user_msg,
+                "timestamp": timestamp
+            })
+            history.append({
+                "role": "assistant",
+                "content": ai_msg,
+                "timestamp": timestamp
+            })
+            
+        return history   
+    
+    def populate_ai_data(self, user: User):
+        """Generates AI sessions and historical context for a user."""
+    
+        for i in range(random.randint(1, 3)):    
+            is_active = (i == 0)
+            created_at = self.fake.date_time_between(start_date="-3d", end_date="now", tzinfo=timezone.utc)
+            
+            session = AISession(
+                user_id=user.id,
+                conversation_history=self.make_fake_chat_history(),
+                last_intent=random.choice(["create_transaction", "query_spending", "budget_status"]),
+                is_active=is_active,
+                created_at=created_at,
+                updated_at=created_at + timedelta(minutes=5),
+                expires_at=created_at + (timedelta(minutes=30) if is_active else timedelta(minutes=-5))
+            )
+            db.session.add(session)
+            db.session.flush() 
+    
 
     def stdout_write(self, message):
         """

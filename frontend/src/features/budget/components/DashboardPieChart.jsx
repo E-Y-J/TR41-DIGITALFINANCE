@@ -16,7 +16,7 @@ import { PieCenterLabel, CustomLegend } from "./PieChartExtras";
 
 const fullDataset = generateChartData();
 
-const BudgetBreakdownPie = () => {
+const DashboardPieChart = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -90,4 +90,4 @@ const BudgetBreakdownPie = () => {
   );
 };
 
-export default BudgetBreakdownPie;
+export default DashboardPieChart;

@@ -200,13 +200,13 @@ const DashboardLayout = () => {
               open={chatDrawerOpen}
               onClose={handleChatDrawerToggle}
               variant="temporary"
-              ModalProps={{ keepMounted: true }}
               sx={{
                 "& .MuiDrawer-paper": {
                   boxSizing: "border-box",
                   width: { xs: "100%", sm: 400 },
-                  borderTopLeftRadius: 16,
-                  borderBottomLeftRadius: 16,
+                  borderTopLeftRadius: { xs: 0, sm: 16 },
+                  borderBottomLeftRadius: { xs: 0, sm: 16 },
+                  height: "100%",
                   boxShadow: "-4px 0 24px rgba(0,0,0,0.1)",
                 },
               }}

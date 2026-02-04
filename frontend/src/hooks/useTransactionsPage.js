@@ -6,6 +6,8 @@ export const useTransactionsPage = () => {
     search: "",
     category: "All",
     type: "All",
+    sort_by: "date",
+    sort_order: "desc",
   });
   const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
   const [page, setPage] = useState(0);
@@ -22,8 +24,16 @@ export const useTransactionsPage = () => {
   const { data, isLoading, isFetching } = useGetTransactions({
     page: page + 1,
     per_page: rowsPerPage,
-    search: debouncedSearch,
-    category: filters.category === "All" ? "" : filters.category,
+    merchant_name: debouncedSearch || undefined,
+    category:
+      filters.category === "All" || !filters.category
+        ? undefined
+        : filters.category,
+    // To be implemented
+    // start_date: filters.start_date || "",
+    // end_date: filters.end_date || "",
+    sort_by: filters.sort_by,
+    sort_order: filters.sort_order,
     transaction_type: filters.type === "All" ? "" : filters.type,
   });
 

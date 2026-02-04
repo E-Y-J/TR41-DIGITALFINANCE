@@ -9,7 +9,7 @@ import ChartControls from "../../../components/common/ChartControls";
 
 const fullDataset = generateChartData();
 
-const BudgetBarChart = () => {
+const DashboardBarChart = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -106,4 +106,4 @@ const BudgetBarChart = () => {
   );
 };
 
-export default BudgetBarChart;
+export default DashboardBarChart;

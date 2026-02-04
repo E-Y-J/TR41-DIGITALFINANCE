@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Box, IconButton, Divider } from "@mui/material";
+import { Box, IconButton, Divider, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
 import MessageList from "./components/MessageList";
@@ -10,10 +10,18 @@ const ChatBubble = ({ handleChatDrawerToggle, user }) => {
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      setMessages([]);
+      setInputValue("");
+      setIsTyping(false);
+    };
+  }, []);
+
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
 
-    // Add User Message, need to implement a way for the messages to be grouped to save in the chat history
     setMessages((prev) => [
       ...prev,
       { id: Date.now(), text: inputValue, sender: user?.nickname || "User" },
@@ -47,12 +55,12 @@ const ChatBubble = ({ handleChatDrawerToggle, user }) => {
         display: "flex",
         flexDirection: "column",
         bgcolor: "background.paper",
+        overflow: "hidden",
       }}
     >
-      {/* Header */}
       <Box
         sx={{
-          p: 1.25,
+          p: 1,
           display: "flex",
           alignItems: "center",
           justifyContent: "flex-end",
@@ -64,27 +72,31 @@ const ChatBubble = ({ handleChatDrawerToggle, user }) => {
       </Box>
       <Divider />
 
-      {/* Message List */}
-      <Box sx={{ flexGrow: 1, overflowY: "auto", p: 1.75 }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          overflowY: "auto",
+          p: 2,
+        }}
+      >
         <MessageList
           messages={messages}
           isTyping={isTyping}
           messagesEndRef={messagesEndRef}
           onSuggestionClick={(text) => {
             setInputValue(text);
-            setIsTyping(true);
-            handleSendMessage();
           }}
           user={user?.first_name ?? ""}
         />
       </Box>
 
-      {/* Input Area */}
-      <ChatInput
-        inputValue={inputValue}
-        setInputValue={setInputValue}
-        onSend={handleSendMessage}
-      />
+      <Box sx={{ p: 1, pb: { xs: 2, sm: 1 } }}>
+        <ChatInput
+          inputValue={inputValue}
+          setInputValue={setInputValue}
+          onSend={handleSendMessage}
+        />
+      </Box>
     </Box>
   );
 };
