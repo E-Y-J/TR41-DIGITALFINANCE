@@ -5,22 +5,14 @@ import TransactionList from "../features/transactions/components/TransactionList
 import { useTransactionsPage } from "../hooks/useTransactionsPage";
 
 export default function TransactionsPage() {
-  const {
-    transactions,
-    totalCount,
-    isLoading,
-    filters,
-    page,
-    rowsPerPage,
-    onFilterChange,
-    onPageChange,
-    onRowsPerPageChange,
-  } = useTransactionsPage();
+  const c = useTransactionsPage();
 
   return (
     <Box sx={{ p: 3, maxWidth: 1200, mx: "auto" }}>
-      <TransactionToolbar filters={filters} onFilterChange={onFilterChange} />
-
+      <TransactionToolbar
+        filters={c.filters}
+        onFilterChange={c.onFilterChange}
+      />
       <Paper
         elevation={3}
         sx={{
@@ -34,20 +26,20 @@ export default function TransactionsPage() {
       >
         <Box sx={{ mb: 2 }}>
           <TransactionFilters
-            filters={filters}
-            onFilterChange={onFilterChange}
+            filters={c.filters}
+            onFilterChange={c.onFilterChange}
           />
         </Box>
 
         <Box sx={{ width: "100%" }}>
           <TransactionList
-            transactions={transactions}
-            totalCount={totalCount}
-            page={page}
-            rowsPerPage={rowsPerPage}
-            onPageChange={onPageChange}
-            onRowsPerPageChange={onRowsPerPageChange}
-            isLoading={isLoading}
+            transactions={c.transactions}
+            totalCount={c.totalCount}
+            page={c.page}
+            rowsPerPage={c.rowsPerPage}
+            onPageChange={c.onPageChange}
+            onRowsPerPageChange={c.onRowsPerPageChange}
+            isLoading={c.isLoading}
           />
         </Box>
       </Paper>
