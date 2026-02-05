@@ -36,7 +36,7 @@ from typing import Dict, Any, Optional, Tuple, List
 from uuid import UUID
 from decimal import Decimal
 
-from sqlalchemy import desc
+from sqlalchemy import desc, cast, Date
 
 from app.core.extensions import db
 from app.models.transaction import Transaction
@@ -214,10 +214,13 @@ class TransactionService:
                     query = query.filter(False)
 
         if start_date:
-            query = query.filter(Transaction.date >= start_date)
+            # Cast the string date column to date type for proper comparison
+            # This handles both "YYYY-MM-DD" and "YYYY-MM-DD HH:MM:SS..." formats
+            query = query.filter(cast(Transaction.date, Date) >= start_date)
 
         if end_date:
-            query = query.filter(Transaction.date <= end_date)
+            # Cast the string date column to date type for proper comparison
+            query = query.filter(cast(Transaction.date, Date) <= end_date)
 
         if merchant_name:
             query = query.filter(Transaction.merchant_name.ilike(f"%{merchant_name}%"))
@@ -393,7 +396,11 @@ class TransactionService:
             # =================================================================
             # Index transaction for RAG (semantic search)
             # =================================================================
-            if tx_type == TransactionType.EXPENSE and category_id and validated.get("merchant_name"):
+            if (
+                tx_type == TransactionType.EXPENSE
+                and category_id
+                and validated.get("merchant_name")
+            ):
                 try:
                     from app.ai.rag import get_rag_engine
                     from app.models.category import Category
@@ -559,11 +566,11 @@ class TransactionService:
             func.count(Transaction.id).label("count"),
         ).filter(Transaction.user_id == user.id)
 
-        # Apply date filters
+        # Apply date filters - cast string date to date type for proper comparison
         if start_date:
-            query = query.filter(Transaction.date >= start_date)
+            query = query.filter(cast(Transaction.date, Date) >= start_date)
         if end_date:
-            query = query.filter(Transaction.date <= end_date)
+            query = query.filter(cast(Transaction.date, Date) <= end_date)
 
         # Group by type
         results = query.group_by(Transaction.transaction_type).all()
@@ -675,7 +682,9 @@ class TransactionService:
                         merchant_name=transaction.merchant_name,
                         correct_category=new_category.name,
                         original_category=original_cat_name,
-                        original_source=str(transaction.ai_source.value) if transaction.ai_source else None,
+                        original_source=str(transaction.ai_source.value)
+                        if transaction.ai_source
+                        else None,
                     )
                     logger.debug(
                         f"Recorded learning: {transaction.merchant_name} → {new_category.name}"
