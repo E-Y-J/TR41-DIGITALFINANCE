@@ -33,6 +33,7 @@ from uuid import UUID
 from marshmallow import Schema, fields, validate, ValidationError
 
 from app.auth.decorators import requires_auth
+from app.auth.user_sync import sync_user_from_claims
 from app.utils.errors import ValidationError as AppValidationError
 from app.utils.errors import NotFoundError
 
@@ -117,7 +118,8 @@ def categorize_transaction():
         orchestrator = get_orchestrator()
 
         # Get user_id from auth context for personalized learning
-        user_id = UUID(g.user.id) if hasattr(g, "user") and g.user else None
+        user = sync_user_from_claims(g.current_user)
+        user_id = user.id if user else None
 
         result = orchestrator.categorize(
             merchant_name=data["text"],
@@ -179,12 +181,8 @@ def chat():
         handler = get_chat_handler()
         handler.initialize()
 
-        user_id = UUID(g.user.id) if hasattr(g, "user") else None
-        if not user_id:
-            return jsonify({
-                "success": False,
-                "error": {"code": "UNAUTHORIZED", "message": "User not found"},
-            }), 401
+        user = sync_user_from_claims(g.current_user)
+        user_id = user.id
 
         result = handler.process_message(
             user_id=user_id,
@@ -261,12 +259,8 @@ def get_chat_history():
     try:
         from app.models.ai_session import AISession
 
-        user_id = UUID(g.user.id) if hasattr(g, "user") else None
-        if not user_id:
-            return jsonify({
-                "success": False,
-                "error": {"code": "UNAUTHORIZED", "message": "User not found"},
-            }), 401
+        user = sync_user_from_claims(g.current_user)
+        user_id = user.id
 
         # Parse query parameters
         page = request.args.get("page", 1, type=int)
@@ -340,12 +334,8 @@ def get_insights():
 
         period = request.args.get("period", "month")
 
-        user_id = UUID(g.user.id) if hasattr(g, "user") else None
-        if not user_id:
-            return jsonify({
-                "success": False,
-                "error": {"code": "UNAUTHORIZED", "message": "User not found"},
-            }), 401
+        user = sync_user_from_claims(g.current_user)
+        user_id = user.id
 
         detector = get_detector()
         insights = detector.get_spending_insights(user_id)
@@ -390,12 +380,8 @@ def get_clarifications():
     try:
         from app.ai.clarification import get_clarification_manager
 
-        user_id = UUID(g.user.id) if hasattr(g, "user") else None
-        if not user_id:
-            return jsonify({
-                "success": False,
-                "error": {"code": "UNAUTHORIZED", "message": "User not found"},
-            }), 401
+        user = sync_user_from_claims(g.current_user)
+        user_id = user.id
 
         manager = get_clarification_manager()
         pending = manager.get_pending_requests(user_id)
@@ -737,12 +723,8 @@ def get_recurring_patterns():
 
         force_refresh = request.args.get("force_refresh", "false").lower() == "true"
 
-        user_id = UUID(g.user.id) if hasattr(g, "user") else None
-        if not user_id:
-            return jsonify({
-                "success": False,
-                "error": {"code": "UNAUTHORIZED", "message": "User not found"},
-            }), 401
+        user = sync_user_from_claims(g.current_user)
+        user_id = user.id
 
         detector = get_recurring_detector()
         patterns = detector.detect_patterns(user_id, force_refresh=force_refresh)
@@ -800,12 +782,8 @@ def get_upcoming_bills():
 
         days_ahead = min(request.args.get("days", 30, type=int), 90)
 
-        user_id = UUID(g.user.id) if hasattr(g, "user") else None
-        if not user_id:
-            return jsonify({
-                "success": False,
-                "error": {"code": "UNAUTHORIZED", "message": "User not found"},
-            }), 401
+        user = sync_user_from_claims(g.current_user)
+        user_id = user.id
 
         detector = get_recurring_detector()
         upcoming = detector.get_upcoming_bills(user_id, days_ahead=days_ahead)
@@ -859,12 +837,8 @@ def get_missed_payments():
     try:
         from app.ai.recurring_detector import get_recurring_detector
 
-        user_id = UUID(g.user.id) if hasattr(g, "user") else None
-        if not user_id:
-            return jsonify({
-                "success": False,
-                "error": {"code": "UNAUTHORIZED", "message": "User not found"},
-            }), 401
+        user = sync_user_from_claims(g.current_user)
+        user_id = user.id
 
         detector = get_recurring_detector()
         missed = detector.check_missed_payments(user_id)
@@ -961,12 +935,8 @@ def query_rag():
                 "error": {"code": "VALIDATION_ERROR", "message": "Query is required"},
             }), 400
 
-        user_id = UUID(g.user.id) if hasattr(g, "user") else None
-        if not user_id:
-            return jsonify({
-                "success": False,
-                "error": {"code": "UNAUTHORIZED", "message": "User not found"},
-            }), 401
+        user = sync_user_from_claims(g.current_user)
+        user_id = user.id
 
         engine = get_rag_engine()
         results = engine.query_transactions(user_id, query, top_k=top_k)

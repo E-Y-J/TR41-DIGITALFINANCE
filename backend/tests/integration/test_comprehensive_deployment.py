@@ -709,7 +709,6 @@ class TestLoansComprehensive:
 class TestAIChatComprehensive:
     """Comprehensive tests for AI chat system."""
 
-    @pytest.mark.skip(reason="Chat history requires g.user sync which testing shortcut doesn't provide")
     def test_chat_history_endpoint(self, client, auth_headers):
         """Test getting chat history."""
         response = client.get(
@@ -724,7 +723,6 @@ class TestAIChatComprehensive:
         assert "sessions" in result["data"]
         assert "meta" in result
 
-    @pytest.mark.skip(reason="Chat history requires g.user sync which testing shortcut doesn't provide")
     def test_chat_history_pagination(self, client, auth_headers):
         """Test chat history pagination."""
         response = client.get(

@@ -9,7 +9,7 @@ from marshmallow import ValidationError as MarshmallowValidationError
 from flask import Blueprint, request, g
 
 from app.auth.decorators import requires_auth
-from app.models.user import User
+from app.auth.user_sync import sync_user_from_claims
 from app.schemas.loan_schema import (
     loan_schema,
     loan_list_schema,
@@ -33,28 +33,6 @@ logger = logging.getLogger(__name__)
 bp = Blueprint("loans", __name__)
 
 
-def _get_current_user_for_loans() -> User:
-    """
-    Resolve the current User for loan routes.
-
-    - In production: requires_auth sets g.auth0_id, and we look up by that.
-    - In testing (FLASK_ENV="testing"): requires_auth is bypassed, so g.auth0_id
-      will be missing; we fall back to the first User in the DB (the test user).
-    """
-    auth0_id = getattr(g, "auth0_id", None)
-
-    if auth0_id:
-        user = User.query.filter_by(auth0_id=auth0_id).first()
-    else:
-        # Testing fallback: use any existing user (tests create one)
-        user = User.query.first()
-
-    if not user:
-        raise ValidationError("User not found for authenticated subject")
-
-    return user
-
-
 # =============================================================================
 # GET ALL LOANS FOR CURRENT USER
 # =============================================================================
@@ -71,7 +49,7 @@ def get_loans():
     Returns:
         200: List of loans
     """
-    user = _get_current_user_for_loans()
+    user = sync_user_from_claims(g.current_user)
 
     status_filter = request.args.get("status")
     if status_filter and status_filter not in ["open", "closed"]:
@@ -100,7 +78,7 @@ def get_loan(loan_id: str):
         200: Loan object
         404: Loan not found or not owned by user
     """
-    user = _get_current_user_for_loans()
+    user = sync_user_from_claims(g.current_user)
 
     try:
         loan_uuid = UUID(loan_id)
@@ -126,7 +104,7 @@ def create_loan():
     """
     Create a new loan for the current user.
     """
-    user = _get_current_user_for_loans()
+    user = sync_user_from_claims(g.current_user)
 
     data = request.get_json(silent=True)
     if data is None:
@@ -157,7 +135,7 @@ def update_loan(loan_id: str):
     Partial update of a loan for the current user.
     Only provided fields will be updated.
     """
-    user = _get_current_user_for_loans()
+    user = sync_user_from_claims(g.current_user)
 
     data = request.get_json(silent=True)
     if data is None:
@@ -192,7 +170,7 @@ def delete_loan(loan_id: str):
     """
     Delete a loan for the current user.
     """
-    user = _get_current_user_for_loans()
+    user = sync_user_from_claims(g.current_user)
 
     try:
         loan_uuid = UUID(loan_id)
