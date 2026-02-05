@@ -406,9 +406,16 @@ def get_summary():
     # Parse date filters
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
+    logger.debug("here")
 
+    logger.debug("Getting summary for user %s from %s to %s", user.id, start_date, end_date)
     # Get summary
     summary = TransactionService.get_user_summary(
+        user=user, start_date=start_date, end_date=end_date
+    )
+    
+    # Jae
+    category_totals = TransactionService.get_category_breakdown(
         user=user, start_date=start_date, end_date=end_date
     )
 
@@ -419,10 +426,38 @@ def get_summary():
         "net_balance": str(summary["net_balance"]),
         "income_count": summary["income_count"],
         "expense_count": summary["expense_count"],
+        "categories": category_totals
     }
 
     return success_response(
         data=serialized_summary, message="Summary retrieved successfully"
+    )
+    
+    
+# =============================================================================
+# MONTHLY TREND (Jae)
+# =============================================================================
+
+@bp.route("/trend", methods=["GET"])
+@requires_auth
+def get_monthly_trend():
+    """
+    Get month-by-month expense totals for a line chart.
+    """
+    user = sync_user_from_claims(g.current_user)
+    start_date = request.args.get("start_date")
+    category = request.args.get("category") 
+
+    
+    trend_data = TransactionService.get_monthly_trend(
+        user=user, 
+        start_date=start_date, 
+        category=category
+    )
+    
+    return success_response(
+        data=trend_data, 
+        message="Monthly trend retrieved successfully"
     )
 
 

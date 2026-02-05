@@ -1,6 +1,8 @@
-import { Box, Typography, Paper } from "@mui/material";
+import { Box, Typography, Paper, CircularProgress, Fade } from "@mui/material";
 import SpendingFilters from "./BudgetFilters";
 import MonthlyLineChart from "./MonthlyLineChart";
+import EmptyTrendView from "../../../components/common/EmptyTrendView";
+import { formatDate } from "../../../utils/constants";
 
 const ViewMonthly = ({
   selectedCategory,
@@ -10,12 +12,10 @@ const ViewMonthly = ({
   accountCreatedAt,
   chartData,
   isLoading,
+  isFetching,
 }) => {
-  const headerDate = new Intl.DateTimeFormat("en-US", {
-    month: "long",
-    year: "numeric",
-  }).format(selectedDate);
-
+  const headerDate = formatDate(selectedDate, "monthly");
+  console.log("chartData:", chartData);
   return (
     <Paper
       elevation={3}
@@ -45,7 +45,9 @@ const ViewMonthly = ({
             fontWeight={700}
             lineHeight={1.2}
           >
-            Monthly Spending Since: {headerDate}
+            {selectedDate
+              ? `Monthly Spending Since: ${headerDate}`
+              : "Monthly Trend Analysis"}
           </Typography>
         </Box>
 
@@ -56,17 +58,46 @@ const ViewMonthly = ({
             selectedDate={selectedDate}
             setSelectedDate={setSelectedDate}
             accountCreatedAt={accountCreatedAt}
+            viewType="monthly"
           />
         </Box>
       </Box>
 
-      <Box>
-        <MonthlyLineChart
-          selectedDate={selectedDate}
-          data={chartData}
-          isLoading={isLoading}
+      {!selectedDate ? (
+        <EmptyTrendView
+          header="Visualize Your Spending Trend"
+          text="Pick a starting point to see how your habits evolved."
         />
-      </Box>
+      ) : isLoading ? (
+        <Box sx={{ p: 6, textAlign: "center" }}>
+          <CircularProgress size={40} />
+        </Box>
+      ) : (
+        <Fade in={!!selectedDate} timeout={500}>
+          <Box
+            sx={{
+              position: "relative",
+              opacity: isFetching ? 0.4 : 1,
+              transition: "opacity 0.2s ease",
+              pointerEvents: isFetching ? "none" : "auto",
+            }}
+          >
+            {isFetching && (
+              <CircularProgress
+                size={20}
+                sx={{
+                  position: "absolute",
+                  top: 10,
+                  right: 10,
+                  zIndex: 1,
+                }}
+              />
+            )}
+
+            <MonthlyLineChart selectedDate={selectedDate} data={chartData} />
+          </Box>
+        </Fade>
+      )}
     </Paper>
   );
 };

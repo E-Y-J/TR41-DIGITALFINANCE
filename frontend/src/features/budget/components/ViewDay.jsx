@@ -1,6 +1,8 @@
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Paper, Typography, CircularProgress, Fade } from "@mui/material";
 import SpendingFilters from "./BudgetFilters";
 import DailyBarChart from "./DailyBarChart";
+import EmptyTrendView from "../../../components/common/EmptyTrendView";
+import { formatDate } from "../../../utils/constants";
 
 const ViewDay = ({
   specificCategory,
@@ -10,6 +12,7 @@ const ViewDay = ({
   accountCreatedAt,
   dailyCategoryData,
   isLoading,
+  isFetching,
 }) => {
   const getHeaderText = (date) => {
     if (!date) return "Select a Date";
@@ -17,15 +20,9 @@ const ViewDay = ({
     const today = new Date().toDateString();
     const isToday = date.toDateString() === today;
 
-    const formattedDate = date.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-
     return isToday
-      ? `Today's Expenses (${formattedDate})`
-      : `Expenses for ${formattedDate}`;
+      ? `Today's Expenses (${formatDate(date)})`
+      : `Expenses for ${formatDate(date)}`;
   };
 
   return (
@@ -60,13 +57,32 @@ const ViewDay = ({
           viewType="daily"
         />
       </Box>
-
-      <DailyBarChart
-        data={dailyCategoryData}
-        specificCategory={specificCategory}
-        isLoading={isLoading}
-        hasSelectedDate={!!specificDate}
-      />
+      {!specificDate ? (
+        <EmptyTrendView
+          header="Visualize Your Daily Expenses"
+          text="Pick a date to see your spending for that day."
+        />
+      ) : isLoading ? (
+        <Box sx={{ p: 6, textAlign: "center" }}>
+          <CircularProgress size={40} />
+        </Box>
+      ) : (
+        <Fade in={!!specificDate} timeout={500}>
+          <Box
+            sx={{
+              position: "relative",
+              opacity: isFetching ? 0.4 : 1,
+              transition: "opacity 0.2s ease",
+              pointerEvents: isFetching ? "none" : "auto",
+            }}
+          >
+            <DailyBarChart
+              data={dailyCategoryData}
+              specificCategory={specificCategory}
+            />
+          </Box>
+        </Fade>
+      )}
     </Paper>
   );
 };

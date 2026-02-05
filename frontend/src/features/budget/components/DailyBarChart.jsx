@@ -1,55 +1,7 @@
-import {
-  Box,
-  Typography,
-  LinearProgress,
-  CircularProgress,
-  Stack,
-  Fade,
-} from "@mui/material";
+import { Box, Typography, LinearProgress, Stack, Fade } from "@mui/material";
 import { CATEGORIES, CATEGORY_COLORS } from "../../../utils/constants";
 
-const DailyBarChart = ({
-  data,
-  specificCategory,
-  isLoading,
-  hasSelectedDate,
-}) => {
-  if (!hasSelectedDate) {
-    return (
-      <Box
-        sx={{
-          height: 300,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          bgcolor: "grey.50",
-          borderRadius: 4,
-          border: "2px dashed",
-          borderColor: "grey.300",
-        }}
-      >
-        <Typography color="text.secondary" variant="body1">
-          Select a date to view breakdown
-        </Typography>
-      </Box>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <Box
-        sx={{
-          height: 300,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <CircularProgress size={32} />
-      </Box>
-    );
-  }
-
+const DailyBarChart = ({ data, specificCategory }) => {
   const dayData = data[0] || {};
   const totalDailySpend = CATEGORIES.reduce(
     (acc, cat) => acc + (dayData[cat] || 0),

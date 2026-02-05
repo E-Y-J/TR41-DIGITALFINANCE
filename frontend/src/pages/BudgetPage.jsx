@@ -38,6 +38,7 @@ const BudgetPage = () => {
           }
           chartData={monthly.chartData}
           isLoading={monthly.isLoading}
+          isFetching={monthly.isFetching}
         />
       </Box>
       <Box sx={{ mb: 5 }}>
@@ -51,6 +52,7 @@ const BudgetPage = () => {
           }
           dailyCategoryData={daily.dailyCategoryData}
           isLoading={daily.isLoading}
+          isFetching={daily.isFetching}
         />
       </Box>
     </Box>

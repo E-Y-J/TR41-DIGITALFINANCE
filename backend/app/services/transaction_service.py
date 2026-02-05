@@ -31,12 +31,15 @@ Design Principles:
     - Input validation via schemas before operations
 """
 
+from datetime import datetime
 import logging
 from typing import Dict, Any, Optional, Tuple, List
+from unicodedata import category
 from uuid import UUID
 from decimal import Decimal
+from dateutil.relativedelta import relativedelta
 
-from sqlalchemy import desc, cast, Date
+from sqlalchemy import desc, cast, Date, func
 
 from app.core.extensions import db
 from app.models.transaction import Transaction
@@ -46,12 +49,15 @@ from app.schemas.transaction_schema import (
     transaction_create_schema,
     transaction_update_schema,
 )
+from app.models.category import Category
+
 from app.utils.errors import (
     NotFoundError,
     ValidationError,
     InternalError,
     ForbiddenError,
 )
+
 
 
 # =============================================================================
@@ -595,7 +601,114 @@ class TransactionService:
         summary["net_balance"] = summary["total_income"] - summary["total_expense"]
 
         return summary
+    
+    
+    # =============================================================================
+    # TRANSACTION CATEGORY BREAKDOWN (Jae)
+    # =============================================================================
 
+
+    @classmethod
+    def get_category_breakdown(
+        cls,
+        user: User,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        
+        query = db.session.query(
+            Category.name.label("category_name"),
+            func.sum(Transaction.amount).label("total_amount")
+        ).join(
+            Transaction, Transaction.category_id == Category.id
+        ).filter(
+            Transaction.user_id == user.id,
+            Transaction.transaction_type == TransactionType.EXPENSE 
+        )
+
+        if start_date:
+            query = query.filter(cast(Transaction.date, Date) >= start_date)
+        if end_date:
+            query = query.filter(cast(Transaction.date, Date) <= end_date)
+
+        results = query.group_by(Category.name).all()
+
+        return [
+            {"category": name, "total": str(total)} 
+            for name, total in results
+        ]
+        
+    # =============================================================================
+    # TRANSACTION MONTHLY TREND (Jae)   
+    # =============================================================================
+            
+    @classmethod
+    def get_monthly_trend(
+        cls,
+        user: User,
+        start_date: str,
+        category: Optional[str] = None,
+    ) -> List[Dict[str, Any]]: 
+        from sqlalchemy import func, cast, Date
+        from app.models.category import Category
+
+        # 1. Setup Dates
+        start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+        # Present month (today)
+        now_dt = datetime.now()
+        
+        # Calculate 12 months from start
+        limit_dt = start_dt + relativedelta(months=12)
+        
+        # Use whichever is sooner: 12 months in the future OR the present month
+        effective_end_dt = min(limit_dt, now_dt)
+        
+        # Convert back to strings for the SQL query
+        sql_start = start_dt.strftime("%Y-%m-%d")
+        sql_end = effective_end_dt.strftime("%Y-%m-%d")
+
+        db_date = cast(Transaction.date, Date)
+        month_group = func.date_trunc('month', db_date)
+
+        # 2. SQL Query
+        query = db.session.query(
+            month_group.label("month"),
+            func.sum(Transaction.amount).label("total")
+        ).join(
+            Category, Transaction.category_id == Category.id
+        ).filter(
+            Transaction.user_id == user.id,
+            Transaction.transaction_type == TransactionType.EXPENSE
+        )
+
+        if category:
+            query = query.filter(Category.name == category)
+        
+        # Use our calculated 12-month-or-now range
+        query = query.filter(db_date >= sql_start, db_date <= sql_end)
+        results = query.group_by(month_group).order_by(month_group).all()
+
+        # 3. Map results and Fill Gaps
+        db_data = {row.month.strftime("%Y-%m"): row.total for row in results}
+        final_trend = []
+        current_dt = datetime(start_dt.year, start_dt.month, 1)
+        
+        # Comparison logic for the loop
+        while current_dt <= effective_end_dt:
+            key = current_dt.strftime("%Y-%m")
+            final_trend.append({
+                "month": key,
+                "month_label": current_dt.strftime("%b %Y"),
+                "total": str(db_data.get(key, 0))
+            })
+            # Standard library month increment
+            if current_dt.month == 12:
+                current_dt = datetime(current_dt.year + 1, 1, 1)
+            else:
+                current_dt = datetime(current_dt.year, current_dt.month + 1, 1)
+
+        return final_trend
+        
     # =========================================================================
     # CATEGORY OVERRIDE
     # =========================================================================

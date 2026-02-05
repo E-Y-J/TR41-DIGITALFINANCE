@@ -354,8 +354,10 @@ class Command:
 
         amount = round(random.uniform(5.0, 500.0), 2)
         date = self.fake.date_time_between(
-            start_date="-1y", end_date="now", tzinfo=timezone.utc
-        )
+            start_date="-1y", 
+            end_date="now", 
+            tzinfo=timezone.utc
+        ).strftime("%Y-%m-%d")
 
         ai_override = bool(random.getrandbits(1))
         ai_source = None if ai_override else random.choice(list(AISource))

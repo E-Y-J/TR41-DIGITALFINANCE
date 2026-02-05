@@ -1,42 +1,55 @@
-import { useState, useEffect } from "react";
-import { CATEGORIES } from "../utils/constants";
-
-const generateDailyCategoryData = (date) => {
-  if (!date) return [];
-  const dayLabel = date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-  const dataEntry = { day: dayLabel };
-
-  CATEGORIES.forEach((cat) => {
-    dataEntry[cat] = Math.floor(Math.random() * 100) + 10;
-  });
-
-  return [dataEntry];
-};
+import { useState } from "react";
+import { useGetTransactionBreakdown } from "../features/budget/useGetTransactionBreakdown";
+import { CATEGORIES, getLocalISODate } from "../utils/constants";
 
 export const useDailyBreakdown = () => {
   const [specificDate, setSpecificDate] = useState(null);
-  const [specificCategory, setSpecificCategory] = useState("All"); // Added this
-  const [dailyCategoryData, setDailyCategoryData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [specificCategory, setSpecificCategory] = useState("All");
+
+  const {
+    data: dailyCategoryData,
+    isLoading,
+    isFetching,
+  } = useGetTransactionBreakdown(
+    {
+      start_date: getLocalISODate(specificDate),
+      end_date: getLocalISODate(specificDate),
+    },
+    {
+      enabled: Boolean(specificDate),
+
+      select: (response) => {
+        const summaryData = response?.data?.data || {};
+        const categoryTotals = summaryData.categories || [];
+
+        if (!specificDate) return [];
+
+        const dayLabel = specificDate.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        });
+
+        const dataEntry = { day: dayLabel };
+        CATEGORIES.forEach((cat) => (dataEntry[cat] = 0));
+
+        categoryTotals.forEach((item) => {
+          const catName = item.category;
+          const totalAmount = parseFloat(item.total);
+
+          if (dataEntry[catName] !== undefined) {
+            dataEntry[catName] = totalAmount;
+          }
+        });
+
+        console.log("Fixed Daily Breakdown:", dataEntry);
+        return [dataEntry];
+      },
+    },
+  );
 
   const handleDateChange = (newDate) => {
-    setIsLoading(true);
     setSpecificDate(newDate);
   };
-
-  useEffect(() => {
-    if (!specificDate) return;
-
-    const timer = setTimeout(() => {
-      const dailyData = generateDailyCategoryData(specificDate);
-      setDailyCategoryData(dailyData);
-      setIsLoading(false);
-    }, 600);
-    return () => clearTimeout(timer);
-  }, [specificDate]);
 
   return {
     specificDate,
@@ -45,6 +58,7 @@ export const useDailyBreakdown = () => {
     setSpecificCategory,
     dailyCategoryData,
     isLoading,
+    isFetching,
     hasSelectedDate: !!specificDate,
   };
 };
