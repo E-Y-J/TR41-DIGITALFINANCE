@@ -1,17 +1,6 @@
 import { Stack, TextField } from "@mui/material";
 import CategorySelect from "../../../components/common/CategorySelect";
-
-const formatDateForInput = (date, viewType) => {
-  if (!(date instanceof Date) || isNaN(date)) return "";
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-
-  if (viewType === "daily") {
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  }
-  return `${year}-${month}`;
-};
+import { getLocalISODate } from "../../../utils/constants";
 
 const BudgetFilters = ({
   selectedCategory,
@@ -22,26 +11,26 @@ const BudgetFilters = ({
   viewType = "monthly",
 }) => {
   const creationDate = new Date(accountCreatedAt);
-
   const todayDate = new Date();
-  const todayStr = formatDateForInput(todayDate, viewType);
-  const minDateStr = formatDateForInput(creationDate, viewType);
-  const dateValue = formatDateForInput(selectedDate, viewType);
+
+  const todayStr = getLocalISODate(todayDate, viewType);
+  const minDateStr = getLocalISODate(creationDate, viewType);
+  const dateValue = getLocalISODate(selectedDate, viewType);
 
   const handleDateChange = (e) => {
     const val = e.target.value;
     if (!val) return;
 
-    const dateString =
-      viewType === "monthly" ? `${val}-01T00:00:00` : `${val}T00:00:00`;
-    let newDate = new Date(dateString);
+    const [year, month, day] = val.split("-").map(Number);
 
-    if (newDate.getTime() < creationDate.getTime()) {
-      newDate = creationDate;
-    }
+    let newDate = new Date(year, month - 1, day || 1);
 
     if (newDate.getTime() > todayDate.getTime()) {
       newDate = todayDate;
+    }
+
+    if (newDate.getTime() < creationDate.getTime()) {
+      newDate = creationDate;
     }
 
     setSelectedDate(newDate);

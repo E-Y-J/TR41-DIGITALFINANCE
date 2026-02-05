@@ -2,12 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { chatHistory } from "../../api/user";
 import { useAxios } from "../../hooks/useAxios";
 
-export const useGetChatHistory = () => {
+export const useGetChatHistory = (params = {}) => {
   const apiClient = useAxios();
 
   return useQuery({
-    queryKey: ["chatHistory"],
-    queryFn: () => chatHistory(apiClient),
+    queryKey: ["chatHistory", params],
+    queryFn: () => chatHistory(apiClient, params),
     refetchOnWindowFocus: false,
     select: (response) => {
       const serverData = response.data;

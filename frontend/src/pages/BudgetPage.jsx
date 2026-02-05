@@ -51,6 +51,7 @@ const BudgetPage = () => {
           }
           dailyCategoryData={daily.dailyCategoryData}
           isLoading={daily.isLoading}
+          isFetching={daily.isFetching}
         />
       </Box>
     </Box>

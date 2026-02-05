@@ -56,6 +56,7 @@ const ViewMonthly = ({
             selectedDate={selectedDate}
             setSelectedDate={setSelectedDate}
             accountCreatedAt={accountCreatedAt}
+            viewType="monthly"
           />
         </Box>
       </Box>

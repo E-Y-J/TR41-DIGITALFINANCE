@@ -28,11 +28,43 @@ export const getCategoryColor = (categoryName) => {
   return CATEGORY_COLORS[categoryName] || "#BDBDBD";
 };
 
-export const formatDate = (dateString) => {
-  if (!dateString) return "";
-  return new Date(dateString).toLocaleDateString("en-US", {
+export const formatDate = (dateInput, viewType = "daily") => {
+  if (!dateInput) return "";
+
+  const date =
+    dateInput instanceof Date
+      ? dateInput
+      : new Date(dateInput.replace(/-/g, "/"));
+
+  if (isNaN(date.getTime())) return "";
+
+  if (viewType === "monthly") {
+    return date.toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    });
+  }
+
+  return date.toLocaleDateString("en-US", {
     month: "short",
-    day: "2-digit",
+    day: "numeric",
     year: "numeric",
   });
+};
+
+export const getLocalISODate = (dateInput, viewType = "daily") => {
+  if (!dateInput) return "";
+
+  const date =
+    dateInput instanceof Date
+      ? dateInput
+      : new Date(dateInput.replace(/-/g, "/"));
+
+  if (isNaN(date.getTime())) return "";
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return viewType === "daily" ? `${year}-${month}-${day}` : `${year}-${month}`;
 };

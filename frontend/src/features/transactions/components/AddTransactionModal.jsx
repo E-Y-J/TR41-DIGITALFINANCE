@@ -20,7 +20,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { useCreateTransaction } from "../useCreateTransaction";
 
-import { CATEGORIES } from "../../../utils/constants";
+import { CATEGORIES, getLocalISODate } from "../../../utils/constants";
 
 const shrink = keyframes`
   from { width: 100%; }
@@ -29,6 +29,7 @@ const shrink = keyframes`
 
 export const AddTransactionModal = ({ open, onClose }) => {
   const theme = useTheme();
+  const today = getLocalISODate();
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -41,12 +42,11 @@ export const AddTransactionModal = ({ open, onClose }) => {
     amount: "",
     transaction_type: "expense",
     category: "",
-    date: new Date().toISOString().split("T")[0],
+    date: today,
   };
 
   const [form, setForm] = useState(initialState);
   const { mutate, isPending } = useCreateTransaction();
-  const today = new Date().toISOString().split("T")[0];
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });

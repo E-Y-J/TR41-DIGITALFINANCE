@@ -10,7 +10,7 @@ export const updateUser = async (client, userData) => {
 };
 
 export const chatHistory = async (client) => {
-  const { data } = await client.get("/v1/ai/history");
+  const { data } = await client.get("/v1/ai/chat/history");
   console.log(data);
   return data;
 };

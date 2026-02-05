@@ -1,6 +1,7 @@
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Paper, Typography, CircularProgress } from "@mui/material";
 import SpendingFilters from "./BudgetFilters";
 import DailyBarChart from "./DailyBarChart";
+import { formatDate } from "../../../utils/constants";
 
 const ViewDay = ({
   specificCategory,
@@ -10,6 +11,7 @@ const ViewDay = ({
   accountCreatedAt,
   dailyCategoryData,
   isLoading,
+  isFetching,
 }) => {
   const getHeaderText = (date) => {
     if (!date) return "Select a Date";
@@ -17,15 +19,9 @@ const ViewDay = ({
     const today = new Date().toDateString();
     const isToday = date.toDateString() === today;
 
-    const formattedDate = date.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-
     return isToday
-      ? `Today's Expenses (${formattedDate})`
-      : `Expenses for ${formattedDate}`;
+      ? `Today's Expenses (${formatDate(date)})`
+      : `Expenses for ${formatDate(date)}`;
   };
 
   return (
@@ -60,13 +56,44 @@ const ViewDay = ({
           viewType="daily"
         />
       </Box>
-
-      <DailyBarChart
-        data={dailyCategoryData}
-        specificCategory={specificCategory}
-        isLoading={isLoading}
-        hasSelectedDate={!!specificDate}
-      />
+      {!specificDate ? (
+        <Box
+          sx={{
+            height: 300,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            bgcolor: "grey.50",
+            borderRadius: 4,
+            border: "2px dashed",
+            borderColor: "grey.300",
+          }}
+        >
+          <Typography color="text.secondary" variant="body1">
+            Select a date to view breakdown
+          </Typography>
+        </Box>
+      ) : isLoading ? (
+        <Box sx={{ p: 6, textAlign: "center" }}>
+          <CircularProgress size={40} />
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            position: "relative",
+            opacity: isFetching ? 0.4 : 1,
+            transition: "opacity 0.2s ease",
+            pointerEvents: isFetching ? "none" : "auto",
+          }}
+        >
+          <DailyBarChart
+            data={dailyCategoryData}
+            specificCategory={specificCategory}
+            isLoading={isLoading}
+            hasSelectedDate={!!specificDate}
+          />
+        </Box>
+      )}
     </Paper>
   );
 };
