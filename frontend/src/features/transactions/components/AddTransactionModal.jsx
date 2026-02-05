@@ -29,8 +29,7 @@ const shrink = keyframes`
 
 export const AddTransactionModal = ({ open, onClose }) => {
   const theme = useTheme();
-  const today = getLocalISODate();
-
+  const todayStr = getLocalISODate(new Date(), "daily");
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -42,7 +41,7 @@ export const AddTransactionModal = ({ open, onClose }) => {
     amount: "",
     transaction_type: "expense",
     category: "",
-    date: today,
+    date: todayStr,
   };
 
   const [form, setForm] = useState(initialState);
@@ -70,7 +69,7 @@ export const AddTransactionModal = ({ open, onClose }) => {
       return;
     }
 
-    if (date > today) {
+    if (date > todayStr) {
       window.alert("Transaction date cannot be in the future.");
       return;
     }
@@ -237,7 +236,7 @@ export const AddTransactionModal = ({ open, onClose }) => {
               type="date"
               fullWidth
               slotProps={{
-                htmlInput: { max: today },
+                htmlInput: { max: todayStr },
                 inputLabel: { shrink: true },
               }}
               value={form.date}
@@ -289,7 +288,7 @@ export const AddTransactionModal = ({ open, onClose }) => {
 
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={2500}
+        autoHideDuration={1500}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
@@ -318,7 +317,7 @@ export const AddTransactionModal = ({ open, onClose }) => {
                 left: 0,
                 height: 4,
                 backgroundColor: "rgba(255, 255, 255, 0.7)",
-                animation: `2500ms linear forwards ${shrink}`,
+                animation: `1500ms linear forwards ${shrink}`,
               }}
             />
           )}

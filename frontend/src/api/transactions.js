@@ -16,3 +16,10 @@ export const getSummary = async (apiClient, params = {}) => {
   });
   return data;
 };
+
+export const getMonthlyTrend = async (apiClient, params = {}) => {
+  const data = await apiClient.get("/transactions/trend", {
+    params: params,
+  });
+  return data;
+};

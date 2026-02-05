@@ -1,6 +1,7 @@
-import { Box, Paper, Typography, CircularProgress } from "@mui/material";
+import { Box, Paper, Typography, CircularProgress, Fade } from "@mui/material";
 import SpendingFilters from "./BudgetFilters";
 import DailyBarChart from "./DailyBarChart";
+import EmptyTrendView from "../../../components/common/EmptyTrendView";
 import { formatDate } from "../../../utils/constants";
 
 const ViewDay = ({
@@ -57,42 +58,30 @@ const ViewDay = ({
         />
       </Box>
       {!specificDate ? (
-        <Box
-          sx={{
-            height: 300,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            bgcolor: "grey.50",
-            borderRadius: 4,
-            border: "2px dashed",
-            borderColor: "grey.300",
-          }}
-        >
-          <Typography color="text.secondary" variant="body1">
-            Select a date to view breakdown
-          </Typography>
-        </Box>
+        <EmptyTrendView
+          header="Visualize Your Daily Expenses"
+          text="Pick a date to see your spending for that day."
+        />
       ) : isLoading ? (
         <Box sx={{ p: 6, textAlign: "center" }}>
           <CircularProgress size={40} />
         </Box>
       ) : (
-        <Box
-          sx={{
-            position: "relative",
-            opacity: isFetching ? 0.4 : 1,
-            transition: "opacity 0.2s ease",
-            pointerEvents: isFetching ? "none" : "auto",
-          }}
-        >
-          <DailyBarChart
-            data={dailyCategoryData}
-            specificCategory={specificCategory}
-            isLoading={isLoading}
-            hasSelectedDate={!!specificDate}
-          />
-        </Box>
+        <Fade in={!!specificDate} timeout={500}>
+          <Box
+            sx={{
+              position: "relative",
+              opacity: isFetching ? 0.4 : 1,
+              transition: "opacity 0.2s ease",
+              pointerEvents: isFetching ? "none" : "auto",
+            }}
+          >
+            <DailyBarChart
+              data={dailyCategoryData}
+              specificCategory={specificCategory}
+            />
+          </Box>
+        </Fade>
       )}
     </Paper>
   );

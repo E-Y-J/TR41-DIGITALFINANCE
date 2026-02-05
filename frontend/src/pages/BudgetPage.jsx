@@ -38,6 +38,7 @@ const BudgetPage = () => {
           }
           chartData={monthly.chartData}
           isLoading={monthly.isLoading}
+          isFetching={monthly.isFetching}
         />
       </Box>
       <Box sx={{ mb: 5 }}>

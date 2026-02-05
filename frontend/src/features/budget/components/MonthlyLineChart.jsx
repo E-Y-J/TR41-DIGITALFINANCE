@@ -1,30 +1,32 @@
 import { LineChart } from "@mui/x-charts/LineChart";
 import { useTheme } from "@mui/material/styles";
-import { Box, useMediaQuery } from "@mui/material";
-import EmptyState from "../../../components/common/EmptyState";
+import { Box, useMediaQuery, alpha } from "@mui/material";
 
-const MonthlyLineChart = ({ data, isLoading }) => {
+// need to come back bc of the color styling
+const MonthlyLineChart = ({ data }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  if (!isLoading && (!data || data.length === 0)) {
-    return (
-      <EmptyState
-        header="No Transactions Found"
-        text="We couldn't find any transactions matching your filters."
-      />
-    );
-  }
+  // this is mock for now
+  const budgetLimit = 1500;
+
+  const maxDataPoint =
+    Math.max(...(data?.map((d) => d.spent) || [0]), budgetLimit) * 1.25;
+
+  const budgetPos = (1 - budgetLimit / maxDataPoint) * 100;
+  const warningPos = (1 - (budgetLimit * 0.85) / maxDataPoint) * 100;
+  const safePos = (1 - (budgetLimit * 0.5) / maxDataPoint) * 100;
 
   return (
     <Box sx={{ width: "100%", height: isMobile ? 350 : 500 }}>
       <svg width={0} height={0} style={{ position: "absolute" }}>
         <defs>
-          <linearGradient id="dynamicAreaGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#f44336" stopOpacity={0.9} />
-            <stop offset="20%" stopColor="#ff9800" stopOpacity={0.7} />
-            <stop offset="50%" stopColor="#2196f3" stopOpacity={0.3} />
-            <stop offset="100%" stopColor="#2196f3" stopOpacity={0.1} />
+          <linearGradient id="financeTrendGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#e53e3e" />
+            <stop offset={`${budgetPos}%`} stopColor="#ed8936" />
+            <stop offset={`${warningPos}%`} stopColor="#ecc94b" />
+            <stop offset={`${safePos}%`} stopColor="#3182ce" />
+            <stop offset="100%" stopColor="#f7fafc" />
           </linearGradient>
         </defs>
       </svg>
@@ -32,26 +34,32 @@ const MonthlyLineChart = ({ data, isLoading }) => {
       <LineChart
         dataset={data}
         margin={{
-          top: 20,
+          top: 40,
           right: isMobile ? 20 : 40,
           bottom: 60,
-          left: isMobile ? 10 : 60,
+          left: isMobile ? 40 : 80,
         }}
-        grid={{ horizontal: true }}
         xAxis={[
           {
             scaleType: "point",
             dataKey: "month",
             valueFormatter: (value) => {
-              const date = new Date(value + "-01T00:00:00");
-              return date.toLocaleString("default", {
-                month: "short",
-                year: isMobile ? "2-digit" : "numeric",
-              });
+              if (isMobile) {
+                const [month, year] = value.split(" ");
+                return `${month} '${year.slice(-2)}`;
+              }
+              return value;
             },
           },
         ]}
-        yAxis={[{ label: isMobile ? "" : "Total Spent ($)" }]}
+        yAxis={[
+          {
+            label: isMobile ? "" : "Total Spent ($)",
+            min: 0,
+            max: maxDataPoint,
+            valueFormatter: (val) => `$${val.toLocaleString()}`,
+          },
+        ]}
         series={[
           {
             id: "spending-series",
@@ -59,7 +67,10 @@ const MonthlyLineChart = ({ data, isLoading }) => {
             label: "Actual Spending",
             area: true,
             curve: "monotoneX",
+            color: "url(#financeTrendGradient)",
             showMark: true,
+            disableHighlight: true,
+            highlightScope: { faded: "none", highlighted: "none" },
           },
           {
             id: "budget-limit",
@@ -67,23 +78,33 @@ const MonthlyLineChart = ({ data, isLoading }) => {
             label: "Budget Limit",
             color: theme.palette.text.disabled,
             curve: "stepAfter",
-            strokeDashArray: "5 5",
-            showMark: true,
+            strokeDashArray: "10 6",
+            showMark: false,
           },
         ]}
         sx={{
           "& .MuiAreaElement-series-spending-series": {
-            fill: "url(#dynamicAreaGradient)",
+            fill: "url(#financeTrendGradient)",
+            fillOpacity: 0.25,
           },
           "& .MuiLineElement-series-spending-series": {
-            stroke: "url(#dynamicAreaGradient)",
-            strokeWidth: 4,
+            strokeWidth: 3,
           },
-          "& .MuiMarkElement-series-spending-series": {
-            fill: "url(#dynamicAreaGradient)",
-            stroke: "#ffffff",
+          "& .MuiMarkElement-root": {
+            fill: "#000000 !important",
+            stroke: "#ffffff !important",
             strokeWidth: 2,
-            r: isMobile ? 3 : 4,
+            r: isMobile ? 4 : 5,
+          },
+          "& .MuiMarkElement-highlighted, & .MuiMarkElement-faded": {
+            fill: "#000000 !important",
+            stroke: "#ffffff !important",
+            r: isMobile ? 4 : 5,
+            opacity: "1 !important",
+          },
+          "& .MuiChartsGrid-line": {
+            strokeDasharray: "4 4",
+            stroke: alpha(theme.palette.divider, 0.2),
           },
         }}
       />

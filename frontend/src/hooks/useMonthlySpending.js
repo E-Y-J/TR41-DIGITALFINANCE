@@ -1,61 +1,52 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useGetMonthlyTrend } from "../features/budget/useGetMonthlyTrend";
+import { getLocalISODate } from "../utils/constants";
 
-const generateMonthlyData = (startDate, category) => {
-  if (category === "Government & Legal") return [];
+export const useMonthlySpending = (initialCategory = "All") => {
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
 
-  const data = [];
-  const now = new Date();
+  const getMonthRange = (date) => {
+    if (!date) return { start: null };
 
-  let current = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+    const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
 
-  while (current <= now) {
-    const year = current.getFullYear();
-    const month = String(current.getMonth() + 1).padStart(2, "0");
-    const rawMonthValue = `${year}-${month}`;
-
-    const spent = Math.floor(Math.random() * 2000) + 500;
-    const allocated = 2500;
-
-    data.push({
-      month: rawMonthValue,
-      spent: spent,
-      allocated: allocated,
-    });
-
-    current.setMonth(current.getMonth() + 1);
-  }
-  return data;
-};
-
-export const useMonthlySpending = (initialDate, initialCategory) => {
-  const [selectedDate, setSelectedDate] = useState(initialDate || new Date());
-  const [selectedCategory, setSelectedCategory] = useState(
-    initialCategory || "All",
-  );
-  const [chartData, setChartData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleDateChange = (newDate) => {
-    setIsLoading(true);
-    setSelectedDate(newDate);
+    return {
+      start: getLocalISODate(firstDay, "daily"),
+    };
   };
 
-  useEffect(() => {
-    // Replace with your API call: GET /api/spending/monthly?start=${selectedDate}
-    const timer = setTimeout(() => {
-      const data = generateMonthlyData(selectedDate, selectedCategory);
-      setChartData(data);
-      setIsLoading(false);
-    }, 600);
-    return () => clearTimeout(timer);
-  }, [selectedDate, selectedCategory]);
+  const { start } = getMonthRange(selectedDate);
+
+  const {
+    data: chartData,
+    isLoading,
+    isFetching,
+  } = useGetMonthlyTrend(
+    {
+      start_date: start,
+      category: selectedCategory === "All" ? "" : selectedCategory,
+    },
+    {
+      enabled: Boolean(selectedDate),
+      select: (response) => {
+        const trendArray = response?.data?.data || [];
+        return trendArray.map((m) => ({
+          month: m.month_label,
+          spent: parseFloat(m.total),
+          allocated: 1500,
+        }));
+      },
+    },
+  );
 
   return {
     selectedDate,
-    setSelectedDate: handleDateChange,
+    setSelectedDate,
     selectedCategory,
     setSelectedCategory,
-    chartData,
+    chartData: chartData || [],
     isLoading,
+    isFetching,
   };
 };

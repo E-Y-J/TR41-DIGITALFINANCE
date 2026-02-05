@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useGetDailyBreakdown } from "../features/budget/useGetDailyBreakdown";
+import { useGetTransactionBreakdown } from "../features/budget/useGetTransactionBreakdown";
 import { CATEGORIES, getLocalISODate } from "../utils/constants";
 
 export const useDailyBreakdown = () => {
@@ -10,7 +10,7 @@ export const useDailyBreakdown = () => {
     data: dailyCategoryData,
     isLoading,
     isFetching,
-  } = useGetDailyBreakdown(
+  } = useGetTransactionBreakdown(
     {
       start_date: getLocalISODate(specificDate),
       end_date: getLocalISODate(specificDate),
