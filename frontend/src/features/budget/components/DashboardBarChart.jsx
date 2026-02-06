@@ -3,25 +3,22 @@ import { useTheme } from "@mui/material/styles";
 import { Box, Stack, useMediaQuery } from "@mui/material";
 
 import { useChartPagination } from "../../../hooks/useChartPagination";
-import { generateChartData } from "../../../utils/chartHelpers";
-
 import ChartControls from "../../../components/common/ChartControls";
+import { transformDataForBar } from "../../../utils/chartHelpers";
 
-const fullDataset = generateChartData();
-
-const DashboardBarChart = () => {
+const DashboardBarChart = ({ data, suggestions }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
+  const transformedData = transformDataForBar(data, suggestions);
   const { page, totalPages, currentData, handleNext, handlePrev, setIsPaused } =
-    useChartPagination(fullDataset);
+    useChartPagination(transformedData);
 
   return (
     <Stack
       direction="column"
       justifyContent="space-between"
       alignItems="stretch"
-      sx={{ mb: 2, px: 1, width: "100%" }}
+      sx={{ mb: 2, px: 1, width: "100%", height: "100%" }}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -37,60 +34,50 @@ const DashboardBarChart = () => {
               dataKey: "category",
               categoryGapRatio: 0.3,
               barGapRatio: 0.1,
+              tickLabelPlacement: "middle",
               tickLabelStyle: {
-                fontSize: isMobile ? 10 : 12,
-                angle: 0,
-                textAnchor: "end",
+                fontSize: isMobile ? 9 : 11,
                 fill: theme.palette.text.secondary,
-                fontWeight: 500,
+                fontWeight: 600,
               },
             },
           ]}
           xAxis={[
             {
-              tickNumber: isMobile ? 3 : 6,
-
-              valueFormatter: (value) => `$${value}`,
-
+              tickNumber: isMobile ? 3 : 5,
+              valueFormatter: (value) => `$${value.toLocaleString()}`,
               tickLabelStyle: {
-                fontSize: isMobile ? 10 : 12,
+                fontSize: 10,
                 fill: theme.palette.text.secondary,
-              },
-
-              labelStyle: {
-                fontSize: isMobile ? 12 : 14,
-                transform: `translateY(${isMobile ? 5 : 0}px)`,
               },
             },
           ]}
           series={[
             {
               dataKey: "spent",
-              label: "Spent",
-              valueFormatter: (v) => `$${v}`,
+              label: "Actual Spent",
+              valueFormatter: (v) => `$${v?.toLocaleString()}`,
               color: theme.palette.primary.main,
-              borderRadius: 4,
             },
             {
               dataKey: "allocated",
-              label: "Allocated",
-              valueFormatter: (v) => `$${v}`,
-              color: theme.palette.grey[300],
-              borderRadius: 4,
+              label: "Budgeted",
+              valueFormatter: (v) => `$${v?.toLocaleString()}`,
+              color: theme.palette.grey[200],
             },
           ]}
           height={350}
           margin={{
             left: isMobile ? 10 : 20,
             right: isMobile ? 10 : 20,
-            top: 20,
-            bottom: 20,
+            top: 40,
+            bottom: 10,
           }}
           slotProps={{
             legend: {
-              hidden: false,
+              direction: "row",
               position: { vertical: "top", horizontal: "middle" },
-              padding: 0,
+              padding: { bottom: 20 },
             },
           }}
         />

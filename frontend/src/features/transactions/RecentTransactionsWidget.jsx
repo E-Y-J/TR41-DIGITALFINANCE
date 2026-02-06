@@ -1,8 +1,7 @@
-import { Box, Typography, Button } from "@mui/material";
+import { Typography, Button, CircularProgress, Box } from "@mui/material";
 import DashboardWidget from "../../components/common/DashboardWidget";
 import TransactionTable from "./components/TransactionTable";
 import { useGetTransactions } from "./useGetTransactions";
-import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate } from "react-router-dom";
 
 const RecentTransactionsWidget = () => {
@@ -18,6 +17,17 @@ const RecentTransactionsWidget = () => {
     navigate("/home/transactions");
   };
 
+  // improve error handling later
+  if (isError) {
+    return (
+      <DashboardWidget title="Transaction History" sx={{ minHeight: 450 }}>
+        <Typography color="error" align="center" sx={{ py: 4 }}>
+          Failed to load transactions.
+        </Typography>
+      </DashboardWidget>
+    );
+  }
+
   if (isLoading) {
     return (
       <DashboardWidget title="Transaction History" sx={{ minHeight: 450 }}>
@@ -26,23 +36,12 @@ const RecentTransactionsWidget = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            width: "100%",
             height: "100%",
+            width: "100%",
           }}
         >
-          <CircularProgress size={55} color="primary" />
+          <CircularProgress size={50} thickness={4.5} />
         </Box>
-      </DashboardWidget>
-    );
-  }
-
-  // improve error handling later
-  if (isError) {
-    return (
-      <DashboardWidget title="Transaction History" sx={{ minHeight: 450 }}>
-        <Typography color="error" align="center" sx={{ py: 4 }}>
-          Failed to load transactions.
-        </Typography>
       </DashboardWidget>
     );
   }

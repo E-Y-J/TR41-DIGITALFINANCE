@@ -23,3 +23,10 @@ export const getMonthlyTrend = async (apiClient, params = {}) => {
   });
   return data;
 };
+
+export const getSuggestions = async (apiClient, months = 3) => {
+  const data = await apiClient.get("/budgets/suggestions", {
+    params: { months },
+  });
+  return data;
+};

@@ -31,28 +31,41 @@ export function PieCenterLabel({ children, primary }) {
   );
 }
 
-export const CustomLegend = ({ data }) => (
-  <Stack
-    direction="row"
-    flexWrap="wrap"
-    justifyContent="center"
-    gap={2}
-    sx={{ my: 2, px: 1, display: { xs: "none", sm: "flex" } }}
-  >
-    {data.map((item) => (
-      <Stack key={item.category} direction="row" alignItems="center" gap={0.5}>
-        <Box
-          sx={{
-            width: 10,
-            height: 10,
-            borderRadius: "50%",
-            bgcolor: getCategoryColor(item.category),
-          }}
-        />
-        <Typography variant="caption" fontWeight={600} color="text.secondary">
-          {item.category}
-        </Typography>
-      </Stack>
-    ))}
-  </Stack>
-);
+export const CustomLegend = ({ data }) => {
+  const legendItems = data.filter((item) => item.isSpent);
+
+  return (
+    <Stack
+      direction="row"
+      flexWrap="wrap"
+      justifyContent="center"
+      gap={2}
+      sx={{
+        my: 1,
+        px: 1,
+        display: "flex",
+      }}
+    >
+      {legendItems.map((item) => (
+        <Stack key={item.id} direction="row" alignItems="center" gap={1}>
+          <Box
+            sx={{
+              width: 10,
+              height: 10,
+              borderRadius: "50%",
+              bgcolor: getCategoryColor(item.label),
+            }}
+          />
+          <Typography
+            variant="caption"
+            fontWeight={600}
+            color="text.secondary"
+            sx={{ whiteSpace: "nowrap" }}
+          >
+            {item.label}
+          </Typography>
+        </Stack>
+      ))}
+    </Stack>
+  );
+};

@@ -68,3 +68,13 @@ export const getLocalISODate = (dateInput, viewType = "daily") => {
 
   return viewType === "daily" ? `${year}-${month}-${day}` : `${year}-${month}`;
 };
+
+export const getDefaultFirstDayOfMonth = () => {
+  const d = new Date();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  return `${d.getFullYear()}-${month}-01`;
+};
+
+export const getTodayISODate = () => {
+  return new Date().toISOString().split("T")[0];
+};

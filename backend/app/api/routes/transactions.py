@@ -400,26 +400,19 @@ def get_summary():
             "message": "Summary retrieved successfully"
         }
     """
-    # Get current user
     user = sync_user_from_claims(g.current_user)
 
-    # Parse date filters
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
-    logger.debug("here")
 
-    logger.debug("Getting summary for user %s from %s to %s", user.id, start_date, end_date)
-    # Get summary
     summary = TransactionService.get_user_summary(
         user=user, start_date=start_date, end_date=end_date
     )
     
-    # Jae
     category_totals = TransactionService.get_category_breakdown(
         user=user, start_date=start_date, end_date=end_date
     )
 
-    # Convert Decimal to string for JSON serialization
     serialized_summary = {
         "total_income": str(summary["total_income"]),
         "total_expense": str(summary["total_expense"]),
@@ -435,7 +428,7 @@ def get_summary():
     
     
 # =============================================================================
-# MONTHLY TREND (Jae)
+# MONTHLY TREND 
 # =============================================================================
 
 @bp.route("/trend", methods=["GET"])

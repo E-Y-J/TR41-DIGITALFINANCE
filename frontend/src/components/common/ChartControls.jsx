@@ -8,7 +8,7 @@ const ChartControls = ({ page, totalPages, onPrev, onNext, sx }) => (
     alignItems="center"
     justifyContent="center"
     gap={2}
-    sx={{ mt: 1, ...sx }}
+    sx={{ mb: 2, mt: 1, ...sx }}
   >
     <IconButton
       onClick={onPrev}

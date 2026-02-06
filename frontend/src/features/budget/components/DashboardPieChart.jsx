@@ -1,11 +1,10 @@
 import { useMemo } from "react";
-import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
+import { PieChart } from "@mui/x-charts/PieChart";
 import { useTheme } from "@mui/material/styles";
 import { Box, Stack, useMediaQuery } from "@mui/material";
 
 import { useChartPagination } from "../../../hooks/useChartPagination";
 import {
-  generateChartData,
   transformDataForPie,
   getPieLabelFormatter,
   formatCurrency,
@@ -14,23 +13,18 @@ import {
 import ChartControls from "../../../components/common/ChartControls";
 import { PieCenterLabel, CustomLegend } from "./PieChartExtras";
 
-const fullDataset = generateChartData();
-
-const DashboardPieChart = () => {
+const DashboardPieChart = ({ data, suggestions }) => {
+  const pieData = transformDataForPie(data, suggestions);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
   const { page, totalPages, currentData, handleNext, handlePrev, setIsPaused } =
-    useChartPagination(fullDataset);
+    useChartPagination(pieData, 10);
 
-  const chartData = useMemo(
-    () => transformDataForPie(currentData),
-    [currentData],
-  );
-  const pageTotal = useMemo(
-    () => currentData.reduce((acc, i) => acc + i.allocated, 0),
-    [currentData],
-  );
+  const combinedTotalSpent = useMemo(() => {
+    return pieData
+      .filter((item) => item.isSpent)
+      .reduce((acc, curr) => acc + curr.fullSpent, 0);
+  }, [pieData]);
 
   return (
     <Stack
@@ -52,7 +46,7 @@ const DashboardPieChart = () => {
             {
               innerRadius: 80,
               outerRadius: isMobile ? 120 : 150,
-              data: chartData,
+              data: currentData,
               paddingAngle: 1,
               cornerRadius: 4,
               highlightScope: { fade: "global", highlight: "item" },
@@ -61,24 +55,15 @@ const DashboardPieChart = () => {
               valueFormatter: (item) => getPieLabelFormatter(item, isMobile),
             },
           ]}
-          margin={{ top: 20, bottom: 20, left: 20, right: 20 }}
           hideLegend
-          sx={{
-            [`& .${pieArcLabelClasses.root}`]: {
-              fill: theme.palette.text.primary,
-              fontSize: isMobile ? 10 : 12,
-              fontWeight: "bold",
-              pointerEvents: "none",
-            },
-          }}
         >
-          <PieCenterLabel primary={formatCurrency(pageTotal)}>
-            Page Budget
+          <PieCenterLabel primary={formatCurrency(combinedTotalSpent)}>
+            Total Spent
           </PieCenterLabel>
         </PieChart>
       </Box>
 
-      <CustomLegend data={currentData} />
+      <CustomLegend data={currentData.filter((item) => item.isSpent)} />
 
       <ChartControls
         page={page}

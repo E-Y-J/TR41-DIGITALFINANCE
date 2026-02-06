@@ -1,9 +1,17 @@
 import { Paper, Box, Typography } from "@mui/material";
 
-const DashboardWidget = ({ title, action, children, sx = {} }) => {
+const DashboardWidget = ({
+  title,
+  action,
+  children,
+
+  sx = {},
+  ...props
+}) => {
   return (
     <Paper
       elevation={3}
+      {...props}
       sx={{
         p: { xs: 2, sm: 3 },
         borderRadius: 4,
@@ -12,10 +20,10 @@ const DashboardWidget = ({ title, action, children, sx = {} }) => {
         display: "flex",
         flexDirection: "column",
         height: "100%",
+        minHeight: 400,
         ...sx,
       }}
     >
-      {/* Header Section */}
       {(title || action) && (
         <Box
           sx={{
@@ -34,7 +42,6 @@ const DashboardWidget = ({ title, action, children, sx = {} }) => {
         </Box>
       )}
 
-      {/* Content Section */}
       <Box sx={{ flexGrow: 1, position: "relative", overflow: "hidden" }}>
         {children}
       </Box>

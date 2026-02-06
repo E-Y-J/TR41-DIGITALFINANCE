@@ -40,29 +40,69 @@ export const generateChartData = () => {
   }));
 };
 
-export const transformDataForPie = (currentData) => {
-  return currentData.flatMap((item) => {
-    const color = getCategoryColor(item.category);
-    const safeSpent = Math.min(item.spent, item.allocated);
-    const remaining = Math.max(0, item.allocated - item.spent);
+const getCategoryMetrics = (cat, spendingData, suggestionsInput = []) => {
+  const rawSpending = spendingData?.[0] || {};
+
+  const suggestionsArray = Array.isArray(suggestionsInput)
+    ? suggestionsInput
+    : suggestionsInput?.suggestions || [];
+
+  const suggestion = suggestionsArray.find((s) => s.category_name === cat);
+
+  const spent = parseFloat(rawSpending[cat] || 0);
+
+  const suggested = suggestion?.suggested_amount
+    ? parseFloat(suggestion.suggested_amount)
+    : 0;
+
+  return {
+    spent,
+    allocated: suggested || 0,
+  };
+};
+
+export const transformDataForBar = (data, suggestions = []) => {
+  if (!data || data.length === 0) return [];
+
+  return CATEGORIES.map((cat) => {
+    const { spent, allocated } = getCategoryMetrics(cat, data, suggestions);
+
+    return {
+      category: cat,
+      spent,
+      allocated,
+    };
+  });
+};
+
+export const transformDataForPie = (data, suggestions = []) => {
+  if (!data || data.length === 0) return [];
+
+  return CATEGORIES.slice(0, 10).flatMap((cat) => {
+    const { spent, allocated } = getCategoryMetrics(cat, data, suggestions);
+
+    const displayAllocated = allocated || 100;
+    const color = getCategoryColor(cat);
+    const safeSpent = Math.min(spent, displayAllocated);
+    const remaining = Math.max(0, displayAllocated - spent);
 
     return [
       {
-        id: `${item.category}-spent`,
-        label: item.category,
+        id: `${cat}-spent`,
+        label: cat,
         value: safeSpent,
         color: color,
-        fullAllocated: item.allocated,
-        fullSpent: item.spent,
+        fullAllocated: displayAllocated,
+        fullSpent: spent,
         isSpent: true,
       },
       {
-        id: `${item.category}-left`,
-        label: item.category,
+        id: `${cat}-left`,
+        label: cat,
         value: remaining,
         color: alpha(color, 0.2),
-        fullAllocated: item.allocated,
-        fullSpent: item.spent,
+        fullAllocated: displayAllocated,
+        fullSpent: spent,
         isSpent: false,
       },
     ];

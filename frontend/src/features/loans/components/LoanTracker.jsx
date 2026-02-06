@@ -6,7 +6,7 @@ import EmptyState from "../../../components/common/EmptyState";
 const LoanTracker = ({ loans }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const gaugeSize = isMobile ? 35 : 55;
+  const gaugeSize = isMobile ? 45 : 55;
 
   const getProgressColor = (value) => {
     if (value >= 75) return theme.palette.success.main;
@@ -51,7 +51,7 @@ const LoanTracker = ({ loans }) => {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              p: { xs: 1.25, sm: 1.5 },
+              p: { xs: 1.5, sm: 1.75 },
               borderRadius: 4,
               bgcolor: "background.paper",
               border: "1px solid",
@@ -99,7 +99,7 @@ const LoanTracker = ({ loans }) => {
                   margin={{ top: 0, bottom: 0, left: 0, right: 0 }}
                   sx={{
                     [`& .${gaugeClasses.valueText}`]: {
-                      fontSize: isMobile ? 9 : 12,
+                      fontSize: isMobile ? 10 : 12,
                       fontWeight: 700,
                       fontFamily: theme.typography.fontFamily,
                     },

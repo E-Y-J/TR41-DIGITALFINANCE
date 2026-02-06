@@ -14,15 +14,11 @@ const HomePage = lazy(() => import("./pages/HomePage"));
 const BudgetPage = lazy(() => import("./pages/BudgetPage"));
 const TransactionPage = lazy(() => import("./pages/TransactionPage"));
 const AiAssistantPage = lazy(() => import("./pages/AiAssistantPage"));
-
-const CallbackPage = () => {
-  return <PageLoader />;
-};
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const App = () => {
   return (
     <Routes>
-      {/* 1. PUBLIC ROUTES */}
       <Route
         path="/"
         element={
@@ -34,10 +30,8 @@ const App = () => {
         }
       />
 
-      {/* 2. CALLBACK ROUTE  */}
-      <Route path="/callback" element={<CallbackPage />} />
+      <Route path="/callback" element={<PageLoader />} />
 
-      {/* 3. AUTHENTICATED ROUTES */}
       <Route element={<AuthenticationGuard />}>
         <Route
           path="/onboarding"
@@ -48,16 +42,32 @@ const App = () => {
           }
         />
 
-        {/* DASHBOARD ROUTES */}
         <Route element={<UserGuard />}>
           <Route element={<DashboardLayout />}>
             <Route path="/home" element={<HomePage />} />
             <Route path="/home/budget" element={<BudgetPage />} />
             <Route path="/home/transactions" element={<TransactionPage />} />
             <Route path="/home/ai-assistant" element={<AiAssistantPage />} />
+            <Route
+              path="/home/*"
+              element={
+                <Suspense fallback={<PageLoader />}>
+                  <NotFound />
+                </Suspense>
+              }
+            />
           </Route>
         </Route>
       </Route>
+
+      <Route
+        path="*"
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <NotFound />
+          </Suspense>
+        }
+      />
     </Routes>
   );
 };
