@@ -34,7 +34,6 @@ Design Principles:
 from datetime import datetime
 import logging
 from typing import Dict, Any, Optional, Tuple, List
-from unicodedata import category
 from uuid import UUID
 from decimal import Decimal
 from dateutil.relativedelta import relativedelta
@@ -57,7 +56,6 @@ from app.utils.errors import (
     InternalError,
     ForbiddenError,
 )
-
 
 
 # =============================================================================
@@ -312,6 +310,7 @@ class TransactionService:
             # Auto-categorization
             # =================================================================
             category_id = validated.get("category_id")
+            category_name = validated.get("category")  # Legacy field (string name)
             ai_confidence = None
             ai_source = None
 
@@ -319,7 +318,25 @@ class TransactionService:
                 # User explicitly provided category_id - use it
                 ai_source = AISource.USER
                 ai_confidence = 1.0
-            elif validated.get("merchant_name"):
+            elif category_name:
+                # User provided category name string - resolve to category_id
+                # This handles frontend sending category: "Food & Dining" etc.
+                resolved_category = CategoryService.get_by_name(category_name)
+                if resolved_category:
+                    category_id = resolved_category.id
+                    ai_source = AISource.USER
+                    ai_confidence = 1.0
+                    logger.info(
+                        f"Resolved category name '{category_name}' to ID {category_id}"
+                    )
+                else:
+                    logger.warning(
+                        f"Category name '{category_name}' not found, "
+                        f"falling back to auto-categorization"
+                    )
+
+            # Only auto-categorize if no explicit category was provided
+            if not category_id and validated.get("merchant_name"):
                 # Try auto-categorization by keyword
                 category, confidence, source = CategoryService.auto_categorize(
                     validated["merchant_name"]
@@ -601,8 +618,7 @@ class TransactionService:
         summary["net_balance"] = summary["total_income"] - summary["total_expense"]
 
         return summary
-    
-    
+
     # =============================================================================
     # TRANSACTION CATEGORY BREAKDOWN 
     # =============================================================================
@@ -642,14 +658,14 @@ class TransactionService:
     # =============================================================================
     # TRANSACTION MONTHLY TREND 
     # =============================================================================
-            
+
     @classmethod
     def get_monthly_trend(
         cls,
         user: User,
         start_date: str,
         category: Optional[str] = None,
-    ) -> List[Dict[str, Any]]: 
+    ) -> List[Dict[str, Any]]:
         from sqlalchemy import func, cast, Date
         from app.models.category import Category
 
@@ -657,34 +673,35 @@ class TransactionService:
         start_dt = datetime.strptime(start_date, "%Y-%m-%d")
         # Present month (today)
         now_dt = datetime.now()
-        
+
         # Calculate 12 months from start
         limit_dt = start_dt + relativedelta(months=12)
-        
+
         # Use whichever is sooner: 12 months in the future OR the present month
         effective_end_dt = min(limit_dt, now_dt)
-        
+
         # Convert back to strings for the SQL query
         sql_start = start_dt.strftime("%Y-%m-%d")
         sql_end = effective_end_dt.strftime("%Y-%m-%d")
 
         db_date = cast(Transaction.date, Date)
-        month_group = func.date_trunc('month', db_date)
+        month_group = func.date_trunc("month", db_date)
 
         # 2. SQL Query
-        query = db.session.query(
-            month_group.label("month"),
-            func.sum(Transaction.amount).label("total")
-        ).join(
-            Category, Transaction.category_id == Category.id
-        ).filter(
-            Transaction.user_id == user.id,
-            Transaction.transaction_type == TransactionType.EXPENSE
+        query = (
+            db.session.query(
+                month_group.label("month"), func.sum(Transaction.amount).label("total")
+            )
+            .join(Category, Transaction.category_id == Category.id)
+            .filter(
+                Transaction.user_id == user.id,
+                Transaction.transaction_type == TransactionType.EXPENSE,
+            )
         )
 
         if category:
             query = query.filter(Category.name == category)
-        
+
         # Use our calculated 12-month-or-now range
         query = query.filter(db_date >= sql_start, db_date <= sql_end)
         results = query.group_by(month_group).order_by(month_group).all()
@@ -693,15 +710,17 @@ class TransactionService:
         db_data = {row.month.strftime("%Y-%m"): row.total for row in results}
         final_trend = []
         current_dt = datetime(start_dt.year, start_dt.month, 1)
-        
+
         # Comparison logic for the loop
         while current_dt <= effective_end_dt:
             key = current_dt.strftime("%Y-%m")
-            final_trend.append({
-                "month": key,
-                "month_label": current_dt.strftime("%b %Y"),
-                "total": str(db_data.get(key, 0))
-            })
+            final_trend.append(
+                {
+                    "month": key,
+                    "month_label": current_dt.strftime("%b %Y"),
+                    "total": str(db_data.get(key, 0)),
+                }
+            )
             # Standard library month increment
             if current_dt.month == 12:
                 current_dt = datetime(current_dt.year + 1, 1, 1)
@@ -709,7 +728,7 @@ class TransactionService:
                 current_dt = datetime(current_dt.year, current_dt.month + 1, 1)
 
         return final_trend
-        
+
     # =========================================================================
     # CATEGORY OVERRIDE
     # =========================================================================
