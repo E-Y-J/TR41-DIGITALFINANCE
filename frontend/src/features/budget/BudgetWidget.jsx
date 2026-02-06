@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Tooltip, IconButton } from "@mui/material";
+import { Box, Tooltip, IconButton, CircularProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import BarChartIcon from "@mui/icons-material/BarChart";
@@ -7,6 +7,11 @@ import PieChartIcon from "@mui/icons-material/PieChart";
 import DashboardWidget from "../../components/common/DashboardWidget";
 import DashboardBarChart from "./components/DashboardBarChart";
 import DashboardPieChart from "./components/DashboardPieChart";
+import { useDailyBreakdown } from "../../hooks/useDailyBreakdown";
+import {
+  getDefaultFirstDayOfMonth,
+  getTodayISODate,
+} from "../../utils/constants";
 
 const BudgetWidget = () => {
   const navigate = useNavigate();
@@ -24,6 +29,13 @@ const BudgetWidget = () => {
       borderColor: isActive ? "primary.main" : "grey.400",
     },
   });
+
+  const { dailyCategoryData, isFetching, isLoading } = useDailyBreakdown(
+    getDefaultFirstDayOfMonth(),
+    getTodayISODate(),
+  );
+
+  console.log("BudgetWidget - dailyCategoryData:", dailyCategoryData);
 
   const headerActions = (
     <Box sx={{ display: "flex", gap: 1 }}>
@@ -56,10 +68,42 @@ const BudgetWidget = () => {
     </Box>
   );
 
+  if (isLoading) {
+    return (
+      <DashboardWidget title="My Monthly Spending" sx={{ minHeight: 450 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+            width: "100%",
+          }}
+        >
+          <CircularProgress size={50} thickness={4.5} />
+        </Box>
+      </DashboardWidget>
+    );
+  }
+
   return (
     <DashboardWidget title="My Monthly Spending" action={headerActions}>
-      <Box sx={{ mt: 1, height: "100%", width: "100%" }}>
-        {viewGraph === "graph" ? <DashboardBarChart /> : <DashboardPieChart />}
+      <Box
+        sx={{
+          mt: 1,
+          height: "100%",
+          width: "100%",
+          position: "relative",
+          transition: "opacity 0.3s ease-in-out",
+          opacity: isFetching ? 0.4 : 1,
+          pointerEvents: isFetching ? "none" : "auto",
+        }}
+      >
+        {viewGraph === "graph" ? (
+          <DashboardBarChart data={dailyCategoryData} />
+        ) : (
+          <DashboardPieChart data={dailyCategoryData} />
+        )}
       </Box>
     </DashboardWidget>
   );

@@ -39,7 +39,7 @@ from uuid import UUID
 from decimal import Decimal
 from dateutil.relativedelta import relativedelta
 
-from sqlalchemy import desc, cast, Date, func
+from sqlalchemy import and_, desc, cast, Date, func
 
 from app.core.extensions import db
 from app.models.transaction import Transaction
@@ -604,9 +604,8 @@ class TransactionService:
     
     
     # =============================================================================
-    # TRANSACTION CATEGORY BREAKDOWN (Jae)
+    # TRANSACTION CATEGORY BREAKDOWN 
     # =============================================================================
-
 
     @classmethod
     def get_category_breakdown(
@@ -615,31 +614,33 @@ class TransactionService:
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
+        join_conditions = [
+            Transaction.category_id == Category.id,
+            Transaction.user_id == user.id,
+            Transaction.transaction_type == TransactionType.EXPENSE
+        ]
         
+        if start_date:
+            join_conditions.append(cast(Transaction.date, Date) >= start_date)
+        if end_date:
+            join_conditions.append(cast(Transaction.date, Date) <= end_date)
+
         query = db.session.query(
             Category.name.label("category_name"),
-            func.sum(Transaction.amount).label("total_amount")
-        ).join(
-            Transaction, Transaction.category_id == Category.id
-        ).filter(
-            Transaction.user_id == user.id,
-            Transaction.transaction_type == TransactionType.EXPENSE 
+            func.coalesce(func.sum(Transaction.amount), 0).label("total_amount")
+        ).outerjoin(
+            Transaction, 
+            and_(*join_conditions) 
         )
-
-        if start_date:
-            query = query.filter(cast(Transaction.date, Date) >= start_date)
-        if end_date:
-            query = query.filter(cast(Transaction.date, Date) <= end_date)
-
+        
         results = query.group_by(Category.name).all()
 
         return [
             {"category": name, "total": str(total)} 
             for name, total in results
         ]
-        
     # =============================================================================
-    # TRANSACTION MONTHLY TREND (Jae)   
+    # TRANSACTION MONTHLY TREND 
     # =============================================================================
             
     @classmethod

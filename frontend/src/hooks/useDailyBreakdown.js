@@ -2,9 +2,14 @@ import { useState } from "react";
 import { useGetTransactionBreakdown } from "../features/budget/useGetTransactionBreakdown";
 import { CATEGORIES, getLocalISODate } from "../utils/constants";
 
-export const useDailyBreakdown = () => {
-  const [specificDate, setSpecificDate] = useState(null);
-  const [specificCategory, setSpecificCategory] = useState("All");
+export const useDailyBreakdown = (
+  initialDate = null,
+  initialEndDate = null,
+  initialCategory = "All",
+) => {
+  const [specificDate, setSpecificDate] = useState(initialDate);
+  const [endDate, setEndDate] = useState(initialEndDate);
+  const [specificCategory, setSpecificCategory] = useState(initialCategory);
 
   const {
     data: dailyCategoryData,
@@ -13,35 +18,42 @@ export const useDailyBreakdown = () => {
   } = useGetTransactionBreakdown(
     {
       start_date: getLocalISODate(specificDate),
-      end_date: getLocalISODate(specificDate),
+      end_date: getLocalISODate(endDate || specificDate),
     },
     {
       enabled: Boolean(specificDate),
 
       select: (response) => {
-        const summaryData = response?.data?.data || {};
+        const summaryData = response?.data?.data || response?.data || {};
         const categoryTotals = summaryData.categories || [];
 
         if (!specificDate) return [];
 
-        const dayLabel = specificDate.toLocaleDateString("en-US", {
+        const dateObj =
+          typeof specificDate === "string"
+            ? new Date(specificDate + "T00:00:00")
+            : specificDate;
+
+        const dayLabel = dateObj.toLocaleDateString("en-US", {
           month: "short",
-          day: "numeric",
+          day: endDate ? undefined : "numeric",
+          year: endDate ? "numeric" : undefined,
         });
 
         const dataEntry = { day: dayLabel };
-        CATEGORIES.forEach((cat) => (dataEntry[cat] = 0));
+        CATEGORIES.forEach((cat) => {
+          dataEntry[cat] = 0;
+        });
 
         categoryTotals.forEach((item) => {
           const catName = item.category;
-          const totalAmount = parseFloat(item.total);
+          const totalAmount = parseFloat(item.total || 0);
 
           if (dataEntry[catName] !== undefined) {
             dataEntry[catName] = totalAmount;
           }
         });
 
-        console.log("Fixed Daily Breakdown:", dataEntry);
         return [dataEntry];
       },
     },
@@ -54,9 +66,11 @@ export const useDailyBreakdown = () => {
   return {
     specificDate,
     setSpecificDate: handleDateChange,
+    endDate,
+    setEndDate,
     specificCategory,
     setSpecificCategory,
-    dailyCategoryData,
+    dailyCategoryData: dailyCategoryData || [],
     isLoading,
     isFetching,
     hasSelectedDate: !!specificDate,

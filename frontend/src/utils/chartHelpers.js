@@ -40,29 +40,36 @@ export const generateChartData = () => {
   }));
 };
 
-export const transformDataForPie = (currentData) => {
-  return currentData.flatMap((item) => {
-    const color = getCategoryColor(item.category);
-    const safeSpent = Math.min(item.spent, item.allocated);
-    const remaining = Math.max(0, item.allocated - item.spent);
+export const transformDataForPie = (realDataArray) => {
+  if (!realDataArray || realDataArray.length === 0) return [];
+
+  const dataEntry = realDataArray[0];
+
+  return CATEGORIES.slice(0, 10).flatMap((cat) => {
+    const color = getCategoryColor(cat);
+    const spent = parseFloat(dataEntry[cat] || 0);
+    const allocated = 250;
+
+    const safeSpent = Math.min(spent, allocated);
+    const remaining = Math.max(0, allocated - spent);
 
     return [
       {
-        id: `${item.category}-spent`,
-        label: item.category,
+        id: `${cat}-spent`,
+        label: cat,
         value: safeSpent,
         color: color,
-        fullAllocated: item.allocated,
-        fullSpent: item.spent,
+        fullAllocated: allocated,
+        fullSpent: spent,
         isSpent: true,
       },
       {
-        id: `${item.category}-left`,
-        label: item.category,
+        id: `${cat}-left`,
+        label: cat,
         value: remaining,
         color: alpha(color, 0.2),
-        fullAllocated: item.allocated,
-        fullSpent: item.spent,
+        fullAllocated: allocated,
+        fullSpent: spent,
         isSpent: false,
       },
     ];

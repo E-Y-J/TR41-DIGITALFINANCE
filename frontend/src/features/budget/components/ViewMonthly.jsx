@@ -15,7 +15,6 @@ const ViewMonthly = ({
   isFetching,
 }) => {
   const headerDate = formatDate(selectedDate, "monthly");
-  console.log("chartData:", chartData);
   return (
     <Paper
       elevation={3}

@@ -9,13 +9,20 @@ export const useMonthlySpending = (initialCategory = "All") => {
   const getMonthRange = (date) => {
     if (!date) return { start: null };
 
-    const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+    let dateObj;
+
+    if (typeof date === "string") {
+      dateObj = new Date(date + "-01T00:00:00");
+    } else {
+      dateObj = date;
+    }
+
+    const firstDay = new Date(dateObj.getFullYear(), dateObj.getMonth(), 1);
 
     return {
       start: getLocalISODate(firstDay, "daily"),
     };
   };
-
   const { start } = getMonthRange(selectedDate);
 
   const {

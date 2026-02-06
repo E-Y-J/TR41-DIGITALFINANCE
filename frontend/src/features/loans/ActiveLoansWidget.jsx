@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import DashboardWidget from "../../components/common/DashboardWidget";
 import LoanTracker from "./components/LoanTracker";
 import { useGetLoans } from "./useGetLoans";
@@ -14,6 +14,16 @@ const ActiveLoansWidget = () => {
     console.log("Navigate to all loans");
   };
 
+  if (isError) {
+    return (
+      <DashboardWidget title="Active Loans" sx={{ minHeight: 450 }}>
+        <Typography color="error" align="center" sx={{ py: 4 }}>
+          Failed to load your active loans.
+        </Typography>
+      </DashboardWidget>
+    );
+  }
+
   if (isLoading) {
     return (
       <DashboardWidget title="Active Loans" sx={{ minHeight: 450 }}>
@@ -22,22 +32,12 @@ const ActiveLoansWidget = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            width: "100%",
             height: "100%",
+            width: "100%",
           }}
         >
-          <CircularProgress size={55} color="primary" />
+          <CircularProgress size={50} thickness={4.5} />
         </Box>
-      </DashboardWidget>
-    );
-  }
-
-  if (isError) {
-    return (
-      <DashboardWidget title="Active Loans" sx={{ minHeight: 450 }}>
-        <Typography color="error" align="center" sx={{ py: 4 }}>
-          Failed to load your active loans.
-        </Typography>
       </DashboardWidget>
     );
   }

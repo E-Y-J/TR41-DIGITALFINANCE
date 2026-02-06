@@ -11,7 +11,6 @@ export const useGetChatHistory = (params = {}) => {
     refetchOnWindowFocus: false,
     select: (response) => {
       const serverData = response.data;
-      console.log("Raw Chat History Response:", serverData);
 
       if (!serverData) {
         return [];
