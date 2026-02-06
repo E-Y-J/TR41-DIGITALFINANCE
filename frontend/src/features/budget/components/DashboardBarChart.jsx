@@ -3,22 +3,13 @@ import { useTheme } from "@mui/material/styles";
 import { Box, Stack, useMediaQuery } from "@mui/material";
 
 import { useChartPagination } from "../../../hooks/useChartPagination";
-import { CATEGORIES } from "../../../utils/constants";
 import ChartControls from "../../../components/common/ChartControls";
+import { transformDataForBar } from "../../../utils/chartHelpers";
 
-const DashboardBarChart = ({ data }) => {
+const DashboardBarChart = ({ data, suggestions }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
-  const transformedData = CATEGORIES.map((cat) => {
-    const rawData = data?.[0] || {};
-    return {
-      category: cat,
-      spent: parseFloat(rawData[cat] || 0),
-      allocated: 250,
-    };
-  });
-
+  const transformedData = transformDataForBar(data, suggestions);
   const { page, totalPages, currentData, handleNext, handlePrev, setIsPaused } =
     useChartPagination(transformedData);
 
@@ -43,6 +34,7 @@ const DashboardBarChart = ({ data }) => {
               dataKey: "category",
               categoryGapRatio: 0.3,
               barGapRatio: 0.1,
+              tickLabelPlacement: "middle",
               tickLabelStyle: {
                 fontSize: isMobile ? 9 : 11,
                 fill: theme.palette.text.secondary,

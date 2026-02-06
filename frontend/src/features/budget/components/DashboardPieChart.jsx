@@ -13,11 +13,10 @@ import {
 import ChartControls from "../../../components/common/ChartControls";
 import { PieCenterLabel, CustomLegend } from "./PieChartExtras";
 
-const DashboardPieChart = ({ data }) => {
-  const pieData = transformDataForPie(data);
+const DashboardPieChart = ({ data, suggestions }) => {
+  const pieData = transformDataForPie(data, suggestions);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  console.log("DashboardPieChart - pieData:", data);
   const { page, totalPages, currentData, handleNext, handlePrev, setIsPaused } =
     useChartPagination(pieData, 10);
 

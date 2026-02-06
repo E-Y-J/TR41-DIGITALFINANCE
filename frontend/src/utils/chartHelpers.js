@@ -40,18 +40,51 @@ export const generateChartData = () => {
   }));
 };
 
-export const transformDataForPie = (realDataArray) => {
-  if (!realDataArray || realDataArray.length === 0) return [];
+const getCategoryMetrics = (cat, spendingData, suggestionsInput = []) => {
+  const rawSpending = spendingData?.[0] || {};
 
-  const dataEntry = realDataArray[0];
+  const suggestionsArray = Array.isArray(suggestionsInput)
+    ? suggestionsInput
+    : suggestionsInput?.suggestions || [];
+
+  const suggestion = suggestionsArray.find((s) => s.category_name === cat);
+
+  const spent = parseFloat(rawSpending[cat] || 0);
+
+  const suggested = suggestion?.suggested_amount
+    ? parseFloat(suggestion.suggested_amount)
+    : 0;
+
+  return {
+    spent,
+    allocated: suggested || 0,
+  };
+};
+
+export const transformDataForBar = (data, suggestions = []) => {
+  if (!data || data.length === 0) return [];
+
+  return CATEGORIES.map((cat) => {
+    const { spent, allocated } = getCategoryMetrics(cat, data, suggestions);
+
+    return {
+      category: cat,
+      spent,
+      allocated,
+    };
+  });
+};
+
+export const transformDataForPie = (data, suggestions = []) => {
+  if (!data || data.length === 0) return [];
 
   return CATEGORIES.slice(0, 10).flatMap((cat) => {
-    const color = getCategoryColor(cat);
-    const spent = parseFloat(dataEntry[cat] || 0);
-    const allocated = 250;
+    const { spent, allocated } = getCategoryMetrics(cat, data, suggestions);
 
-    const safeSpent = Math.min(spent, allocated);
-    const remaining = Math.max(0, allocated - spent);
+    const displayAllocated = allocated || 100;
+    const color = getCategoryColor(cat);
+    const safeSpent = Math.min(spent, displayAllocated);
+    const remaining = Math.max(0, displayAllocated - spent);
 
     return [
       {
@@ -59,7 +92,7 @@ export const transformDataForPie = (realDataArray) => {
         label: cat,
         value: safeSpent,
         color: color,
-        fullAllocated: allocated,
+        fullAllocated: displayAllocated,
         fullSpent: spent,
         isSpent: true,
       },
@@ -68,7 +101,7 @@ export const transformDataForPie = (realDataArray) => {
         label: cat,
         value: remaining,
         color: alpha(color, 0.2),
-        fullAllocated: allocated,
+        fullAllocated: displayAllocated,
         fullSpent: spent,
         isSpent: false,
       },

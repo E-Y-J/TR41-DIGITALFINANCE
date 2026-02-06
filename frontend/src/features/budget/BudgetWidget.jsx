@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Box, Tooltip, IconButton, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Tooltip,
+  IconButton,
+  CircularProgress,
+  Typography,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import BarChartIcon from "@mui/icons-material/BarChart";
@@ -7,6 +13,7 @@ import PieChartIcon from "@mui/icons-material/PieChart";
 import DashboardWidget from "../../components/common/DashboardWidget";
 import DashboardBarChart from "./components/DashboardBarChart";
 import DashboardPieChart from "./components/DashboardPieChart";
+import { useBudgetSuggestions } from "./useBudgetSuggestions";
 import { useDailyBreakdown } from "../../hooks/useDailyBreakdown";
 import {
   getDefaultFirstDayOfMonth,
@@ -35,7 +42,27 @@ const BudgetWidget = () => {
     getTodayISODate(),
   );
 
-  console.log("BudgetWidget - dailyCategoryData:", dailyCategoryData);
+  const {
+    data: suggestionData,
+    isLoading: loadingSuggestions,
+    isFetching: fetchingSuggestions,
+  } = useBudgetSuggestions(3);
+
+  const renderAnalysisPeriod = () => {
+    if (!suggestionData?.analysis) return null;
+    const { start_date, end_date } = suggestionData.analysis;
+
+    const start = new Date(start_date + "T00:00:00").toLocaleDateString(
+      "en-US",
+      { month: "short", year: "numeric" },
+    );
+    const end = new Date(end_date + "T00:00:00").toLocaleDateString("en-US", {
+      month: "short",
+      year: "numeric",
+    });
+
+    return `AI suggestions based on spending from ${start} — ${end}`;
+  };
 
   const headerActions = (
     <Box sx={{ display: "flex", gap: 1 }}>
@@ -68,7 +95,7 @@ const BudgetWidget = () => {
     </Box>
   );
 
-  if (isLoading) {
+  if (isLoading || loadingSuggestions) {
     return (
       <DashboardWidget title="My Monthly Spending" sx={{ minHeight: 450 }}>
         <Box
@@ -88,22 +115,44 @@ const BudgetWidget = () => {
 
   return (
     <DashboardWidget title="My Monthly Spending" action={headerActions}>
-      <Box
-        sx={{
-          mt: 1,
-          height: "100%",
-          width: "100%",
-          position: "relative",
-          transition: "opacity 0.3s ease-in-out",
-          opacity: isFetching ? 0.4 : 1,
-          pointerEvents: isFetching ? "none" : "auto",
-        }}
-      >
-        {viewGraph === "graph" ? (
-          <DashboardBarChart data={dailyCategoryData} />
-        ) : (
-          <DashboardPieChart data={dailyCategoryData} />
+      <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        {suggestionData?.analysis && (
+          <Typography
+            variant="caption"
+            color="text.disabled"
+            sx={{
+              mb: 1,
+              fontStyle: "italic",
+              display: "block",
+              opacity: isFetching || fetchingSuggestions ? 0.4 : 1,
+            }}
+          >
+            {renderAnalysisPeriod()}
+          </Typography>
         )}
+
+        <Box
+          sx={{
+            flexGrow: 1,
+            width: "100%",
+            position: "relative",
+            transition: "opacity 0.3s ease-in-out",
+            opacity: isFetching || fetchingSuggestions ? 0.4 : 1,
+            pointerEvents: isFetching || fetchingSuggestions ? "none" : "auto",
+          }}
+        >
+          {viewGraph === "graph" ? (
+            <DashboardBarChart
+              data={dailyCategoryData}
+              suggestions={suggestionData.suggestions}
+            />
+          ) : (
+            <DashboardPieChart
+              data={dailyCategoryData}
+              suggestions={suggestionData.suggestions}
+            />
+          )}
+        </Box>
       </Box>
     </DashboardWidget>
   );
