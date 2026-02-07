@@ -1,64 +1,49 @@
 import { useState, useRef, useMemo, useCallback } from "react";
 import { useGetChatHistory } from "../features/chat/useGetChatHistory";
 import { useGetUser } from "../features/auth/useGetUser";
+import { useSendChatMessage } from "../features/chat/useSendChatMessage";
 
 export const useAiAssistantPage = () => {
-  const [page, setPage] = useState(0);
-
-  // sessionHistory now reflects the { sessions: [...] } structure
-  const { data: historyResponse, isLoading } = useGetChatHistory();
+  const {
+    data: historyResponse,
+    isLoading,
+    isFetching,
+    refetch: refetchHistory,
+  } = useGetChatHistory();
   const { data: userData } = useGetUser();
+  const { mutateAsync: sendChatApi } = useSendChatMessage();
 
   const [activeChatId, setActiveChatId] = useState(null);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [mobileHistoryOpen, setMobileHistoryOpen] = useState(false);
   const [optimisticMessages, setOptimisticMessages] = useState([]);
-  const [mockedSessions, setMockedSessions] = useState([]);
 
   const messagesEndRef = useRef(null);
 
   const conversations = useMemo(() => {
-    // 1. Access the sessions array from the new response structure
     const rawSessions = historyResponse?.sessions || [];
-
-    const serverHistory = rawSessions.map((session) => ({
-      id: session.id,
-      // Use the first user message for the title, or fallback
-      title:
-        session.conversation_history
-          ?.find((m) => m.role === "user")
-          ?.content.slice(0, 30) || "Recent Chat",
-      isMock: false,
-      messages: (session.conversation_history || []).map((msg, idx) => ({
-        id: `${session.id}-${idx}`,
-        text: msg.content,
-        sender: msg.role === "assistant" ? "ai" : "user",
-      })),
-      updatedAt: session.updated_at,
-    }));
-
-    // Combine and sort by most recently updated
-    return [...mockedSessions, ...serverHistory].sort(
-      (a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0),
-    );
-  }, [historyResponse, mockedSessions]);
+    return rawSessions
+      .map((session) => ({
+        id: session.id,
+        title:
+          session.conversation_history
+            ?.find((m) => m.role === "user")
+            ?.content.slice(0, 30) || "Recent Chat",
+        messages: (session.conversation_history || []).map((msg, idx) => ({
+          id: `${session.id}-${idx}`,
+          text: msg.content,
+          sender: msg.role === "assistant" ? "ai" : "user",
+        })),
+        updatedAt: session.updated_at,
+      }))
+      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+  }, [historyResponse]);
 
   const activeSession = useMemo(
     () => conversations.find((c) => c.id === activeChatId),
     [activeChatId, conversations],
   );
-
-  const displayMessages = useMemo(() => {
-    const history = activeSession?.messages || [];
-
-    // Only show optimistic messages if they aren't already in the server history
-    const filteredOptimistic = optimisticMessages.filter(
-      (opt) => !history.some((h) => h.text === opt.text),
-    );
-
-    return [...history, ...filteredOptimistic];
-  }, [activeSession, optimisticMessages]);
 
   const suggestionClickHandler = useCallback(
     (text) => {
@@ -67,93 +52,80 @@ export const useAiAssistantPage = () => {
     [setInputValue],
   );
 
+  const displayMessages = useMemo(() => {
+    const history = activeSession?.messages || [];
+
+    if (history.length === 0 && optimisticMessages.length > 0) {
+      return optimisticMessages;
+    }
+
+    return [...history, ...optimisticMessages];
+  }, [activeSession, optimisticMessages]);
+
   const handleSendMessage = async (textOverride) => {
     const messageText = (
       typeof textOverride === "string" ? textOverride : inputValue
     ).trim();
-
     if (!messageText) return;
 
     setInputValue("");
     setIsTyping(true);
 
-    if (!activeChatId) {
-      const newMockId = `mock-${Date.now()}`;
-      const newMockSession = {
-        id: newMockId,
-        title: messageText.slice(0, 30),
-        isMock: true,
-        messages: [{ id: Date.now(), text: messageText, sender: "user" }],
-        updatedAt: new Date().toISOString(),
+    const userMsg = {
+      id: `u-${Date.now()}`,
+      text: messageText,
+      sender: "user",
+    };
+    setOptimisticMessages([userMsg]);
+
+    try {
+      const result = await sendChatApi({
+        message: messageText,
+        context: activeChatId ? { session_id: activeChatId } : {},
+      });
+
+      const aiMsg = {
+        id: `ai-${Date.now()}`,
+        text: result.response,
+        sender: "ai",
+        intent: result.intent,
+        parsedData: result.parsed_data,
       };
 
-      setMockedSessions((prev) => [newMockSession, ...prev]);
-      setActiveChatId(newMockId);
+      setOptimisticMessages([userMsg, aiMsg]);
+      const sessionId = result.session_id || result.data?.session_id;
+      if (sessionId) {
+        setActiveChatId(sessionId);
+      }
 
-      // Simulate AI Response
-      setTimeout(() => {
-        setMockedSessions((prev) =>
-          prev.map((s) =>
-            s.id === newMockId
-              ? {
-                  ...s,
-                  messages: [
-                    ...s.messages,
-                    {
-                      id: Date.now() + 1,
-                      text: "I've received your request. Since this is a new session, I'll help you get started!",
-                      sender: "ai",
-                    },
-                  ],
-                }
-              : s,
-          ),
-        );
-        setIsTyping(false);
-      }, 1500);
-    } else {
-      const newUserMsg = { id: Date.now(), text: messageText, sender: "user" };
-      setOptimisticMessages((prev) => [...prev, newUserMsg]);
-
-      setTimeout(() => {
-        const newAiMsg = {
-          id: Date.now() + 1,
-          text: "I am analyzing your follow-up request based on your current data...",
+      await refetchHistory();
+      setOptimisticMessages([]);
+    } catch (error) {
+      console.log(error);
+      setOptimisticMessages((prev) => [
+        ...prev,
+        {
+          id: "err",
+          text: "Connection lost. Please try again.",
           sender: "ai",
-        };
-
-        if (activeChatId.toString().startsWith("mock")) {
-          setMockedSessions((prev) =>
-            prev.map((s) =>
-              s.id === activeChatId
-                ? {
-                    ...s,
-                    messages: [...s.messages, newUserMsg, newAiMsg],
-                    updatedAt: new Date().toISOString(),
-                  }
-                : s,
-            ),
-          );
-          setOptimisticMessages([]);
-        } else {
-          setOptimisticMessages((prev) => [...prev, newAiMsg]);
-        }
-
-        setIsTyping(false);
-      }, 1500);
+        },
+      ]);
+    } finally {
+      setIsTyping(false);
     }
   };
 
   return {
     user: userData,
     isLoading,
+    isFetching,
     conversations,
     activeChatId,
     displayMessages,
-    suggestionClickHandler,
     inputValue,
     setInputValue,
     isTyping,
+    suggestionClickHandler,
     mobileHistoryOpen,
     setMobileHistoryOpen,
     messagesEndRef,

@@ -47,12 +47,13 @@ Notes:
 import logging
 import json
 import re
-import uuid as uuid_module
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
 from uuid import UUID
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal, InvalidOperation
 import threading
+
+from app.core.extensions import db
 
 logger = logging.getLogger(__name__)
 
@@ -409,8 +410,12 @@ class ChatHandler:
         """
         if not self.is_initialized:
             self.initialize()
-
+            
         session = self._get_session(user_id)
+        
+        if session and session._db_session:
+            session._db_session = db.session.merge(session._db_session)
+        
         session.add_message("user", message)
 
         # Normalize message

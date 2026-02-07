@@ -6,11 +6,11 @@ import {
   Avatar,
   Paper,
   keyframes,
-  useTheme,
 } from "@mui/material";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import MessageEmptyState from "./MessageEmptyState";
 import Typewriter from "./Typewriter";
+import { SpendingSummary, InsightCard } from "./MessageDataView";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(8px); }
@@ -41,7 +41,9 @@ const TypingIndicator = () => (
 );
 
 const MessageItem = memo(({ msg, isAI, isLast }) => {
-  const theme = useTheme();
+  // Extract intent and parsedData from the msg object
+  const intent = msg.intent;
+  const parsedData = msg.parsedData;
 
   return (
     <Box
@@ -58,6 +60,7 @@ const MessageItem = memo(({ msg, isAI, isLast }) => {
           alignItems: "flex-end",
           gap: 1,
           maxWidth: "85%",
+          flexDirection: isAI ? "row" : "row-reverse",
         }}
       >
         {isAI && (
@@ -68,6 +71,7 @@ const MessageItem = memo(({ msg, isAI, isLast }) => {
               bgcolor: "background.paper",
               border: "1px solid",
               borderColor: "divider",
+              mb: 0.5,
             }}
           >
             <SmartToyIcon sx={{ fontSize: 16, color: "primary.main" }} />
@@ -83,9 +87,10 @@ const MessageItem = memo(({ msg, isAI, isLast }) => {
             color: isAI ? "text.primary" : "white",
             border: "1px solid",
             borderColor: isAI ? "grey.200" : "transparent",
-            background: !isAI ? theme.palette.primary.main : undefined,
+            boxShadow: isAI ? "0 2px 4px rgba(0,0,0,0.02)" : "none",
           }}
         >
+          {/* Main Response Text */}
           {isAI && isLast ? (
             <Typewriter text={msg.text} speed={15} />
           ) : (
@@ -97,11 +102,22 @@ const MessageItem = memo(({ msg, isAI, isLast }) => {
                 fontSize: { xs: "0.9rem", sm: "0.875rem" },
                 whiteSpace: "pre-wrap",
                 wordBreak: "break-word",
-                overflowWrap: "anywhere",
               }}
             >
               {msg.text}
             </Typography>
+          )}
+
+          {/* Conditional Rich Data Views */}
+          {isAI && (
+            <Box sx={{ color: "text.primary" }}>
+              {intent === "query_spending" && parsedData && (
+                <SpendingSummary data={parsedData} />
+              )}
+              {intent === "get_insights" && parsedData && (
+                <InsightCard data={parsedData} />
+              )}
+            </Box>
           )}
         </Paper>
       </Box>
@@ -109,9 +125,79 @@ const MessageItem = memo(({ msg, isAI, isLast }) => {
   );
 });
 
+// const MessageItem = memo(({ msg, isAI, isLast }) => {
+//   const theme = useTheme();
+
+//   return (
+//     <Box
+//       sx={{
+//         display: "flex",
+//         flexDirection: "column",
+//         alignItems: isAI ? "flex-start" : "flex-end",
+//         animation: `${fadeIn} 0.3s ease-out`,
+//       }}
+//     >
+//       <Box
+//         sx={{
+//           display: "flex",
+//           alignItems: "flex-end",
+//           gap: 1,
+//           maxWidth: "85%",
+//         }}
+//       >
+//         {isAI && (
+//           <Avatar
+//             sx={{
+//               width: 28,
+//               height: 28,
+//               bgcolor: "background.paper",
+//               border: "1px solid",
+//               borderColor: "divider",
+//             }}
+//           >
+//             <SmartToyIcon sx={{ fontSize: 16, color: "primary.main" }} />
+//           </Avatar>
+//         )}
+
+//         <Paper
+//           elevation={0}
+//           sx={{
+//             p: 1.5,
+//             borderRadius: isAI ? "16px 16px 16px 4px" : "16px 16px 4px 16px",
+//             bgcolor: isAI ? "background.paper" : "primary.main",
+//             color: isAI ? "text.primary" : "white",
+//             border: "1px solid",
+//             borderColor: isAI ? "grey.200" : "transparent",
+//             background: !isAI ? theme.palette.primary.main : undefined,
+//           }}
+//         >
+//           {isAI && isLast ? (
+//             <Typewriter text={msg.text} speed={15} />
+//           ) : (
+//             <Typography
+//               variant="body2"
+//               sx={{
+//                 fontWeight: 500,
+//                 lineHeight: 1.5,
+//                 fontSize: { xs: "0.9rem", sm: "0.875rem" },
+//                 whiteSpace: "pre-wrap",
+//                 wordBreak: "break-word",
+//                 overflowWrap: "anywhere",
+//               }}
+//             >
+//               {msg.text}
+//             </Typography>
+//           )}
+//         </Paper>
+//       </Box>
+//     </Box>
+//   );
+// });
+
 export const MessageList = ({
   messages,
   isTyping,
+  showEmptyState,
   messagesEndRef,
   onSuggestionClick,
   user,
@@ -127,7 +213,7 @@ export const MessageList = ({
     return () => clearTimeout(timeoutId);
   }, [messages, isTyping, messagesEndRef]);
 
-  if (messages.length === 0) {
+  if (showEmptyState) {
     return (
       <MessageEmptyState onSuggestionClick={onSuggestionClick} user={user} />
     );
