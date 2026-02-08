@@ -36,7 +36,7 @@ Configuration:
 import logging
 from typing import Optional
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 from werkzeug.exceptions import HTTPException
 
 from app.core.config import get_config
@@ -120,15 +120,6 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     # Register health check
     _register_health_check(app)
 
-    # -------------------------------------------------------------------------
-    # SECURITY HEADERS
-    # -------------------------------------------------------------------------
-    @app.after_request
-    def add_security_headers(response):
-        response.headers.setdefault("X-Content-Type-Options", "nosniff")
-        return response
-
-
     # Initialize Swagger UI
     _init_swagger(app)
 
@@ -144,7 +135,6 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     logger.info("Application created successfully")
 
     return app
-
 
 # =============================================================================
 # BLUEPRINT REGISTRATION
