@@ -1,22 +1,52 @@
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import { Stack, Button, Typography } from "@mui/material";
-import LogoutButton from "../components/LogoutButton";
+import { Box, Typography } from "@mui/material";
+import { useGetUser } from "../features/auth/useGetUser";
 
-const HomePage = () => {
+import AiInsightsWidget from "../features/ai-insights/AiInsightsWidget";
+import BudgetWidget from "../features/budget/BudgetWidget";
+import RecentTransactionsWidget from "../features/transactions/RecentTransactionsWidget";
+import ActiveLoansWidget from "../features/loans/ActiveLoansWidget";
+
+export default function HomePage() {
+  const { data: user } = useGetUser();
+
   return (
-    <Stack spacing={2} direction="column" alignItems="center" sx={{ mt: 10 }}>
-      <DashboardIcon color="primary" sx={{ fontSize: 60 }} />
-
-      <Typography variant="h4" component="h1">
-        This is the Homepage that needs to be protected
+    <Box
+      sx={{
+        p: { xs: 2, md: 3 },
+        minHeight: "100vh",
+      }}
+    >
+      <Typography variant="h4" gutterBottom sx={{ mb: 3, fontWeight: 700 }}>
+        Welcome, {user?.first_name || "User"}
       </Typography>
 
-      <Button variant="contained" onClick={() => alert("It works!")}>
-        Click Me
-      </Button>
-      <LogoutButton />
-    </Stack>
-  );
-};
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            md: "repeat(3, 1fr)",
+          },
+          gap: 3,
+          mb: 3,
+        }}
+      >
+        <Box sx={{ gridColumn: { md: "span 2" } }}>
+          <BudgetWidget />
+        </Box>
 
-export default HomePage;
+        <Box sx={{ gridColumn: { md: "span 1" } }}>
+          <ActiveLoansWidget />
+        </Box>
+
+        <Box sx={{ gridColumn: { md: "span 1" } }}>
+          <AiInsightsWidget />
+        </Box>
+
+        <Box sx={{ gridColumn: { md: "span 2" } }}>
+          <RecentTransactionsWidget />
+        </Box>
+      </Box>
+    </Box>
+  );
+}

@@ -11,36 +11,48 @@ declare module "@mui/material/styles" {
   }
 }
 
-// 2. Define the theme
 export const theme = createTheme({
   palette: {
-    // BLUE: Your main action color
     primary: {
       main: "#1E88E5",
       light: "#60A5FA",
     },
-    // GREEN: Your success/secondary actions
+
     secondary: {
       main: "#2ECC71",
       light: "#6EE7B7",
     },
-    // DARK GRAY: Used for dark accents or neutral elements
+
     neutral: {
       main: "#2C2F33",
     },
-    // BACKGROUNDS
+
     background: {
       default: "#F1F5F9",
       paper: "#FFFFFF",
     },
-    // TEXT
+
     text: {
       primary: "#020617",
       secondary: "#2C2F33",
     },
   },
-  // Optional: Global component overrides
+
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: "'Inter', sans-serif",
+
+    h1: { fontWeight: 700 },
+    h2: { fontWeight: 700 },
+    h3: { fontWeight: 600 },
+
+    allVariants: {
+      fontFeatureSettings: "'cv11', 'ss01'",
+    },
+    body1: {
+      fontFeatureSettings: "'tnum'",
+    },
+    body2: {
+      fontFeatureSettings: "'tnum'",
+    },
   },
 });

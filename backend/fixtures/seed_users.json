@@ -1,0 +1,273 @@
+{
+  "generated_at": "2026-01-19T22:24:06.644225+00:00Z",
+  "users": [
+    {
+      "id": "b6732a62-f50d-49b5-8398-29d6c69e8a8e",
+      "auth0_id": "0d9b8e90-d8ba-4083-93ac-082e82e0140e",
+      "email": "fergusonmichael@example.net",
+      "email_verified": false,
+      "first_name": "Pamela",
+      "last_name": "Carroll",
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "UTC",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-02-17T10:52:03.102474",
+      "updated_at": "2024-12-01T13:16:52.586867",
+      "last_login": null
+    },
+    {
+      "id": "e17f7394-1ed1-4405-9916-a9345e22af97",
+      "auth0_id": "5a8ed3ee-16b6-475c-9185-e60c7be4721e",
+      "email": "olopez@example.net",
+      "email_verified": false,
+      "first_name": "Stephen",
+      "last_name": "Roberson",
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "America/Los_Angeles",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-07-29T22:13:10.336620",
+      "updated_at": "2026-01-04T06:35:37.660133",
+      "last_login": null
+    },
+    {
+      "id": "8b63306e-b19d-46ff-b1aa-d4c6888ee3f4",
+      "auth0_id": "871be052-e4b9-43e4-a8df-4e093e1f145c",
+      "email": "richardbartlett@example.com",
+      "email_verified": false,
+      "first_name": "Matthew",
+      "last_name": "Shelton",
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-12-05T06:09:36.294985",
+      "updated_at": "2025-02-04T11:08:00.122117",
+      "last_login": null
+    },
+    {
+      "id": "05772bbc-458f-42d4-bd39-7d2de500f80d",
+      "auth0_id": "43ec32d0-664c-4a47-a2b4-aea89ad0b92d",
+      "email": "amanda31@example.org",
+      "email_verified": false,
+      "first_name": "Danielle",
+      "last_name": "Brooks",
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-12-28T07:59:51.300389",
+      "updated_at": "2025-10-29T11:47:41.772814",
+      "last_login": null
+    },
+    {
+      "id": "5acbcbd3-2751-4b64-9c3c-f442b5ef51da",
+      "auth0_id": "509df575-68b0-4d82-9ff7-00ff54ccca5e",
+      "email": "julielong@example.com",
+      "email_verified": false,
+      "first_name": "Jacob",
+      "last_name": "Jones",
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-09-03T17:00:19.563264",
+      "updated_at": "2025-07-14T23:27:39.161224",
+      "last_login": null
+    },
+    {
+      "id": "e4e7ec16-abef-4c02-9f03-3df7fc986f80",
+      "auth0_id": "861b9441-ea20-4e3b-8bdd-d7da3408b1e1",
+      "email": "patriciamoreno@example.org",
+      "email_verified": false,
+      "first_name": "Andrew",
+      "last_name": "Miller",
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-02-26T11:53:29.094305",
+      "updated_at": "2025-10-08T22:25:03.871856",
+      "last_login": null
+    },
+    {
+      "id": "5ceb6d5c-df1e-41ba-bb96-11b2fc81c240",
+      "auth0_id": "03a58ee2-7326-451c-bbe4-82272fa04619",
+      "email": "robinsonbarbara@example.net",
+      "email_verified": false,
+      "first_name": "Aimee",
+      "last_name": "Erickson",
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2024-12-21T13:28:57.799313",
+      "updated_at": "2025-05-08T13:54:59.967671",
+      "last_login": null
+    },
+    {
+      "id": "9f2bcb37-10b6-4464-bf0f-c6b503b4bbaf",
+      "auth0_id": "28bd61c3-d399-4099-a915-8d7b85b4f61f",
+      "email": "catherinecarter@example.net",
+      "email_verified": false,
+      "first_name": "Breanna",
+      "last_name": "White",
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "UTC",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2025-05-15T06:43:01.484037",
+      "updated_at": "2025-10-25T02:56:07.788233",
+      "last_login": null
+    },
+    {
+      "id": "26d5ac29-843c-45cb-a191-9230dfb5c974",
+      "auth0_id": "8e714d8f-b803-44c4-81ee-98fb37e1fc0e",
+      "email": "chavezalyssa@example.net",
+      "email_verified": false,
+      "first_name": "Jessica",
+      "last_name": "Miller",
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "GBP",
+        "timezone": "Europe/London",
+        "theme": "light",
+        "notifications": {
+          "reminders": false
+        }
+      },
+      "created_at": "2024-04-18T08:59:03.940112",
+      "updated_at": "2025-12-01T12:13:16.056615",
+      "last_login": null
+    },
+    {
+      "id": "667fb5cc-0f4f-4a0d-8fd3-de2d68c83865",
+      "auth0_id": "420803a3-6802-4ecf-99cb-36c5de2b4cc9",
+      "email": "carol99@example.net",
+      "email_verified": false,
+      "first_name": "Brenda",
+      "last_name": "Lowery",
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "EUR",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2025-05-28T11:46:11.018514",
+      "updated_at": "2026-01-04T21:43:27.685088",
+      "last_login": null
+    },
+    {
+      "id": "c4021220-3778-4db0-9e84-74ed67a64318",
+      "auth0_id": "google-oauth2|110513262768393412869",
+      "email": "jaeyseo0922@gmail.com",
+      "email_verified": false,
+      "first_name": "Jae",
+      "last_name": "Seo",
+      "nickname": "michaelbarnes",
+      "picture": null,
+      "account_status": "pending",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "USD",
+        "timezone": "UTC",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2026-01-19T22:24:06.644161+00:00",
+      "updated_at": "2026-01-19T22:24:06.644164+00:00",
+      "last_login": null
+    },
+    {
+      "id": "84cbf80a-ca9a-4d6d-8864-4c8d4ee44407",
+      "auth0_id": "google-oauth2|104977996918702131537",
+      "email": "joeyvigil109329@gmail.com",
+      "email_verified": false,
+      "first_name": "Ariel",
+      "last_name": "Resendiz",
+      "nickname": "cnorton",
+      "picture": null,
+      "account_status": "active",
+      "role": "USER",
+      "salary_amount": "0.00",
+      "settings": {
+        "currency": "AUD",
+        "timezone": "Europe/London",
+        "theme": "dark",
+        "notifications": {
+          "reminders": true
+        }
+      },
+      "created_at": "2026-01-19T22:24:06.644221+00:00",
+      "updated_at": "2026-01-19T22:24:06.644223+00:00",
+      "last_login": null
+    }
+  ]
+}

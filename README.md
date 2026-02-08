@@ -1,59 +1,261 @@
-# TR41-DIGITALFINANCE
+# TR41-DIGITALFINANCE – SecureBank AI
 
-**SecureBank AI** - An AI-powered personal finance assistant that helps users manage their finances, track expenses, and provide personalized financial advice.
+**SecureBank AI** is an AI-powered personal finance assistant that helps users:
 
-## Project Overview
+- Centralize multiple e-wallets and accounts  
+- Track income and expenses  
+- Understand spending patterns and trends  
+- Receive AI-assisted categorization and financial insights  
 
-![:wave:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/1f44b.png) Welcome to Tech Residency!Hi Residents,Welcome to the standout part of your journey with Coding Temple --- where knowledge meets skill and learning transforms into real-world experience. Over the next 9 weeks, you'll be building real-world projects:
+This is a full-stack, cloud-based **AI Digital Finance Tracker** MVP built as part of a Tech Residency program.
 
--   1 of the teams will work on actual employer project,
--   2 teams will tackle simulated projects that closely mirror real work you'll see on the job.
-
-![:arrow_right:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/27a1-fe0f.png) You'll also be added to your own team Slack channels, where you'll find out more about your specific project. Teams have been randomly allocated to give everyone the most authentic collaborative experience.![:sparkles:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/2728.png) Today's Bonus: You've been invited to attend the current [Tech Residency Demo Day](https://codingtemple.disco.co/share/o/T2NjdXJyZW5jZTozNjk3Mzg5Njg0MzQ1NzI3MDMw) at 5:00 PM CST. This is your chance to see what Demo Day looks like and cheer on your fellow Coding Temple peers. We *highly encourage* you to join live --- but don't worry, we'll share a recording if you can't make it.![:date:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/1f4c5.png) And in 9 weeks, it will be your turn to shine!![:crystal_ball:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/1f52e.png) What's Next
-
--   Tonight (5 PM CST): Attend the *current* [Tech Residency Demo Day](https://codingtemple.disco.co/share/o/T2NjdXJyZW5jZTozNjk3Mzg5Njg0MzQ1NzI3MDMw) ![:tada:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/1f389.png)
--   Next Week: Sprint 0 begins!
-
--   Week 1: Orientation → learn the process, systems, and get project details.
-
--   Week 2: Deep dive into your project.
-
--   Team with employer projects: meet your employers.
--   Teams with simulated projects: meet your "pretend employer" (Elijah).
-
-After Sprint 0, you'll jump into three build sprints to design, build, test, and deliver your project.![:spiral_calendar_pad:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/1f5d3-fe0f.png) Weekly Structure
-
--   Standups: Monday / Wednesday / Friday, 5--6 PM CST
--   (except Week 1, which is orientation)
--   Office Hours: Tuesday & Thursday, 5--6 PM CST with Elijah
--   Employer Check-In: Tuesday OR Thursday, 6--7 PM CST
--   (progress updates + guidance from your employer or Elijah)
-
-![:fire:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/1f525.png) We are so excited to welcome you into this journey. Buckle up --- this is going to be an incredible ride, and we can't wait to see what you'll build.\
-Let's make this unforgettable. ![:muscle:](https://a.slack-edge.com/production-standard-emoji-assets/14.0/google-medium/1f4aa.png)\
-Ruta & Elijah (edited)
-
-## Tech Stacks
-
-**Frontend:** React, JavaScript, MUI (Material UI), Tailwind CSS, TanStack Query, React Toolkit, Auth0
-
-**Backend:** Python, Flask, Flask-SQLAlchemy, Alembic (Flask-Migrate), Marshmallow, OpenAPI/Swagger tooling (flask-swagger / flask-swagger-ui), pytest, gunicorn, Flask-JWT-Extended (uses PyJWT), flask-limiter (Redis), flask-caching (Redis), Sentry (monitoring)
-
-**Database:** PostgreSQL, CSV (for mock / test data)
-
-**APIs & Integrations:** Playwright (end-to-end testing / automation), Postman, PayPal Sandbox (payments integration-stretch goal), Open Bank Project (sandbox / open‑banking API- stretch goal)
-
-**Hosting & Deployment:** Frontend: Vercel
-Backend: VPS (Plesk), GCSM, Cloudflare
-Potentially Docker
+---
 
 ## Team Members
 
 -   Front End Developers:
-    -   [Joseph Vigil](https://github.com/joeyvigil)
     -   [Jae Young Seo]()
 -   Back End Developers:
     -   [Suryadi Zhang]()
     -   [Ariel Resendiz]()
 -   Cybersecurity Specialist:
     -   [Monira Lizu]()
+
+## 🌟 Core Features
+
+- **Manual & AI-assisted transaction entry**
+- **AI prediction of spending categories**
+- **Unified dashboard** with balances, trends, and summaries
+- **Cloud sync** across devices
+- **Authentication & authorization** via Auth0
+- **Optional / stretch goals**
+  - Budgeting goals and alerts  
+  - CSV export & enhanced reporting  
+  - Advanced analytics & recommendations  
+
+---
+
+## 🧱 Tech Stack Overview
+
+### Frontend
+
+- React (Vite)
+- JavaScript
+- MUI (Material UI)
+- TanStack Query
+- Redux Toolkit
+- Auth0 (SPA auth)
+
+> See: `frontend/README.md` for full setup, scripts, and env vars.
+
+---
+
+### Backend
+
+- Python, Flask
+- Flask-SQLAlchemy, Alembic (Flask-Migrate)
+- Marshmallow (serialization & validation)
+- OpenAPI/Swagger (flask-swagger / flask-swagger-ui)
+- pytest, gunicorn
+- Flask-JWT-Extended / Auth0 token validation
+- flask-limiter (Redis), flask-caching (Redis)
+- Sentry (monitoring)
+
+> See: `backend/README.md` for architecture, API design, setup, and detailed docs.  
+> See: `backend/docs/DEMO_GUIDE.md` for AI demo walkthroughs and Docker-based demo flow.
+
+---
+
+### Data & AI
+
+- **Database:** PostgreSQL (seeded with mock data for development)
+- **AI / ML:**  
+  - HuggingFace models  
+  - Transaction categorization training in `training/`  
+- **AI Hosting / Models:** HuggingFace, local models orchestrated by backend
+
+> See: `training/README.md` for transaction categorization research and model training details.
+
+---
+
+### DevOps, Hosting & Deployment
+
+- **Containers / Orchestration:** Docker, Docker Compose
+- **Frontend Hosting:** Vercel
+- **Backend Hosting:** VPS (Plesk), GCSM, Cloudflare, potentially AWS/Supabase
+- **Local Orchestration & Automation:**  
+  - Root `Makefile` – dev environment and utility commands  
+  - `docker/` – Docker configuration documentation  
+  - `RUN_APP.md` – commands and setup to run Docker containers with Docker Desktop + `make`
+
+> See: `docker/README.md` and `RUN_APP.md` for container setup and local orchestration.
+
+---
+
+## 📂 Repository Structure
+
+High-level layout of key modules:
+
+```text
+.
+├─ README.md                # You are here – project overview
+├─ Makefile                 # Dev, test, and health-check commands
+├─ RUN_APP.md               # Docker + make run instructions
+├─ docker/
+│  └─ README.md             # Docker configuration & usage
+├─ backend/
+│  ├─ README.md             # Backend architecture, API, setup
+│  └─ docs/
+│     └─ DEMO_GUIDE.md      # AI demo guide & Docker demo flow
+├─ frontend/
+│  └─ README.md             # React + Vite setup & frontend dev guide
+├─ training/
+│  └─ README.md             # Transaction categorization training details
+└─ shared/
+   ├─ security/
+   │  └─ README.md          # Security practices & requirements
+   ├─ postman/
+   │  └─ README.md          # Postman collections & env setup
+   └─ e2e/
+      └─ README.md          # Playwright end-to-end test setup & usage
+```
+
+---
+
+## 🚀 Quick Start
+
+### 1. Prerequisites
+
+- Docker & Docker Compose **or**
+- Python 3.11+, Node.js, PostgreSQL, Redis installed locally
+- Auth0 tenant (for full auth integration)
+
+---
+
+### 2. Run with Docker + Make
+
+From the **project root**:
+
+```bash
+# Start development environment (backend, db, etc.)
+make run
+
+# Stop all services
+make down
+
+# Stop and clear containers + volumes
+make clear
+
+# View DB data (PostgreSQL shell)
+make view-data
+
+# AI demo CLI (inside backend container)
+make demo
+
+# Run AI component tests (inside backend container)
+make test-ai
+
+# Quick backend health check
+make health
+```
+
+> All of the above use `docker compose --env-file .env.dev ...` under the hood.  
+> See: `RUN_APP.md` and `docker/README.md` for detailed Docker configuration.
+
+---
+
+### 3. Frontend (Local Dev)
+
+Basic flow (summary – see `frontend/README.md` for details):
+
+```bash
+cd frontend
+
+# 1. Create .env with Auth0 values
+# VITE_AUTH0_DOMAIN=******.auth0.com
+# VITE_AUTH0_CLIENT_ID=******
+# VITE_AUTH0_AUDIENCE=******
+
+# 2. Install dependencies
+npm install
+
+# 3. Run dev server
+npm run dev
+```
+
+Frontend will typically be available at `http://localhost:5173`.
+
+---
+
+### 4. Backend (Local Dev Without Docker)
+
+Reference only – if you’re not using Docker/Make:
+
+```bash
+cd backend
+
+# Create & activate virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure .env (see backend/README.md for fields)
+cp .env.example .env
+
+# Run migrations
+flask db upgrade
+
+# Start server
+flask run
+```
+
+Backend will typically run at `http://localhost:8000`.
+
+---
+
+## 🧪 Testing & Tooling
+
+- **Backend unit & integration tests:** `pytest` (see `backend/README.md`)
+- **E2E tests (full stack):** Playwright in `shared/e2e/`
+- **API testing:** Postman collections in `shared/postman/`
+- **Security documentation & checks:** `shared/security/`
+
+> See each subdirectory’s `README.md` for how to run tests and what’s covered.
+
+---
+
+## 👥 Residency & Collaboration Context
+
+This project is part of a **Tech Residency** focused on AI-powered personal finance and digital payments.
+
+- Acting “employer” / client: **Elijah** (product direction, feedback, expectations)
+- Team responsibility: architecture, design, development, testing, and delivery of the MVP
+- Team task (Sprint 0): select a fictional FinTech company name  
+  (e.g., ClearLedger AI, SpendSmart Systems, NovaFinance, FlowWise)
+
+### Weekly Structure (Residency)
+
+- **Standups:** Mon / Wed / Fri, 5–6 PM CST (from Week 2)
+- **Office Hours:** Tue & Thu, 5–6 PM CST with Elijah
+- **Employer Check-In:** Weekly alignment session (scheduled in Sprint 0)
+- **Demo Day:** Thursday, February 12 – students, alumni, employers showcase final builds
+
+By Demo Day, the goal is to ship a **polished, portfolio-ready MVP** that demonstrates:
+
+- Applied AI in a realistic FinTech setting  
+- Solid engineering fundamentals (testing, security, observability)  
+- Production-style workflows across frontend, backend, and DevOps  
+
+---
+
+## 🔐 Security, API, and E2E Docs
+
+- `shared/security/README.md` – security requirements, best practices, and controls  
+- `shared/postman/README.md` – Postman collections, environments, and usage  
+- `shared/e2e/README.md` – Playwright end-to-end tests covering full stack  
+
+These documents are the primary references for API validation, security posture, and full-stack regression testing.
+
+---

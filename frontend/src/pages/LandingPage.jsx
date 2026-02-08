@@ -1,23 +1,24 @@
-import Button from "@mui/material/Button";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
-import LoginButton from "../components/LoginButton.jsx";
+import { Box, Stack } from "@mui/material";
+import MainLayout from "../layouts/MainLayout.jsx";
+import Hero from "../features/landing/Hero";
+import FeaturesGrid from "../features/landing/FeaturesGrid";
+import ProblemStatement from "../features/landing/ProblemStatement";
 
 const LandingPage = () => {
   return (
-    <Stack spacing={2} direction="column" alignItems="center" sx={{ mt: 10 }}>
-      <DashboardIcon color="primary" sx={{ fontSize: 60 }} />
-
-      <Typography variant="h4" component="h1">
-        MUI is Active
-      </Typography>
-
-      <Button variant="contained" onClick={() => alert("It works!")}>
-        Click Me
-      </Button>
-      <LoginButton />
-    </Stack>
+    <MainLayout>
+      <Stack spacing={10}>
+        <Box id="hero">
+          <Hero />
+        </Box>
+        <Box id="about">
+          <ProblemStatement />
+        </Box>
+        <Box id="features">
+          <FeaturesGrid />
+        </Box>
+      </Stack>
+    </MainLayout>
   );
 };
 

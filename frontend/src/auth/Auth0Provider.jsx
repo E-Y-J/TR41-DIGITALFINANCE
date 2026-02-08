@@ -5,9 +5,15 @@ const Auth0ProviderWithNavigate = ({ children }) => {
   const navigate = useNavigate();
   const domain = import.meta.env.VITE_AUTH0_DOMAIN;
   const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
-  const redirectUri = window.location.origin;
+  const audience = import.meta.env.VITE_AUTH0_AUDIENCE;
+  const redirectUri = `${window.location.origin}/callback`;
 
   if (!(domain && clientId)) return null;
+
+  const onRedirectCallback = (appState) => {
+    sessionStorage.setItem("app_session_active", "true");
+    navigate(appState?.returnTo || "/home", { replace: true });
+  };
 
   return (
     <Auth0Provider
@@ -16,11 +22,10 @@ const Auth0ProviderWithNavigate = ({ children }) => {
       authorizationParams={{
         redirect_uri: redirectUri,
         scope: "openid profile email",
+        audience: audience,
       }}
-      onRedirectCallback={(appState) => {
-        navigate(appState?.returnTo || "/home", { replace: true });
-      }}
-      cacheLocation="localstorage"
+      onRedirectCallback={onRedirectCallback}
+      cacheLocation="memory"
     >
       {children}
     </Auth0Provider>
