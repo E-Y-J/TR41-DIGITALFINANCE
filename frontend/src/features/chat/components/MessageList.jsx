@@ -41,7 +41,6 @@ const TypingIndicator = () => (
 );
 
 const MessageItem = memo(({ msg, isAI, isLast }) => {
-  // Extract intent and parsedData from the msg object
   const intent = msg.intent;
   const parsedData = msg.parsedData;
 
@@ -90,7 +89,6 @@ const MessageItem = memo(({ msg, isAI, isLast }) => {
             boxShadow: isAI ? "0 2px 4px rgba(0,0,0,0.02)" : "none",
           }}
         >
-          {/* Main Response Text */}
           {isAI && isLast ? (
             <Typewriter text={msg.text} speed={15} />
           ) : (
@@ -108,7 +106,6 @@ const MessageItem = memo(({ msg, isAI, isLast }) => {
             </Typography>
           )}
 
-          {/* Conditional Rich Data Views */}
           {isAI && (
             <Box sx={{ color: "text.primary" }}>
               {intent === "query_spending" && parsedData && (
@@ -209,7 +206,6 @@ export const MessageList = ({
         block: "end",
       });
     }, 100);
-
     return () => clearTimeout(timeoutId);
   }, [messages, isTyping, messagesEndRef]);
 

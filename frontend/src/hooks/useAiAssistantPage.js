@@ -23,21 +23,20 @@ export const useAiAssistantPage = () => {
 
   const conversations = useMemo(() => {
     const rawSessions = historyResponse?.sessions || [];
-    return rawSessions
-      .map((session) => ({
-        id: session.id,
-        title:
-          session.conversation_history
-            ?.find((m) => m.role === "user")
-            ?.content.slice(0, 30) || "Recent Chat",
-        messages: (session.conversation_history || []).map((msg, idx) => ({
-          id: `${session.id}-${idx}`,
-          text: msg.content,
-          sender: msg.role === "assistant" ? "ai" : "user",
-        })),
-        updatedAt: session.updated_at,
-      }))
-      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    const mapped = rawSessions.map((session) => ({
+      id: session.id,
+      title:
+        session.conversation_history
+          ?.find((m) => m.role === "user")
+          ?.content.slice(0, 30) || "Recent Chat",
+      messages: (session.conversation_history || []).map((msg, idx) => ({
+        id: `${session.id}-${idx}`,
+        text: msg.content,
+        sender: msg.role === "assistant" ? "ai" : "user",
+      })),
+      updatedAt: session.updated_at,
+    }));
+    return mapped.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
   }, [historyResponse]);
 
   const activeSession = useMemo(
@@ -45,22 +44,19 @@ export const useAiAssistantPage = () => {
     [activeChatId, conversations],
   );
 
-  const suggestionClickHandler = useCallback(
-    (text) => {
-      setInputValue(text);
-    },
-    [setInputValue],
-  );
-
   const displayMessages = useMemo(() => {
     const history = activeSession?.messages || [];
 
-    if (history.length === 0 && optimisticMessages.length > 0) {
+    if (activeChatId && history.length === 0 && optimisticMessages.length > 0) {
       return optimisticMessages;
     }
 
-    return [...history, ...optimisticMessages];
-  }, [activeSession, optimisticMessages]);
+    const filteredOptimistic = optimisticMessages.filter(
+      (opt) => !history.some((h) => h.text === opt.text),
+    );
+
+    return [...history, ...filteredOptimistic];
+  }, [activeSession, optimisticMessages, activeChatId]);
 
   const handleSendMessage = async (textOverride) => {
     const messageText = (
@@ -84,36 +80,45 @@ export const useAiAssistantPage = () => {
         context: activeChatId ? { session_id: activeChatId } : {},
       });
 
+      const chatPayload = result.data?.data || result.data || result;
+      const sessionId = chatPayload.session_id;
+
       const aiMsg = {
         id: `ai-${Date.now()}`,
-        text: result.response,
+        text: chatPayload.response,
         sender: "ai",
-        intent: result.intent,
-        parsedData: result.parsed_data,
+        intent: chatPayload.intent,
+        parsedData: chatPayload.parsed_data,
       };
 
       setOptimisticMessages([userMsg, aiMsg]);
-      const sessionId = result.session_id || result.data?.session_id;
+
       if (sessionId) {
         setActiveChatId(sessionId);
+
+        await refetchHistory();
+
+        await new Promise((resolve) => setTimeout(resolve, 400));
       }
 
-      await refetchHistory();
       setOptimisticMessages([]);
     } catch (error) {
-      console.log(error);
+      console.error("Chat Error:", error);
       setOptimisticMessages((prev) => [
         ...prev,
-        {
-          id: "err",
-          text: "Connection lost. Please try again.",
-          sender: "ai",
-        },
+        { id: "err", text: "Error sending message.", sender: "ai" },
       ]);
     } finally {
       setIsTyping(false);
     }
   };
+
+  const suggestionClickHandler = useCallback(
+    (suggestion) => {
+      setInputValue(suggestion);
+    },
+    [setInputValue],
+  );
 
   return {
     user: userData,

@@ -60,9 +60,9 @@ export default function AiAssistantPage() {
               isTyping={c.isTyping}
               showEmptyState={
                 !c.activeChatId &&
-                !c.isLoading &&
-                !c.isFetching &&
-                c.displayMessages.length === 0
+                c.displayMessages.length === 0 &&
+                !c.isTyping &&
+                !c.isFetching
               }
               messagesEndRef={c.messagesEndRef}
               onSuggestionClick={c.suggestionClickHandler}
