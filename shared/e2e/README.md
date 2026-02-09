@@ -5,47 +5,87 @@ This folder contains Playwright end-to-end tests that test the full stack (Front
 ## Tech Stack
 
 - **Playwright** - Browser automation
-- **TypeScript/JavaScript** - Test scripts
+- **JavaScript** - Test scripts
 
-## Setup
+## Quick Start
+
+### 1. Install Dependencies
 
 ```bash
 cd shared/e2e
 npm install
-npx playwright install
+npx playwright install chromium
 ```
 
-## Running Tests
+### 2. Start the Application
+
+Make sure Docker containers are running:
+
+```bash
+# From project root
+docker compose up -d
+
+# Wait for all services to be healthy
+docker compose ps
+```
+
+### 3. Run Tests
 
 ```bash
 # Run all tests
-npx playwright test
+npm test
 
-# Run with UI
-npx playwright test --ui
+# Run with browser UI visible
+npm run test:headed
 
-# Run specific test file
-npx playwright test tests/auth.spec.ts
+# Run only smoke tests
+npm run test:smoke
+
+# Run with Playwright UI (interactive)
+npm run test:ui
+
+# Debug mode
+npm run test:debug
+
+# View HTML report
+npm run report
 ```
 
-## Test Files to Create
+## Test Files
 
-| File | Description | Owner |
-|------|-------------|-------|
-| `auth.spec.ts` | Login/Register flows | QA |
-| `transactions.spec.ts` | Transaction CRUD | QA |
-| `dashboard.spec.ts` | Dashboard loads correctly | QA |
-| `ai-features.spec.ts` | AI categorization works | QA |
+| File | Description | Status |
+|------|-------------|--------|
+| `smoke.spec.js` | Basic app loading & API health | ✅ Ready |
+| `dashboard.spec.js` | Dashboard page tests | ✅ Ready |
+| `transactions.spec.js` | Transaction CRUD operations | ✅ Ready |
+| `ai-chat.spec.js` | AI chat functionality | ✅ Ready |
 
-## Configuration
+## Running in CI/CD
 
-Create `playwright.config.ts`:
-```typescript
-export default {
-  baseURL: 'http://localhost:5173',
-  testDir: './tests',
-  use: {
-    trace: 'on-first-retry',
-  },
-};
+For GitHub Actions or other CI:
+
+```yaml
+- name: Run E2E Tests
+  run: |
+    cd shared/e2e
+    npm ci
+    npx playwright install chromium
+    npm test
+```
+
+## Troubleshooting
+
+**Tests fail with "Cannot connect"**
+- Ensure Docker containers are running: `docker compose ps`
+- Check backend health: `curl http://localhost:8000/health`
+- Check frontend: `curl http://localhost:3000`
+
+**Auth-related tests fail**
+- Expected behavior - testing auth requires either:
+  - Real Auth0 tokens (for production-like testing)
+  - DEV_IMPERSONATION=true in backend (for dev testing)
+
+**View test trace on failure**
+```bash
+npx playwright show-trace test-results/[test-name]/trace.zip
 ```

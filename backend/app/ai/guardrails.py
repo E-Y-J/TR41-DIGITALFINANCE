@@ -60,30 +60,98 @@ KEYWORD_THRESHOLD = 0.1
 # Keywords that indicate finance-related requests
 FINANCE_KEYWORDS = [
     # Money & amounts
-    "spend", "spent", "spending", "expense", "cost", "price", "amount",
-    "dollar", "money", "cash", "payment", "paid", "pay",
+    "spend",
+    "spent",
+    "spending",
+    "expense",
+    "cost",
+    "price",
+    "amount",
+    "dollar",
+    "money",
+    "cash",
+    "payment",
+    "paid",
+    "pay",
     "$",  # Dollar sign
     # Transactions
-    "transaction", "purchase", "buy", "bought", "sale", "transfer",
-    "deposit", "withdrawal", "refund", "charge",
+    "transaction",
+    "purchase",
+    "buy",
+    "bought",
+    "sale",
+    "transfer",
+    "deposit",
+    "withdrawal",
+    "refund",
+    "charge",
     # Categories
-    "category", "categorize", "categorization", "classify",
-    "food", "dining", "grocery", "restaurant",
-    "transport", "uber", "lyft", "gas", "fuel",
-    "shopping", "retail", "amazon", "store",
-    "entertainment", "netflix", "spotify", "movie",
-    "utility", "bill", "electric", "water", "internet",
-    "medical", "health", "pharmacy", "doctor",
-    "income", "salary", "paycheck", "wage",
+    "category",
+    "categorize",
+    "categorization",
+    "classify",
+    "food",
+    "dining",
+    "grocery",
+    "restaurant",
+    "transport",
+    "uber",
+    "lyft",
+    "gas",
+    "fuel",
+    "shopping",
+    "retail",
+    "amazon",
+    "store",
+    "entertainment",
+    "netflix",
+    "spotify",
+    "movie",
+    "utility",
+    "bill",
+    "electric",
+    "water",
+    "internet",
+    "medical",
+    "health",
+    "pharmacy",
+    "doctor",
+    "income",
+    "salary",
+    "paycheck",
+    "wage",
     # Budgeting
-    "budget", "limit", "goal", "savings", "save",
-    "over budget", "under budget", "remaining",
+    "budget",
+    "limit",
+    "goal",
+    "savings",
+    "save",
+    "over budget",
+    "under budget",
+    "remaining",
     # Analytics
-    "summary", "summarize", "total", "average", "breakdown",
-    "insight", "pattern", "trend", "analyze", "analysis",
+    "summary",
+    "summarize",
+    "total",
+    "average",
+    "breakdown",
+    "insight",
+    "pattern",
+    "trend",
+    "analyze",
+    "analysis",
     # Actions
-    "add", "create", "edit", "update", "delete", "remove",
-    "show", "list", "view", "display", "get",
+    "add",
+    "create",
+    "edit",
+    "update",
+    "delete",
+    "remove",
+    "show",
+    "list",
+    "view",
+    "display",
+    "get",
 ]
 
 # Semantic topics for similarity matching
@@ -168,8 +236,12 @@ class Guardrails:
         # Check if guardrails is disabled via config
         try:
             from app.core.config import get_config
+
             config = get_config()
-            if hasattr(config, 'AI_GUARDRAILS_ENABLED') and not config.AI_GUARDRAILS_ENABLED:
+            if (
+                hasattr(config, "AI_GUARDRAILS_ENABLED")
+                and not config.AI_GUARDRAILS_ENABLED
+            ):
                 logger.info("Guardrails disabled via AI_GUARDRAILS_ENABLED=0")
                 self.is_initialized = True
                 return True
@@ -183,7 +255,10 @@ class Guardrails:
             self.intent_classifier = get_intent_classifier()
 
             # Pre-compute topic embeddings
-            if self.intent_classifier.is_initialized and not self.intent_classifier._use_fallback:
+            if (
+                self.intent_classifier.is_initialized
+                and not self.intent_classifier._use_fallback
+            ):
                 import numpy as np
 
                 embeddings = self.intent_classifier.embed_batch(FINANCE_TOPICS)
@@ -201,7 +276,9 @@ class Guardrails:
             return True
         except RuntimeError:
             # embed_batch raises RuntimeError when using fallback
-            logger.info("Intent classifier in fallback mode, using keyword-only guardrails")
+            logger.info(
+                "Intent classifier in fallback mode, using keyword-only guardrails"
+            )
             self.is_initialized = True
             return True
         except Exception as e:
@@ -234,7 +311,9 @@ class Guardrails:
         # Step 1: Keyword check (fast)
         keyword_score = self._keyword_score(text_lower)
         if keyword_score >= KEYWORD_THRESHOLD:
-            logger.debug(f"In scope (keyword): '{text[:50]}...' score={keyword_score:.2f}")
+            logger.debug(
+                f"In scope (keyword): '{text[:50]}...' score={keyword_score:.2f}"
+            )
             return True, None
 
         # Step 2: Semantic check (if available)
@@ -276,10 +355,12 @@ class Guardrails:
         # Use centralized cos_sim for consistency
         try:
             from app.ai.utils import cos_sim
+
             return cos_sim(text_embedding, self.topic_embeddings)
         except ImportError:
             # Fallback to manual computation
             import numpy as np
+
             norm_text = np.linalg.norm(text_embedding)
             norm_topic = np.linalg.norm(self.topic_embeddings)
 

@@ -903,7 +903,9 @@ class BudgetService:
                 "variability_level": variability_note,
                 "months_analyzed": len(amounts),
                 "has_existing_budget": current_budget is not None,
-                "current_budget_amount": float(current_amount) if current_amount else None,
+                "current_budget_amount": (
+                    float(current_amount) if current_amount else None
+                ),
             }
 
             # Add recommendation
@@ -949,10 +951,16 @@ class BudgetService:
             .scalar()
         )
         total_income = Decimal(str(income_result or 0))
-        avg_monthly_income = total_income / num_months if num_months > 0 else Decimal("0")
+        avg_monthly_income = (
+            total_income / num_months if num_months > 0 else Decimal("0")
+        )
 
         # Calculate savings potential
-        savings_potential = avg_monthly_income - total_suggested if avg_monthly_income > 0 else Decimal("0")
+        savings_potential = (
+            avg_monthly_income - total_suggested
+            if avg_monthly_income > 0
+            else Decimal("0")
+        )
 
         return {
             "suggestions": suggestions,
@@ -969,10 +977,18 @@ class BudgetService:
             "savings_potential": float(round(savings_potential, 2)),
             "recommendation_summary": {
                 "total_categories": len(suggestions),
-                "needs_budget": sum(1 for s in suggestions if s["recommendation"] == "create"),
-                "needs_increase": sum(1 for s in suggestions if s["recommendation"] == "increase"),
-                "needs_decrease": sum(1 for s in suggestions if s["recommendation"] == "decrease"),
-                "on_track": sum(1 for s in suggestions if s["recommendation"] == "keep"),
+                "needs_budget": sum(
+                    1 for s in suggestions if s["recommendation"] == "create"
+                ),
+                "needs_increase": sum(
+                    1 for s in suggestions if s["recommendation"] == "increase"
+                ),
+                "needs_decrease": sum(
+                    1 for s in suggestions if s["recommendation"] == "decrease"
+                ),
+                "on_track": sum(
+                    1 for s in suggestions if s["recommendation"] == "keep"
+                ),
             },
         }
 

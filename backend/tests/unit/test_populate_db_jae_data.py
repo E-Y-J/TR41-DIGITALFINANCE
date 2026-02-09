@@ -50,7 +50,9 @@ def test_recurring_transactions():
     for cat, count in sorted(cat_counts.items(), key=lambda x: -x[1]):
         print(f"      {cat}: {count} recurring items")
 
-    return estimated_count >= 50
+    assert (
+        estimated_count >= 50
+    ), f"Expected at least 50 recurring transactions, got {estimated_count}"
 
 
 def test_income_patterns():
@@ -72,7 +74,9 @@ def test_income_patterns():
     print(f"✅ Refunds/cashback: {refunds}")
     print(f"✅ Total income transactions: {total_income_tx}")
 
-    return total_income_tx >= 20
+    assert (
+        total_income_tx >= 20
+    ), f"Expected at least 20 income transactions, got {total_income_tx}"
 
 
 def test_daily_spending():
@@ -144,7 +148,9 @@ def test_daily_spending():
     print(f"\n✅ Days covered: {days}")
     print(f"✅ Estimated daily transactions: ~{estimated}")
 
-    return len(daily_templates) >= 40
+    assert (
+        len(daily_templates) >= 40
+    ), f"Expected at least 40 daily templates, got {len(daily_templates)}"
 
 
 def test_special_categories():
@@ -193,7 +199,7 @@ def test_special_categories():
     print("      - Micro-transactions ($0.99)")
     print("      - Round number amounts")
 
-    return len(anomalies) >= 10
+    assert len(anomalies) >= 10, f"Expected at least 10 anomalies, got {len(anomalies)}"
 
 
 def test_ai_sessions():
@@ -227,7 +233,9 @@ def test_ai_sessions():
     for intent, desc, msg_count in session_intents:
         print(f"      [{intent}] {desc}: {msg_count} messages")
 
-    return len(session_intents) >= 10
+    assert (
+        len(session_intents) >= 10
+    ), f"Expected at least 10 AI sessions, got {len(session_intents)}"
 
 
 def test_loans():
@@ -249,7 +257,7 @@ def test_loans():
     print(f"✅ Total original amount: ${total_original:,.2f}")
     print(f"✅ Total remaining: ${total_remaining:,.2f}")
 
-    return len(loans) >= 2
+    assert len(loans) >= 2, f"Expected at least 2 loans, got {len(loans)}"
 
 
 def test_user_overrides():
@@ -269,7 +277,9 @@ def test_user_overrides():
     print(f"✅ User override corrections: {len(overrides)}")
     print("   These test AI miscategorization → user correction flow")
 
-    return len(overrides) >= 3
+    assert (
+        len(overrides) >= 3
+    ), f"Expected at least 3 user overrides, got {len(overrides)}"
 
 
 if __name__ == "__main__":
@@ -303,14 +313,21 @@ if __name__ == "__main__":
     print("ESTIMATED DATA TOTALS FOR JAE YOUNG SEO")
     print("=" * 70)
 
-    recurring_est = 75       # ~75 recurring over 6 months
-    income_est = 26          # 12 salaries + 7 freelance + 7 refunds
-    daily_est = 630          # 180 days * ~3.5/day
+    recurring_est = 75  # ~75 recurring over 6 months
+    income_est = 26  # 12 salaries + 7 freelance + 7 refunds
+    daily_est = 630  # 180 days * ~3.5/day
     gov_legal_est = 6
     anomaly_est = 15
     override_est = 5
 
-    total_tx = recurring_est + income_est + daily_est + gov_legal_est + anomaly_est + override_est
+    total_tx = (
+        recurring_est
+        + income_est
+        + daily_est
+        + gov_legal_est
+        + anomaly_est
+        + override_est
+    )
 
     print(f"   📊 Recurring transactions: ~{recurring_est}")
     print(f"   💰 Income transactions: ~{income_est}")

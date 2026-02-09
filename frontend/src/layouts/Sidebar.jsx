@@ -11,6 +11,7 @@ import AppNavLink from "../components/common/AppNavLink";
 import TimelineIcon from "@mui/icons-material/Timeline";
 import PaymentIcon from "@mui/icons-material/Payment";
 import PieChartIcon from "@mui/icons-material/PieChart";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import AssistantIcon from "@mui/icons-material/Assistant";
 import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -39,6 +40,11 @@ const Sidebar = ({ handleLogout, open }) => {
       text: "Budget",
       icon: <PieChartIcon fontSize="small" />,
       path: "/home/budget",
+    },
+    {
+      text: "Loans",
+      icon: <AccountBalanceIcon fontSize="small" />,
+      path: "/home/loans",
     },
     {
       text: "AI Assistant",

@@ -159,6 +159,16 @@ export const TransactionRow = ({
               >
                 {row.merchant_name || "Unknown Merchant"}
               </Typography>
+              {row.category_name && (
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  noWrap
+                  sx={{ fontSize: "0.7rem", display: "block" }}
+                >
+                  {row.category_name}
+                </Typography>
+              )}
             </Box>
           </Box>
         </Box>

@@ -22,6 +22,7 @@ WARNING:
     dropped after tests complete. This affects the shared dev database.
     Run 'flask db upgrade' after Docker tests to restore tables.
 """
+
 import os
 import uuid
 

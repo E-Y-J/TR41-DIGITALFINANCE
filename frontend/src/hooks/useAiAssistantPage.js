@@ -1,9 +1,14 @@
 import { useState, useRef, useMemo, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useGetChatHistory } from "../features/chat/useGetChatHistory";
 import { useGetUser } from "../features/auth/useGetUser";
+import { useAxios } from "./useAxios";
+import { sendChatMessage } from "../api/user";
 
 export const useAiAssistantPage = () => {
   const [page, setPage] = useState(0);
+  const apiClient = useAxios();
+  const queryClient = useQueryClient();
 
   // sessionHistory now reflects the { sessions: [...] } structure
   const { data: historyResponse, isLoading } = useGetChatHistory();
@@ -14,7 +19,7 @@ export const useAiAssistantPage = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [mobileHistoryOpen, setMobileHistoryOpen] = useState(false);
   const [optimisticMessages, setOptimisticMessages] = useState([]);
-  const [mockedSessions, setMockedSessions] = useState([]);
+  const [localSessions, setLocalSessions] = useState([]);
 
   const messagesEndRef = useRef(null);
 
@@ -38,11 +43,15 @@ export const useAiAssistantPage = () => {
       updatedAt: session.updated_at,
     }));
 
+    // Combine local sessions with server history, avoiding duplicates
+    const serverIds = new Set(serverHistory.map((s) => s.id));
+    const uniqueLocal = localSessions.filter((s) => !serverIds.has(s.id));
+
     // Combine and sort by most recently updated
-    return [...mockedSessions, ...serverHistory].sort(
+    return [...uniqueLocal, ...serverHistory].sort(
       (a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0),
     );
-  }, [historyResponse, mockedSessions]);
+  }, [historyResponse, localSessions]);
 
   const activeSession = useMemo(
     () => conversations.find((c) => c.id === activeChatId),
@@ -77,70 +86,87 @@ export const useAiAssistantPage = () => {
     setInputValue("");
     setIsTyping(true);
 
+    // Add user message optimistically
+    const userMsgId = Date.now();
+    const newUserMsg = { id: userMsgId, text: messageText, sender: "user" };
+
     if (!activeChatId) {
-      const newMockId = `mock-${Date.now()}`;
-      const newMockSession = {
-        id: newMockId,
+      // New chat - create a local session first
+      const newSessionId = `local-${Date.now()}`;
+      const newSession = {
+        id: newSessionId,
         title: messageText.slice(0, 30),
         isMock: true,
-        messages: [{ id: Date.now(), text: messageText, sender: "user" }],
+        messages: [newUserMsg],
         updatedAt: new Date().toISOString(),
       };
 
-      setMockedSessions((prev) => [newMockSession, ...prev]);
-      setActiveChatId(newMockId);
+      setLocalSessions((prev) => [newSession, ...prev]);
+      setActiveChatId(newSessionId);
+    } else {
+      // Existing chat - add optimistic message
+      setOptimisticMessages((prev) => [...prev, newUserMsg]);
+    }
 
-      // Simulate AI Response
-      setTimeout(() => {
-        setMockedSessions((prev) =>
+    try {
+      // Call the actual backend API
+      const response = await sendChatMessage(apiClient, messageText, {
+        session_id: activeChatId?.startsWith("local-") ? null : activeChatId,
+      });
+
+      const aiResponse = response?.data?.response || "I received your message but couldn't generate a response.";
+      const aiMsgId = Date.now() + 1;
+      const newAiMsg = { id: aiMsgId, text: aiResponse, sender: "ai" };
+
+      // Update local session or optimistic messages with AI response
+      if (activeChatId?.startsWith("local-")) {
+        setLocalSessions((prev) =>
           prev.map((s) =>
-            s.id === newMockId
+            s.id === activeChatId
               ? {
                   ...s,
-                  messages: [
-                    ...s.messages,
-                    {
-                      id: Date.now() + 1,
-                      text: "I've received your request. Since this is a new session, I'll help you get started!",
-                      sender: "ai",
-                    },
-                  ],
+                  messages: [...s.messages, newAiMsg],
+                  updatedAt: new Date().toISOString(),
                 }
               : s,
           ),
         );
-        setIsTyping(false);
-      }, 1500);
-    } else {
-      const newUserMsg = { id: Date.now(), text: messageText, sender: "user" };
-      setOptimisticMessages((prev) => [...prev, newUserMsg]);
+      } else {
+        setOptimisticMessages((prev) => [...prev, newAiMsg]);
+      }
 
+      // Refresh chat history from server after a short delay
       setTimeout(() => {
-        const newAiMsg = {
-          id: Date.now() + 1,
-          text: "I am analyzing your follow-up request based on your current data...",
-          sender: "ai",
-        };
+        queryClient.invalidateQueries({ queryKey: ["chatHistory"] });
+      }, 1000);
 
-        if (activeChatId.toString().startsWith("mock")) {
-          setMockedSessions((prev) =>
-            prev.map((s) =>
-              s.id === activeChatId
-                ? {
-                    ...s,
-                    messages: [...s.messages, newUserMsg, newAiMsg],
-                    updatedAt: new Date().toISOString(),
-                  }
-                : s,
-            ),
-          );
-          setOptimisticMessages([]);
-        } else {
-          setOptimisticMessages((prev) => [...prev, newAiMsg]);
-        }
+    } catch (error) {
+      console.error("Failed to send chat message:", error);
 
-        setIsTyping(false);
-      }, 1500);
+      // Add error message
+      const errorMsg = {
+        id: Date.now() + 1,
+        text: "Sorry, I couldn't process your message. Please try again.",
+        sender: "ai",
+      };
+
+      if (activeChatId?.startsWith("local-")) {
+        setLocalSessions((prev) =>
+          prev.map((s) =>
+            s.id === activeChatId
+              ? {
+                  ...s,
+                  messages: [...s.messages, errorMsg],
+                  updatedAt: new Date().toISOString(),
+                }
+              : s,
+          ),
+        );
+      } else {
+        setOptimisticMessages((prev) => [...prev, errorMsg]);
+      }
+    } finally {
+      setIsTyping(false);
     }
   };
 

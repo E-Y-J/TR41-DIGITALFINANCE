@@ -48,7 +48,6 @@ from app.auth.user_sync import sync_user_from_claims
 from app.schemas.user_schema import user_schema
 from app.core.config import get_config
 
-
 # =============================================================================
 # LOGGER SETUP
 # =============================================================================

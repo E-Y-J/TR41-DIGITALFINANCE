@@ -143,9 +143,7 @@ class AIMetrics:
             "status": {
                 "models_loaded": self.models_loaded,
                 "load_time_ms": self.load_time_ms,
-                "last_used": (
-                    self.last_used.isoformat() if self.last_used else None
-                ),
+                "last_used": (self.last_used.isoformat() if self.last_used else None),
             },
         }
 

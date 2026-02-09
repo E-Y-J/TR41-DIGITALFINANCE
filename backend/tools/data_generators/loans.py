@@ -50,7 +50,9 @@ class LoanGenerator(BaseGenerator):
         # Get Financial Services category (required for loans)
         fin_category = self.get_category("Financial Services")
         if not fin_category:
-            self.stdout_write("   WARNING: Financial Services category not found", indent=3)
+            self.stdout_write(
+                "   WARNING: Financial Services category not found", indent=3
+            )
             return 0
 
         count = 0

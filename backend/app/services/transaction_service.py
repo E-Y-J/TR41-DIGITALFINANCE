@@ -57,7 +57,6 @@ from app.utils.errors import (
     ForbiddenError,
 )
 
-
 # =============================================================================
 # LOGGER SETUP
 # =============================================================================
@@ -620,7 +619,7 @@ class TransactionService:
         return summary
 
     # =============================================================================
-    # TRANSACTION CATEGORY BREAKDOWN 
+    # TRANSACTION CATEGORY BREAKDOWN
     # =============================================================================
 
     @classmethod
@@ -633,9 +632,9 @@ class TransactionService:
         join_conditions = [
             Transaction.category_id == Category.id,
             Transaction.user_id == user.id,
-            Transaction.transaction_type == TransactionType.EXPENSE
+            Transaction.transaction_type == TransactionType.EXPENSE,
         ]
-        
+
         if start_date:
             join_conditions.append(cast(Transaction.date, Date) >= start_date)
         if end_date:
@@ -643,20 +642,15 @@ class TransactionService:
 
         query = db.session.query(
             Category.name.label("category_name"),
-            func.coalesce(func.sum(Transaction.amount), 0).label("total_amount")
-        ).outerjoin(
-            Transaction, 
-            and_(*join_conditions) 
-        )
-        
+            func.coalesce(func.sum(Transaction.amount), 0).label("total_amount"),
+        ).outerjoin(Transaction, and_(*join_conditions))
+
         results = query.group_by(Category.name).all()
 
-        return [
-            {"category": name, "total": str(total)} 
-            for name, total in results
-        ]
+        return [{"category": name, "total": str(total)} for name, total in results]
+
     # =============================================================================
-    # TRANSACTION MONTHLY TREND 
+    # TRANSACTION MONTHLY TREND
     # =============================================================================
 
     @classmethod
@@ -815,9 +809,11 @@ class TransactionService:
                         merchant_name=transaction.merchant_name,
                         correct_category=new_category.name,
                         original_category=original_cat_name,
-                        original_source=str(transaction.ai_source.value)
-                        if transaction.ai_source
-                        else None,
+                        original_source=(
+                            str(transaction.ai_source.value)
+                            if transaction.ai_source
+                            else None
+                        ),
                     )
                     logger.debug(
                         f"Recorded learning: {transaction.merchant_name} → {new_category.name}"

@@ -1,9 +1,11 @@
 import { Box, Typography, Button, CircularProgress } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import DashboardWidget from "../../components/common/DashboardWidget";
 import LoanTracker from "./components/LoanTracker";
 import { useGetLoans } from "./useGetLoans";
 
 const ActiveLoansWidget = () => {
+  const navigate = useNavigate();
   const { data, isLoading, isError } = useGetLoans({
     // status: "open",
     // turned off so I can render all 5 loans for screen testing
@@ -11,7 +13,7 @@ const ActiveLoansWidget = () => {
   const loans = data?.items || [];
 
   const navigateToAllLoans = () => {
-    console.log("Navigate to all loans");
+    navigate("/home/loans");
   };
 
   if (isError) {

@@ -33,7 +33,6 @@ from marshmallow import fields, validate
 
 from app.schemas.base import BaseSchema
 
-
 # =============================================================================
 # NOTIFICATION SCHEMA (FULL)
 # =============================================================================

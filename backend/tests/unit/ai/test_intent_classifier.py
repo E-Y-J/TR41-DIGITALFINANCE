@@ -22,6 +22,7 @@ class TestIntentClassifier:
         """Reset singleton before each test."""
         import app.ai.intent_classifier as classifier_module
         from app.ai.intent_classifier import IntentClassifier
+
         classifier_module._classifier = None
         IntentClassifier._instance = None
         yield
@@ -35,11 +36,13 @@ class TestIntentClassifier:
     def test_intent_classifier_class_exists(self):
         """Test that IntentClassifier class exists."""
         from app.ai.intent_classifier import IntentClassifier
+
         assert IntentClassifier is not None
 
     def test_get_intent_classifier_function_exists(self):
         """Test that get_intent_classifier function exists."""
         from app.ai.intent_classifier import get_intent_classifier
+
         assert callable(get_intent_classifier)
 
     # =========================================================================
@@ -83,7 +86,7 @@ class TestIntentClassifier:
         from app.ai.intent_classifier import IntentClassifier
 
         classifier = IntentClassifier()
-        assert hasattr(classifier, 'classify')
+        assert hasattr(classifier, "classify")
         assert callable(classifier.classify)
 
     def test_has_classify_with_alternatives_method(self):
@@ -91,7 +94,7 @@ class TestIntentClassifier:
         from app.ai.intent_classifier import IntentClassifier
 
         classifier = IntentClassifier()
-        assert hasattr(classifier, 'classify_with_alternatives')
+        assert hasattr(classifier, "classify_with_alternatives")
         assert callable(classifier.classify_with_alternatives)
 
     def test_has_initialize_method(self):
@@ -99,7 +102,7 @@ class TestIntentClassifier:
         from app.ai.intent_classifier import IntentClassifier
 
         classifier = IntentClassifier()
-        assert hasattr(classifier, 'initialize')
+        assert hasattr(classifier, "initialize")
         assert callable(classifier.initialize)
 
 
@@ -111,6 +114,7 @@ class TestIntentClassifierSingleton:
         """Reset singleton before each test."""
         import app.ai.intent_classifier as classifier_module
         from app.ai.intent_classifier import IntentClassifier
+
         classifier_module._classifier = None
         IntentClassifier._instance = None
         yield
@@ -136,10 +140,10 @@ class TestIntentExamples:
 
         for intent, examples in INTENT_EXAMPLES.items():
             for example in examples:
-                assert isinstance(example, str), \
-                    f"Example for '{intent}' should be string"
-                assert len(example) > 0, \
-                    f"Example for '{intent}' should not be empty"
+                assert isinstance(
+                    example, str
+                ), f"Example for '{intent}' should be string"
+                assert len(example) > 0, f"Example for '{intent}' should not be empty"
 
     def test_examples_are_natural_language(self):
         """Test that examples look like natural language."""
@@ -148,8 +152,9 @@ class TestIntentExamples:
         for intent, examples in INTENT_EXAMPLES.items():
             for example in examples:
                 # Should have reasonable length
-                assert len(example) >= 3, \
-                    f"Example '{example}' for '{intent}' too short"
+                assert (
+                    len(example) >= 3
+                ), f"Example '{example}' for '{intent}' too short"
 
 
 class TestIntentClassifierConfiguration:

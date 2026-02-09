@@ -39,7 +39,6 @@ from app.models.category import Category, DEFAULT_CATEGORIES
 from app.models.enums import CategoryType
 from app.utils.errors import NotFoundError
 
-
 # =============================================================================
 # LOGGER SETUP
 # =============================================================================
@@ -552,9 +551,7 @@ class CategoryService:
         ).first()
 
         if existing:
-            raise ConflictError(
-                f"You already have a category named '{name}'"
-            )
+            raise ConflictError(f"You already have a category named '{name}'")
 
         # Get max display_order for user's categories
         max_order = (
@@ -721,9 +718,9 @@ class CategoryService:
                     raise ValidationError("Invalid reassign target")
 
                 # Reassign transactions
-                Transaction.query.filter(
-                    Transaction.category_id == category_id
-                ).update({"category_id": reassign_to})
+                Transaction.query.filter(Transaction.category_id == category_id).update(
+                    {"category_id": reassign_to}
+                )
 
                 logger.info(
                     f"Reassigned {transaction_count} transactions from "
@@ -732,9 +729,9 @@ class CategoryService:
             else:
                 # Default: reassign to Unknown
                 unknown = cls.get_unknown_category()
-                Transaction.query.filter(
-                    Transaction.category_id == category_id
-                ).update({"category_id": unknown.id})
+                Transaction.query.filter(Transaction.category_id == category_id).update(
+                    {"category_id": unknown.id}
+                )
 
                 logger.info(
                     f"Reassigned {transaction_count} transactions from "

@@ -122,7 +122,9 @@ class UserLearningEngine:
 
             learnings = UserLearning.get_all_for_user(user_id)
             for learning in learnings:
-                self._cache[user_id][learning.merchant_normalized] = learning.category_name
+                self._cache[user_id][
+                    learning.merchant_normalized
+                ] = learning.category_name
 
             self._cache_loaded.add(user_id)
         except Exception as e:
@@ -139,14 +141,15 @@ class UserLearningEngine:
             from app.core.extensions import db
 
             # Aggregate counts per merchant/category
-            results = db.session.query(
-                UserLearning.merchant_normalized,
-                UserLearning.category_name,
-                func.count().label('count')
-            ).group_by(
-                UserLearning.merchant_normalized,
-                UserLearning.category_name
-            ).all()
+            results = (
+                db.session.query(
+                    UserLearning.merchant_normalized,
+                    UserLearning.category_name,
+                    func.count().label("count"),
+                )
+                .group_by(UserLearning.merchant_normalized, UserLearning.category_name)
+                .all()
+            )
 
             for merchant, category, count in results:
                 self._global_counts[merchant][category] = count
@@ -339,12 +342,18 @@ class UserLearningEngine:
             from app.core.extensions import db
 
             total = db.session.query(func.count(UserLearning.id)).scalar() or 0
-            unique_merchants = db.session.query(
-                func.count(func.distinct(UserLearning.merchant_normalized))
-            ).scalar() or 0
-            users_count = db.session.query(
-                func.count(func.distinct(UserLearning.user_id))
-            ).scalar() or 0
+            unique_merchants = (
+                db.session.query(
+                    func.count(func.distinct(UserLearning.merchant_normalized))
+                ).scalar()
+                or 0
+            )
+            users_count = (
+                db.session.query(
+                    func.count(func.distinct(UserLearning.user_id))
+                ).scalar()
+                or 0
+            )
 
             # Count global patterns
             self._load_global_counts()
@@ -385,7 +394,9 @@ class UserLearningEngine:
             if user_id:
                 query = query.filter(UserLearning.user_id == user_id)
 
-            learnings = query.order_by(UserLearning.updated_at.desc()).limit(limit).all()
+            learnings = (
+                query.order_by(UserLearning.updated_at.desc()).limit(limit).all()
+            )
 
             return [
                 {

@@ -34,7 +34,6 @@ from app.core.extensions import db
 from app.models.user import User
 from app.utils.errors import InternalError
 
-
 # =============================================================================
 # LOGGER SETUP
 # =============================================================================
@@ -157,12 +156,28 @@ def _create_user_from_claims(claims: Dict[str, Any]) -> User:
         This is an internal function - use sync_user_from_claims instead.
         Auth0 name is parsed into first_name and last_name.
         Nickname is synced from Auth0 if provided.
+        If email is missing (common with some OAuth providers), a placeholder
+        is generated from the auth0_id.
     """
     first_name, last_name = _parse_name_from_claims(claims)
 
+    # Get email from claims, or generate a placeholder if missing
+    # Some OAuth providers (like Google) may not return email if scope
+    # wasn't configured properly in Auth0, or user has no public email
+    email = claims.get("email")
+    auth0_id = claims["sub"]
+
+    if not email:
+        # Generate a placeholder email from auth0_id
+        # Format: google-oauth2|123456789 -> google-oauth2_123456789@placeholder.local
+        safe_id = auth0_id.replace("|", "_").replace(":", "_")
+        email = f"{safe_id}@placeholder.local"
+        logger.warning(f"No email in claims for {auth0_id}, using placeholder: {email}")
+
     user = User(
-        auth0_id=claims["sub"],
-        email=claims.get("email"),
+        auth0_id=auth0_id,
+        email=email,
+        email_verified=claims.get("email_verified", False),
         first_name=first_name,
         last_name=last_name,
         nickname=claims.get("nickname"),  # Optional field from Auth0
