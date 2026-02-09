@@ -58,7 +58,7 @@ services:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     healthcheck:
       test:
-        ["CMD", "curl -f http://localhost:${BACKEND_PORT}/health/ || exit 1"]
+        ["CMD-SHELL", "curl -f http://localhost:${BACKEND_PORT}/health || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -80,7 +80,7 @@ services:
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     healthcheck:
-      test: ["CMD", "curl -f http://localhost:${FRONTEND_PORT}/ || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:${FRONTEND_PORT}/ || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
