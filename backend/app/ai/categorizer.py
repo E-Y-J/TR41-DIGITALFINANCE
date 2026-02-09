@@ -46,6 +46,7 @@ try:
         ConfidenceThresholds,
         CATEGORY_KEYWORDS,
     )
+
     CONFIDENCE_THRESHOLD = ConfidenceThresholds.CATEGORY_HIGH
 except ImportError:
     # Fallback if constants.py not available
@@ -209,8 +210,7 @@ class TransactionCategorizer:
         if not self.is_loaded:
             if not self.load_model():
                 return [
-                    {"text": t, "category": "Unknown", "confidence": 0.0}
-                    for t in texts
+                    {"text": t, "category": "Unknown", "confidence": 0.0} for t in texts
                 ]
 
         results = []
@@ -235,15 +235,18 @@ class TransactionCategorizer:
         # For now, just return the single prediction
         # TODO: Extend inference.py to support top-k
         result = self.predict(text)
-        return [{
-            "category": result.get("raw_label", result["category"]),
-            "probability": result["confidence"],
-        }]
+        return [
+            {
+                "category": result.get("raw_label", result["category"]),
+                "probability": result["confidence"],
+            }
+        ]
 
     def is_model_available(self) -> bool:
         """Check if model can be loaded."""
         try:
             from pathlib import Path
+
             model_path = Path(__file__).parent / "transaction_classification_model"
             return model_path.exists()
         except Exception:

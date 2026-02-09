@@ -25,6 +25,7 @@ class TestAIService:
     def reset_singleton(self):
         """Reset singleton before each test."""
         from app.ai.service import AIService
+
         AIService._instance = None
         yield
         AIService._instance = None
@@ -73,16 +74,19 @@ class TestAIService:
     def test_ai_service_class_exists(self):
         """Test that AIService class exists."""
         from app.ai.service import AIService
+
         assert AIService is not None
 
     def test_get_ai_service_function_exists(self):
         """Test that get_ai_service function exists."""
         from app.ai.service import get_ai_service
+
         assert callable(get_ai_service)
 
     def test_initialize_ai_service_function_exists(self):
         """Test that initialize_ai_service function exists."""
         from app.ai.service import initialize_ai_service
+
         assert callable(initialize_ai_service)
 
     # =========================================================================
@@ -95,7 +99,7 @@ class TestAIService:
 
         service = AIService()
         assert service is not None
-        assert hasattr(service, 'is_initialized')
+        assert hasattr(service, "is_initialized")
 
     # =========================================================================
     # METHOD EXISTENCE TESTS
@@ -104,36 +108,41 @@ class TestAIService:
     def test_has_categorize_method(self):
         """Test that categorize method exists."""
         from app.ai.service import AIService
+
         service = AIService()
-        assert hasattr(service, 'categorize')
+        assert hasattr(service, "categorize")
         assert callable(service.categorize)
 
     def test_has_detect_intent_method(self):
         """Test that detect_intent method exists."""
         from app.ai.service import AIService
+
         service = AIService()
-        assert hasattr(service, 'detect_intent')
+        assert hasattr(service, "detect_intent")
         assert callable(service.detect_intent)
 
     def test_has_check_scope_method(self):
         """Test that check_scope method exists."""
         from app.ai.service import AIService
+
         service = AIService()
-        assert hasattr(service, 'check_scope')
+        assert hasattr(service, "check_scope")
         assert callable(service.check_scope)
 
     def test_has_get_metrics_method(self):
         """Test that get_metrics method exists."""
         from app.ai.service import AIService
+
         service = AIService()
-        assert hasattr(service, 'get_metrics')
+        assert hasattr(service, "get_metrics")
         assert callable(service.get_metrics)
 
     def test_has_get_status_method(self):
         """Test that get_status method exists."""
         from app.ai.service import AIService
+
         service = AIService()
-        assert hasattr(service, 'get_status')
+        assert hasattr(service, "get_status")
         assert callable(service.get_status)
 
 
@@ -144,6 +153,7 @@ class TestAIServiceSingleton:
     def reset_singleton(self):
         """Reset singleton before each test."""
         from app.ai.service import AIService
+
         AIService._instance = None
         yield
         AIService._instance = None
@@ -178,6 +188,7 @@ class TestAIMetrics:
     def test_ai_metrics_exists(self):
         """Test that AIMetrics dataclass exists."""
         from app.ai.service import AIMetrics
+
         assert AIMetrics is not None
 
     def test_ai_metrics_has_expected_fields(self):

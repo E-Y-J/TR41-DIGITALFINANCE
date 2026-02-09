@@ -226,9 +226,15 @@ class IntentClassifier:
         # Check if intent classifier is disabled via config
         try:
             from app.core.config import get_config
+
             config = get_config()
-            if hasattr(config, 'AI_INTENT_CLASSIFIER_ENABLED') and not config.AI_INTENT_CLASSIFIER_ENABLED:
-                logger.info("Intent classifier disabled via AI_INTENT_CLASSIFIER_ENABLED=0")
+            if (
+                hasattr(config, "AI_INTENT_CLASSIFIER_ENABLED")
+                and not config.AI_INTENT_CLASSIFIER_ENABLED
+            ):
+                logger.info(
+                    "Intent classifier disabled via AI_INTENT_CLASSIFIER_ENABLED=0"
+                )
                 self.is_initialized = True
                 self._use_fallback = True
                 return True
@@ -315,7 +321,9 @@ class IntentClassifier:
             # Convert similarity to confidence (0-1 range)
             confidence = max(0.0, min(1.0, best_score))
 
-            logger.debug(f"Intent classification: '{text}' → {best_intent} ({confidence:.2f})")
+            logger.debug(
+                f"Intent classification: '{text}' → {best_intent} ({confidence:.2f})"
+            )
 
             return best_intent, confidence
 
@@ -424,6 +432,7 @@ class IntentClassifier:
         """
         try:
             from app.ai.utils import cos_sim
+
             return cos_sim(a, b)
         except ImportError:
             # Fallback to manual computation
@@ -450,26 +459,49 @@ class IntentClassifier:
         # Keyword patterns for each intent (ordered by specificity)
         keyword_patterns = {
             "add_transaction": [
-                "add", "spent", "paid", "bought", "purchase", "expense",
-                "received", "earned", "income", "got paid", "deposit"
+                "add",
+                "spent",
+                "paid",
+                "bought",
+                "purchase",
+                "expense",
+                "received",
+                "earned",
+                "income",
+                "got paid",
+                "deposit",
             ],
             "categorize_transaction": [
-                "categorize", "category", "classify", "what type", "label"
+                "categorize",
+                "category",
+                "classify",
+                "what type",
+                "label",
             ],
-            "set_budget": [
-                "budget", "limit", "spending limit", "set limit", "cap"
-            ],
+            "set_budget": ["budget", "limit", "spending limit", "set limit", "cap"],
             "summarize_transactions": [
-                "summary", "summarize", "overview", "report", "total",
-                "spending", "how much", "spent this", "show my"
+                "summary",
+                "summarize",
+                "overview",
+                "report",
+                "total",
+                "spending",
+                "how much",
+                "spent this",
+                "show my",
             ],
             "get_insights": [
-                "insight", "analyze", "pattern", "trend", "habit",
-                "advice", "suggest", "recommend", "tips"
+                "insight",
+                "analyze",
+                "pattern",
+                "trend",
+                "habit",
+                "advice",
+                "suggest",
+                "recommend",
+                "tips",
             ],
-            "help": [
-                "help", "what can you", "how do i", "guide", "tutorial"
-            ],
+            "help": ["help", "what can you", "how do i", "guide", "tutorial"],
         }
 
         # Check each pattern

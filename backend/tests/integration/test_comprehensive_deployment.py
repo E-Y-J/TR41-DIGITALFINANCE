@@ -31,7 +31,6 @@ from datetime import date, datetime, timedelta
 from app.core.extensions import db
 from app.models.category import Category
 
-
 # =============================================================================
 # FIXTURES (using existing app/client/user from conftest.py)
 # =============================================================================
@@ -66,7 +65,10 @@ def system_categories(app, seeded_categories):
     """Get system categories after seeding."""
     with app.app_context():
         categories = Category.query.filter_by(is_system=True, is_active=True).all()
-        return [{"id": str(c.id), "name": c.name, "type": c.category_type.value} for c in categories]
+        return [
+            {"id": str(c.id), "name": c.name, "type": c.category_type.value}
+            for c in categories
+        ]
 
 
 # =============================================================================
@@ -86,7 +88,9 @@ class TestCategoriesComprehensive:
         assert data["success"] is True
 
         categories = data["data"]
-        assert len(categories) >= 11, f"Expected at least 11 system categories, got {len(categories)}"
+        assert (
+            len(categories) >= 11
+        ), f"Expected at least 11 system categories, got {len(categories)}"
 
         # Verify expected categories exist
         expected_names = [
@@ -183,7 +187,9 @@ class TestCategoriesComprehensive:
         assert result["data"]["name"] == update_data["name"]
         assert result["data"]["color"] == update_data["color"]
 
-    def test_cannot_update_system_category(self, client, auth_headers, system_categories):
+    def test_cannot_update_system_category(
+        self, client, auth_headers, system_categories
+    ):
         """Test that system categories cannot be updated."""
         system_cat_id = system_categories[0]["id"]
 
@@ -214,7 +220,9 @@ class TestCategoriesComprehensive:
 
         assert response.status_code == 200
 
-    def test_cannot_delete_system_category(self, client, auth_headers, system_categories):
+    def test_cannot_delete_system_category(
+        self, client, auth_headers, system_categories
+    ):
         """Test that system categories cannot be deleted."""
         system_cat_id = system_categories[0]["id"]
 
@@ -237,7 +245,8 @@ class TestTransactionsComprehensive:
     def test_create_expense_transaction(self, client, auth_headers, system_categories):
         """Test creating an expense transaction."""
         expense_cat = next(
-            c for c in system_categories
+            c
+            for c in system_categories
             if c["type"] in ["expense", "both"] and c["name"] != "Unknown"
         )
 
@@ -262,7 +271,8 @@ class TestTransactionsComprehensive:
     def test_create_income_transaction(self, client, auth_headers, system_categories):
         """Test creating an income transaction."""
         income_cat = next(
-            c for c in system_categories
+            c
+            for c in system_categories
             if c["type"] in ["income", "both"] and c["name"] == "Income"
         )
 
@@ -282,7 +292,9 @@ class TestTransactionsComprehensive:
 
         assert response.status_code == 201
 
-    def test_get_transactions_with_pagination(self, client, auth_headers, system_categories):
+    def test_get_transactions_with_pagination(
+        self, client, auth_headers, system_categories
+    ):
         """Test getting transactions with pagination."""
         # Create multiple transactions
         cat = system_categories[0]
@@ -290,13 +302,15 @@ class TestTransactionsComprehensive:
             client.post(
                 "/api/transactions",
                 headers=auth_headers,
-                data=json.dumps({
-                    "merchant_name": f"Pagination test {i}",
-                    "amount": "10.00",
-                    "date": date.today().isoformat(),
-                    "transaction_type": "expense",
-                    "category_id": cat["id"],
-                }),
+                data=json.dumps(
+                    {
+                        "merchant_name": f"Pagination test {i}",
+                        "amount": "10.00",
+                        "date": date.today().isoformat(),
+                        "transaction_type": "expense",
+                        "category_id": cat["id"],
+                    }
+                ),
             )
 
         # Test pagination
@@ -322,13 +336,15 @@ class TestTransactionsComprehensive:
         client.post(
             "/api/transactions",
             headers=auth_headers,
-            data=json.dumps({
-                "merchant_name": "Today's expense",
-                "amount": "25.00",
-                "date": today.isoformat(),
-                "transaction_type": "expense",
-                "category_id": cat["id"],
-            }),
+            data=json.dumps(
+                {
+                    "merchant_name": "Today's expense",
+                    "amount": "25.00",
+                    "date": today.isoformat(),
+                    "transaction_type": "expense",
+                    "category_id": cat["id"],
+                }
+            ),
         )
 
         # Filter by date
@@ -347,13 +363,15 @@ class TestTransactionsComprehensive:
         create_response = client.post(
             "/api/transactions",
             headers=auth_headers,
-            data=json.dumps({
-                "merchant_name": "Original merchant",
-                "amount": "30.00",
-                "date": date.today().isoformat(),
-                "transaction_type": "expense",
-                "category_id": cat["id"],
-            }),
+            data=json.dumps(
+                {
+                    "merchant_name": "Original merchant",
+                    "amount": "30.00",
+                    "date": date.today().isoformat(),
+                    "transaction_type": "expense",
+                    "category_id": cat["id"],
+                }
+            ),
         )
 
         txn_id = create_response.get_json()["data"]["id"]
@@ -376,13 +394,15 @@ class TestTransactionsComprehensive:
         create_response = client.post(
             "/api/transactions",
             headers=auth_headers,
-            data=json.dumps({
-                "merchant_name": "To be deleted",
-                "amount": "15.00",
-                "date": date.today().isoformat(),
-                "transaction_type": "expense",
-                "category_id": cat["id"],
-            }),
+            data=json.dumps(
+                {
+                    "merchant_name": "To be deleted",
+                    "amount": "15.00",
+                    "date": date.today().isoformat(),
+                    "transaction_type": "expense",
+                    "category_id": cat["id"],
+                }
+            ),
         )
 
         txn_id = create_response.get_json()["data"]["id"]
@@ -443,7 +463,9 @@ class TestBudgetsComprehensive:
         result = response.get_json()
         assert result["data"]["budget_type"] == "category"
 
-    def test_budget_validation_category_required_for_category_type(self, client, auth_headers):
+    def test_budget_validation_category_required_for_category_type(
+        self, client, auth_headers
+    ):
         """Test that category_id is required for category budgets."""
         data = {
             "budget_type": "category",
@@ -460,7 +482,9 @@ class TestBudgetsComprehensive:
 
         assert response.status_code == 422
 
-    def test_budget_validation_no_category_for_total(self, client, auth_headers, system_categories):
+    def test_budget_validation_no_category_for_total(
+        self, client, auth_headers, system_categories
+    ):
         """Test that category_id is not allowed for total budgets."""
         cat = system_categories[0]
 
@@ -487,13 +511,15 @@ class TestBudgetsComprehensive:
             client.post(
                 "/api/transactions",
                 headers=auth_headers,
-                data=json.dumps({
-                    "merchant_name": f"Suggestion test {i}",
-                    "amount": "50.00",
-                    "date": date.today().isoformat(),
-                    "transaction_type": "expense",
-                    "category_id": cat["id"],
-                }),
+                data=json.dumps(
+                    {
+                        "merchant_name": f"Suggestion test {i}",
+                        "amount": "50.00",
+                        "date": date.today().isoformat(),
+                        "transaction_type": "expense",
+                        "category_id": cat["id"],
+                    }
+                ),
             )
 
         # Get suggestions
@@ -513,11 +539,13 @@ class TestBudgetsComprehensive:
         create_response = client.post(
             "/api/budgets",
             headers=auth_headers,
-            data=json.dumps({
-                "budget_type": "total",
-                "amount": "1500.00",
-                "period": "yearly",  # Use yearly to avoid monthly conflict
-            }),
+            data=json.dumps(
+                {
+                    "budget_type": "total",
+                    "amount": "1500.00",
+                    "period": "yearly",  # Use yearly to avoid monthly conflict
+                }
+            ),
         )
 
         # Handle case where budget creation fails due to existing budget
@@ -544,11 +572,13 @@ class TestBudgetsComprehensive:
         create_response = client.post(
             "/api/budgets",
             headers=auth_headers,
-            data=json.dumps({
-                "budget_type": "total",
-                "amount": "1000.00",
-                "period": "weekly",
-            }),
+            data=json.dumps(
+                {
+                    "budget_type": "total",
+                    "amount": "1000.00",
+                    "period": "weekly",
+                }
+            ),
         )
 
         budget_id = create_response.get_json()["data"]["id"]
@@ -589,7 +619,10 @@ class TestLoansComprehensive:
         )
 
         # Note: Loan endpoint returns 200 for creation (current behavior)
-        assert response.status_code in [200, 201], f"Expected 200/201, got {response.status_code}: {response.get_json()}"
+        assert response.status_code in [
+            200,
+            201,
+        ], f"Expected 200/201, got {response.status_code}: {response.get_json()}"
         result = response.get_json()
         assert result["success"] is True
         assert result["data"]["status"] == "open"
@@ -611,7 +644,9 @@ class TestLoansComprehensive:
 
         assert response.status_code == 422
 
-    def test_cannot_close_loan_with_balance(self, client, auth_headers, system_categories):
+    def test_cannot_close_loan_with_balance(
+        self, client, auth_headers, system_categories
+    ):
         """
         Test closing a loan with remaining balance.
 
@@ -628,12 +663,14 @@ class TestLoansComprehensive:
         create_response = client.post(
             "/api/loans",
             headers=auth_headers,
-            data=json.dumps({
-                "name": "Balance Test Loan",
-                "original_amount": "5000.00",
-                "remaining_amount": "1000.00",  # Still has balance
-                "category_id": cat["id"],
-            }),
+            data=json.dumps(
+                {
+                    "name": "Balance Test Loan",
+                    "original_amount": "5000.00",
+                    "remaining_amount": "1000.00",  # Still has balance
+                    "category_id": cat["id"],
+                }
+            ),
         )
 
         loan_id = create_response.get_json()["data"]["id"]
@@ -649,7 +686,9 @@ class TestLoansComprehensive:
         # Ideal behavior would be 422, but that requires service-layer change
         assert response.status_code in [200, 422]
 
-    def test_can_close_loan_with_zero_balance(self, client, auth_headers, system_categories):
+    def test_can_close_loan_with_zero_balance(
+        self, client, auth_headers, system_categories
+    ):
         """Test that a loan can be closed with zero balance."""
         cat = next(c for c in system_categories if c["name"] == "Financial Services")
 
@@ -657,12 +696,14 @@ class TestLoansComprehensive:
         create_response = client.post(
             "/api/loans",
             headers=auth_headers,
-            data=json.dumps({
-                "name": "Zero Balance Loan",
-                "original_amount": "5000.00",
-                "remaining_amount": "0.00",
-                "category_id": cat["id"],
-            }),
+            data=json.dumps(
+                {
+                    "name": "Zero Balance Loan",
+                    "original_amount": "5000.00",
+                    "remaining_amount": "0.00",
+                    "category_id": cat["id"],
+                }
+            ),
         )
 
         loan_id = create_response.get_json()["data"]["id"]
@@ -676,7 +717,9 @@ class TestLoansComprehensive:
 
         assert response.status_code == 200
 
-    def test_get_loans_with_status_filter(self, client, auth_headers, system_categories):
+    def test_get_loans_with_status_filter(
+        self, client, auth_headers, system_categories
+    ):
         """Test filtering loans by status."""
         cat = next(c for c in system_categories if c["name"] == "Financial Services")
 
@@ -684,12 +727,14 @@ class TestLoansComprehensive:
         client.post(
             "/api/loans",
             headers=auth_headers,
-            data=json.dumps({
-                "name": "Open Loan",
-                "original_amount": "3000.00",
-                "remaining_amount": "3000.00",
-                "category_id": cat["id"],
-            }),
+            data=json.dumps(
+                {
+                    "name": "Open Loan",
+                    "original_amount": "3000.00",
+                    "remaining_amount": "3000.00",
+                    "category_id": cat["id"],
+                }
+            ),
         )
 
         # Filter by status
@@ -761,13 +806,15 @@ class TestSummaryComprehensive:
             client.post(
                 "/api/transactions",
                 headers=auth_headers,
-                data=json.dumps({
-                    "merchant_name": f"Summary test {i}",
-                    "amount": "100.00",
-                    "date": date.today().isoformat(),
-                    "transaction_type": "expense",
-                    "category_id": cat["id"],
-                }),
+                data=json.dumps(
+                    {
+                        "merchant_name": f"Summary test {i}",
+                        "amount": "100.00",
+                        "date": date.today().isoformat(),
+                        "transaction_type": "expense",
+                        "category_id": cat["id"],
+                    }
+                ),
             )
 
         response = client.get(
@@ -879,32 +926,38 @@ class TestEdgeCasesComprehensive:
         response = client.post(
             "/api/transactions",
             headers=auth_headers,
-            data=json.dumps({
-                "merchant_name": "Large amount test",
-                "amount": "999999999.99",
-                "date": date.today().isoformat(),
-                "transaction_type": "expense",
-                "category_id": cat["id"],
-            }),
+            data=json.dumps(
+                {
+                    "merchant_name": "Large amount test",
+                    "amount": "999999999.99",
+                    "date": date.today().isoformat(),
+                    "transaction_type": "expense",
+                    "category_id": cat["id"],
+                }
+            ),
         )
 
         # Should succeed or fail validation gracefully
         assert response.status_code in [201, 422]
 
-    def test_special_characters_in_description(self, client, auth_headers, system_categories):
+    def test_special_characters_in_description(
+        self, client, auth_headers, system_categories
+    ):
         """Test handling of special characters."""
         cat = system_categories[0]
 
         response = client.post(
             "/api/transactions",
             headers=auth_headers,
-            data=json.dumps({
-                "merchant_name": "Test with émojis 🎉 and spëcial çharacters!",
-                "amount": "25.00",
-                "date": date.today().isoformat(),
-                "transaction_type": "expense",
-                "category_id": cat["id"],
-            }),
+            data=json.dumps(
+                {
+                    "merchant_name": "Test with émojis 🎉 and spëcial çharacters!",
+                    "amount": "25.00",
+                    "date": date.today().isoformat(),
+                    "transaction_type": "expense",
+                    "category_id": cat["id"],
+                }
+            ),
         )
 
         assert response.status_code == 201
@@ -936,13 +989,15 @@ class TestMassiveDataScenarios:
             response = client.post(
                 "/api/transactions",
                 headers=auth_headers,
-                data=json.dumps({
-                    "merchant_name": f"Bulk test transaction {i}",
-                    "amount": f"{(i % 100) + 1}.00",
-                    "date": (date.today() - timedelta(days=i % 30)).isoformat(),
-                    "transaction_type": "expense",
-                    "category_id": cat["id"],
-                }),
+                data=json.dumps(
+                    {
+                        "merchant_name": f"Bulk test transaction {i}",
+                        "amount": f"{(i % 100) + 1}.00",
+                        "date": (date.today() - timedelta(days=i % 30)).isoformat(),
+                        "transaction_type": "expense",
+                        "category_id": cat["id"],
+                    }
+                ),
             )
             if response.status_code == 201:
                 created += 1
@@ -952,8 +1007,9 @@ class TestMassiveDataScenarios:
                 break
 
         # Either we created most transactions, or we hit rate limit (both valid)
-        assert created >= 10 or rate_limited > 0, \
-            f"Created only {created} transactions without rate limiting"
+        assert (
+            created >= 10 or rate_limited > 0
+        ), f"Created only {created} transactions without rate limiting"
 
     def test_pagination_with_many_records(self, client, auth_headers):
         """Test pagination with many records."""
@@ -970,11 +1026,15 @@ class TestMassiveDataScenarios:
         assert "meta" in result
         assert "total" in result["meta"]
 
-    def test_create_budgets_for_all_categories(self, client, auth_headers, system_categories):
+    def test_create_budgets_for_all_categories(
+        self, client, auth_headers, system_categories
+    ):
         """Test creating budgets for multiple categories."""
         expense_categories = [
-            c for c in system_categories
-            if c["type"] in ["expense", "both"] and c["name"] not in ["Unknown", "Income"]
+            c
+            for c in system_categories
+            if c["type"] in ["expense", "both"]
+            and c["name"] not in ["Unknown", "Income"]
         ]
 
         created = 0
@@ -982,12 +1042,14 @@ class TestMassiveDataScenarios:
             response = client.post(
                 "/api/budgets",
                 headers=auth_headers,
-                data=json.dumps({
-                    "budget_type": "category",
-                    "category_id": cat["id"],
-                    "amount": "300.00",
-                    "period": "monthly",
-                }),
+                data=json.dumps(
+                    {
+                        "budget_type": "category",
+                        "category_id": cat["id"],
+                        "amount": "300.00",
+                        "period": "monthly",
+                    }
+                ),
             )
             if response.status_code == 201:
                 created += 1

@@ -20,6 +20,7 @@ class TestGuardrails:
     def reset_singleton(self):
         """Reset singleton before each test."""
         import app.ai.guardrails as guardrails_module
+
         guardrails_module._guardrails_instance = None
         yield
         guardrails_module._guardrails_instance = None
@@ -31,11 +32,13 @@ class TestGuardrails:
     def test_guardrails_class_exists(self):
         """Test that Guardrails class exists."""
         from app.ai.guardrails import Guardrails
+
         assert Guardrails is not None
 
     def test_get_guardrails_function_exists(self):
         """Test that get_guardrails function exists."""
         from app.ai.guardrails import get_guardrails
+
         assert callable(get_guardrails)
 
     # =========================================================================
@@ -47,7 +50,7 @@ class TestGuardrails:
         from app.ai.guardrails import Guardrails
 
         guardrails = Guardrails()
-        assert hasattr(guardrails, 'check_scope')
+        assert hasattr(guardrails, "check_scope")
         assert callable(guardrails.check_scope)
 
     def test_has_is_initialized_property(self):
@@ -55,14 +58,14 @@ class TestGuardrails:
         from app.ai.guardrails import Guardrails
 
         guardrails = Guardrails()
-        assert hasattr(guardrails, 'is_initialized')
+        assert hasattr(guardrails, "is_initialized")
 
     def test_initialize_method_exists(self):
         """Test that initialize method exists."""
         from app.ai.guardrails import Guardrails
 
         guardrails = Guardrails()
-        assert hasattr(guardrails, 'initialize')
+        assert hasattr(guardrails, "initialize")
         assert callable(guardrails.initialize)
 
     # =========================================================================
@@ -100,6 +103,7 @@ class TestGuardrailsSingleton:
         """Reset singleton before each test."""
         import app.ai.guardrails as guardrails_module
         from app.ai.guardrails import Guardrails
+
         guardrails_module._guardrails = None
         Guardrails._instance = None
         yield

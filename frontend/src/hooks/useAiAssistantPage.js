@@ -23,20 +23,24 @@ export const useAiAssistantPage = () => {
 
   const conversations = useMemo(() => {
     const rawSessions = historyResponse?.sessions || [];
-    const mapped = rawSessions.map((session) => ({
-      id: session.id,
-      title:
-        session.conversation_history
-          ?.find((m) => m.role === "user")
-          ?.content.slice(0, 30) || "Recent Chat",
-      messages: (session.conversation_history || []).map((msg, idx) => ({
-        id: `${session.id}-${idx}`,
-        text: msg.content,
-        sender: msg.role === "assistant" ? "ai" : "user",
-      })),
-      updatedAt: session.updated_at,
-    }));
-    return mapped.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    return rawSessions
+      .map((session) => ({
+        id: session.id,
+        title:
+          session.conversation_history
+            ?.find((m) => m.role === "user")
+            ?.content.slice(0, 30) || "Recent Chat",
+        messages: (session.conversation_history || []).map((msg, idx) => ({
+          id: `${session.id}-${idx}`,
+          text: msg.content,
+          sender: msg.role === "assistant" ? "ai" : "user",
+
+          intent: msg.intent,
+          parsedData: msg.parsed_data,
+        })),
+        updatedAt: session.updated_at,
+      }))
+      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
   }, [historyResponse]);
 
   const activeSession = useMemo(
@@ -75,12 +79,12 @@ export const useAiAssistantPage = () => {
     setOptimisticMessages([userMsg]);
 
     try {
-      const result = await sendChatApi({
+      const response = await sendChatApi({
         message: messageText,
         context: activeChatId ? { session_id: activeChatId } : {},
       });
 
-      const chatPayload = result.data?.data || result.data || result;
+      const chatPayload = response.data?.data || response.data || response;
       const sessionId = chatPayload.session_id;
 
       const aiMsg = {
@@ -89,36 +93,29 @@ export const useAiAssistantPage = () => {
         sender: "ai",
         intent: chatPayload.intent,
         parsedData: chatPayload.parsed_data,
+        isOptimistic: true,
       };
 
       setOptimisticMessages([userMsg, aiMsg]);
 
       if (sessionId) {
         setActiveChatId(sessionId);
-
         await refetchHistory();
-
-        await new Promise((resolve) => setTimeout(resolve, 400));
       }
-
-      setOptimisticMessages([]);
     } catch (error) {
       console.error("Chat Error:", error);
       setOptimisticMessages((prev) => [
         ...prev,
-        { id: "err", text: "Error sending message.", sender: "ai" },
+        { id: "err", text: "Connection error.", sender: "ai" },
       ]);
     } finally {
       setIsTyping(false);
     }
   };
 
-  const suggestionClickHandler = useCallback(
-    (suggestion) => {
-      setInputValue(suggestion);
-    },
-    [setInputValue],
-  );
+  const handleTypewriterComplete = useCallback(() => {
+    setOptimisticMessages([]);
+  }, []);
 
   return {
     user: userData,
@@ -130,11 +127,11 @@ export const useAiAssistantPage = () => {
     inputValue,
     setInputValue,
     isTyping,
-    suggestionClickHandler,
     mobileHistoryOpen,
     setMobileHistoryOpen,
     messagesEndRef,
     handleSendMessage,
+    handleTypewriterComplete,
     handleSelectChat: (id) => {
       setActiveChatId(id);
       setOptimisticMessages([]);
@@ -143,5 +140,6 @@ export const useAiAssistantPage = () => {
       setActiveChatId(null);
       setOptimisticMessages([]);
     },
+    suggestionClickHandler: (text) => setInputValue(text),
   };
 };

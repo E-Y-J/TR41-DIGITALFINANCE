@@ -37,7 +37,6 @@ from marshmallow import fields, validate, validates, ValidationError
 
 from app.schemas.base import BaseSchema
 
-
 # =============================================================================
 # TRANSACTION SCHEMA (FULL)
 # =============================================================================

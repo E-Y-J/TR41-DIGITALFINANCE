@@ -42,7 +42,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.extensions import db
 
-
 # =============================================================================
 # AI SESSION MODEL
 # =============================================================================
@@ -150,11 +149,13 @@ class AISession(db.Model):
             content: Message text
         """
         history = list(self.conversation_history or [])
-        history.append({
-            "role": role,
-            "content": content,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        })
+        history.append(
+            {
+                "role": role,
+                "content": content,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
         # Keep last 20 messages
         if len(history) > 20:
             history = history[-20:]
@@ -279,9 +280,7 @@ class PendingAction(db.Model):
     )
     action_type: Mapped[str] = mapped_column(String(50), nullable=False)
     action_data: Mapped[Dict] = mapped_column(JSONB, nullable=False, default=dict)
-    status: Mapped[str] = mapped_column(
-        String(20), nullable=False, default="pending"
-    )
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
@@ -340,11 +339,15 @@ class PendingAction(db.Model):
         Returns:
             PendingAction or None
         """
-        return cls.query.filter(
-            cls.user_id == user_id,
-            cls.status == "pending",
-            cls.expires_at > datetime.now(timezone.utc),
-        ).order_by(cls.created_at.desc()).first()
+        return (
+            cls.query.filter(
+                cls.user_id == user_id,
+                cls.status == "pending",
+                cls.expires_at > datetime.now(timezone.utc),
+            )
+            .order_by(cls.created_at.desc())
+            .first()
+        )
 
     def confirm(self) -> None:
         """Mark action as confirmed."""
@@ -427,9 +430,7 @@ class UserLearning(db.Model):
     merchant_normalized: Mapped[str] = mapped_column(String(255), nullable=False)
     category_name: Mapped[str] = mapped_column(String(100), nullable=False)
     correction_count: Mapped[int] = mapped_column(Integer, default=1)
-    original_category: Mapped[Optional[str]] = mapped_column(
-        String(100), nullable=True
-    )
+    original_category: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
@@ -464,6 +465,7 @@ class UserLearning(db.Model):
             Normalized lowercase string
         """
         import re
+
         # Lowercase, strip, remove special chars
         normalized = merchant_name.lower().strip()
         normalized = re.sub(r"[#\d]+$", "", normalized)  # Remove trailing numbers
@@ -515,9 +517,7 @@ class UserLearning(db.Model):
         return learning
 
     @classmethod
-    def get_learned(
-        cls, user_id: uuid.UUID, merchant_name: str
-    ) -> Optional[str]:
+    def get_learned(cls, user_id: uuid.UUID, merchant_name: str) -> Optional[str]:
         """
         Get learned category for a merchant.
 

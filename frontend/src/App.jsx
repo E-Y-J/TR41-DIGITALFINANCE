@@ -14,6 +14,7 @@ const HomePage = lazy(() => import("./pages/HomePage"));
 const BudgetPage = lazy(() => import("./pages/BudgetPage"));
 const TransactionPage = lazy(() => import("./pages/TransactionPage"));
 const AiAssistantPage = lazy(() => import("./pages/AiAssistantPage"));
+const LoansPage = lazy(() => import("./pages/LoansPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const App = () => {
@@ -47,6 +48,7 @@ const App = () => {
             <Route path="/home" element={<HomePage />} />
             <Route path="/home/budget" element={<BudgetPage />} />
             <Route path="/home/transactions" element={<TransactionPage />} />
+            <Route path="/home/loans" element={<LoansPage />} />
             <Route path="/home/ai-assistant" element={<AiAssistantPage />} />
             <Route
               path="/home/*"

@@ -22,7 +22,6 @@ from typing import Optional
 from dataclasses import dataclass, field
 from dotenv import load_dotenv
 
-
 # =============================================================================
 # LOAD ENVIRONMENT VARIABLES
 # =============================================================================
@@ -204,7 +203,9 @@ class Config:
     AI_CONFIDENCE_THRESHOLD: float = float(os.getenv("AI_CONFIDENCE_THRESHOLD", "0.7"))
 
     # AI Model Enable/Disable Flags (for performance tuning or cost control)
-    AI_INTENT_CLASSIFIER_ENABLED: bool = os.getenv("AI_INTENT_CLASSIFIER_ENABLED", "1") == "1"
+    AI_INTENT_CLASSIFIER_ENABLED: bool = (
+        os.getenv("AI_INTENT_CLASSIFIER_ENABLED", "1") == "1"
+    )
     AI_CATEGORIZER_ENABLED: bool = os.getenv("AI_CATEGORIZER_ENABLED", "1") == "1"
     AI_GUARDRAILS_ENABLED: bool = os.getenv("AI_GUARDRAILS_ENABLED", "1") == "1"
     AI_GEMINI_ENABLED: bool = os.getenv("AI_GEMINI_ENABLED", "1") == "1"

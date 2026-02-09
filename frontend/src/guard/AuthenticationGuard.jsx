@@ -15,17 +15,12 @@ export const AuthenticationGuard = () => {
 
     if (isRedirecting) return;
 
-    const isTabSessionActive = sessionStorage.getItem("app_session_active");
-
-    if (isAuthenticated && !isTabSessionActive) {
-      console.warn("Session mismatch detected (Zombie Tab). Logging out.");
-      logout({ logoutParams: { returnTo: window.location.origin } });
-    }
-
+    // Set session marker FIRST when authenticated
+    // This prevents false-positive "zombie tab" detection on navigation
     if (isAuthenticated) {
       sessionStorage.setItem("app_session_active", "true");
     }
-  }, [isAuthenticated, isLoading, logout]);
+  }, [isAuthenticated, isLoading]);
 
   if (isLoading) {
     return (

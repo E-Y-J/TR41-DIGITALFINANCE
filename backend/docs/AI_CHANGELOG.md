@@ -6,6 +6,47 @@ This document tracks significant changes to the AI system architecture and imple
 
 ---
 
+## [Sprint 2/3] February 2026 - Local AI Processing & Chat Improvements
+
+### Overview
+
+Major improvements to reduce cloud AI dependency and improve chat reliability:
+- **SQLAlchemy Session Fixes** - Resolved DetachedInstanceError for AI sessions
+- **Local Entity Extraction** - Parse transactions locally without Gemini API
+- **Follow-up Response Handling** - Pending action system for multi-turn conversations
+- **Improved Pattern Matching** - Handles typos and various transaction phrases
+
+### Chat Handler Improvements (`app/ai/chat_handler.py`)
+
+| Change | Description |
+|--------|-------------|
+| `_load_from_db()` | Now detects and merges detached SQLAlchemy sessions |
+| `_get_session()` | Refreshes db session for cached ChatSession objects |
+| `_extract_entities_locally()` | NEW: Regex-based entity extraction (amount, description, merchant, date) |
+| `_parse_message()` | Added Tier 0 for pending action follow-ups, Tier 3 local extraction |
+| `_handle_create_transaction()` | Saves pending action when asking for amount |
+
+### Pattern Matching Improvements
+
+**Amount Patterns Supported:**
+- `$100`, `100 dollars`, `100 bucks`
+- `spent/spend 100` (handles typos)
+- `100 on shoes`, `100 for coffee`
+- Standalone number follow-ups (e.g., user types "100" after being asked "How much?")
+
+**Description Patterns Supported:**
+- `bought shoes`, `spent on groceries`, `paid for coffee`
+- `spent at restaurant`, `100 at Starbucks`
+- Stops at action words: "yesterday", "add", "on the", "to the"
+
+### Benefits
+- ✅ **No Gemini quota usage** for simple transactions
+- ✅ **Faster response** - local parsing < 50ms
+- ✅ **Handles typos** - "spend" works same as "spent"
+- ✅ **Multi-turn conversations** - pending actions preserved across requests
+
+---
+
 ## [Sprint 2/3] January 2026 - Multi-Model AI Integration
 
 ### Overview

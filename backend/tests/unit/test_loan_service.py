@@ -92,7 +92,9 @@ def test_create_loan_requires_category_id(db_session, service_user):
     assert "Invalid loan data" in str(exc.value)
 
 
-def test_create_loan_allows_missing_budget_id(db_session, service_user, service_category):
+def test_create_loan_allows_missing_budget_id(
+    db_session, service_user, service_category
+):
     data = {
         "name": "Car Loan",
         "original_amount": "10000.00",
@@ -110,7 +112,9 @@ def test_create_loan_allows_missing_budget_id(db_session, service_user, service_
     assert loan.status == LoanStatus.OPEN
 
 
-def test_create_loan_with_budget(db_session, service_user, service_category, service_budget):
+def test_create_loan_with_budget(
+    db_session, service_user, service_category, service_budget
+):
     data = {
         "name": "Car Loan",
         "original_amount": "10000.00",
@@ -128,7 +132,9 @@ def test_create_loan_with_budget(db_session, service_user, service_category, ser
     # We do NOT assert on loan.budget_name because Budget has no 'name' column.
 
 
-def test_update_cannot_close_with_positive_remaining(db_session, service_user, service_category):
+def test_update_cannot_close_with_positive_remaining(
+    db_session, service_user, service_category
+):
     loan = Loan(
         user_id=service_user.id,
         category_id=service_category.id,
@@ -148,7 +154,9 @@ def test_update_cannot_close_with_positive_remaining(db_session, service_user, s
         )
 
 
-def test_update_can_close_with_zero_remaining(db_session, service_user, service_category):
+def test_update_can_close_with_zero_remaining(
+    db_session, service_user, service_category
+):
     loan = Loan(
         user_id=service_user.id,
         category_id=service_category.id,

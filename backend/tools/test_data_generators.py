@@ -34,9 +34,11 @@ sys.path.insert(0, str(backend_dir))
 # MOCK CLASSES
 # ==============================================================================
 
+
 @dataclass
 class MockCategory:
     """Mock Category model for testing."""
+
     id: str
     name: str
     category_type: str = "expense"
@@ -49,6 +51,7 @@ class MockCategory:
 @dataclass
 class MockUser:
     """Mock User model for testing."""
+
     id: str
     email: str
     auth0_id: str = ""
@@ -79,17 +82,36 @@ class MockDBSession:
 # TEST FUNCTIONS
 # ==============================================================================
 
+
 def create_mock_categories() -> List[MockCategory]:
     """Create mock categories matching the real system."""
     categories = [
-        MockCategory(id=str(uuid.uuid4()), name="Food & Dining", category_type="expense"),
-        MockCategory(id=str(uuid.uuid4()), name="Transportation", category_type="expense"),
-        MockCategory(id=str(uuid.uuid4()), name="Shopping & Retail", category_type="expense"),
-        MockCategory(id=str(uuid.uuid4()), name="Entertainment & Recreation", category_type="expense"),
-        MockCategory(id=str(uuid.uuid4()), name="Utilities & Services", category_type="expense"),
-        MockCategory(id=str(uuid.uuid4()), name="Healthcare & Medical", category_type="expense"),
-        MockCategory(id=str(uuid.uuid4()), name="Financial Services", category_type="expense"),
-        MockCategory(id=str(uuid.uuid4()), name="Government & Legal", category_type="expense"),
+        MockCategory(
+            id=str(uuid.uuid4()), name="Food & Dining", category_type="expense"
+        ),
+        MockCategory(
+            id=str(uuid.uuid4()), name="Transportation", category_type="expense"
+        ),
+        MockCategory(
+            id=str(uuid.uuid4()), name="Shopping & Retail", category_type="expense"
+        ),
+        MockCategory(
+            id=str(uuid.uuid4()),
+            name="Entertainment & Recreation",
+            category_type="expense",
+        ),
+        MockCategory(
+            id=str(uuid.uuid4()), name="Utilities & Services", category_type="expense"
+        ),
+        MockCategory(
+            id=str(uuid.uuid4()), name="Healthcare & Medical", category_type="expense"
+        ),
+        MockCategory(
+            id=str(uuid.uuid4()), name="Financial Services", category_type="expense"
+        ),
+        MockCategory(
+            id=str(uuid.uuid4()), name="Government & Legal", category_type="expense"
+        ),
         MockCategory(id=str(uuid.uuid4()), name="Income", category_type="income"),
         MockCategory(id=str(uuid.uuid4()), name="Uncategorized", category_type="both"),
     ]
@@ -101,7 +123,7 @@ def create_mock_user() -> MockUser:
     return MockUser(
         id=str(uuid.uuid4()),
         email="jaeyseo0922@gmail.com",
-        auth0_id="google-oauth2|110513262768393412869"
+        auth0_id="google-oauth2|110513262768393412869",
     )
 
 
@@ -113,35 +135,47 @@ def test_imports():
 
     try:
         from tools.data_generators import JaeDataGenerator, BaseGenerator
+
         print("✅ Package imports successful")
 
         from tools.data_generators.recurring import RecurringGenerator
+
         print("✅ RecurringGenerator imported")
 
         from tools.data_generators.income import IncomeGenerator
+
         print("✅ IncomeGenerator imported")
 
         from tools.data_generators.daily_spending import DailySpendingGenerator
+
         print("✅ DailySpendingGenerator imported")
 
         from tools.data_generators.anomalies import (
-            AnomalyGenerator, UserOverrideGenerator, GovernmentLegalGenerator
+            AnomalyGenerator,
+            UserOverrideGenerator,
+            GovernmentLegalGenerator,
         )
+
         print("✅ Anomaly generators imported")
 
         from tools.data_generators.ai_sessions import AISessionGenerator
+
         print("✅ AISessionGenerator imported")
 
         from tools.data_generators.budgets import BudgetGenerator
+
         print("✅ BudgetGenerator imported")
 
         from tools.data_generators.notifications import NotificationGenerator
+
         print("✅ NotificationGenerator imported")
 
         from tools.data_generators.alerts import AlertGenerator
+
         print("✅ AlertGenerator imported")
 
         from tools.data_generators.loans import LoanGenerator
+
         print("✅ LoanGenerator imported")
 
         return True
@@ -220,9 +254,9 @@ def test_recurring_generator():
     # Check transaction structure
     if db_session.records:
         tx = db_session.records[0]
-        assert hasattr(tx, 'user_id'), "Transaction missing user_id"
-        assert hasattr(tx, 'amount'), "Transaction missing amount"
-        assert hasattr(tx, 'merchant_name'), "Transaction missing merchant_name"
+        assert hasattr(tx, "user_id"), "Transaction missing user_id"
+        assert hasattr(tx, "amount"), "Transaction missing amount"
+        assert hasattr(tx, "merchant_name"), "Transaction missing merchant_name"
         print(f"✅ Transaction structure valid")
         print(f"   Sample: {tx.merchant_name} - ${tx.amount}")
 
@@ -252,8 +286,14 @@ def test_income_generator():
     print(f"✅ Income count in expected range (40-70)")
 
     # Check for salary transactions
-    salary_txs = [r for r in db_session.records if "Payroll" in str(getattr(r, 'merchant_name', ''))]
-    assert len(salary_txs) >= 20, f"Expected at least 20 salary transactions, got {len(salary_txs)}"
+    salary_txs = [
+        r
+        for r in db_session.records
+        if "Payroll" in str(getattr(r, "merchant_name", ""))
+    ]
+    assert (
+        len(salary_txs) >= 20
+    ), f"Expected at least 20 salary transactions, got {len(salary_txs)}"
     print(f"✅ Salary transactions: {len(salary_txs)}")
 
     return True
@@ -282,8 +322,10 @@ def test_daily_spending_generator():
     print(f"✅ Daily spending count in expected range (800-2000)")
 
     # Check variety of merchants
-    merchants = set(getattr(r, 'merchant_name', '') for r in db_session.records)
-    assert len(merchants) >= 30, f"Expected at least 30 unique merchants, got {len(merchants)}"
+    merchants = set(getattr(r, "merchant_name", "") for r in db_session.records)
+    assert (
+        len(merchants) >= 30
+    ), f"Expected at least 30 unique merchants, got {len(merchants)}"
     print(f"✅ Unique merchants: {len(merchants)}")
 
     return True
@@ -296,7 +338,9 @@ def test_anomaly_generators():
     print("=" * 60)
 
     from tools.data_generators.anomalies import (
-        AnomalyGenerator, UserOverrideGenerator, GovernmentLegalGenerator
+        AnomalyGenerator,
+        UserOverrideGenerator,
+        GovernmentLegalGenerator,
     )
 
     user = create_mock_user()
@@ -320,7 +364,9 @@ def test_anomaly_generators():
 
     # Test GovernmentLegalGenerator
     db_session = MockDBSession()
-    generator = GovernmentLegalGenerator(user=user, categories=categories, months_back=12)
+    generator = GovernmentLegalGenerator(
+        user=user, categories=categories, months_back=12
+    )
     gov_count = generator.generate(db_session)
     print(f"   Government/Legal: {gov_count}")
     assert gov_count >= 10, f"Expected at least 10 gov transactions, got {gov_count}"
@@ -353,8 +399,10 @@ def test_ai_session_generator():
     # Check session structure
     if db_session.records:
         session = db_session.records[0]
-        assert hasattr(session, 'conversation_history'), "Session missing conversation_history"
-        assert hasattr(session, 'last_intent'), "Session missing last_intent"
+        assert hasattr(
+            session, "conversation_history"
+        ), "Session missing conversation_history"
+        assert hasattr(session, "last_intent"), "Session missing last_intent"
 
         # Check conversation format
         history = session.conversation_history
@@ -394,9 +442,9 @@ def test_budget_generator():
     # Check budget structure
     if db_session.records:
         budget = db_session.records[0]
-        assert hasattr(budget, 'amount'), "Budget missing amount"
-        assert hasattr(budget, 'budget_type'), "Budget missing budget_type"
-        assert hasattr(budget, 'period'), "Budget missing period"
+        assert hasattr(budget, "amount"), "Budget missing amount"
+        assert hasattr(budget, "budget_type"), "Budget missing budget_type"
+        assert hasattr(budget, "period"), "Budget missing period"
         print(f"✅ Budget structure valid")
 
     return True
@@ -426,9 +474,9 @@ def test_notification_generator():
     # Check notification structure
     if db_session.records:
         notif = db_session.records[0]
-        assert hasattr(notif, 'notification_type'), "Notification missing type"
-        assert hasattr(notif, 'title'), "Notification missing title"
-        assert hasattr(notif, 'message'), "Notification missing message"
+        assert hasattr(notif, "notification_type"), "Notification missing type"
+        assert hasattr(notif, "title"), "Notification missing title"
+        assert hasattr(notif, "message"), "Notification missing message"
         print(f"✅ Notification structure valid")
 
     return True
@@ -458,9 +506,9 @@ def test_alert_generator():
     # Check alert structure
     if db_session.records:
         alert = db_session.records[0]
-        assert hasattr(alert, 'alert_type'), "Alert missing type"
-        assert hasattr(alert, 'severity'), "Alert missing severity"
-        assert hasattr(alert, 'title'), "Alert missing title"
+        assert hasattr(alert, "alert_type"), "Alert missing type"
+        assert hasattr(alert, "severity"), "Alert missing severity"
+        assert hasattr(alert, "title"), "Alert missing title"
         print(f"✅ Alert structure valid")
 
     return True
@@ -490,9 +538,9 @@ def test_loan_generator():
     # Check loan structure
     if db_session.records:
         loan = db_session.records[0]
-        assert hasattr(loan, 'name'), "Loan missing name"
-        assert hasattr(loan, 'original_amount'), "Loan missing original_amount"
-        assert hasattr(loan, 'remaining_amount'), "Loan missing remaining_amount"
+        assert hasattr(loan, "name"), "Loan missing name"
+        assert hasattr(loan, "original_amount"), "Loan missing original_amount"
+        assert hasattr(loan, "remaining_amount"), "Loan missing remaining_amount"
         print(f"✅ Loan structure valid")
         print(f"   Sample: {loan.name}")
 
@@ -522,7 +570,9 @@ def test_jae_generator_orchestration():
     total_records = sum(results.values())
     print(f"\n   Total records generated: {total_records}")
 
-    assert total_records >= 1000, f"Expected at least 1000 total records, got {total_records}"
+    assert (
+        total_records >= 1000
+    ), f"Expected at least 1000 total records, got {total_records}"
     print(f"✅ Total record count meets minimum (1000+)")
 
     # Verify all generators ran
@@ -552,6 +602,7 @@ def test_jae_generator_orchestration():
 # ==============================================================================
 # MAIN
 # ==============================================================================
+
 
 def main():
     """Run all tests."""
@@ -589,6 +640,7 @@ def main():
             print(f"\n❌ TEST FAILED: {name}")
             print(f"   Error: {e}")
             import traceback
+
             traceback.print_exc()
             failed += 1
 

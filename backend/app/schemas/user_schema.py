@@ -33,7 +33,6 @@ from marshmallow import fields, validate, validates
 
 from app.schemas.base import BaseSchema, validate_not_blank
 
-
 # =============================================================================
 # USER SETTINGS SCHEMA
 # =============================================================================

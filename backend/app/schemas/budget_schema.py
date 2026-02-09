@@ -40,7 +40,6 @@ from marshmallow import (
 from app.schemas.base import BaseSchema
 from app.models.enums import BudgetType, BudgetPeriod
 
-
 # =============================================================================
 # BUDGET SCHEMAS
 # =============================================================================

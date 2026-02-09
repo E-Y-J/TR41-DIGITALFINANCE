@@ -175,26 +175,33 @@ def get_rag_engine():
 # CLASS EXPORTS (for type hints)
 # =============================================================================
 
+
 # Lazy class imports - only loaded when accessed
 def __getattr__(name):
     """Lazy import for classes (avoids loading models at import time)."""
     if name == "AIService":
         from app.ai.service import AIService
+
         return AIService
     elif name == "ModelRouter":
         from app.ai.model_router import ModelRouter
+
         return ModelRouter
     elif name == "IntentClassifier":
         from app.ai.intent_classifier import IntentClassifier
+
         return IntentClassifier
     elif name == "Guardrails":
         from app.ai.guardrails import Guardrails
+
         return Guardrails
     elif name == "TransactionCategorizer":
         from app.ai.categorizer import TransactionCategorizer
+
         return TransactionCategorizer
     elif name == "TransactionClassifier":
         from app.ai.inference import TransactionClassifier
+
         return TransactionClassifier
     raise AttributeError(f"module 'app.ai' has no attribute '{name}'")
 

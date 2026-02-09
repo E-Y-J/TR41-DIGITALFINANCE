@@ -47,7 +47,6 @@ from app.auth.auth0 import (
 )
 from app.utils.errors import UnauthorizedError
 
-
 # =============================================================================
 # LOGGER SETUP
 # =============================================================================
@@ -105,11 +104,11 @@ def requires_auth(f: F) -> F:
         if os.getenv("FLASK_ENV") == "testing":
             logger.warning("requires_auth: TESTING shortcut active, bypassing Auth0")
             # Set mock values for tests that expect them
-            if not hasattr(g, 'auth0_id'):
+            if not hasattr(g, "auth0_id"):
                 g.auth0_id = "test|user123"
-            if not hasattr(g, 'current_user'):
+            if not hasattr(g, "current_user"):
                 g.current_user = {"sub": g.auth0_id}
-            if not hasattr(g, 'access_token'):
+            if not hasattr(g, "access_token"):
                 g.access_token = "test_token"
             return f(*args, **kwargs)
 

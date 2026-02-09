@@ -57,7 +57,6 @@ from app.models.alert import Alert
 from app.models.enums import AlertType, AlertSeverity
 from app.utils.errors import NotFoundError, ForbiddenError, InternalError
 
-
 # =============================================================================
 # LOGGER SETUP
 # =============================================================================

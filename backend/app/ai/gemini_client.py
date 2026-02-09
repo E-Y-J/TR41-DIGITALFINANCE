@@ -54,7 +54,8 @@ logger = logging.getLogger(__name__)
 
 # Import centralized constants
 try:
-    from app.ai.constants import SYSTEM_CATEGORIES, VALID_CATEGORIES, ModelConfig
+    from app.ai.constants import SYSTEM_CATEGORIES, VALID_CATEGORIES
+
     # Add "Unknown" if not present
     if "Unknown" not in VALID_CATEGORIES:
         VALID_CATEGORIES = set(SYSTEM_CATEGORIES) | {"Unknown"}
@@ -455,6 +456,9 @@ Be concise, friendly, and helpful. Focus on financial topics."""
 
         except Exception as e:
             logger.error(f"Gemini chat failed: {e}", exc_info=True)
+            # Check for rate limit / quota exceeded errors
+            if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+                return "AI quota temporarily exceeded. The system is using local processing. For full AI features, please wait a minute or try again later."
             return "I encountered an error. Please try again."
 
     def get_status(self) -> Dict[str, Any]:

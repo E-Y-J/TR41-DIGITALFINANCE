@@ -135,10 +135,20 @@ class DailySpendingGenerator(BaseGenerator):
 
     # Weekend-heavy merchants (more frequent on Sat/Sun)
     WEEKEND_MERCHANTS = {
-        "DoorDash", "UberEats", "Grubhub", "The Cheesecake Factory",
-        "Olive Garden", "Local Sushi Restaurant", "AMC Theatres",
-        "Dave & Buster's", "Local Bar", "Brewery Tour", "Wine Bar",
-        "Ticketmaster", "StubHub", "Escape Room SF",
+        "DoorDash",
+        "UberEats",
+        "Grubhub",
+        "The Cheesecake Factory",
+        "Olive Garden",
+        "Local Sushi Restaurant",
+        "AMC Theatres",
+        "Dave & Buster's",
+        "Local Bar",
+        "Brewery Tour",
+        "Wine Bar",
+        "Ticketmaster",
+        "StubHub",
+        "Escape Room SF",
     }
 
     def generate(self, db_session) -> int:

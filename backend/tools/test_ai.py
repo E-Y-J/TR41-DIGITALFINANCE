@@ -129,7 +129,9 @@ def test_ai():
                 result = handler.process_message(test_user_id, msg)
                 intent = result.get("intent", "unknown")
                 requires_confirm = result.get("requires_confirmation", False)
-                print(f"   '{msg[:30]}...' -> intent: {intent}, confirm: {requires_confirm}")
+                print(
+                    f"   '{msg[:30]}...' -> intent: {intent}, confirm: {requires_confirm}"
+                )
         except Exception as e:
             print(f"   Error: {e}")
 

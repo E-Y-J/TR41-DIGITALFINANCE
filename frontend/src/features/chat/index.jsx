@@ -4,12 +4,15 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import MessageList from "./components/MessageList";
 import ChatInput from "./components/ChatInput";
+import { useAxios } from "../../hooks/useAxios";
+import { sendChatMessage } from "../../api/user";
 
 const ChatBubble = ({ handleChatDrawerToggle, user }) => {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
+  const apiClient = useAxios();
 
   useEffect(() => {
     return () => {
@@ -19,28 +22,43 @@ const ChatBubble = ({ handleChatDrawerToggle, user }) => {
     };
   }, []);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
+    const userMessage = inputValue.trim();
     setMessages((prev) => [
       ...prev,
-      { id: Date.now(), text: inputValue, sender: user?.nickname || "User" },
+      { id: Date.now(), text: userMessage, sender: user?.nickname || "User" },
     ]);
     setInputValue("");
     setIsTyping(true);
 
-    // Simulate AI Response
-    setTimeout(() => {
+    try {
+      // Call the real backend AI API
+      const response = await sendChatMessage(apiClient, userMessage, {});
+      const aiResponse = response?.data?.response || "I received your message.";
+
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now() + 1,
-          text: "This is a simulated AI response.",
+          text: aiResponse,
           sender: "ai",
         },
       ]);
+    } catch (error) {
+      console.error("Chat API error:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          text: "Sorry, I couldn't process your message. Please try again.",
+          sender: "ai",
+        },
+      ]);
+    } finally {
       setIsTyping(false);
-    }, 3000);
+    }
   };
 
   useEffect(() => {

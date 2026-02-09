@@ -43,7 +43,6 @@ from app.core.config import get_config
 from app.core.extensions import init_extensions
 from app.utils.errors import AppException
 
-
 # =============================================================================
 # LOGGER SETUP
 # =============================================================================
@@ -216,6 +215,7 @@ def _register_blueprints(app: Flask) -> None:
         "categories, notifications, summary, alerts, budgets, ai, loans"
     )
 
+
 # =============================================================================
 # AI MODEL PRELOADING
 # =============================================================================
@@ -328,15 +328,18 @@ def _register_error_handlers(app: Flask) -> None:
     def handle_http_exception(error: HTTPException):
         """Handle Werkzeug HTTP exceptions."""
         logger.warning(f"HTTPException: {error.code} - {error.description}")
-        return jsonify(
-            {
-                "success": False,
-                "error": {
-                    "code": error.name.upper().replace(" ", "_"),
-                    "message": error.description,
-                },
-            }
-        ), error.code
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": {
+                        "code": error.name.upper().replace(" ", "_"),
+                        "message": error.description,
+                    },
+                }
+            ),
+            error.code,
+        )
 
     @app.errorhandler(Exception)
     def handle_generic_exception(error: Exception):
@@ -345,15 +348,18 @@ def _register_error_handlers(app: Flask) -> None:
         logger.error(f"Unhandled exception: {error}", exc_info=True)
 
         # Return generic error to client (don't expose internals)
-        return jsonify(
-            {
-                "success": False,
-                "error": {
-                    "code": "INTERNAL_ERROR",
-                    "message": "An unexpected error occurred",
-                },
-            }
-        ), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred",
+                    },
+                }
+            ),
+            500,
+        )
 
     logger.debug("Registered error handlers")
 
@@ -382,12 +388,15 @@ def _register_health_check(app: Flask) -> None:
         Returns:
             200: Service is healthy
         """
-        return jsonify(
-            {
-                "status": "healthy",
-                "service": "digital-finance-api",
-            }
-        ), 200
+        return (
+            jsonify(
+                {
+                    "status": "healthy",
+                    "service": "digital-finance-api",
+                }
+            ),
+            200,
+        )
 
     @app.route("/", methods=["GET"])
     def root():
@@ -397,14 +406,17 @@ def _register_health_check(app: Flask) -> None:
         Returns:
             200: API information
         """
-        return jsonify(
-            {
-                "name": "Digital Finance Tracker API",
-                "version": "1.0.0",
-                "status": "running",
-                "docs": "/api/docs",  # Future: Swagger/OpenAPI docs
-            }
-        ), 200
+        return (
+            jsonify(
+                {
+                    "name": "Digital Finance Tracker API",
+                    "version": "1.0.0",
+                    "status": "running",
+                    "docs": "/api/docs",  # Future: Swagger/OpenAPI docs
+                }
+            ),
+            200,
+        )
 
 
 # =============================================================================
@@ -441,9 +453,9 @@ def _configure_logging(app: Flask) -> None:
     # Reduce noise from third-party libraries
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("werkzeug").setLevel(logging.WARNING)
-    logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
-    logging.getLogger('sqlalchemy.pool').setLevel(logging.WARNING)
-    logging.getLogger('authlib').setLevel(logging.WARNING)
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+    logging.getLogger("sqlalchemy.pool").setLevel(logging.WARNING)
+    logging.getLogger("authlib").setLevel(logging.WARNING)
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("httpcore").setLevel(logging.WARNING)
     logging.getLogger("transformers").setLevel(logging.ERROR)
