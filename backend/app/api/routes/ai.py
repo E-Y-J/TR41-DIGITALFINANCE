@@ -132,13 +132,18 @@ def categorize_transaction():
 
     except Exception as e:
         logger.error(f"Categorization failed: {e}", exc_info=True)
-        return jsonify({
-            "success": False,
-            "error": {
-                "code": "CATEGORIZATION_FAILED",
-                "message": "Could not categorize the transaction",
-            }
-        }), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": {
+                        "code": "CATEGORIZATION_FAILED",
+                        "message": "Could not categorize the transaction",
+                    },
+                }
+            ),
+            500,
+        )
 
 
 # =============================================================================
@@ -194,13 +199,18 @@ def chat():
 
     except Exception as e:
         logger.error(f"Chat processing failed: {e}", exc_info=True)
-        return jsonify({
-            "success": False,
-            "error": {
-                "code": "CHAT_FAILED",
-                "message": "Could not process your message",
-            }
-        }), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": {
+                        "code": "CHAT_FAILED",
+                        "message": "Could not process your message",
+                    },
+                }
+            ),
+            500,
+        )
 
 
 # =============================================================================
@@ -265,7 +275,9 @@ def get_chat_history():
         # Parse query parameters
         page = request.args.get("page", 1, type=int)
         per_page = request.args.get("per_page", 20, type=int)
-        include_inactive = request.args.get("include_inactive", "false").lower() == "true"
+        include_inactive = (
+            request.args.get("include_inactive", "false").lower() == "true"
+        )
 
         # Validate pagination
         page = max(1, page)
@@ -279,28 +291,38 @@ def get_chat_history():
             per_page=per_page,
         )
 
-        return jsonify({
-            "success": True,
-            "data": {
-                "sessions": [session.to_dict() for session in sessions],
-            },
-            "meta": {
-                "page": page,
-                "per_page": per_page,
-                "total": total,
-                "has_more": has_more,
-            }
-        }), 200
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "data": {
+                        "sessions": [session.to_dict() for session in sessions],
+                    },
+                    "meta": {
+                        "page": page,
+                        "per_page": per_page,
+                        "total": total,
+                        "has_more": has_more,
+                    },
+                }
+            ),
+            200,
+        )
 
     except Exception as e:
         logger.error(f"Get chat history failed: {e}", exc_info=True)
-        return jsonify({
-            "success": False,
-            "error": {
-                "code": "CHAT_HISTORY_FAILED",
-                "message": "Could not retrieve chat history",
-            }
-        }), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": {
+                        "code": "CHAT_HISTORY_FAILED",
+                        "message": "Could not retrieve chat history",
+                    },
+                }
+            ),
+            500,
+        )
 
 
 # =============================================================================
@@ -344,13 +366,18 @@ def get_insights():
 
     except Exception as e:
         logger.error(f"Insights failed: {e}", exc_info=True)
-        return jsonify({
-            "success": False,
-            "error": {
-                "code": "INSIGHTS_FAILED",
-                "message": "Could not generate insights",
-            }
-        }), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": {
+                        "code": "INSIGHTS_FAILED",
+                        "message": "Could not generate insights",
+                    },
+                }
+            ),
+            500,
+        )
 
 
 # =============================================================================
@@ -386,20 +413,22 @@ def get_clarifications():
         manager = get_clarification_manager()
         pending = manager.get_pending_requests(user_id)
 
-        return jsonify({
-            "success": True,
-            "data": [r.to_dict() for r in pending]
-        }), 200
+        return jsonify({"success": True, "data": [r.to_dict() for r in pending]}), 200
 
     except Exception as e:
         logger.error(f"Get clarifications failed: {e}", exc_info=True)
-        return jsonify({
-            "success": False,
-            "error": {
-                "code": "CLARIFICATION_FAILED",
-                "message": "Could not retrieve clarifications",
-            }
-        }), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": {
+                        "code": "CLARIFICATION_FAILED",
+                        "message": "Could not retrieve clarifications",
+                    },
+                }
+            ),
+            500,
+        )
 
 
 @bp.route("/clarifications/<clarification_id>/resolve", methods=["POST"])
@@ -431,22 +460,24 @@ def resolve_clarification(clarification_id: str):
         if not request_obj:
             raise NotFoundError("Clarification not found")
 
-        return jsonify({
-            "success": True,
-            "data": request_obj.to_dict()
-        }), 200
+        return jsonify({"success": True, "data": request_obj.to_dict()}), 200
 
     except NotFoundError:
         raise
     except Exception as e:
         logger.error(f"Resolve clarification failed: {e}", exc_info=True)
-        return jsonify({
-            "success": False,
-            "error": {
-                "code": "RESOLVE_FAILED",
-                "message": "Could not resolve clarification",
-            }
-        }), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": {
+                        "code": "RESOLVE_FAILED",
+                        "message": "Could not resolve clarification",
+                    },
+                }
+            ),
+            500,
+        )
 
 
 @bp.route("/clarifications/<clarification_id>/dismiss", methods=["POST"])
@@ -467,22 +498,24 @@ def dismiss_clarification(clarification_id: str):
         if not request_obj:
             raise NotFoundError("Clarification not found")
 
-        return jsonify({
-            "success": True,
-            "data": request_obj.to_dict()
-        }), 200
+        return jsonify({"success": True, "data": request_obj.to_dict()}), 200
 
     except NotFoundError:
         raise
     except Exception as e:
         logger.error(f"Dismiss clarification failed: {e}", exc_info=True)
-        return jsonify({
-            "success": False,
-            "error": {
-                "code": "DISMISS_FAILED",
-                "message": "Could not dismiss clarification",
-            }
-        }), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": {
+                        "code": "DISMISS_FAILED",
+                        "message": "Could not dismiss clarification",
+                    },
+                }
+            ),
+            500,
+        )
 
 
 # =============================================================================
@@ -580,13 +613,18 @@ def get_status():
 
     except Exception as e:
         logger.error(f"Status check failed: {e}", exc_info=True)
-        return jsonify({
-            "success": False,
-            "error": {
-                "code": "STATUS_FAILED",
-                "message": "Could not retrieve AI status",
-            }
-        }), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": {
+                        "code": "STATUS_FAILED",
+                        "message": "Could not retrieve AI status",
+                    },
+                }
+            ),
+            500,
+        )
 
 
 @bp.route("/health", methods=["GET"])
@@ -616,6 +654,7 @@ def get_health():
     # Check Gemini
     try:
         from app.ai.gemini_client import get_gemini_client
+
         gemini = get_gemini_client()
         components["gemini"] = "ok" if gemini.is_initialized else "unavailable"
     except Exception:
@@ -624,9 +663,10 @@ def get_health():
     # Check Intent Classifier
     try:
         from app.ai.intent_classifier import get_intent_classifier
+
         classifier = get_intent_classifier()
         if classifier.is_initialized:
-            if hasattr(classifier, '_use_fallback') and classifier._use_fallback:
+            if hasattr(classifier, "_use_fallback") and classifier._use_fallback:
                 components["intent_classifier"] = "fallback"
                 overall_status = "degraded"
             else:
@@ -639,6 +679,7 @@ def get_health():
     # Check Categorizer
     try:
         from app.ai.categorizer import get_categorizer
+
         categorizer = get_categorizer()
         components["categorizer"] = "ok" if categorizer.is_ready else "unavailable"
     except Exception:
@@ -647,6 +688,7 @@ def get_health():
     # Check Guardrails
     try:
         from app.ai.guardrails import get_guardrails
+
         guardrails = get_guardrails()
         components["guardrails"] = "ok" if guardrails.is_initialized else "unavailable"
     except Exception:
@@ -655,6 +697,7 @@ def get_health():
     # Check RAG
     try:
         from app.ai.rag import get_rag_engine
+
         rag = get_rag_engine()
         components["rag"] = "ok" if rag.is_enabled else "unavailable"
     except Exception:
@@ -663,8 +706,11 @@ def get_health():
     # Check Recurring Detector
     try:
         from app.ai.recurring_detector import get_recurring_detector
+
         recurring = get_recurring_detector()
-        components["recurring_detector"] = "ok" if recurring.is_initialized else "unavailable"
+        components["recurring_detector"] = (
+            "ok" if recurring.is_initialized else "unavailable"
+        )
     except Exception:
         components["recurring_detector"] = "unavailable"
 
@@ -675,11 +721,13 @@ def get_health():
     elif unavailable_count >= 1 or "fallback" in components.values():
         overall_status = "degraded"
 
-    return jsonify({
-        "status": overall_status,
-        "components": components,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }), 200 if overall_status != "unhealthy" else 503
+    return jsonify(
+        {
+            "status": overall_status,
+            "components": components,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+    ), (200 if overall_status != "unhealthy" else 503)
 
 
 # =============================================================================
@@ -730,26 +778,36 @@ def get_recurring_patterns():
         patterns = detector.detect_patterns(user_id, force_refresh=force_refresh)
         monthly_totals = detector.get_monthly_recurring_total(user_id)
 
-        return jsonify({
-            "success": True,
-            "data": {
-                "patterns": [p.to_dict() for p in patterns],
-                "monthly_total": monthly_totals["monthly_total"],
-                "yearly_projected": monthly_totals["yearly_projected"],
-                "pattern_count": monthly_totals["pattern_count"],
-                "by_category": monthly_totals["by_category"],
-            }
-        }), 200
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "data": {
+                        "patterns": [p.to_dict() for p in patterns],
+                        "monthly_total": monthly_totals["monthly_total"],
+                        "yearly_projected": monthly_totals["yearly_projected"],
+                        "pattern_count": monthly_totals["pattern_count"],
+                        "by_category": monthly_totals["by_category"],
+                    },
+                }
+            ),
+            200,
+        )
 
     except Exception as e:
         logger.error(f"Get recurring patterns failed: {e}", exc_info=True)
-        return jsonify({
-            "success": False,
-            "error": {
-                "code": "RECURRING_FAILED",
-                "message": "Could not detect recurring patterns",
-            }
-        }), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": {
+                        "code": "RECURRING_FAILED",
+                        "message": "Could not detect recurring patterns",
+                    },
+                }
+            ),
+            500,
+        )
 
 
 @bp.route("/recurring/upcoming", methods=["GET"])
@@ -790,24 +848,34 @@ def get_upcoming_bills():
 
         total_expected = sum(b["expected_amount"] for b in upcoming)
 
-        return jsonify({
-            "success": True,
-            "data": {
-                "upcoming": upcoming,
-                "total_expected": round(total_expected, 2),
-                "days_ahead": days_ahead,
-            }
-        }), 200
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "data": {
+                        "upcoming": upcoming,
+                        "total_expected": round(total_expected, 2),
+                        "days_ahead": days_ahead,
+                    },
+                }
+            ),
+            200,
+        )
 
     except Exception as e:
         logger.error(f"Get upcoming bills failed: {e}", exc_info=True)
-        return jsonify({
-            "success": False,
-            "error": {
-                "code": "UPCOMING_FAILED",
-                "message": "Could not predict upcoming bills",
-            }
-        }), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": {
+                        "code": "UPCOMING_FAILED",
+                        "message": "Could not predict upcoming bills",
+                    },
+                }
+            ),
+            500,
+        )
 
 
 @bp.route("/recurring/missed", methods=["GET"])
@@ -843,23 +911,33 @@ def get_missed_payments():
         detector = get_recurring_detector()
         missed = detector.check_missed_payments(user_id)
 
-        return jsonify({
-            "success": True,
-            "data": {
-                "missed": missed,
-                "count": len(missed),
-            }
-        }), 200
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "data": {
+                        "missed": missed,
+                        "count": len(missed),
+                    },
+                }
+            ),
+            200,
+        )
 
     except Exception as e:
         logger.error(f"Check missed payments failed: {e}", exc_info=True)
-        return jsonify({
-            "success": False,
-            "error": {
-                "code": "MISSED_CHECK_FAILED",
-                "message": "Could not check missed payments",
-            }
-        }), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": {
+                        "code": "MISSED_CHECK_FAILED",
+                        "message": "Could not check missed payments",
+                    },
+                }
+            ),
+            500,
+        )
 
 
 @bp.route("/rag/stats", methods=["GET"])
@@ -884,20 +962,22 @@ def get_rag_stats():
         engine = get_rag_engine()
         stats = engine.get_stats()
 
-        return jsonify({
-            "success": True,
-            "data": stats
-        }), 200
+        return jsonify({"success": True, "data": stats}), 200
 
     except Exception as e:
         logger.error(f"Get RAG stats failed: {e}", exc_info=True)
-        return jsonify({
-            "success": False,
-            "error": {
-                "code": "RAG_STATS_FAILED",
-                "message": "Could not get RAG statistics",
-            }
-        }), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": {
+                        "code": "RAG_STATS_FAILED",
+                        "message": "Could not get RAG statistics",
+                    },
+                }
+            ),
+            500,
+        )
 
 
 @bp.route("/rag/query", methods=["POST"])
@@ -930,10 +1010,18 @@ def query_rag():
         top_k = min(data.get("top_k", 10), 50)
 
         if not query:
-            return jsonify({
-                "success": False,
-                "error": {"code": "VALIDATION_ERROR", "message": "Query is required"},
-            }), 400
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "error": {
+                            "code": "VALIDATION_ERROR",
+                            "message": "Query is required",
+                        },
+                    }
+                ),
+                400,
+            )
 
         user = sync_user_from_claims(g.current_user)
         user_id = user.id
@@ -941,24 +1029,34 @@ def query_rag():
         engine = get_rag_engine()
         results = engine.query_transactions(user_id, query, top_k=top_k)
 
-        return jsonify({
-            "success": True,
-            "data": {
-                "results": results,
-                "query": query,
-                "count": len(results),
-            }
-        }), 200
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "data": {
+                        "results": results,
+                        "query": query,
+                        "count": len(results),
+                    },
+                }
+            ),
+            200,
+        )
 
     except Exception as e:
         logger.error(f"RAG query failed: {e}", exc_info=True)
-        return jsonify({
-            "success": False,
-            "error": {
-                "code": "RAG_QUERY_FAILED",
-                "message": "Could not query transactions",
-            }
-        }), 500
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": {
+                        "code": "RAG_QUERY_FAILED",
+                        "message": "Could not query transactions",
+                    },
+                }
+            ),
+            500,
+        )
 
 
 # =============================================================================

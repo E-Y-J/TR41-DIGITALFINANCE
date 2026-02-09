@@ -20,6 +20,7 @@ Note:
     Uses fixtures from tests/conftest.py (app, auth_client, db_session)
     FLASK_ENV='testing' bypasses Auth0 authentication
 """
+
 from decimal import Decimal
 
 import pytest
@@ -67,10 +68,12 @@ def _create_loan_for_user(user, category, remaining="500.00"):
 # POST /api/loans
 # -----------------------------------------------------------------------------
 
+
 def test_create_loan_without_body_returns_422(app, auth_client):
     client, user = auth_client
 
     import os
+
     print("DEBUG FLASK_ENV:", os.getenv("FLASK_ENV"))
 
     resp = client.post("/api/loans", json=None)
@@ -128,6 +131,7 @@ def test_create_loan_with_optional_budget(app, auth_client, category_for_user):
 # PATCH /api/loans/<loan_id>
 # -----------------------------------------------------------------------------
 
+
 def test_update_loan_invalid_uuid_returns_422(app, auth_client):
     client, user = auth_client
 
@@ -140,7 +144,9 @@ def test_update_loan_invalid_uuid_returns_422(app, auth_client):
     assert "Invalid loan_id UUID format" in data["error"]["message"]
 
 
-def test_cannot_close_loan_with_positive_balance_via_api(app, auth_client, category_for_user):
+def test_cannot_close_loan_with_positive_balance_via_api(
+    app, auth_client, category_for_user
+):
     client, user = auth_client
     loan = _create_loan_for_user(user, category_for_user, remaining="500.00")
 
@@ -183,6 +189,7 @@ def test_can_close_loan_with_zero_balance_via_api(app, auth_client, category_for
 # GET /api/loans
 # -----------------------------------------------------------------------------
 
+
 def test_get_loans_invalid_status_filter_returns_422(app, auth_client):
     client, user = auth_client
 
@@ -192,4 +199,6 @@ def test_get_loans_invalid_status_filter_returns_422(app, auth_client):
 
     assert resp.status_code == 422
     assert data["success"] is False
-    assert "Invalid status filter. Must be 'open' or 'closed'." in data["error"]["message"]
+    assert (
+        "Invalid status filter. Must be 'open' or 'closed'." in data["error"]["message"]
+    )

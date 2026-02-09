@@ -83,9 +83,7 @@ def get_embedding_model():
                 "sentence_transformers not installed. "
                 "Run: pip install sentence-transformers"
             )
-            raise ImportError(
-                "sentence_transformers required for embeddings"
-            ) from e
+            raise ImportError("sentence_transformers required for embeddings") from e
 
         except Exception as e:
             logger.error(f"Failed to load embedding model: {e}", exc_info=True)

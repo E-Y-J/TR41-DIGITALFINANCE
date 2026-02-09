@@ -35,7 +35,6 @@ from flask import jsonify
 
 from app.utils.errors import ValidationError
 
-
 # =============================================================================
 # RESPONSE HELPERS
 # =============================================================================

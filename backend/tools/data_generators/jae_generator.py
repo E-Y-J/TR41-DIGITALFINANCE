@@ -200,10 +200,7 @@ class JaeDataGenerator:
         Returns:
             True if user matches Jae's auth0_id or email
         """
-        return (
-            user.auth0_id == cls.JAE_AUTH0_ID
-            or user.email == cls.JAE_EMAIL
-        )
+        return user.auth0_id == cls.JAE_AUTH0_ID or user.email == cls.JAE_EMAIL
 
     @classmethod
     def get_jae_user(cls, db_session) -> Optional["User"]:

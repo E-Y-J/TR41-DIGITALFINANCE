@@ -721,10 +721,7 @@ class Category(db.Model):
 
     # Unique constraint: category name must be unique per user (or unique among system categories)
     __table_args__ = (
-        db.UniqueConstraint(
-            "name", "user_id",
-            name="uq_category_name_per_user"
-        ),
+        db.UniqueConstraint("name", "user_id", name="uq_category_name_per_user"),
     )
 
     # =========================================================================

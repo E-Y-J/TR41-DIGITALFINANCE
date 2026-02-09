@@ -23,7 +23,6 @@ Usage:
 from typing import Optional
 from marshmallow import Schema, ValidationError, EXCLUDE
 
-
 # =============================================================================
 # COMMON VALIDATORS
 # =============================================================================

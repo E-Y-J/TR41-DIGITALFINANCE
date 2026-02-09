@@ -25,6 +25,7 @@ class TestModelRouter:
         """Reset singleton before each test."""
         import app.ai.model_router as router_module
         from app.ai.model_router import ModelRouter
+
         router_module._router = None
         ModelRouter._instance = None
         yield
@@ -82,11 +83,13 @@ class TestModelRouter:
     def test_model_router_class_exists(self):
         """Test that ModelRouter class exists."""
         from app.ai.model_router import ModelRouter
+
         assert ModelRouter is not None
 
     def test_get_model_router_function_exists(self):
         """Test that get_model_router function exists."""
         from app.ai.model_router import get_model_router
+
         assert callable(get_model_router)
 
     # =========================================================================
@@ -110,6 +113,7 @@ class TestModelRouterSingleton:
         """Reset singleton before each test."""
         import app.ai.model_router as router_module
         from app.ai.model_router import ModelRouter
+
         router_module._router = None
         ModelRouter._instance = None
         yield
@@ -134,7 +138,7 @@ class TestModelRouterMethods:
         from app.ai.model_router import ModelRouter
 
         router = ModelRouter()
-        assert hasattr(router, 'categorize')
+        assert hasattr(router, "categorize")
         assert callable(router.categorize)
 
     def test_has_detect_intent_method(self):
@@ -142,7 +146,7 @@ class TestModelRouterMethods:
         from app.ai.model_router import ModelRouter
 
         router = ModelRouter()
-        assert hasattr(router, 'detect_intent')
+        assert hasattr(router, "detect_intent")
         assert callable(router.detect_intent)
 
     def test_has_check_scope_method(self):
@@ -150,7 +154,7 @@ class TestModelRouterMethods:
         from app.ai.model_router import ModelRouter
 
         router = ModelRouter()
-        assert hasattr(router, 'check_scope')
+        assert hasattr(router, "check_scope")
         assert callable(router.check_scope)
 
     def test_has_get_status_method(self):
@@ -158,5 +162,5 @@ class TestModelRouterMethods:
         from app.ai.model_router import ModelRouter
 
         router = ModelRouter()
-        assert hasattr(router, 'get_status')
+        assert hasattr(router, "get_status")
         assert callable(router.get_status)

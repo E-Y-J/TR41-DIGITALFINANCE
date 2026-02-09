@@ -1,7 +1,8 @@
 import torch
 import os
-import re 
+import re
 from transformers import DistilBertForSequenceClassification, DistilBertTokenizerFast
+
 
 class TransactionClassifier:
     def __init__(self, model_dir="transaction_classification_model"):
@@ -10,22 +11,22 @@ class TransactionClassifier:
         """
         base_dir = os.path.dirname(os.path.abspath(__file__))
         model_path = os.path.join(base_dir, model_dir)
-    
+
         # Setup Device (CPU / GPU / MPS) to run the model on (performance optimization)
-        self.device = "cpu" 
+        self.device = "cpu"
         if torch.cuda.is_available():
             self.device = torch.device("cuda")
         elif torch.backends.mps.is_available():
-            self.device = torch.device("mps")   
-        
+            self.device = torch.device("mps")
+
         try:
             # Load Model & Tokenizer
             self.tokenizer = DistilBertTokenizerFast.from_pretrained(model_path)
             self.model = DistilBertForSequenceClassification.from_pretrained(model_path)
-            
+
             self.model.to(self.device)
-            
-            # setup so that the model is in eval mode (no dropout, etc) 
+
+            # setup so that the model is in eval mode (no dropout, etc)
             # might change later so the model can be further fine tuned and learn on the fly
             self.model.eval()
         except Exception as e:
@@ -36,17 +37,17 @@ class TransactionClassifier:
         """
         Clean the input string to match exactly how the training data looked.
         """
-        
+
         # come back to this later, might change the way we format the user input
         # since we ask for merchant and description
         clean_text = text.lower()
-        clean_text = re.sub(r'\s*#\d+', '', clean_text)
-        clean_text = re.sub(r'[a-z]+\d+', '', clean_text)
-        clean_text = re.sub(r'\((.*?)\)', '', clean_text)
-        clean_text = re.sub(r'\s*-.*', '', clean_text)
-        clean_text = clean_text.strip()   
-        
-        return clean_text 
+        clean_text = re.sub(r"\s*#\d+", "", clean_text)
+        clean_text = re.sub(r"[a-z]+\d+", "", clean_text)
+        clean_text = re.sub(r"\((.*?)\)", "", clean_text)
+        clean_text = re.sub(r"\s*-.*", "", clean_text)
+        clean_text = clean_text.strip()
+
+        return clean_text
 
     def predict(self, raw_text, temperature=1.5):
         """
@@ -62,16 +63,16 @@ class TransactionClassifier:
                 return_tensors="pt",
                 truncation=True,
                 padding=True,
-                max_length=64
+                max_length=64,
             ).to(self.device)
 
             outputs = self.model(**inputs)
 
             # Convert to Probability since the model outputs logits (raw scores)
             # Dividing logits by T > 1.0 "softens" the distribution and lowers confidence
-            scaled_logits = outputs.logits / temperature 
-            probs = torch.nn.functional.softmax(scaled_logits, dim=-1)            
-            
+            scaled_logits = outputs.logits / temperature
+            probs = torch.nn.functional.softmax(scaled_logits, dim=-1)
+
             # Get the highest probability and its corresponding label
             score, predicted_id = torch.max(probs, dim=1)
 

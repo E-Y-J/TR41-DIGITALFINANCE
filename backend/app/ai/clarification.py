@@ -388,10 +388,14 @@ class ClarificationManager:
             # Build notification message
             if request.request_type == ClarificationType.CATEGORY:
                 title = "Help me categorize a transaction"
-                message = "I'm not sure how to categorize a recent transaction. Can you help?"
+                message = (
+                    "I'm not sure how to categorize a recent transaction. Can you help?"
+                )
             elif request.request_type == ClarificationType.DUPLICATE:
                 title = "Possible duplicate transaction"
-                message = "I found what might be a duplicate transaction. Can you confirm?"
+                message = (
+                    "I found what might be a duplicate transaction. Can you confirm?"
+                )
             else:
                 title = "Clarification needed"
                 message = "I need your input on something."
@@ -433,7 +437,9 @@ class ClarificationManager:
                     )
 
         except Exception as e:
-            logger.error(f"Failed to apply clarification to transaction: {e}", exc_info=True)
+            logger.error(
+                f"Failed to apply clarification to transaction: {e}", exc_info=True
+            )
 
     def _record_feedback(self, request: ClarificationRequest):
         """Record user feedback for future learning."""

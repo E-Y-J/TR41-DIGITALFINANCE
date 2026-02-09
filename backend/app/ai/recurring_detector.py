@@ -96,6 +96,7 @@ MISSED_PAYMENT_GRACE_DAYS = 7
 
 class RecurrenceInterval(Enum):
     """Recurring transaction intervals."""
+
     WEEKLY = "weekly"
     BIWEEKLY = "biweekly"
     MONTHLY = "monthly"
@@ -106,6 +107,7 @@ class RecurrenceInterval(Enum):
 
 class PatternStatus(Enum):
     """Status of a recurring pattern."""
+
     ACTIVE = "active"
     PAUSED = "paused"
     CANCELLED = "cancelled"
@@ -129,6 +131,7 @@ class RecurringPattern:
         transaction_count: Number of transactions in pattern
         status: Current status of the pattern
     """
+
     merchant_name: str
     category_name: str
     category_id: Optional[str]
@@ -257,7 +260,9 @@ class RecurringDetector:
         cache_key = str(user_id)
         if not force_refresh and cache_key in self._pattern_cache:
             patterns, cached_at = self._pattern_cache[cache_key]
-            if datetime.now(timezone.utc) - cached_at < timedelta(minutes=self._cache_ttl_minutes):
+            if datetime.now(timezone.utc) - cached_at < timedelta(
+                minutes=self._cache_ttl_minutes
+            ):
                 return patterns
 
         try:
@@ -270,14 +275,18 @@ class RecurringDetector:
             cutoff = datetime.now(timezone.utc) - timedelta(days=lookback_days)
             cutoff_str = cutoff.strftime("%Y-%m-%d")
 
-            transactions = Transaction.query.filter(
-                and_(
-                    Transaction.user_id == user_id,
-                    Transaction.transaction_type == TransactionType.EXPENSE,
-                    Transaction.merchant_name.isnot(None),
-                    Transaction.date >= cutoff_str,
+            transactions = (
+                Transaction.query.filter(
+                    and_(
+                        Transaction.user_id == user_id,
+                        Transaction.transaction_type == TransactionType.EXPENSE,
+                        Transaction.merchant_name.isnot(None),
+                        Transaction.date >= cutoff_str,
+                    )
                 )
-            ).order_by(Transaction.date).all()
+                .order_by(Transaction.date)
+                .all()
+            )
 
             if not transactions:
                 return []
@@ -298,11 +307,15 @@ class RecurringDetector:
             # Cache results
             self._pattern_cache[cache_key] = (patterns, datetime.now(timezone.utc))
 
-            logger.info(f"Detected {len(patterns)} recurring patterns for user {user_id}")
+            logger.info(
+                f"Detected {len(patterns)} recurring patterns for user {user_id}"
+            )
             return patterns
 
         except Exception as e:
-            logger.error(f"Pattern detection failed for user {user_id}: {e}", exc_info=True)
+            logger.error(
+                f"Pattern detection failed for user {user_id}: {e}", exc_info=True
+            )
             return []
 
     def _group_by_merchant(
@@ -343,12 +356,18 @@ class RecurringDetector:
         dates = []
         for tx in transactions:
             if isinstance(tx.date, str):
-                dates.append(datetime.strptime(tx.date, "%Y-%m-%d").replace(tzinfo=timezone.utc))
+                dates.append(
+                    datetime.strptime(tx.date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                )
             else:
-                dates.append(tx.date if tx.date.tzinfo else tx.date.replace(tzinfo=timezone.utc))
+                dates.append(
+                    tx.date if tx.date.tzinfo else tx.date.replace(tzinfo=timezone.utc)
+                )
 
         # Sort by date
-        date_amount_pairs = sorted(zip(dates, amounts, transactions), key=lambda x: x[0])
+        date_amount_pairs = sorted(
+            zip(dates, amounts, transactions), key=lambda x: x[0]
+        )
         dates = [d for d, _, _ in date_amount_pairs]
         amounts = [a for _, a, _ in date_amount_pairs]
         sorted_transactions = [t for _, _, t in date_amount_pairs]
@@ -367,7 +386,7 @@ class RecurringDetector:
         # Calculate intervals between transactions
         intervals = []
         for i in range(1, len(dates)):
-            delta = (dates[i] - dates[i-1]).days
+            delta = (dates[i] - dates[i - 1]).days
             if delta > 0:  # Skip same-day transactions
                 intervals.append(delta)
 
@@ -376,7 +395,9 @@ class RecurringDetector:
 
         # Detect interval pattern
         avg_interval = mean(intervals)
-        interval_type, interval_days, interval_confidence = self._detect_interval_type(intervals)
+        interval_type, interval_days, interval_confidence = self._detect_interval_type(
+            intervals
+        )
 
         if interval_type == RecurrenceInterval.IRREGULAR:
             return None
@@ -392,6 +413,7 @@ class RecurringDetector:
             try:
                 from app.models.category import Category
                 from app.core.extensions import db
+
                 category = db.session.get(Category, sorted_transactions[0].category_id)
                 if category:
                     category_name = category.name
@@ -403,7 +425,9 @@ class RecurringDetector:
         # Higher confidence if: more transactions, consistent amounts, regular intervals
         tx_count_factor = min(len(transactions) / 6, 1.0)  # Max at 6+ transactions
         amount_consistency = 1.0 - amount_variance
-        confidence = (tx_count_factor * 0.3 + amount_consistency * 0.3 + interval_confidence * 0.4)
+        confidence = (
+            tx_count_factor * 0.3 + amount_consistency * 0.3 + interval_confidence * 0.4
+        )
 
         return RecurringPattern(
             merchant_name=transactions[0].merchant_name,  # Use original name
@@ -497,17 +521,22 @@ class RecurringDetector:
 
         upcoming = []
         for pattern in patterns:
-            if pattern.status == PatternStatus.ACTIVE and pattern.next_expected <= cutoff:
-                upcoming.append({
-                    "merchant_name": pattern.merchant_name,
-                    "category_name": pattern.category_name,
-                    "expected_amount": round(pattern.average_amount, 2),
-                    "expected_date": pattern.next_expected.strftime("%Y-%m-%d"),
-                    "days_until": pattern.days_until_next(),
-                    "interval": pattern.interval.value,
-                    "confidence": round(pattern.confidence, 2),
-                    "is_overdue": pattern.is_overdue(),
-                })
+            if (
+                pattern.status == PatternStatus.ACTIVE
+                and pattern.next_expected <= cutoff
+            ):
+                upcoming.append(
+                    {
+                        "merchant_name": pattern.merchant_name,
+                        "category_name": pattern.category_name,
+                        "expected_amount": round(pattern.average_amount, 2),
+                        "expected_date": pattern.next_expected.strftime("%Y-%m-%d"),
+                        "days_until": pattern.days_until_next(),
+                        "interval": pattern.interval.value,
+                        "confidence": round(pattern.confidence, 2),
+                        "is_overdue": pattern.is_overdue(),
+                    }
+                )
 
         # Sort by expected date
         upcoming.sort(key=lambda x: x["expected_date"])
@@ -537,15 +566,17 @@ class RecurringDetector:
         missed = []
         for pattern in patterns:
             if pattern.status == PatternStatus.ACTIVE and pattern.is_overdue():
-                missed.append({
-                    "merchant_name": pattern.merchant_name,
-                    "category_name": pattern.category_name,
-                    "expected_amount": round(pattern.average_amount, 2),
-                    "expected_date": pattern.next_expected.strftime("%Y-%m-%d"),
-                    "days_overdue": abs(pattern.days_until_next()),
-                    "interval": pattern.interval.value,
-                    "confidence": round(pattern.confidence, 2),
-                })
+                missed.append(
+                    {
+                        "merchant_name": pattern.merchant_name,
+                        "category_name": pattern.category_name,
+                        "expected_amount": round(pattern.average_amount, 2),
+                        "expected_date": pattern.next_expected.strftime("%Y-%m-%d"),
+                        "days_overdue": abs(pattern.days_until_next()),
+                        "interval": pattern.interval.value,
+                        "confidence": round(pattern.confidence, 2),
+                    }
+                )
 
         # Sort by days overdue (most overdue first)
         missed.sort(key=lambda x: x["days_overdue"], reverse=True)
@@ -599,8 +630,15 @@ class RecurringDetector:
         return {
             "monthly_total": round(monthly_total, 2),
             "yearly_projected": round(monthly_total * 12, 2),
-            "pattern_count": len([p for p in patterns if p.status == PatternStatus.ACTIVE]),
-            "by_category": {k: round(v, 2) for k, v in sorted(by_category.items(), key=lambda x: x[1], reverse=True)},
+            "pattern_count": len(
+                [p for p in patterns if p.status == PatternStatus.ACTIVE]
+            ),
+            "by_category": {
+                k: round(v, 2)
+                for k, v in sorted(
+                    by_category.items(), key=lambda x: x[1], reverse=True
+                )
+            },
         }
 
     def get_pattern_summary(

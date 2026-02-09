@@ -31,7 +31,6 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
 
-
 # =============================================================================
 # EXTENSION INSTANCES
 # =============================================================================
@@ -106,7 +105,9 @@ def init_extensions(app) -> None:
 def _init_security_middleware(app):
     """Initialize security headers middleware as the final WSGI wrapper."""
     from app.middleware.security import init_security_middleware
+
     init_security_middleware(app)
+
 
 def _init_cache(app) -> None:
     """

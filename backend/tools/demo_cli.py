@@ -40,17 +40,18 @@ import time
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+
 # Colors for terminal output
 class Colors:
-    HEADER = '\033[95m'
-    BLUE = '\033[94m'
-    CYAN = '\033[96m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    END = '\033[0m'
+    HEADER = "\033[95m"
+    BLUE = "\033[94m"
+    CYAN = "\033[96m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    RED = "\033[91m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+    END = "\033[0m"
 
 
 def print_header(text: str):
@@ -90,7 +91,9 @@ def print_ai_response(text: str):
         if len(line) + len(word) + 1 <= 56:
             line += (" " if line else "") + word
         else:
-            print(f"{Colors.CYAN}│{Colors.END} {line.ljust(56)} {Colors.CYAN}│{Colors.END}")
+            print(
+                f"{Colors.CYAN}│{Colors.END} {line.ljust(56)} {Colors.CYAN}│{Colors.END}"
+            )
             line = word
     if line:
         print(f"{Colors.CYAN}│{Colors.END} {line.ljust(56)} {Colors.CYAN}│{Colors.END}")
@@ -108,6 +111,7 @@ def run_quick_test(app):
         print_subheader("1. Gemini API Client")
         try:
             from app.ai.gemini_client import get_gemini_client
+
             gemini = get_gemini_client()
             success = gemini.initialize()
             if success:
@@ -118,7 +122,9 @@ def run_quick_test(app):
                 else:
                     cat = result.get("category", "Unknown")
                     conf = result.get("confidence", 0)
-                    print_success(f"Test categorization: Starbucks → {cat} ({conf:.0%})")
+                    print_success(
+                        f"Test categorization: Starbucks → {cat} ({conf:.0%})"
+                    )
                 results["gemini"] = True
             else:
                 print_error("Gemini initialization failed")
@@ -131,6 +137,7 @@ def run_quick_test(app):
         print_subheader("2. Intent Classifier (MiniLM)")
         try:
             from app.ai.intent_classifier import get_intent_classifier
+
             classifier = get_intent_classifier()
             success = classifier.initialize()
             if success:
@@ -156,6 +163,7 @@ def run_quick_test(app):
         print_subheader("3. Guardrails (Scope Enforcement)")
         try:
             from app.ai.guardrails import get_guardrails
+
             guardrails = get_guardrails()
             guardrails.initialize()
 
@@ -180,6 +188,7 @@ def run_quick_test(app):
         print_subheader("4. AI Orchestrator (Tiered Categorization)")
         try:
             from app.ai.orchestrator import get_orchestrator
+
             orchestrator = get_orchestrator()
             status = orchestrator.initialize()
 
@@ -187,9 +196,15 @@ def run_quick_test(app):
             gm_status = "✓" if status.get("gemini") else "✗"
             kw_status = "✓" if status.get("keyword") else "✗"
 
-            print(f"  {hf_status} HuggingFace Model: {'Ready' if status.get('huggingface') else 'Not available'}")
-            print(f"  {gm_status} Gemini Fallback: {'Ready' if status.get('gemini') else 'Not available'}")
-            print(f"  {kw_status} Keyword Matching: {'Ready' if status.get('keyword') else 'Not available'}")
+            print(
+                f"  {hf_status} HuggingFace Model: {'Ready' if status.get('huggingface') else 'Not available'}"
+            )
+            print(
+                f"  {gm_status} Gemini Fallback: {'Ready' if status.get('gemini') else 'Not available'}"
+            )
+            print(
+                f"  {kw_status} Keyword Matching: {'Ready' if status.get('keyword') else 'Not available'}"
+            )
 
             test_merchants = ["McDonald's", "Shell Gas Station", "Netflix"]
             for merchant in test_merchants:
@@ -209,6 +224,7 @@ def run_quick_test(app):
         print_subheader("5. Chat Handler (Natural Language)")
         try:
             from app.ai.chat_handler import get_chat_handler
+
             handler = get_chat_handler()
             handler.initialize()
             print_success("Chat handler initialized")
@@ -241,42 +257,42 @@ def run_demo_scenarios(app, handler, user_id):
             "messages": [
                 "Add $45.50 for dinner at Olive Garden",
             ],
-            "explanation": "The AI parses the natural language, extracts amount, merchant, and auto-categorizes it."
+            "explanation": "The AI parses the natural language, extracts amount, merchant, and auto-categorizes it.",
         },
         {
             "title": "2. Querying Spending",
             "messages": [
                 "How much did I spend on food this month?",
             ],
-            "explanation": "The AI understands the query intent and would search transactions by category."
+            "explanation": "The AI understands the query intent and would search transactions by category.",
         },
         {
             "title": "3. Transaction Categorization",
             "messages": [
                 "What category is Uber?",
             ],
-            "explanation": "The AI uses the categorization pipeline to identify the category."
+            "explanation": "The AI uses the categorization pipeline to identify the category.",
         },
         {
             "title": "4. Scope Enforcement (Guardrails)",
             "messages": [
                 "How do I make pasta?",
             ],
-            "explanation": "The AI politely redirects off-topic questions back to finance."
+            "explanation": "The AI politely redirects off-topic questions back to finance.",
         },
         {
             "title": "5. Budget Status Check",
             "messages": [
                 "Am I over budget this month?",
             ],
-            "explanation": "The AI understands budget-related queries."
+            "explanation": "The AI understands budget-related queries.",
         },
         {
             "title": "6. Help Request",
             "messages": [
                 "What can you help me with?",
             ],
-            "explanation": "The AI provides guidance on available features."
+            "explanation": "The AI provides guidance on available features.",
         },
     ]
 
@@ -305,7 +321,9 @@ def run_demo_scenarios(app, handler, user_id):
                 except Exception as e:
                     print_error(f"Error: {e}")
 
-            input(f"\n{Colors.YELLOW}Press Enter to continue to next scenario...{Colors.END}")
+            input(
+                f"\n{Colors.YELLOW}Press Enter to continue to next scenario...{Colors.END}"
+            )
 
 
 def interactive_chat(app, handler, user_id):
@@ -360,13 +378,17 @@ def interactive_chat(app, handler, user_id):
                 elapsed_ms = (time.time() - start_time) * 1000
 
                 # Extract response data
-                ai_response = response.get("response", "I couldn't process that request.")
+                ai_response = response.get(
+                    "response", "I couldn't process that request."
+                )
                 intent = response.get("intent", "unknown")
                 requires_confirm = response.get("requires_confirmation", False)
                 parsed_data = response.get("parsed_data", {})
 
                 # Display response
-                print(f"\n{Colors.BOLD}AI ({intent}):{Colors.END} {Colors.CYAN}[{elapsed_ms:.0f}ms]{Colors.END}")
+                print(
+                    f"\n{Colors.BOLD}AI ({intent}):{Colors.END} {Colors.CYAN}[{elapsed_ms:.0f}ms]{Colors.END}"
+                )
                 print_ai_response(ai_response)
 
                 if requires_confirm:
@@ -409,11 +431,19 @@ def main():
     """Main entry point."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="AI Demo CLI for Digital Finance Tracker")
-    parser.add_argument("command", nargs="?", default="interactive",
-                       choices=["interactive", "test", "demo", "health"],
-                       help="Command to run: test (quick test), demo (scenarios), health (API health)")
-    parser.add_argument("--query", "-q", type=str, help="Single query to process (non-interactive)")
+    parser = argparse.ArgumentParser(
+        description="AI Demo CLI for Digital Finance Tracker"
+    )
+    parser.add_argument(
+        "command",
+        nargs="?",
+        default="interactive",
+        choices=["interactive", "test", "demo", "health"],
+        help="Command to run: test (quick test), demo (scenarios), health (API health)",
+    )
+    parser.add_argument(
+        "--query", "-q", type=str, help="Single query to process (non-interactive)"
+    )
     args = parser.parse_args()
 
     show_welcome()
@@ -422,6 +452,7 @@ def main():
 
     # Create Flask app context
     from app import create_app
+
     app = create_app("development")
 
     with app.app_context():
@@ -429,50 +460,65 @@ def main():
         if args.command == "health":
             print_header("AI System Health Check")
             from app.ai.service import get_ai_service
+
             service = get_ai_service()
             health = service.health_check()
             status = service.get_status()
 
             # Overall status
-            status_color = Colors.GREEN if health['status'] == 'healthy' else Colors.YELLOW
-            print(f"\n{status_color}Overall Status: {health['status'].upper()}{Colors.END}")
+            status_color = (
+                Colors.GREEN if health["status"] == "healthy" else Colors.YELLOW
+            )
+            print(
+                f"\n{status_color}Overall Status: {health['status'].upper()}{Colors.END}"
+            )
             print(f"Models Loaded: {health.get('models_loaded', 'Unknown')}")
 
             # Component details from models dict
-            if 'models' in status and 'models' in status['models']:
-                models_info = status['models']['models']
+            if "models" in status and "models" in status["models"]:
+                models_info = status["models"]["models"]
                 print(f"\n{Colors.CYAN}AI Components:{Colors.END}")
                 for model_name, model_info in models_info.items():
                     if isinstance(model_info, dict):
-                        available = model_info.get('available', model_info.get('initialized', True))
-                        if 'error' in model_info:
+                        available = model_info.get(
+                            "available", model_info.get("initialized", True)
+                        )
+                        if "error" in model_info:
                             available = False
                     else:
                         available = bool(model_info)
                     icon = "✓" if available else "✗"
                     color = Colors.GREEN if available else Colors.RED
-                    print(f"  {color}{icon} {model_name}: {'Ready' if available else 'Not Available'}{Colors.END}")
-            elif 'models' in status:
+                    print(
+                        f"  {color}{icon} {model_name}: {'Ready' if available else 'Not Available'}{Colors.END}"
+                    )
+            elif "models" in status:
                 # Router status
-                router_status = status['models']
+                router_status = status["models"]
                 print(f"\n{Colors.CYAN}AI Components:{Colors.END}")
-                init = router_status.get('is_initialized', False)
+                init = router_status.get("is_initialized", False)
                 icon = "✓" if init else "✗"
                 color = Colors.GREEN if init else Colors.RED
-                print(f"  {color}{icon} Router: {'Initialized' if init else 'Not Initialized'}{Colors.END}")
+                print(
+                    f"  {color}{icon} Router: {'Initialized' if init else 'Not Initialized'}{Colors.END}"
+                )
 
                 # Individual models from router
-                if 'models' in router_status:
-                    for model_name, model_info in router_status['models'].items():
+                if "models" in router_status:
+                    for model_name, model_info in router_status["models"].items():
                         if isinstance(model_info, dict):
-                            available = model_info.get('available', model_info.get('initialized', True))
-                            if 'error' in model_info:
+                            available = model_info.get(
+                                "available", model_info.get("initialized", True)
+                            )
+                            if "error" in model_info:
                                 available = False
                         else:
                             available = bool(model_info)
                         icon = "✓" if available else "✗"
                         color = Colors.GREEN if available else Colors.RED
-                        print(f"  {color}{icon} {model_name}: {'Ready' if available else 'Limited'}{Colors.END}")
+                        print(
+                            f"  {color}{icon} {model_name}: {'Ready' if available else 'Limited'}{Colors.END}"
+                        )
 
             print()
             return
@@ -481,6 +527,7 @@ def main():
         print_info("Loading AI models (this may take a moment)...")
 
         from app.ai.chat_handler import get_chat_handler
+
         handler = get_chat_handler()
 
         if not handler.initialize():
@@ -492,6 +539,7 @@ def main():
 
         # Get or create demo user - use existing user from database to satisfy FK constraint
         from app.models import User
+
         demo_user = User.query.first()
         if demo_user:
             user_id = demo_user.id
@@ -499,12 +547,13 @@ def main():
         else:
             # Create a demo user if none exists
             from app.core.extensions import db
+
             user_id = uuid4()
             demo_user = User(
                 id=user_id,
                 auth0_id=f"demo|{str(user_id)[:8]}",
                 email=f"demo-{str(user_id)[:8]}@example.com",
-                name="Demo User"
+                name="Demo User",
             )
             db.session.add(demo_user)
             db.session.commit()

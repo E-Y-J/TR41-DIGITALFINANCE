@@ -21,7 +21,16 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app import create_app
 from app.core.extensions import db
-from app.models import User, Transaction, AISession, Budget, Notification, Alert, Loan, Category
+from app.models import (
+    User,
+    Transaction,
+    AISession,
+    Budget,
+    Notification,
+    Alert,
+    Loan,
+    Category,
+)
 
 
 def run_integration_tests():
@@ -119,7 +128,7 @@ def run_integration_tests():
                 else:
                     status = "WARN"
                 desc_short = desc[:25] + "..." if len(desc) > 25 else desc
-                print(f"   [{status}] \"{desc_short}\" -> {result} ({conf:.1%})")
+                print(f'   [{status}] "{desc_short}" -> {result} ({conf:.1%})')
 
             accuracy = correct / len(test_cases)
             if accuracy >= 0.7:
@@ -140,9 +149,13 @@ def run_integration_tests():
 
         # 3.1 Conversation history check
         sessions_with_content = [
-            s for s in sessions if s.conversation_history and len(s.conversation_history) > 0
+            s
+            for s in sessions
+            if s.conversation_history and len(s.conversation_history) > 0
         ]
-        print(f"   [PASS] Sessions with content: {len(sessions_with_content)}/{len(sessions)}")
+        print(
+            f"   [PASS] Sessions with content: {len(sessions_with_content)}/{len(sessions)}"
+        )
 
         # 3.2 Intent diversity
         intents = set([s.last_intent for s in sessions if s.last_intent])

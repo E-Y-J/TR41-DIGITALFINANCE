@@ -40,7 +40,6 @@ from app.models.enums import AlertType, AlertSeverity
 from app.utils.errors import BadRequestError
 from app.utils.helpers import success_response, parse_uuid
 
-
 # =============================================================================
 # LOGGER SETUP
 # =============================================================================

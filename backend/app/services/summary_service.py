@@ -43,7 +43,6 @@ from app.models.enums import TransactionType
 from app.utils.errors import ValidationError
 from app.utils.helpers import get_date_range_for_period
 
-
 # =============================================================================
 # LOGGER SETUP
 # =============================================================================
@@ -500,9 +499,7 @@ class SummaryService:
             },
             "expense_change": round(current_expense - prev_expense, 2),
             "expense_change_percent": round(expense_change, 2),
-            "trend": "up"
-            if expense_change > 0
-            else "down"
-            if expense_change < 0
-            else "flat",
+            "trend": (
+                "up" if expense_change > 0 else "down" if expense_change < 0 else "flat"
+            ),
         }
