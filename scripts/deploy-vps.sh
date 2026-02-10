@@ -2,7 +2,7 @@
 # =============================================================================
 # Digital Finance Tracker - VPS Deployment Script
 # PURPOSE: Deploy backend to IONOS VPS with Plesk
-# VPS: 108.175.12.154 | Domain: securebankAI.mysticdatanode.net | Port: 8003
+# VPS: 108.175.12.154 | Domain: securebankai.mysticdatanode.net | Port: 8003
 # =============================================================================
 
 set -e  # Exit on error
@@ -12,7 +12,7 @@ echo "Digital Finance Tracker - VPS Deployment"
 echo "========================================"
 
 # Configuration
-APP_DIR="/var/www/vhosts/mysticdatanode.net/securebankAI"
+APP_DIR="/var/www/vhosts/securebankai.mysticdatanode.net/httpdocs"
 REPO_URL="https://github.com/E-Y-J/TR41-DIGITALFINANCE.git"
 BRANCH="main"
 PORT=8003
@@ -23,8 +23,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${YELLOW}Step 1: Creating directory structure...${NC}"
-mkdir -p $APP_DIR
+echo -e "${YELLOW}Step 1: Navigating to web root...${NC}"
 cd $APP_DIR
 
 echo -e "${YELLOW}Step 2: Checking Docker...${NC}"
@@ -100,17 +99,17 @@ echo ""
 echo "Services running:"
 docker compose -f docker-compose.prod.yaml ps
 echo ""
-echo "Ports used:"
-echo "  - Backend API: 8003"
-echo "  - PostgreSQL:  5433 (internal Docker)"
-echo "  - Redis:       6381 (internal Docker)"
+echo "Architecture:"
+echo "  - Backend API: port 8003 (Docker container)"
+echo "  - PostgreSQL:  port 5432 (native on host, database: digital_finance)"
+echo "  - Redis:       port 6381 (Docker container)"
 echo ""
 echo "Test locally:"
 echo "  curl http://localhost:$PORT/health"
 echo "  curl http://localhost:$PORT/api/test"
 echo ""
 echo "After Cloudflare propagates:"
-echo "  https://securebankAI.mysticdatanode.net/health"
+echo "  https://securebankai.mysticdatanode.net/health"
 echo ""
 echo "View logs:"
 echo "  docker compose -f docker-compose.prod.yaml logs -f backend"
