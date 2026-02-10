@@ -139,7 +139,7 @@ class CORSConfig:
 
     origins: list = field(default_factory=lambda: ["http://localhost:5173"])
     methods: list = field(
-        default_factory=lambda: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        default_factory=lambda: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
     )
     allow_headers: list = field(
         default_factory=lambda: ["Content-Type", "Authorization"]
