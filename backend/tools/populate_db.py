@@ -161,6 +161,16 @@ class Command:
                 self.stdout_write("Creating quality test data for Jae Young Seo...")
                 self.populate_jae_quality_data(jae_user, categories)
 
+            # -----------------------------
+            # Quality data for Ariel Resendiz
+            # -----------------------------
+            ariel_user = next(
+                (u for u in specific_users if u.email == "resendiz.ariel6@gmail.com"), None
+            )
+            if ariel_user:
+                self.stdout_write("Creating quality test data for Ariel Resendiz...")
+                self.populate_ariel_quality_data(ariel_user, categories)
+
             try:
                 db.session.commit()
                 self.stdout_write("Successfully populated all data.")
@@ -501,6 +511,21 @@ class Command:
         - 50+ notifications
         - 20+ alerts
         - 4 loans
+        """
+        from tools.data_generators import JaeDataGenerator
+
+        generator = JaeDataGenerator(
+            user=user,
+            categories=categories,
+            months_back=12,  # Full year of data
+        )
+        generator.generate_all(db.session)
+
+    def populate_ariel_quality_data(self, user: User, categories: list[Category]):
+        """
+        Populate comprehensive, systematic test data for Ariel Resendiz's account.
+
+        For now, reuse the JaeDataGenerator to give Ariel a similarly rich dataset.
         """
         from tools.data_generators import JaeDataGenerator
 
