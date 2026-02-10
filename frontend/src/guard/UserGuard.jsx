@@ -14,6 +14,15 @@ export const UserGuard = () => {
     );
   }
 
+  // Handle case where user data is not yet available
+  if (!user) {
+    return (
+      <Box sx={{ height: "100vh" }}>
+        <PageLoader />
+      </Box>
+    );
+  }
+
   if (user.account_status === "pending") {
     return <Navigate to="/onboarding" replace />;
   }

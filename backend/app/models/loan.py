@@ -8,7 +8,15 @@ from datetime import date, datetime, timezone
 from decimal import Decimal
 from typing import Optional, TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, String, Date, DateTime, Numeric, Enum, ForeignKey
+from sqlalchemy import (
+    CheckConstraint,
+    String,
+    Date,
+    DateTime,
+    Numeric,
+    Enum,
+    ForeignKey,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -47,7 +55,7 @@ class Loan(db.Model):
             name="ck_loan_remaining_lte_original",
         ),
     )
-    
+
     # =========================================================================
     # PRIMARY KEY
     # =========================================================================

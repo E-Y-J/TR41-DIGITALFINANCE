@@ -28,7 +28,6 @@ from marshmallow import fields, validate
 from app.schemas.base import BaseSchema
 from app.models.enums import AlertType, AlertSeverity
 
-
 # =============================================================================
 # ALERT SCHEMAS
 # =============================================================================

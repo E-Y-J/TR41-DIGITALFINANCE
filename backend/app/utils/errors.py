@@ -33,7 +33,6 @@ Error Response Format:
 from typing import Optional, Dict, Any
 from http import HTTPStatus
 
-
 # =============================================================================
 # BASE EXCEPTION
 # =============================================================================

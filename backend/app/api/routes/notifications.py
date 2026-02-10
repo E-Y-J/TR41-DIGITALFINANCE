@@ -43,7 +43,6 @@ from app.models.enums import NotificationStatus, NotificationType
 from app.utils.helpers import success_response, parse_uuid, validate_pagination
 from app.utils.errors import ValidationError
 
-
 # =============================================================================
 # LOGGER SETUP
 # =============================================================================

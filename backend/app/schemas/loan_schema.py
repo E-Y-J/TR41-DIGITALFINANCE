@@ -10,7 +10,6 @@ from marshmallow import fields, validate, validates_schema, ValidationError, EXC
 from app.schemas.base import BaseSchema
 from app.models.enums import LoanStatus
 
-
 # =============================================================================
 # LOAN SCHEMAS
 # =============================================================================
@@ -43,10 +42,16 @@ class LoanSchema(BaseSchema):
     # Loan fields
     name = fields.String(required=True)
     original_amount = fields.Decimal(
-        required=True, places=2, as_string=True, validate=validate.Range(min=Decimal("0.01"))
+        required=True,
+        places=2,
+        as_string=True,
+        validate=validate.Range(min=Decimal("0.01")),
     )
     remaining_amount = fields.Decimal(
-        required=True, places=2, as_string=True, validate=validate.Range(min=Decimal("0.00"))
+        required=True,
+        places=2,
+        as_string=True,
+        validate=validate.Range(min=Decimal("0.00")),
     )
 
     progress_percentage = fields.Method("get_progress", dump_only=True)
@@ -87,10 +92,16 @@ class LoanCreateSchema(BaseSchema):
 
     name = fields.String(required=True)
     original_amount = fields.Decimal(
-        required=True, places=2, as_string=True, validate=validate.Range(min=Decimal("0.01"))
+        required=True,
+        places=2,
+        as_string=True,
+        validate=validate.Range(min=Decimal("0.01")),
     )
     remaining_amount = fields.Decimal(
-        required=True, places=2, as_string=True, validate=validate.Range(min=Decimal("0.00"))
+        required=True,
+        places=2,
+        as_string=True,
+        validate=validate.Range(min=Decimal("0.00")),
     )
     category_id = fields.UUID(required=True)
     budget_id = fields.UUID(allow_none=True)
@@ -108,6 +119,7 @@ class LoanUpdateSchema(BaseSchema):
 
     All fields optional.
     """
+
     class Meta:
         unknown = EXCLUDE
 
@@ -122,8 +134,12 @@ class LoanUpdateSchema(BaseSchema):
                 )
 
     name = fields.String()
-    original_amount = fields.Decimal(places=2, as_string=True, validate=validate.Range(min=Decimal("0.01")))
-    remaining_amount = fields.Decimal(places=2, as_string=True, validate=validate.Range(min=Decimal("0.00")))
+    original_amount = fields.Decimal(
+        places=2, as_string=True, validate=validate.Range(min=Decimal("0.01"))
+    )
+    remaining_amount = fields.Decimal(
+        places=2, as_string=True, validate=validate.Range(min=Decimal("0.00"))
+    )
     category_id = fields.UUID()
     budget_id = fields.UUID(allow_none=True)
     start_date = fields.Date(allow_none=True)

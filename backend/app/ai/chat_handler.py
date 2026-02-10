@@ -47,8 +47,7 @@ Notes:
 import logging
 import json
 import re
-import uuid as uuid_module
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
 from uuid import UUID
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal, InvalidOperation
@@ -131,9 +130,25 @@ class ChatSession:
         try:
             from app.models.ai_session import AISession, PendingAction
             from app.core.extensions import db
+            from sqlalchemy.orm import object_session
+            from sqlalchemy.orm.exc import DetachedInstanceError
 
-            # Get or create DB session
-            self._db_session = AISession.get_or_create(self.user_id)
+            # Check if existing db_session is detached and needs refresh
+            if self._db_session is not None:
+                try:
+                    # Try to access an attribute to check if detached
+                    existing_session = object_session(self._db_session)
+                    if existing_session is None:
+                        # Object is detached, merge it into current session
+                        self._db_session = db.session.merge(self._db_session)
+                except DetachedInstanceError:
+                    # Explicitly detached, reload from DB
+                    self._db_session = None
+
+            # Get or create DB session if not available
+            if self._db_session is None:
+                self._db_session = AISession.get_or_create(self.user_id)
+
             db.session.commit()
 
             # Load pending action
@@ -166,6 +181,7 @@ class ChatSession:
             self._db_session.last_intent = value
             try:
                 from app.core.extensions import db
+
                 db.session.commit()
             except Exception as e:
                 logger.warning(f"Failed to save last_intent: {e}")
@@ -183,6 +199,7 @@ class ChatSession:
             self._db_session.add_message(role, content)
             try:
                 from app.core.extensions import db
+
                 db.session.commit()
             except Exception as e:
                 logger.warning(f"Failed to save message: {e}")
@@ -346,6 +363,9 @@ class ChatHandler:
 
         if user_id not in self._sessions:
             self._sessions[user_id] = ChatSession(user_id)
+        else:
+            # Refresh db session for cached ChatSession to avoid detached instance errors
+            self._sessions[user_id]._load_from_db()
 
         return self._sessions[user_id]
 
@@ -465,17 +485,38 @@ class ChatHandler:
     def _is_confirmation(self, message: str) -> bool:
         """Check if message is a confirmation."""
         confirmations = [
-            "yes", "y", "yeah", "yep", "sure", "ok", "okay",
-            "confirm", "do it", "proceed", "go ahead", "correct",
-            "that's right", "right", "affirmative"
+            "yes",
+            "y",
+            "yeah",
+            "yep",
+            "sure",
+            "ok",
+            "okay",
+            "confirm",
+            "do it",
+            "proceed",
+            "go ahead",
+            "correct",
+            "that's right",
+            "right",
+            "affirmative",
         ]
         return message in confirmations
 
     def _is_cancellation(self, message: str) -> bool:
         """Check if message is a cancellation."""
         cancellations = [
-            "no", "n", "nope", "cancel", "nevermind", "never mind",
-            "stop", "abort", "don't", "forget it", "dismiss"
+            "no",
+            "n",
+            "nope",
+            "cancel",
+            "nevermind",
+            "never mind",
+            "stop",
+            "abort",
+            "don't",
+            "forget it",
+            "dismiss",
         ]
         return message in cancellations
 
@@ -493,6 +534,31 @@ class ChatHandler:
         2. MiniLM intent classifier (local, semantic understanding)
         3. Gemini parsing (cloud, complex extraction)
         """
+        # TIER 0: Check if user is answering a pending question (e.g., just "100")
+        pending = session.pending_action
+        if pending and pending.get("type") == "create_transaction_awaiting_amount":
+            # User might be providing the missing amount
+            message_clean = message.strip()
+            amount_match = re.match(
+                r"^\$?(\d+(?:\.\d{2})?)\s*(?:dollars?|bucks?)?\s*$",
+                message_clean,
+                re.IGNORECASE,
+            )
+            if amount_match:
+                try:
+                    amount = str(Decimal(amount_match.group(1)))
+                    partial_data = pending.get("partial_data", {})
+                    partial_data["amount"] = amount
+                    session.clear_pending_action()
+                    logger.info(f"Tier 0: Found pending amount, merged: {partial_data}")
+                    return {
+                        "intent": Intent.CREATE_TRANSACTION,
+                        "confidence": 0.95,
+                        "data": partial_data,
+                    }
+                except (InvalidOperation, ValueError):
+                    pass
+
         # Tier 1: Try rule-based parsing first (fastest)
         rule_based = self._rule_based_parse(message)
         if rule_based.get("confidence", 0) >= 0.8:
@@ -522,23 +588,55 @@ class ChatHandler:
                 # For high-confidence intents, enhance rule_based with the intent
                 rule_based["intent"] = mapped_intent
                 rule_based["ml_confidence"] = confidence
-                rule_based["confidence"] = max(rule_based.get("confidence", 0), confidence)
+                rule_based["confidence"] = max(
+                    rule_based.get("confidence", 0), confidence
+                )
 
                 # If we have a confident intent but low rule_based confidence,
-                # use Gemini to extract entities
+                # extract entities LOCALLY instead of using Gemini
                 if rule_based["confidence"] < 0.8 and mapped_intent in [
                     Intent.CREATE_TRANSACTION,
                     Intent.EDIT_TRANSACTION,
                     Intent.QUERY_SPENDING,
                 ]:
-                    # Gemini extracts entities with known intent
-                    if self.gemini and self.gemini.is_initialized:
-                        return self._gemini_parse(message, session, context, hint_intent=mapped_intent)
+                    # Extract entities locally using regex - NO GEMINI NEEDED
+                    extracted = self._extract_entities_locally(message)
+                    if extracted:
+                        rule_based["data"] = extracted
+                        rule_based["confidence"] = 0.85  # Boost confidence
+                        logger.debug(f"Extracted entities locally: {extracted}")
 
                 return rule_based
 
-        # Tier 3: Fall back to Gemini for complex messages
+        # Tier 3: Try local entity extraction before Gemini
+        # Check if message looks like a transaction even if MiniLM was unsure
+        transaction_keywords = [
+            "bought",
+            "spent",
+            "paid",
+            "purchase",
+            "cost",
+            "add",
+            "expense",
+            "income",
+        ]
+        if any(kw in message.lower() for kw in transaction_keywords):
+            extracted = self._extract_entities_locally(message)
+            if extracted and (
+                extracted.get("amount") or extracted.get("merchant_name")
+            ):
+                logger.info(
+                    f"Tier 3: Local extraction found transaction data: {extracted}"
+                )
+                return {
+                    "intent": Intent.CREATE_TRANSACTION,
+                    "confidence": 0.8,
+                    "data": extracted,
+                }
+
+        # Only use Gemini as ABSOLUTE last resort for truly complex/ambiguous messages
         if self.gemini and self.gemini.is_initialized:
+            logger.debug("Tier 3: Falling back to Gemini for complex message")
             return self._gemini_parse(message, session, context)
 
         return rule_based
@@ -548,15 +646,25 @@ class ChatHandler:
         message_lower = message.lower().strip()
 
         # Help patterns
-        if any(word in message_lower for word in ["help", "what can you do", "commands"]):
+        if any(
+            word in message_lower for word in ["help", "what can you do", "commands"]
+        ):
             return {"intent": Intent.HELP, "confidence": 1.0}
 
-        # Create transaction patterns
+        # Create transaction patterns - order matters, more specific first
         create_patterns = [
+            # "bought 100 dollars shoes" or "bought $100 shoes" - amount before item
+            r"(?:i\s+)?bough?t\s+\$?(\d+(?:\.\d{2})?)\s*(?:dollars?\s+)?(.+?)(?:\s+add\s+it)?(?:\s+to\s+the\s+data)?$",
+            # "bought shoes for 100" - item before amount
+            r"(?:i\s+)?bough?t\s+(.+?)\s+for\s+\$?(\d+(?:\.\d{2})?)",
+            # "spent/spend 100 on/at/for X" (handles typos)
+            r"(?:i\s+)?spen[td]?\s+\$?(\d+(?:\.\d{2})?)\s+(?:on|at|for)\s+(.+)",
+            # "add 100 for X at Y"
             r"add\s+\$?(\d+(?:\.\d{2})?)\s+(?:for\s+)?(.+?)(?:\s+at\s+(.+))?$",
-            r"spent\s+\$?(\d+(?:\.\d{2})?)\s+(?:on|at|for)\s+(.+)",
-            r"bought\s+(.+)\s+for\s+\$?(\d+(?:\.\d{2})?)",
-            r"paid\s+\$?(\d+(?:\.\d{2})?)\s+(?:to|for|at)\s+(.+)",
+            # "paid 100 to/for/at X"
+            r"(?:i\s+)?paid\s+\$?(\d+(?:\.\d{2})?)\s+(?:to|for|at)\s+(.+)",
+            # "100 dollars for X" or "$100 for X"
+            r"^\$?(\d+(?:\.\d{2})?)\s*(?:dollars?\s+)?(?:for|on|at)\s+(.+)",
         ]
 
         for pattern in create_patterns:
@@ -592,9 +700,7 @@ class ChatHandler:
 
         return {"intent": Intent.GENERAL_CHAT, "confidence": 0.5}
 
-    def _parse_create_match(
-        self, groups: tuple, message_lower: str
-    ) -> Dict[str, Any]:
+    def _parse_create_match(self, groups: tuple, message_lower: str) -> Dict[str, Any]:
         """Parse a create transaction regex match."""
         try:
             # Extract amount (first number found)
@@ -620,15 +726,22 @@ class ChatHandler:
 
             # Determine transaction type
             tx_type = "expense"
-            if any(word in message_lower for word in ["income", "received", "earned", "salary", "paid me"]):
+            if any(
+                word in message_lower
+                for word in ["income", "received", "earned", "salary", "paid me"]
+            ):
                 tx_type = "income"
 
             # Parse date
             date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
             if "yesterday" in message_lower:
-                date = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
+                date = (datetime.now(timezone.utc) - timedelta(days=1)).strftime(
+                    "%Y-%m-%d"
+                )
             elif "last week" in message_lower:
-                date = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%d")
+                date = (datetime.now(timezone.utc) - timedelta(days=7)).strftime(
+                    "%Y-%m-%d"
+                )
 
             return {
                 "intent": Intent.CREATE_TRANSACTION,
@@ -660,8 +773,17 @@ class ChatHandler:
         # Extract category
         category = None
         categories = [
-            "food", "dining", "transportation", "shopping", "entertainment",
-            "healthcare", "utilities", "financial", "income", "government", "charity"
+            "food",
+            "dining",
+            "transportation",
+            "shopping",
+            "entertainment",
+            "healthcare",
+            "utilities",
+            "financial",
+            "income",
+            "government",
+            "charity",
         ]
         for cat in categories:
             if cat in message_lower:
@@ -674,6 +796,133 @@ class ChatHandler:
             "category": category,
             "confidence": 0.85,
         }
+
+    def _extract_entities_locally(self, message: str) -> Optional[Dict[str, Any]]:
+        """
+        Extract transaction entities (amount, description, merchant, date) locally.
+
+        Distinguishes between:
+        - Description: What was bought (e.g., "shoes", "coffee", "groceries")
+        - Merchant: Where it was bought (e.g., "Nike Store", "Starbucks")
+
+        Args:
+            message: User's message text
+
+        Returns:
+            Dictionary with extracted entities or None if extraction failed
+        """
+        message_lower = message.lower().strip()
+
+        # Extract amount - look for dollar amounts or contextual numbers
+        amount = None
+        amount_patterns = [
+            r"\$(\d+(?:\.\d{2})?)",  # $100 or $100.00
+            r"(\d+(?:\.\d{2})?)\s*dollars?",  # 100 dollars
+            r"(\d+(?:\.\d{2})?)\s*bucks?",  # 100 bucks
+            r"(?:spent?|paid|spend)\s+\$?(\d+(?:\.\d{2})?)",  # spent/spend/paid 100 (handles typos)
+            r"(?:bought|got)\s+(?:for\s+)?\$?(\d+(?:\.\d{2})?)",  # bought for 100
+            r"^(\d+(?:\.\d{2})?)\s+(?:on|for|at)\s+",  # 100 on/for/at something
+            r"(?:on|for)\s+\$?(\d+(?:\.\d{2})?)\b",  # on/for 100
+        ]
+        for pattern in amount_patterns:
+            match = re.search(pattern, message_lower)
+            if match:
+                try:
+                    amount = str(Decimal(match.group(1)))
+                    break
+                except (InvalidOperation, ValueError):
+                    pass
+
+        # If no pattern matched but message is just a number (follow-up response)
+        if not amount:
+            just_number = re.match(r"^\$?(\d+(?:\.\d{2})?)\s*$", message_lower.strip())
+            if just_number:
+                try:
+                    amount = str(Decimal(just_number.group(1)))
+                except (InvalidOperation, ValueError):
+                    pass
+
+        # Extract DESCRIPTION (what was bought) - not merchant
+        # Stop words: action phrases, time references, prepositions
+        stop_pattern = r"(?:\s+yesterday|\s+today|\s+last|\s+add|\s+on\s+the|\s+to\s+the|\s+it\s+|\s*$)"
+
+        description = None
+        description_patterns = [
+            # "bought shoes" or "bought 100 dollars shoes"
+            rf"bought\s+(?:\$?\d+(?:\.\d{2})?\s*(?:dollars?\s+)?)?([a-zA-Z][a-zA-Z\s]*?){stop_pattern}",
+            # "spent/spend on/for/at shoes" or "paid for/at shoes" (handles typos + all prepositions)
+            rf"(?:spent?|spend|paid)\s+(?:\$?\d+(?:\.\d{2})?\s+)?(?:on|for|at)\s+([a-zA-Z][a-zA-Z\s]*?){stop_pattern}",
+            # "100 on/for/at shoes" or "100 dollars on/for/at shoes"
+            rf"\d+\s*(?:dollars?\s+)?(?:on|for|at)\s+([a-zA-Z][a-zA-Z\s]*?){stop_pattern}",
+        ]
+        for pattern in description_patterns:
+            match = re.search(pattern, message_lower, re.IGNORECASE)
+            if match:
+                description = match.group(1).strip()
+                # Clean up common suffixes
+                description = re.sub(
+                    r"\s+(yesterday|today|last\s+week|add\s+it)", "", description
+                ).strip()
+                if description and len(description) > 1:
+                    break
+
+        # Extract MERCHANT (where it was bought) - specific stores from "at X" or "from X"
+        # Only extract if it looks like a proper store name (capitalized or known chains)
+        merchant = None
+        merchant_patterns = [
+            # "at Starbucks", "at Walmart" - proper nouns after "at" followed by "for" or time
+            r"\s+at\s+([A-Z][a-zA-Z\s\']+?)(?:\s+for|\s+yesterday|\s+today|\s*$)",
+            r"\s+from\s+([A-Z][a-zA-Z\s\']+?)(?:\s+for|\s+yesterday|\s+today|\s*$)",
+        ]
+        for pattern in merchant_patterns:
+            match = re.search(
+                pattern, message, re.IGNORECASE
+            )  # Use original message for case
+            if match:
+                merchant = match.group(1).strip()
+                if merchant and len(merchant) > 1:
+                    break
+
+        # Use description as merchant_name for display if no specific merchant
+        # The description (e.g., "restaurant", "grocery") will be used for categorization
+        if not merchant and description:
+            merchant = description.title()  # Capitalize for display
+
+        # Extract date
+        date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        if "yesterday" in message_lower:
+            date = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%d")
+        elif "last week" in message_lower:
+            date = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%d")
+        elif "today" in message_lower:
+            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+        # Determine transaction type
+        tx_type = "expense"
+        if any(
+            word in message_lower
+            for word in [
+                "income",
+                "received",
+                "earned",
+                "salary",
+                "paid me",
+                "got paid",
+            ]
+        ):
+            tx_type = "income"
+
+        # Only return if we extracted something useful
+        if amount or description or merchant:
+            return {
+                "amount": amount,
+                "merchant_name": merchant,  # Store/location if specified
+                "description": description,  # Product/item name
+                "transaction_type": tx_type,
+                "date": date,
+            }
+
+        return None
 
     def _gemini_parse(
         self,
@@ -748,7 +997,14 @@ ONLY respond with the JSON, no other text."""
 
         except Exception as e:
             logger.error(f"Gemini parse failed: {e}")
-            return {"intent": hint_intent or Intent.GENERAL_CHAT, "confidence": 0.5}
+            # On Gemini failure, fall back to enhanced rule-based parsing
+            rule_result = self._rule_based_parse(message)
+            if hint_intent:
+                rule_result["intent"] = hint_intent
+            # Add rate limit info if quota error
+            if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+                rule_result["rate_limited"] = True
+            return rule_result
 
     def _handle_create_transaction(
         self,
@@ -763,6 +1019,15 @@ ONLY respond with the JSON, no other text."""
         if not data.get("amount"):
             response = "I need to know the amount. How much was the transaction?"
             session.add_message("assistant", response)
+
+            # Save pending action so we can resume when user provides amount
+            session.set_pending_action(
+                {
+                    "type": "create_transaction_awaiting_amount",
+                    "partial_data": data,
+                }
+            )
+
             return {
                 "intent": Intent.CREATE_TRANSACTION,
                 "action": None,
@@ -772,15 +1037,18 @@ ONLY respond with the JSON, no other text."""
                 "session_id": str(user_id),
             }
 
-        # Auto-categorize if we have merchant name
+        # Auto-categorize using description or merchant name
         category_info = None
-        if data.get("merchant_name") and self.orchestrator:
+        categorize_text = data.get("description") or data.get("merchant_name")
+        if categorize_text and self.orchestrator:
             cat_result = self.orchestrator.categorize(
-                data["merchant_name"],
+                categorize_text,
                 amount=float(data["amount"]) if data.get("amount") else None,
                 transaction_type=data.get("transaction_type"),
             )
-            data["category_id"] = str(cat_result["category_id"]) if cat_result["category_id"] else None
+            data["category_id"] = (
+                str(cat_result["category_id"]) if cat_result["category_id"] else None
+            )
             data["category_name"] = cat_result["category"]
             data["ai_confidence"] = cat_result["confidence"]
             data["ai_source"] = cat_result["source"]
@@ -788,23 +1056,37 @@ ONLY respond with the JSON, no other text."""
 
         # Build confirmation message
         amount = data.get("amount", "?")
+        description = data.get("description")
         merchant = data.get("merchant_name", "Unknown")
         tx_type = data.get("transaction_type", "expense")
         category = data.get("category_name", "Unknown")
         date = data.get("date", "today")
 
+        # Smart message: show product vs location appropriately
+        if description and merchant and description.lower() != merchant.lower():
+            # Both product and store specified: "bought shoes at Nike Store"
+            what_where = f"for **{description}** at {merchant}"
+        elif description:
+            # Only product: "bought shoes"
+            what_where = f"for **{description}**"
+        else:
+            # Only merchant/location: "at Starbucks"
+            what_where = f"at **{merchant}**"
+
         response = (
-            f"I'll add a ${amount} {tx_type} at {merchant} "
+            f"I'll add a **${amount}** {tx_type} {what_where} "
             f"under **{category}** for {date}.\n\n"
             f"**Confirm?** (yes/no)"
         )
 
         # Set pending action
-        session.set_pending_action({
-            "type": "create_transaction",
-            "data": data,
-            "category_info": category_info,
-        })
+        session.set_pending_action(
+            {
+                "type": "create_transaction",
+                "data": data,
+                "category_info": category_info,
+            }
+        )
 
         session.add_message("assistant", response)
 
@@ -884,15 +1166,17 @@ ONLY respond with the JSON, no other text."""
                     f"**Confirm?** (yes/no)"
                 )
 
-                session.set_pending_action({
-                    "type": "delete_transaction",
-                    "transaction_id": str(last_tx.id),
-                    "transaction_info": {
-                        "amount": str(last_tx.amount),
-                        "merchant": last_tx.merchant_name,
-                        "date": last_tx.date,
-                    },
-                })
+                session.set_pending_action(
+                    {
+                        "type": "delete_transaction",
+                        "transaction_id": str(last_tx.id),
+                        "transaction_info": {
+                            "amount": str(last_tx.amount),
+                            "merchant": last_tx.merchant_name,
+                            "date": last_tx.date,
+                        },
+                    }
+                )
 
                 session.add_message("assistant", response)
                 return {
@@ -929,7 +1213,7 @@ ONLY respond with the JSON, no other text."""
             from app.services.summary_service import SummaryService
 
             period = parsed.get("period", "month")
-            category = parsed.get("category")
+            _category = parsed.get("category")  # Reserved for future filtering
 
             # Get summary
             summary = SummaryService.get_spending_summary(user_id, period)
@@ -973,7 +1257,9 @@ ONLY respond with the JSON, no other text."""
         parsed: Dict[str, Any],
     ) -> Dict[str, Any]:
         """Handle transaction list query."""
-        response = "Please use the transactions page to view your full transaction history."
+        response = (
+            "Please use the transactions page to view your full transaction history."
+        )
         session.add_message("assistant", response)
         return {
             "intent": Intent.QUERY_TRANSACTIONS,
@@ -1020,7 +1306,10 @@ ONLY respond with the JSON, no other text."""
         """Handle category clarification from user."""
         category_name = parsed.get("category")
 
-        if session.pending_action and session.pending_action.get("type") == "clarify_category":
+        if (
+            session.pending_action
+            and session.pending_action.get("type") == "clarify_category"
+        ):
             transaction_id = session.pending_action.get("transaction_id")
 
             try:
@@ -1034,7 +1323,9 @@ ONLY respond with the JSON, no other text."""
                     TransactionService.update_category(
                         user_id, transaction_id, category.id
                     )
-                    response = f"Got it! I've updated that transaction to **{category.name}**."
+                    response = (
+                        f"Got it! I've updated that transaction to **{category.name}**."
+                    )
                     session.clear_pending_action()
                 else:
                     response = f"I don't recognize '{category_name}' as a category. Please try again."
@@ -1115,7 +1406,9 @@ ONLY respond with the JSON, no other text."""
             detector = get_detector()
             insights = detector.get_spending_insights(user_id)
 
-            response = f"**Spending Insights ({insights.get('period', 'Last 30 days')})**\n\n"
+            response = (
+                f"**Spending Insights ({insights.get('period', 'Last 30 days')})**\n\n"
+            )
 
             # Top categories
             if insights.get("top_categories"):
@@ -1275,6 +1568,7 @@ Just ask naturally and I'll help!"""
         """Execute create transaction action."""
         from app.services.transaction_service import TransactionService
         from app.models.user import User
+        from app.core.extensions import db
 
         data = action.get("data", {})
 
@@ -1297,9 +1591,17 @@ Just ask naturally and I'll help!"""
 
         session.clear_pending_action()
 
+        # Build success message - prefer description over merchant for display
+        description = data.get("description")
+        merchant = transaction.merchant_name or "Unknown"
+        if description:
+            item_text = f"for **{description}**"
+        else:
+            item_text = f"at {merchant}"
+
         response = (
             f"✅ Done! Added **${transaction.amount}** {transaction.transaction_type.value} "
-            f"at {transaction.merchant_name or 'Unknown'}."
+            f"{item_text}."
         )
         session.add_message("assistant", response)
 
@@ -1382,16 +1684,16 @@ Just ask naturally and I'll help!"""
         session = self._get_session(user_id)
 
         # Set pending clarification
-        session.set_pending_action({
-            "type": "clarify_category",
-            "transaction_id": str(transaction_id),
-            "alternatives": alternatives,
-        })
+        session.set_pending_action(
+            {
+                "type": "clarify_category",
+                "transaction_id": str(transaction_id),
+                "alternatives": alternatives,
+            }
+        )
 
         # Build options
-        options = "\n".join(
-            [f"- {a['category']}" for a in alternatives[:5]]
-        )
+        options = "\n".join([f"- {a['category']}" for a in alternatives[:5]])
 
         response = (
             "I'm not sure how to categorize a recent transaction. "

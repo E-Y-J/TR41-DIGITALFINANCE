@@ -25,6 +25,7 @@ def _base_create_payload(**overrides):
 # LoanCreateSchema tests
 # -----------------------------------------------------------------------------
 
+
 def test_loan_create_requires_category_id():
     payload = _base_create_payload()
     payload.pop("category_id")
@@ -61,6 +62,7 @@ def test_loan_create_status_defaults_to_open():
 # -----------------------------------------------------------------------------
 # LoanUpdateSchema tests
 # -----------------------------------------------------------------------------
+
 
 def test_loan_update_cannot_close_with_positive_balance():
     payload = {

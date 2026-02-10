@@ -106,6 +106,7 @@ class SentenceTransformerEmbedder:
         """
         try:
             from app.ai.utils import embed as utils_embed
+
             return utils_embed(text)
         except Exception as e:
             logger.error(f"Embedding failed for '{text}': {e}")
@@ -127,6 +128,7 @@ class SentenceTransformerEmbedder:
 
         try:
             from app.ai.utils import embed_batch as utils_embed_batch
+
             return utils_embed_batch(texts)
         except Exception as e:
             logger.error(f"Batch embedding failed: {e}")
@@ -238,14 +240,18 @@ class InMemoryVectorStore:
                     continue
 
                 # Cosine similarity
-                similarity = float(np.dot(query_embedding, vec) / (query_norm * vec_norm))
+                similarity = float(
+                    np.dot(query_embedding, vec) / (query_norm * vec_norm)
+                )
 
                 if similarity >= threshold:
-                    results.append({
-                        "id": vec_id,
-                        "similarity": round(similarity, 4),
-                        **vec_data["metadata"],
-                    })
+                    results.append(
+                        {
+                            "id": vec_id,
+                            "similarity": round(similarity, 4),
+                            **vec_data["metadata"],
+                        }
+                    )
 
             # Sort by similarity descending
             results.sort(key=lambda x: x["similarity"], reverse=True)

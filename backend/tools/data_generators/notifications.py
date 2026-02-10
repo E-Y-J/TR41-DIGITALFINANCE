@@ -82,8 +82,14 @@ class NotificationGenerator(BaseGenerator):
 
             created_at = self.get_date_days_ago(days_ago)
             # Older notifications are read, newer ones may be unread
-            status = NotificationStatus.READ if days_ago > 3 else (
-                NotificationStatus.UNREAD if random.random() < 0.4 else NotificationStatus.READ
+            status = (
+                NotificationStatus.READ
+                if days_ago > 3
+                else (
+                    NotificationStatus.UNREAD
+                    if random.random() < 0.4
+                    else NotificationStatus.READ
+                )
             )
 
             notification = Notification(
@@ -175,7 +181,10 @@ class NotificationGenerator(BaseGenerator):
         # AI clarification requests
         clarifications = [
             ("Is 'AMZ*Services' an Amazon subscription or purchase?", 8),
-            ("Should 'PAYPAL*' transactions be categorized as the underlying merchant?", 22),
+            (
+                "Should 'PAYPAL*' transactions be categorized as the underlying merchant?",
+                22,
+            ),
             ("I noticed 3 similar charges - are these duplicates?", 35),
         ]
 
@@ -184,7 +193,9 @@ class NotificationGenerator(BaseGenerator):
                 continue
 
             created_at = self.get_date_days_ago(days_ago)
-            status = NotificationStatus.UNREAD if days_ago < 10 else NotificationStatus.READ
+            status = (
+                NotificationStatus.UNREAD if days_ago < 10 else NotificationStatus.READ
+            )
 
             notification = Notification(
                 user_id=self.user.id,

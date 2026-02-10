@@ -58,7 +58,6 @@ from app.models.enums import CategoryType
 from app.utils.helpers import success_response, parse_uuid
 from app.utils.errors import ValidationError
 
-
 # =============================================================================
 # LOGGER SETUP
 # =============================================================================
@@ -139,8 +138,10 @@ def get_categories():
                 # Get all categories for user, then filter by type
                 all_categories = CategoryService.get_for_user(user.id)
                 categories = [
-                    c for c in all_categories
-                    if c.category_type == category_type or c.category_type == CategoryType.BOTH
+                    c
+                    for c in all_categories
+                    if c.category_type == category_type
+                    or c.category_type == CategoryType.BOTH
                 ]
             except ValueError:
                 raise ValidationError(

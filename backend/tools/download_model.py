@@ -67,9 +67,12 @@ def check_models() -> dict:
     # Check MiniLM (in HuggingFace cache)
     try:
         from sentence_transformers import SentenceTransformer
+
         # Check if model is cached (won't download if not)
         cache_dir = Path.home() / ".cache" / "huggingface" / "hub"
-        minilm_cache = list(cache_dir.glob("*multi-qa-MiniLM*")) if cache_dir.exists() else []
+        minilm_cache = (
+            list(cache_dir.glob("*multi-qa-MiniLM*")) if cache_dir.exists() else []
+        )
         status["minilm"] = len(minilm_cache) > 0
     except ImportError:
         pass
@@ -82,6 +85,7 @@ def download_minilm():
     print(f"\n[MiniLM] Downloading {MINILM_MODEL}...")
     try:
         from sentence_transformers import SentenceTransformer
+
         model = SentenceTransformer(MINILM_MODEL)
         print(f"[MiniLM] ✅ Downloaded successfully (~80MB)")
         return True
@@ -96,7 +100,8 @@ def print_status(status: dict):
     print("AI Model Status")
     print("=" * 60)
 
-    def icon(ok): return "✅" if ok else "❌"
+    def icon(ok):
+        return "✅" if ok else "❌"
 
     print(f"\n{icon(status['minilm'])} MiniLM (Intent Classifier)")
     print(f"   Model: {MINILM_MODEL}")
@@ -106,7 +111,7 @@ def print_status(status: dict):
     print(f"   Path: {status['fine_tuned_path']}")
     print(f"   Size: ~250MB | Source: Shared separately")
 
-    if not status['fine_tuned']:
+    if not status["fine_tuned"]:
         print("\n" + "-" * 60)
         print("⚠️  Fine-tuned model not found!")
         print("")
@@ -149,12 +154,12 @@ def main():
 
     if args.check:
         print_status(status)
-        sys.exit(0 if status['fine_tuned'] else 1)
+        sys.exit(0 if status["fine_tuned"] else 1)
 
     # Download MiniLM (only HuggingFace model needed at runtime)
     success = True
 
-    if not status['minilm']:
+    if not status["minilm"]:
         success = download_minilm()
     else:
         print("\n[MiniLM] Already cached, skipping...")

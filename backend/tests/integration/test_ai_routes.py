@@ -36,7 +36,6 @@ from app.core.extensions import db
 from app.models.category import Category
 from app.models.transaction import Transaction
 
-
 # =============================================================================
 # FIXTURES
 # =============================================================================
@@ -120,13 +119,16 @@ class TestAIChatEndpoints:
         # Should NOT return "User not found" (the auth bug we fixed)
         result = response.get_json()
         if response.status_code == 404:
-            assert "User not found" not in result.get("error", {}).get("message", ""), \
-                "Auth pattern bug: User not found should not occur with valid auth"
+            assert "User not found" not in result.get("error", {}).get(
+                "message", ""
+            ), "Auth pattern bug: User not found should not occur with valid auth"
 
         # Accept 200 (success) or 500 (if AI service not configured)
         # but NOT 404 "User not found"
-        assert response.status_code in [200, 500], \
-            f"Unexpected status {response.status_code}: {result}"
+        assert response.status_code in [
+            200,
+            500,
+        ], f"Unexpected status {response.status_code}: {result}"
 
     def test_chat_history_endpoint(self, client, auth_headers):
         """Test GET /api/v1/ai/chat/history returns proper structure."""
@@ -135,8 +137,9 @@ class TestAIChatEndpoints:
             headers=auth_headers,
         )
 
-        assert response.status_code == 200, \
-            f"Expected 200, got {response.status_code}: {response.get_json()}"
+        assert (
+            response.status_code == 200
+        ), f"Expected 200, got {response.status_code}: {response.get_json()}"
 
         result = response.get_json()
         assert result["success"] is True
@@ -179,12 +182,15 @@ class TestAICategorizationEndpoint:
         # Should NOT return "User not found"
         result = response.get_json()
         if response.status_code == 404:
-            assert "User not found" not in result.get("error", {}).get("message", ""), \
-                "Auth pattern bug: User not found should not occur"
+            assert "User not found" not in result.get("error", {}).get(
+                "message", ""
+            ), "Auth pattern bug: User not found should not occur"
 
         # Accept 200 (success) or 500 (if AI service not configured)
-        assert response.status_code in [200, 500], \
-            f"Unexpected status {response.status_code}: {result}"
+        assert response.status_code in [
+            200,
+            500,
+        ], f"Unexpected status {response.status_code}: {result}"
 
 
 # =============================================================================
@@ -195,7 +201,9 @@ class TestAICategorizationEndpoint:
 class TestAIInsightsEndpoint:
     """Tests for AI insights/analysis endpoint."""
 
-    def test_insights_endpoint_returns_data(self, client, auth_headers, sample_transactions):
+    def test_insights_endpoint_returns_data(
+        self, client, auth_headers, sample_transactions
+    ):
         """Test GET /api/v1/ai/insights returns proper structure."""
         response = client.get(
             "/api/v1/ai/insights",
@@ -205,12 +213,15 @@ class TestAIInsightsEndpoint:
         # Should NOT return "User not found"
         result = response.get_json()
         if response.status_code == 404:
-            assert "User not found" not in result.get("error", {}).get("message", ""), \
-                "Auth pattern bug: User not found should not occur"
+            assert "User not found" not in result.get("error", {}).get(
+                "message", ""
+            ), "Auth pattern bug: User not found should not occur"
 
         # Accept 200 or 500 (if AI service not configured)
-        assert response.status_code in [200, 500], \
-            f"Unexpected status {response.status_code}: {result}"
+        assert response.status_code in [
+            200,
+            500,
+        ], f"Unexpected status {response.status_code}: {result}"
 
         if response.status_code == 200:
             assert result["success"] is True
@@ -234,11 +245,13 @@ class TestAIClarificationsEndpoints:
         # Should NOT return "User not found"
         result = response.get_json()
         if response.status_code == 404:
-            assert "User not found" not in result.get("error", {}).get("message", ""), \
-                "Auth pattern bug: User not found should not occur"
+            assert "User not found" not in result.get("error", {}).get(
+                "message", ""
+            ), "Auth pattern bug: User not found should not occur"
 
-        assert response.status_code == 200, \
-            f"Unexpected status {response.status_code}: {result}"
+        assert (
+            response.status_code == 200
+        ), f"Unexpected status {response.status_code}: {result}"
 
         assert result["success"] is True
         assert "data" in result
@@ -258,8 +271,9 @@ class TestAIClarificationsEndpoints:
             # Acceptable - clarification doesn't exist
             # But should NOT be "User not found"
             error_msg = result.get("error", {}).get("message", "")
-            assert "User not found" not in error_msg, \
-                "Auth pattern bug: User not found should not occur"
+            assert (
+                "User not found" not in error_msg
+            ), "Auth pattern bug: User not found should not occur"
         else:
             # 400 for validation error is also acceptable
             assert response.status_code in [400, 404]
@@ -275,8 +289,9 @@ class TestAIClarificationsEndpoints:
         result = response.get_json()
         if response.status_code == 404:
             error_msg = result.get("error", {}).get("message", "")
-            assert "User not found" not in error_msg, \
-                "Auth pattern bug: User not found should not occur"
+            assert (
+                "User not found" not in error_msg
+            ), "Auth pattern bug: User not found should not occur"
 
 
 # =============================================================================
@@ -287,7 +302,9 @@ class TestAIClarificationsEndpoints:
 class TestAIRecurringEndpoints:
     """Tests for AI recurring transaction detection endpoints."""
 
-    def test_recurring_patterns_endpoint(self, client, auth_headers, sample_transactions):
+    def test_recurring_patterns_endpoint(
+        self, client, auth_headers, sample_transactions
+    ):
         """Test GET /api/v1/ai/recurring returns data."""
         response = client.get(
             "/api/v1/ai/recurring",
@@ -296,12 +313,15 @@ class TestAIRecurringEndpoints:
 
         result = response.get_json()
         if response.status_code == 404:
-            assert "User not found" not in result.get("error", {}).get("message", ""), \
-                "Auth pattern bug: User not found should not occur"
+            assert "User not found" not in result.get("error", {}).get(
+                "message", ""
+            ), "Auth pattern bug: User not found should not occur"
 
         # 200 or 500 (if service not configured)
-        assert response.status_code in [200, 500], \
-            f"Unexpected status {response.status_code}: {result}"
+        assert response.status_code in [
+            200,
+            500,
+        ], f"Unexpected status {response.status_code}: {result}"
 
     def test_upcoming_recurring_endpoint(self, client, auth_headers):
         """Test GET /api/v1/ai/recurring/upcoming returns data."""
@@ -312,11 +332,14 @@ class TestAIRecurringEndpoints:
 
         result = response.get_json()
         if response.status_code == 404:
-            assert "User not found" not in result.get("error", {}).get("message", ""), \
-                "Auth pattern bug: User not found should not occur"
+            assert "User not found" not in result.get("error", {}).get(
+                "message", ""
+            ), "Auth pattern bug: User not found should not occur"
 
-        assert response.status_code in [200, 500], \
-            f"Unexpected status {response.status_code}: {result}"
+        assert response.status_code in [
+            200,
+            500,
+        ], f"Unexpected status {response.status_code}: {result}"
 
     def test_missed_recurring_endpoint(self, client, auth_headers):
         """Test GET /api/v1/ai/recurring/missed returns data."""
@@ -327,11 +350,14 @@ class TestAIRecurringEndpoints:
 
         result = response.get_json()
         if response.status_code == 404:
-            assert "User not found" not in result.get("error", {}).get("message", ""), \
-                "Auth pattern bug: User not found should not occur"
+            assert "User not found" not in result.get("error", {}).get(
+                "message", ""
+            ), "Auth pattern bug: User not found should not occur"
 
-        assert response.status_code in [200, 500], \
-            f"Unexpected status {response.status_code}: {result}"
+        assert response.status_code in [
+            200,
+            500,
+        ], f"Unexpected status {response.status_code}: {result}"
 
 
 # =============================================================================
@@ -352,12 +378,15 @@ class TestAIRAGEndpoint:
 
         result = response.get_json()
         if response.status_code == 404:
-            assert "User not found" not in result.get("error", {}).get("message", ""), \
-                "Auth pattern bug: User not found should not occur"
+            assert "User not found" not in result.get("error", {}).get(
+                "message", ""
+            ), "Auth pattern bug: User not found should not occur"
 
         # 200 or 500 (if RAG not configured)
-        assert response.status_code in [200, 500], \
-            f"Unexpected status {response.status_code}: {result}"
+        assert response.status_code in [
+            200,
+            500,
+        ], f"Unexpected status {response.status_code}: {result}"
 
 
 # =============================================================================
@@ -375,8 +404,9 @@ class TestAIStatusEndpoint:
             headers=auth_headers,
         )
 
-        assert response.status_code == 200, \
-            f"Expected 200, got {response.status_code}: {response.get_json()}"
+        assert (
+            response.status_code == 200
+        ), f"Expected 200, got {response.status_code}: {response.get_json()}"
 
 
 # =============================================================================
@@ -416,13 +446,15 @@ class TestAuthPatternVerification:
             result = response.get_json()
             error_msg = result.get("error", {}).get("message", "") if result else ""
 
-            assert "User not found" not in error_msg, \
-                f"Auth pattern bug on {method} {endpoint}: User not found error returned"
+            assert (
+                "User not found" not in error_msg
+            ), f"Auth pattern bug on {method} {endpoint}: User not found error returned"
 
             # Should not be 404 with "User not found"
             if response.status_code == 404:
-                assert "User not found" not in error_msg, \
-                    f"Auth pattern bug on {method} {endpoint}"
+                assert (
+                    "User not found" not in error_msg
+                ), f"Auth pattern bug on {method} {endpoint}"
 
     def test_post_endpoints_find_user(self, client, auth_headers):
         """
@@ -439,5 +471,6 @@ class TestAuthPatternVerification:
             result = response.get_json()
             error_msg = result.get("error", {}).get("message", "") if result else ""
 
-            assert "User not found" not in error_msg, \
-                f"Auth pattern bug on POST {endpoint}: User not found error returned"
+            assert (
+                "User not found" not in error_msg
+            ), f"Auth pattern bug on POST {endpoint}: User not found error returned"

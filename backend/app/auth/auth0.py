@@ -41,7 +41,6 @@ from app.utils.errors import (
     UnauthorizedError,
 )
 
-
 # =============================================================================
 # LOGGER SETUP
 # =============================================================================
@@ -97,7 +96,9 @@ class JWKSClient:
         if self._jwks is None or force_refresh:
             try:
                 logger.debug(f"Fetching JWKS from {self.jwks_uri}")
-                with urlopen(self.jwks_uri, timeout=10) as response:  # nosec B310 - JWKS URL is HTTPS from Auth0
+                with urlopen(
+                    self.jwks_uri, timeout=10
+                ) as response:  # nosec B310 - JWKS URL is HTTPS from Auth0
                     self._jwks = json.loads(response.read().decode())
                 logger.info("JWKS fetched successfully")
             except Exception as e:

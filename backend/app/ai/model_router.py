@@ -430,7 +430,9 @@ class ModelRouter:
 
         if self.intent_classifier:
             try:
-                status["models"]["intent_classifier"] = self.intent_classifier.get_info()
+                status["models"][
+                    "intent_classifier"
+                ] = self.intent_classifier.get_info()
             except Exception as e:
                 status["models"]["intent_classifier"] = {"error": str(e)}
 

@@ -48,6 +48,16 @@ yarn-error.log*
 coverage/
 .nyc_output/
 
+# Playwright E2E
+shared/e2e/test-results/
+shared/e2e/playwright-report/
+shared/e2e/blob-report/
+shared/e2e/.playwright/
+shared/e2e/node_modules/
+
+# Node modules (all folders)
+**/node_modules/
+
 # Misc
 *.bak
 *.tmp

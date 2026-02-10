@@ -32,7 +32,6 @@ from app.schemas.budget_schema import (
 )
 from app.utils.errors import ValidationError
 
-
 # =============================================================================
 # BLUEPRINT SETUP
 # =============================================================================

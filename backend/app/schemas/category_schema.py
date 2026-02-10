@@ -29,7 +29,6 @@ from marshmallow import fields, validate
 
 from app.schemas.base import BaseSchema
 
-
 # =============================================================================
 # CATEGORY SCHEMA (FULL)
 # =============================================================================
@@ -169,7 +168,9 @@ class CategoryCreateSchema(BaseSchema):
     color = fields.String(
         required=False,
         allow_none=True,
-        validate=validate.Regexp(r"^#[0-9A-Fa-f]{6}$", error="Must be a valid hex color (e.g., #FF6B6B)"),
+        validate=validate.Regexp(
+            r"^#[0-9A-Fa-f]{6}$", error="Must be a valid hex color (e.g., #FF6B6B)"
+        ),
         metadata={"description": "Hex color code (e.g., #FF6B6B)"},
     )
 
@@ -216,7 +217,9 @@ class CategoryUpdateSchema(BaseSchema):
     color = fields.String(
         required=False,
         allow_none=True,
-        validate=validate.Regexp(r"^#[0-9A-Fa-f]{6}$", error="Must be a valid hex color (e.g., #FF6B6B)"),
+        validate=validate.Regexp(
+            r"^#[0-9A-Fa-f]{6}$", error="Must be a valid hex color (e.g., #FF6B6B)"
+        ),
         metadata={"description": "Hex color code (e.g., #FF6B6B)"},
     )
 

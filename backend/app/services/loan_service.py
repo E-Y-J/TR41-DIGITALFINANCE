@@ -80,7 +80,10 @@ class LoanService:
         required_fields = ["name", "original_amount", "remaining_amount", "category_id"]
         missing = [f for f in required_fields if f not in data or data[f] is None]
         if missing:
-            raise ValidationError("Invalid loan data", details={f: ["Missing data for required field."] for f in missing})
+            raise ValidationError(
+                "Invalid loan data",
+                details={f: ["Missing data for required field."] for f in missing},
+            )
 
         validated = data
         status_str = validated.get("status", LoanStatus.OPEN.value)
@@ -118,7 +121,7 @@ class LoanService:
         """Update an existing loan."""
         loan = cls.get_by_id(user_id, loan_id)
 
-        payload=dict(data)
+        payload = dict(data)
         if "category_id" in payload and payload["category_id"] is not None:
             payload["category_id"] = str(payload["category_id"])
         if "budget_id" in payload and payload["budget_id"] is not None:
@@ -133,8 +136,16 @@ class LoanService:
         if "status" in validated:
             validated["status"] = LoanStatus(validated["status"])
 
-        for field in ["name", "original_amount", "remaining_amount", "category_id",
-                      "budget_id", "status", "start_date", "end_date"]:
+        for field in [
+            "name",
+            "original_amount",
+            "remaining_amount",
+            "category_id",
+            "budget_id",
+            "status",
+            "start_date",
+            "end_date",
+        ]:
             if field in validated:
                 setattr(loan, field, validated[field])
 
@@ -192,6 +203,7 @@ class LoanService:
                     loan.budget_name = f"{budget.category.name} budget"
                 else:
                     loan.budget_name = "Category budget"
+
 
 # =============================================================================
 # MODULE EXPORTS

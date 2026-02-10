@@ -52,7 +52,6 @@ from app.models.notification import Notification
 from app.models.enums import NotificationStatus, NotificationType
 from app.utils.errors import NotFoundError, ForbiddenError, InternalError
 
-
 # =============================================================================
 # LOGGER SETUP
 # =============================================================================

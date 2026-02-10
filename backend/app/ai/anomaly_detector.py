@@ -208,9 +208,7 @@ class AnomalyDetector:
 
         return anomalies
 
-    def _check_large_transaction(
-        self, transaction: Any
-    ) -> Optional[Dict[str, Any]]:
+    def _check_large_transaction(self, transaction: Any) -> Optional[Dict[str, Any]]:
         """Check if transaction amount is unusually large."""
         if transaction.amount >= LARGE_TRANSACTION_THRESHOLD:
             return {
@@ -356,9 +354,9 @@ class AnomalyDetector:
 
             # Cache the result
             self._user_baselines[cache_key] = baseline
-            self._baseline_expiry[cache_key] = datetime.now(
-                timezone.utc
-            ) + timedelta(minutes=self._baseline_cache_minutes)
+            self._baseline_expiry[cache_key] = datetime.now(timezone.utc) + timedelta(
+                minutes=self._baseline_cache_minutes
+            )
 
             return baseline
 

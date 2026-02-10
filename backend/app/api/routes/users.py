@@ -36,7 +36,6 @@ from app.schemas.user_schema import user_schema
 from app.utils.errors import ValidationError
 from app.utils.helpers import success_response
 
-
 # =============================================================================
 # LOGGER SETUP
 # =============================================================================
