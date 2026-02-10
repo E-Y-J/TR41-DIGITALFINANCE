@@ -1,0 +1,109 @@
+# =============================================================================
+# Digital Finance Tracker - Production Docker Compose
+# PURPOSE: VPS deployment with containerized PostgreSQL
+# =============================================================================
+#
+# USAGE:
+#   1. Copy .env.vps.example to .env.vps and fill in values
+#   2. docker compose -f docker-compose.prod.yaml --env-file .env.vps up -d
+#
+# ARCHITECTURE:
+#   - Backend: Flask + AI models (port 8003)
+#   - PostgreSQL: Database (port 5433 - separate from existing 5432)
+#   - Redis: Rate limiting & caching (port 6381 - separate from existing 6379/6380)
+#   - Frontend: Vercel (external)
+# =============================================================================
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: finance_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: digital_finance
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-SecureFinance2026!}
+    ports:
+      - "127.0.0.1:5433:5432"  # Port 5433 externally, 5432 internally
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d digital_finance"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: finance_redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6381:6379"  # Port 6381 externally (avoid 6379/6380)
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: finance_backend
+    restart: unless-stopped
+    env_file:
+      - .env.vps
+    environment:
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD:-SecureFinance2026!}@db:5432/digital_finance
+      - REDIS_URL=redis://redis:6379/0
+      - BACKEND_PORT=8003
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8003:8003"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8003/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s  # AI models need time to load
+    deploy:
+      resources:
+        limits:
+          memory: 4G  # Limit to 4GB, leaving room for Redis and OS
+        reservations:
+          memory: 2G  # Minimum 2GB for AI models
+
+volumes:
+  redis_data:
+  postgres_data:
+
+# =============================================================================
+# DEPLOYMENT NOTES:
+#
+# 1. First-time setup on VPS:
+#    $ git clone <repo> /opt/digital-finance
+#    $ cd /opt/digital-finance
+#    $ cp .env.vps.example .env.vps
+#    $ nano .env.vps  # Fill in AWS RDS URL, Auth0 config, etc.
+#
+# 2. Ensure fine-tuned AI model is present:
+#    $ cd backend && python tools/download_model.py --check
+#
+# 3. Build and start:
+#    $ docker compose -f docker-compose.prod.yaml --env-file .env.vps build
+#    $ docker compose -f docker-compose.prod.yaml --env-file .env.vps up -d
+#
+# 4. View logs:
+#    $ docker compose -f docker-compose.prod.yaml logs -f backend
+#
+# 5. Apply database migrations (first time only):
+#    $ docker compose -f docker-compose.prod.yaml exec backend flask db upgrade
+#
+# =============================================================================

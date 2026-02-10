@@ -24,7 +24,7 @@
 
 ## 🔑 Environment Variables Summary
 
-### Backend (AWS Elastic Beanstalk)
+### Backend (VPS or AWS EB)
 
 | Variable | Required | Description | Example |
 |----------|----------|-------------|---------|
@@ -36,8 +36,9 @@
 | `AUTH0_ALGORITHMS` | ✅ | JWT signing algorithm | `RS256` |
 | `FRONTEND_URL` | ✅ | CORS allowed origin | `https://your-app.vercel.app` |
 | `GEMINI_API_KEY` | ✅ | Google AI API key | Get from Google AI Studio |
-| `REDIS_URL` | ⚪ | Redis connection (optional) | `redis://elasticache-host:6379/0` |
+| `REDIS_URL` | ✅ | Redis connection | `redis://redis:6379/0` (VPS) or Upstash URL |
 | `DEV_IMPERSONATION` | ⚠️ | **MUST be `false` in prod** | `false` |
+| `AI_CATEGORIZER_ENABLED` | ⚪ | Enable local AI model | `true` (VPS) / `false` (Free Tier) |
 
 ### Frontend (Vercel)
 
@@ -46,7 +47,7 @@
 | `VITE_AUTH0_DOMAIN` | ✅ | Auth0 tenant domain | `dev-2d371r8njde648mh.us.auth0.com` |
 | `VITE_AUTH0_CLIENT_ID` | ✅ | Auth0 SPA Client ID | `Xmf7EN2wO4jhTjJN1T2U1ZDgJidWI32A` |
 | `VITE_AUTH0_AUDIENCE` | ✅ | Auth0 API identifier | `https://api.digitalfinance.local` |
-| `VITE_API_URL` | ✅ | Backend API URL | `https://your-backend.elasticbeanstalk.com` |
+| `VITE_API_URL` | ✅ | Backend API URL | `http://your-vps-ip:8000` |
 
 ---
 
@@ -90,7 +91,81 @@
 
 ## 🚀 Deployment Steps
 
-### Step 1: Backend (AWS EB)
+### Option A: VPS + AWS RDS (Recommended for Full AI)
+
+This architecture runs the backend with full AI models on your VPS while using AWS RDS for managed PostgreSQL.
+
+#### Step 1: AWS RDS Setup (Free Tier)
+```bash
+# Create PostgreSQL 15 instance via AWS Console:
+# - Engine: PostgreSQL 15
+# - Template: Free tier
+# - DB instance class: db.t3.micro
+# - Storage: 20 GB
+# - Public access: Yes (configure security group)
+# - Note the endpoint URL
+```
+
+#### Step 2: VPS Setup (CentOS/AlmaLinux + Docker)
+```bash
+# SSH to your VPS
+ssh root@your-vps-ip
+
+# Clone repository
+git clone https://github.com/your-repo/digital-finance.git /opt/digital-finance
+cd /opt/digital-finance
+
+# Copy environment template
+cp .env.vps.example .env.vps
+
+# Edit with your values (AWS RDS URL, Auth0, Gemini key, etc.)
+nano .env.vps
+
+# Ensure fine-tuned AI model is present
+cd backend
+python tools/download_model.py --check
+cd ..
+
+# Build and start containers
+docker compose -f docker-compose.prod.yaml --env-file .env.vps build
+docker compose -f docker-compose.prod.yaml --env-file .env.vps up -d
+
+# Run database migrations
+docker compose -f docker-compose.prod.yaml exec backend flask db upgrade
+
+# Check logs
+docker compose -f docker-compose.prod.yaml logs -f backend
+```
+
+#### Step 3: Frontend (Vercel)
+```bash
+cd frontend
+vercel --prod
+# Set environment variables in Vercel dashboard
+```
+
+#### Step 4: Update Auth0
+After deployment, update Auth0 Application Settings:
+- Add production callback URL: `https://your-app.vercel.app/callback`
+- Add production logout URL: `https://your-app.vercel.app`
+- Add production web origin: `https://your-app.vercel.app`
+
+#### Step 5: Verify
+```bash
+# Test backend health
+curl http://your-vps-ip:8000/health
+
+# Test API
+curl http://your-vps-ip:8000/api/test
+```
+
+---
+
+### Option B: AWS Elastic Beanstalk (Alternative - No Local AI)
+
+For AWS-only deployment without local AI models (uses Gemini API fallback only).
+
+#### Step 1: Backend (AWS EB)
 ```bash
 cd backend
 eb init -p docker digital-finance-api
