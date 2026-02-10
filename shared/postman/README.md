@@ -4,22 +4,38 @@ This folder contains Postman collections and environment files for API testing.
 
 ---
 
+## 🌐 Production API
+
+| Environment | URL |
+|-------------|-----|
+| **Production API** | https://securebankai.mysticdatanode.net |
+| **Swagger UI** | https://securebankai.mysticdatanode.net/api/docs/ |
+| **OpenAPI Spec** | https://securebankai.mysticdatanode.net/api/docs/openapi.json |
+
+---
+
 ## 🚀 Quick Start for QA
 
 ### Auto-Import from Swagger
 
 **You can import the OpenAPI spec directly into Postman:**
 
+1. Open Postman → **Import** → **Link** tab
+2. Paste: `https://securebankai.mysticdatanode.net/api/docs/openapi.json`
+3. All endpoints are auto-generated from the OpenAPI spec.
+
+### Local Development
+
 1. Start backend: `cd backend && flask db upgrade && flask run --port=8000`
 2. Open Postman → **Import** → **Link** tab
 3. Paste: `http://localhost:8000/api/docs/openapi.json`
-4. All 17 requests are auto-generated from the OpenAPI spec.
 
 ---
 
 ### View Endpoints in Swagger UI
 
-Open in browser: http://localhost:8000/api/docs
+- **Production:** https://securebankai.mysticdatanode.net/api/docs/
+- **Local:** http://localhost:8000/api/docs
 
 ---
 

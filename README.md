@@ -6,32 +6,71 @@
 - Track income and expenses  
 - Understand spending patterns and trends  
 - Receive AI-assisted categorization and financial insights  
+- Chat with an AI assistant for financial queries and transaction management
 
 This is a full-stack, cloud-based **AI Digital Finance Tracker** MVP built as part of a Tech Residency program.
 
 ---
 
-## Team Members
+## 🌐 Live Demo
 
--   Front End Developers:
-    -   [Jae Young Seo]()
--   Back End Developers:
-    -   [Suryadi Zhang]()
-    -   [Ariel Resendiz]()
--   Cybersecurity Specialist:
-    -   [Monira Lizu]()
+| Environment | URL |
+|-------------|-----|
+| **Frontend** | https://digital-finance-frontend.vercel.app |
+| **API** | https://securebankai.mysticdatanode.net |
+| **API Health** | https://securebankai.mysticdatanode.net/health |
+| **API Docs** | https://securebankai.mysticdatanode.net/api/docs/ |
+
+---
+
+## 👥 Team Members
+
+| Role | Name | Email |
+|------|------|-------|
+| **Frontend Developer** | Jae Young Seo | jaeyseo0922@gmail.com |
+| **Backend Developer** | Suryadi Zhang | suryadizhang86@gmail.com |
+| **Backend Developer** | Ariel Resendiz | resendiz.ariel6@gmail.com |
+| **Cybersecurity Specialist** | Monira Lizu | moniralizu1@gmail.com |
 
 ## 🌟 Core Features
 
-- **Manual & AI-assisted transaction entry**
-- **AI prediction of spending categories**
-- **Unified dashboard** with balances, trends, and summaries
-- **Cloud sync** across devices
-- **Authentication & authorization** via Auth0
-- **Optional / stretch goals**
-  - Budgeting goals and alerts  
-  - CSV export & enhanced reporting  
-  - Advanced analytics & recommendations  
+### User Management
+- **Auth0 Authentication** - Secure OAuth2/OIDC login with Google, GitHub, email/password
+- **User Onboarding** - Guided setup for new users with preferences configuration
+- **Profile Management** - Update personal info, currency preferences, settings
+
+### Transaction Management
+- **CRUD Operations** - Create, read, update, delete transactions
+- **AI-Powered Categorization** - Automatic category prediction using DistilBERT (99.7% accuracy)
+- **Transaction History** - Paginated, filterable, searchable transaction list
+- **Summary & Trends** - Daily, weekly, monthly spending analytics
+
+### Budget Management
+- **Budget Creation** - Set spending limits by category or overall
+- **Budget Alerts** - Real-time alerts when approaching or exceeding limits
+- **Budget Suggestions** - AI-powered recommendations based on spending patterns
+
+### AI Chat Assistant
+- **Natural Language Interface** - Chat with AI for financial queries
+- **Intent Classification** - MiniLM model identifies user intent
+- **Command Execution** - Add transactions, check budgets via chat
+- **Spending Insights** - AI-generated analysis of spending patterns
+- **Recurring Transaction Detection** - Automatic identification of subscriptions
+- **RAG Knowledge Base** - Contextual answers from documentation
+
+### Notifications & Alerts
+- **Budget Alerts** - Over-budget and near-limit warnings
+- **Bill Reminders** - Upcoming recurring payment notifications
+- **Anomaly Detection** - Unusual spending pattern alerts
+
+### Loans & Debt Tracking
+- **Loan Management** - Track loans, payments, interest rates
+- **Payment History** - Record loan payments and remaining balance
+
+### Data Visualization
+- **Dashboard** - Overview of financial health
+- **Spending Charts** - Category breakdowns, trend graphs
+- **Comparative Analysis** - Month-over-month spending comparison  
 
 ---
 
@@ -39,12 +78,16 @@ This is a full-stack, cloud-based **AI Digital Finance Tracker** MVP built as pa
 
 ### Frontend
 
-- React (Vite)
-- JavaScript
-- MUI (Material UI)
-- TanStack Query
-- Redux Toolkit
-- Auth0 (SPA auth)
+| Category | Technology |
+|----------|------------|
+| **Framework** | React 19 (Vite 6) |
+| **Language** | JavaScript/JSX |
+| **UI Library** | MUI (Material UI) v6 |
+| **State Management** | Redux Toolkit, TanStack Query |
+| **Routing** | React Router v7 |
+| **Authentication** | Auth0 React SDK |
+| **HTTP Client** | Axios |
+| **Hosting** | Vercel |
 
 > See: `frontend/README.md` for full setup, scripts, and env vars.
 
@@ -52,41 +95,52 @@ This is a full-stack, cloud-based **AI Digital Finance Tracker** MVP built as pa
 
 ### Backend
 
-- Python, Flask
-- Flask-SQLAlchemy, Alembic (Flask-Migrate)
-- Marshmallow (serialization & validation)
-- OpenAPI/Swagger (flask-swagger / flask-swagger-ui)
-- pytest, gunicorn
-- Flask-JWT-Extended / Auth0 token validation
-- flask-limiter (Redis), flask-caching (Redis)
-- Sentry (monitoring)
+| Category | Technology |
+|----------|------------|
+| **Framework** | Flask 3.0+ (Python 3.13) |
+| **ORM** | Flask-SQLAlchemy, Alembic (Flask-Migrate) |
+| **Validation** | Marshmallow |
+| **API Docs** | OpenAPI/Swagger (flask-swagger-ui) |
+| **Authentication** | Auth0 (python-jose, PyJWT) |
+| **Caching** | Flask-Caching (Redis) |
+| **Rate Limiting** | Flask-Limiter (Redis) |
+| **WSGI Server** | Gunicorn |
+| **Monitoring** | Sentry |
+| **Testing** | pytest (146+ tests) |
 
 > See: `backend/README.md` for architecture, API design, setup, and detailed docs.  
 > See: `backend/docs/DEMO_GUIDE.md` for AI demo walkthroughs and Docker-based demo flow.
 
 ---
 
-### Data & AI
+### AI / Machine Learning
 
-- **Database:** PostgreSQL (seeded with mock data for development)
-- **AI / ML:**  
-  - HuggingFace models  
-  - Transaction categorization training in `training/`  
-- **AI Hosting / Models:** HuggingFace, local models orchestrated by backend
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| **Categorizer** | DistilBERT (HuggingFace) | Transaction category prediction (99.7% accuracy) |
+| **Intent Classifier** | MiniLM-L6 (Sentence Transformers) | User intent detection in chat |
+| **Chat Fallback** | Google Gemini 2.0 Flash | Complex queries requiring LLM |
+| **Guardrails** | Custom NLP | Finance-only query filtering |
+| **RAG** | Sentence Transformers | Knowledge base retrieval |
+| **Recurring Detector** | Custom Python | Subscription/recurring payment detection |
+| **Anomaly Detector** | Statistical Analysis | Unusual spending pattern detection |
 
 > See: `training/README.md` for transaction categorization research and model training details.
 
 ---
 
-### DevOps, Hosting & Deployment
+### Database & Infrastructure
 
-- **Containers / Orchestration:** Docker, Docker Compose
-- **Frontend Hosting:** Vercel
-- **Backend Hosting:** VPS (Plesk), GCSM, Cloudflare, potentially AWS/Supabase
-- **Local Orchestration & Automation:**  
-  - Root `Makefile` – dev environment and utility commands  
-  - `docker/` – Docker configuration documentation  
-  - `RUN_APP.md` – commands and setup to run Docker containers with Docker Desktop + `make`
+| Category | Technology |
+|----------|------------|
+| **Database** | PostgreSQL 15 |
+| **Cache/Session** | Redis 7.4 |
+| **Containerization** | Docker, Docker Compose |
+| **Frontend Hosting** | Vercel (automatic deployments from GitHub) |
+| **Backend Hosting** | VPS (IONOS) with Plesk, Apache reverse proxy |
+| **SSL/TLS** | Let's Encrypt (auto-renewal) |
+| **DNS/CDN** | Cloudflare |
+| **Secrets** | Google Cloud Secret Manager |
 
 > See: `docker/README.md` and `RUN_APP.md` for container setup and local orchestration.
 
