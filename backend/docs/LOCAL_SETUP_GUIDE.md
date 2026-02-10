@@ -230,8 +230,8 @@ curl http://localhost:8000/health
 | `AUTH0_DOMAIN` | ✅ | Auth0 tenant | `your-tenant.auth0.com` |
 | `AUTH0_API_AUDIENCE` | ✅ | API identifier | `your-api-identifier` |
 | `REDIS_URL` | ❌ | Redis URL | `redis://localhost:6379/0` |
-| `FRONTEND_URL` | ❌ | CORS origins | `http://localhost:5173` |
-
+| `FRONTEND_URL` | ❌ | CORS origins | `http://localhost:5173` || `SENTRY_DSN` | ❌ | Sentry error monitoring | `https://xxx@xxx.ingest.sentry.io/xxx` |
+| `SENTRY_TRACES_SAMPLE_RATE` | ❌ | Performance sampling (0-1) | `0.1` |
 ---
 
 ## 📁 Project Architecture

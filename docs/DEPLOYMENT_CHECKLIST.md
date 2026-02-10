@@ -39,6 +39,8 @@
 | `REDIS_URL` | ✅ | Redis connection | `redis://redis:6379/0` (VPS) or Upstash URL |
 | `DEV_IMPERSONATION` | ⚠️ | **MUST be `false` in prod** | `false` |
 | `AI_CATEGORIZER_ENABLED` | ⚪ | Enable local AI model | `true` (VPS) / `false` (Free Tier) |
+| `SENTRY_DSN` | ⚪ | Sentry error monitoring | `https://xxx@xxx.ingest.sentry.io/xxx` |
+| `SENTRY_TRACES_SAMPLE_RATE` | ⚪ | Performance sampling (0-1) | `0.1` |
 
 ### Frontend (Vercel)
 
