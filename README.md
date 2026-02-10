@@ -16,7 +16,7 @@ This is a full-stack, cloud-based **AI Digital Finance Tracker** MVP built as pa
 
 | Environment | URL |
 |-------------|-----|
-| **Frontend** | https://digital-finance-frontend.vercel.app |
+| **Frontend** | https://securebankai.vercel.app |
 | **API** | https://securebankai.mysticdatanode.net |
 | **API Health** | https://securebankai.mysticdatanode.net/health |
 | **API Docs** | https://securebankai.mysticdatanode.net/api/docs/ |

@@ -6,7 +6,7 @@ Central documentation hub for the AI Digital Finance Tracker project.
 
 | Environment | URL |
 |-------------|-----|
-| **Frontend** | https://digital-finance-frontend.vercel.app |
+| **Frontend** | https://securebankai.vercel.app |
 | **API** | https://securebankai.mysticdatanode.net |
 | **API Docs** | https://securebankai.mysticdatanode.net/api/docs/ |
 

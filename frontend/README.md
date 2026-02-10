@@ -4,7 +4,7 @@ React-based single-page application for the AI Digital Finance Tracker.
 
 ## 🌐 Live Demo
 
-**Production URL:** https://digital-finance-frontend.vercel.app
+**Production URL:** https://securebankai.vercel.app
 
 ---
 
