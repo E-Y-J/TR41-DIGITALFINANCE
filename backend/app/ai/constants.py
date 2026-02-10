@@ -161,6 +161,13 @@ CATEGORY_KEYWORDS: Dict[str, List[str]] = {
         "wayfair",
         "purchase",
         "buy",
+        # Supplement/vitamin stores
+        "gnc",
+        "vitamin shoppe",
+        "supplement",
+        "vitamin",
+        "nutrition",
+        "protein",
     ],
     "Entertainment & Recreation": [
         "movie",

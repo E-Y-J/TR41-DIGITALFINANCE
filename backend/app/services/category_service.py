@@ -330,6 +330,189 @@ class CategoryService:
         return None, 0.0
 
     @classmethod
+    def categorize_by_pattern(
+        cls, merchant_name: str
+    ) -> tuple[Optional[Category], float]:
+        """
+        Categorize based on business type patterns in merchant name.
+
+        This catches common business type words like "cafe", "store", "pharmacy"
+        that indicate what type of business it is, even if we don't know the
+        specific business name.
+
+        PATTERN EXAMPLES:
+        - "Joe's Cafe" → contains "cafe" → Food & Dining
+        - "XYZ Pharmacy" → contains "pharmacy" → Healthcare & Medical
+        - "ABC Auto Repair" → contains "auto" → Transportation
+
+        Args:
+            merchant_name: Transaction merchant name
+
+        Returns:
+            Tuple of (Category or None, confidence_score)
+            - Confidence is 0.9 for pattern match (slightly lower than keyword)
+
+        Note:
+            This runs AFTER keyword matching but BEFORE AI models.
+            It's a fallback for unknown specific businesses.
+        """
+        if not merchant_name:
+            return None, 0.0
+
+        merchant_lower = merchant_name.lower()
+
+        # Business type patterns → category mappings
+        # More specific patterns first to avoid false matches
+        BUSINESS_TYPE_PATTERNS = {
+            "Food & Dining": [
+                "restaurant",
+                "cafe",
+                "coffee",
+                "diner",
+                "grill",
+                "eatery",
+                "bistro",
+                "pizzeria",
+                "bakery",
+                "kitchen",
+                "tavern",
+                "pub",
+                "bar & grill",
+                "steakhouse",
+                "seafood",
+                "bbq",
+                "barbeque",
+                "buffet",
+                "catering",
+                "food truck",
+                "juice bar",
+                "tea house",
+                "noodle",
+                "ramen",
+                "pho",
+                "taqueria",
+                "burrito",
+                "wings",
+            ],
+            "Shopping & Retail": [
+                "store",
+                "shop",
+                "mart",
+                "outlet",
+                "boutique",
+                "gallery",
+                "emporium",
+                "depot",
+                "warehouse",
+                "supply",
+                "goods",
+                "superstore",
+                "megastore",
+                "discount",
+                "thrift",
+            ],
+            "Healthcare & Medical": [
+                "pharmacy",
+                "drugstore",
+                "clinic",
+                "medical",
+                "dental",
+                "hospital",
+                "urgent care",
+                "doctor",
+                "physician",
+                "therapy",
+                "chiropractic",
+                "optometry",
+                "vision center",
+                "health center",
+                "wellness",
+                "laboratory",
+                "diagnostic",
+            ],
+            "Transportation": [
+                "auto",
+                "automotive",
+                "car wash",
+                "tire",
+                "mechanic",
+                "oil change",
+                "lube",
+                "gas station",
+                "service station",
+                "body shop",
+                "collision",
+                "towing",
+                "parking garage",
+            ],
+            "Entertainment & Recreation": [
+                "theater",
+                "theatre",
+                "cinema",
+                "arcade",
+                "bowling",
+                "golf",
+                "spa",
+                "salon",
+                "studio",
+                "fitness",
+                "gym",
+                "recreation",
+                "sports",
+                "club",
+                "lounge",
+            ],
+            "Utilities & Services": [
+                "electric",
+                "power company",
+                "water utility",
+                "gas company",
+                "telecom",
+                "wireless",
+                "cable",
+                "internet provider",
+                "lawn care",
+                "landscaping",
+                "cleaning service",
+                "plumbing",
+                "hvac",
+                "roofing",
+                "moving",
+                "storage",
+            ],
+            "Financial Services": [
+                "bank",
+                "credit union",
+                "insurance",
+                "financial",
+                "investment",
+                "accounting",
+                "tax service",
+                "loan",
+                "mortgage",
+                "brokerage",
+            ],
+        }
+
+        # Check patterns (ordered by specificity)
+        for category_name, patterns in BUSINESS_TYPE_PATTERNS.items():
+            for pattern in patterns:
+                # Use word boundary matching to avoid partial matches
+                # e.g., "store" shouldn't match "restore"
+                import re
+
+                if re.search(rf"\b{re.escape(pattern)}\b", merchant_lower):
+                    category = cls.get_by_name(category_name)
+                    if category:
+                        logger.debug(
+                            f"Pattern match: '{pattern}' -> {category_name} "
+                            f"for merchant '{merchant_name}'"
+                        )
+                        return category, 0.9  # Slightly lower confidence than keyword
+
+        return None, 0.0
+
+    @classmethod
     def auto_categorize(
         cls,
         merchant_name: str,
@@ -536,7 +719,7 @@ class CategoryService:
         # Check if name conflicts with system category
         system_cat = Category.query.filter(
             db.func.lower(Category.name) == name.lower(),
-            Category.is_system == True,
+            Category.is_system.is_(True),
         ).first()
 
         if system_cat:
@@ -630,7 +813,7 @@ class CategoryService:
                 conflict = Category.query.filter(
                     db.func.lower(Category.name) == new_name.lower(),
                     db.or_(
-                        Category.is_system == True,
+                        Category.is_system.is_(True),
                         Category.user_id == user_id,
                     ),
                     Category.id != category_id,
