@@ -1,6 +1,6 @@
 import axios from "axios";
 
-// In production, VITE_API_URL points to VPS backend (e.g., https://api.yoursite.com)
+// In production, VITE_API_URL points to VPS backend (e.g., https://securebankai.mysticdatanode.net)
 // In development, falls back to "/api" which Vite proxies to localhost:8000
 const API_BASE_URL = import.meta.env.VITE_API_URL 
   ? `${import.meta.env.VITE_API_URL}/api` 
