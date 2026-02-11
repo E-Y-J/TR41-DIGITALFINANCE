@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Popover,
   Box,
@@ -26,14 +27,17 @@ import {
   useMarkAllAsRead,
 } from "../features/notifications";
 
-// Map notification types to user-friendly labels and colors
+// Map notification types to user-friendly labels, colors, and navigation paths
 const NOTIFICATION_TYPE_CONFIG = {
-  default: { label: "General", color: "default" },
-  new_transaction: { label: "Transaction", color: "primary" },
-  deleted_transaction: { label: "Deleted", color: "error" },
-  edited_profile: { label: "Profile", color: "info" },
-  weekly_summary_ready: { label: "Summary", color: "success" },
-  category_updated: { label: "Category", color: "warning" },
+  default: { label: "General", color: "default", path: "/notifications" },
+  new_transaction: { label: "Transaction", color: "primary", path: "/transactions" },
+  deleted_transaction: { label: "Deleted", color: "error", path: "/transactions" },
+  edited_profile: { label: "Profile", color: "info", path: "/profile" },
+  weekly_summary_ready: { label: "Summary", color: "success", path: "/dashboard" },
+  category_updated: { label: "Category", color: "warning", path: "/categories" },
+  budget_warning: { label: "Budget Alert", color: "warning", path: "/budgets" },
+  budget_exceeded: { label: "Over Budget", color: "error", path: "/budgets" },
+  ai_clarification: { label: "AI Chat", color: "info", path: "/ai-assistant" },
 };
 
 // Moved outside to prevent re-creation on every render
@@ -63,6 +67,7 @@ const formatDate = (dateString) => {
 };
 
 const NotificationsPopover = () => {
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -80,6 +85,15 @@ const NotificationsPopover = () => {
 
   const handleOpen = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
+
+  const handleNotificationClick = (notification, event) => {
+    const typeConfig = getTypeConfig(notification.notification_type);
+    if (notification.status === "unread") {
+      markAsReadMutation.mutate(notification.id);
+    }
+    handleClose();
+    navigate(typeConfig.path);
+  };
 
   const handleMarkAsRead = (notificationId, event) => {
     event.stopPropagation();
@@ -234,9 +248,7 @@ const NotificationsPopover = () => {
                       }
                     >
                       <ListItemButton
-                        onClick={(e) => {
-                          if (isUnread) handleMarkAsRead(notification.id, e);
-                        }}
+                        onClick={(e) => handleNotificationClick(notification, e)}
                         sx={{
                           py: 2,
                           px: 2,
