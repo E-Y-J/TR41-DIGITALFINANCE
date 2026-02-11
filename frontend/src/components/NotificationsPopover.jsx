@@ -29,15 +29,15 @@ import {
 
 // Map notification types to user-friendly labels, colors, and navigation paths
 const NOTIFICATION_TYPE_CONFIG = {
-  default: { label: "General", color: "default", path: "/notifications" },
-  new_transaction: { label: "Transaction", color: "primary", path: "/transactions" },
-  deleted_transaction: { label: "Deleted", color: "error", path: "/transactions" },
-  edited_profile: { label: "Profile", color: "info", path: "/profile" },
-  weekly_summary_ready: { label: "Summary", color: "success", path: "/dashboard" },
-  category_updated: { label: "Category", color: "warning", path: "/categories" },
-  budget_warning: { label: "Budget Alert", color: "warning", path: "/budgets" },
-  budget_exceeded: { label: "Over Budget", color: "error", path: "/budgets" },
-  ai_clarification: { label: "AI Chat", color: "info", path: "/ai-assistant" },
+  default: { label: "General", color: "default", path: "/home/notifications" },
+  new_transaction: { label: "Transaction", color: "primary", path: "/home/transactions" },
+  deleted_transaction: { label: "Deleted", color: "error", path: "/home/transactions" },
+  edited_profile: { label: "Profile", color: "info", path: "/settings/profile" },
+  weekly_summary_ready: { label: "Summary", color: "success", path: "/home" },
+  category_updated: { label: "Category", color: "warning", path: "/home/budget" },
+  budget_warning: { label: "Budget Alert", color: "warning", path: "/home/budget" },
+  budget_exceeded: { label: "Over Budget", color: "error", path: "/home/budget" },
+  ai_clarification: { label: "AI Chat", color: "info", path: "/home/ai-assistant" },
 };
 
 // Moved outside to prevent re-creation on every render
@@ -351,6 +351,10 @@ const NotificationsPopover = () => {
             <Button
               size="small"
               color="primary"
+              onClick={() => {
+                handleClose();
+                navigate("/home/notifications");
+              }}
               sx={{ fontWeight: 600, textTransform: "none", borderRadius: 2 }}
             >
               View All Notifications
