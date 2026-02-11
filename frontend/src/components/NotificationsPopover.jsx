@@ -129,7 +129,6 @@ const NotificationsPopover = () => {
           paper: {
             sx: {
               width: 360,
-              // Responsive height fix + modern border radius
               maxHeight: "min(480px, calc(100vh - 32px))",
               borderRadius: 3,
               overflow: "hidden",
@@ -181,7 +180,7 @@ const NotificationsPopover = () => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                minHeight: 250, // Prevents layout snapping
+                minHeight: 250,
               }}
             >
               <CircularProgress size={32} />
@@ -193,7 +192,7 @@ const NotificationsPopover = () => {
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                minHeight: 250, // Prevents layout snapping
+                minHeight: 250,
                 color: "text.secondary",
               }}
             >
@@ -241,9 +240,7 @@ const NotificationsPopover = () => {
                         sx={{
                           py: 2,
                           px: 2,
-                          // CRITICAL: Prevent text from going under the circle icon
                           pr: isUnread ? 6 : 2,
-                          // Visual unread indicator
                           bgcolor: isUnread ? "action.hover" : "transparent",
                           borderLeft: "4px solid",
                           borderColor: isUnread
