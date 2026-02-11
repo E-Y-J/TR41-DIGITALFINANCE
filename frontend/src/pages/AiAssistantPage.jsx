@@ -52,7 +52,8 @@ export default function AiAssistantPage() {
             isTyping={c.isTyping}
             messagesEndRef={c.messagesEndRef}
             onSuggestionClick={c.suggestionClickHandler}
-            user={c.user?.first_name}
+            onSendMessage={c.handleSendMessage}
+            user={c.user?.nickname || c.user?.first_name}
           />
         </Box>
 

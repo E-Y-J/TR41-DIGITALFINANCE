@@ -37,7 +37,7 @@ Notes:
 """
 
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple
 from uuid import UUID
 import threading
 
@@ -251,12 +251,6 @@ class AIOrchestrator:
             if keyword_result["confidence"] >= 1.0:
                 return keyword_result
 
-        # Step 1.5: Try pattern-based matching (catches "Joe's Cafe", "XYZ Pharmacy")
-        if not skip_keyword:
-            pattern_result = self._try_pattern_matching(merchant_name)
-            if pattern_result["confidence"] >= 0.9:
-                return pattern_result
-
         # Step 2: Try HuggingFace model
         hf_result = self._try_huggingface(merchant_name)
         if hf_result and hf_result["confidence"] >= HUGGINGFACE_THRESHOLD:
@@ -381,32 +375,6 @@ class AIOrchestrator:
 
         return {"confidence": 0.0}
 
-    def _try_pattern_matching(self, merchant_name: str) -> Dict[str, Any]:
-        """
-        Try pattern-based categorization.
-
-        Catches business type words like "cafe", "pharmacy", "store"
-        even when we don't recognize the specific business name.
-        """
-        try:
-            from app.services.category_service import CategoryService
-
-            category, confidence = CategoryService.categorize_by_pattern(merchant_name)
-            if category:
-                return {
-                    "category": category.name,
-                    "category_id": category.id,
-                    "confidence": confidence,
-                    "source": "pattern",
-                    "needs_clarification": False,
-                    "alternatives": [],
-                    "reasoning": "Matched by business type pattern",
-                }
-        except Exception as e:
-            logger.error(f"Pattern matching failed: {e}", exc_info=True)
-
-        return {"confidence": 0.0}
-
     def _try_huggingface(self, merchant_name: str) -> Optional[Dict[str, Any]]:
         """Try HuggingFace model categorization."""
         if not self.categorizer or not self.categorizer.is_loaded:
@@ -425,7 +393,7 @@ class AIOrchestrator:
                 "source": "huggingface",
                 "needs_clarification": prediction["confidence"] < UNKNOWN_THRESHOLD,
                 "alternatives": [],
-                "reasoning": "HuggingFace model prediction",
+                "reasoning": f"HuggingFace model prediction",
             }
         except Exception as e:
             logger.error(f"HuggingFace prediction failed: {e}", exc_info=True)

@@ -2,6 +2,7 @@ import { Box, Typography } from "@mui/material";
 
 import ViewMonthly from "../features/budget/components/ViewMonthly";
 import ViewDay from "../features/budget/components/ViewDay";
+import BudgetManager from "../features/budget/components/BudgetManager";
 
 import { useMonthlySpending } from "../hooks/useMonthlySpending";
 import { useDailyBreakdown } from "../hooks/useDailyBreakdown";
@@ -20,11 +21,16 @@ const BudgetPage = () => {
           fontWeight={800}
           sx={{ letterSpacing: "-0.5px", color: "text.primary" }}
         >
-          Spending Analysis
+          Budget & Spending
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-          Deep dive into your daily spending habits vs. your allocated budget.
+          Set spending limits and track your daily spending habits.
         </Typography>
+      </Box>
+
+      {/* Budget Management Section */}
+      <Box sx={{ mb: 5 }}>
+        <BudgetManager />
       </Box>
 
       <Box sx={{ mb: 5 }}>

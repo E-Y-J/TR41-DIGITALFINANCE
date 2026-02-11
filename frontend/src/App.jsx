@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import PageLoader from "./components/common/PageLoader";
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -54,6 +54,7 @@ const App = () => {
             <Route path="/home/ai-assistant" element={<AiAssistantPage />} />
             <Route path="/settings/profile" element={<ProfilePage />} />
             <Route path="/settings/account" element={<SettingsPage />} />
+            <Route path="/settings" element={<Navigate to="/settings/account" replace />} />
             <Route
               path="/home/*"
               element={

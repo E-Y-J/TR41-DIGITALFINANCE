@@ -161,6 +161,26 @@ class Command:
                 self.stdout_write("Creating quality test data for Jae Young Seo...")
                 self.populate_jae_quality_data(jae_user, categories)
 
+            # -----------------------------
+            # Quality data for Ariel Resendiz
+            # -----------------------------
+            ariel_user = next(
+                (u for u in specific_users if u.email == "resendiz.ariel6@gmail.com"), None
+            )
+            if ariel_user:
+                self.stdout_write("Creating quality test data for Ariel Resendiz...")
+                self.populate_ariel_quality_data(ariel_user, categories)
+
+            # -----------------------------
+            # Quality data for Suryadi Zhang
+            # -----------------------------
+            suryadi_user = next(
+                (u for u in specific_users if u.email == "suryadizhang.swe@gmail.com"), None
+            )
+            if suryadi_user:
+                self.stdout_write("Creating quality test data for Suryadi Zhang...")
+                self.populate_suryadi_quality_data(suryadi_user, categories)
+
             try:
                 db.session.commit()
                 self.stdout_write("Successfully populated all data.")
@@ -283,6 +303,15 @@ class Command:
                 "first_name": "Ariel",
                 "last_name": "Resendiz",
                 "nickname": "arielr",
+                "account_status": "active",
+                "role": "user",
+            },
+            {
+                "auth0_id": "google-oauth2|117234567890123456789",
+                "email": "suryadizhang.swe@gmail.com",
+                "first_name": "Suryadi",
+                "last_name": "Zhang",
+                "nickname": "suryadi",
                 "account_status": "active",
                 "role": "user",
             },
@@ -488,6 +517,50 @@ class Command:
         Populate comprehensive, systematic test data for Jae Young Seo's account.
 
         Uses the modular JaeDataGenerator to create expert-level test data.
+
+        Creates (12 months of data):
+        - ~240 recurring transactions (subscriptions, bills)
+        - ~50+ income transactions (salary, freelance, refunds)
+        - ~1,200+ daily spending transactions
+        - ~50+ anomaly test cases
+        - ~14 government & legal transactions
+        - 12 user override corrections
+        - 15 rich AI chat sessions
+        - 13 budget records
+        - 50+ notifications
+        - 20+ alerts
+        - 4 loans
+        """
+        from tools.data_generators import JaeDataGenerator
+
+        generator = JaeDataGenerator(
+            user=user,
+            categories=categories,
+            months_back=12,  # Full year of data
+        )
+        generator.generate_all(db.session)
+
+    def populate_ariel_quality_data(self, user: User, categories: list[Category]):
+        """
+        Populate comprehensive test data for Ariel Resendiz's account.
+
+        Reuses JaeDataGenerator to create extensive test data.
+        """
+        from tools.data_generators import JaeDataGenerator
+
+        generator = JaeDataGenerator(
+            user=user,
+            categories=categories,
+            months_back=12,
+        )
+        generator.generate_all(db.session)
+
+    def populate_suryadi_quality_data(self, user: User, categories: list[Category]):
+        """
+        Populate comprehensive test data for Suryadi Zhang's account.
+
+        Uses JaeDataGenerator to create extensive, realistic financial data
+        for testing all system features.
 
         Creates (12 months of data):
         - ~240 recurring transactions (subscriptions, bills)

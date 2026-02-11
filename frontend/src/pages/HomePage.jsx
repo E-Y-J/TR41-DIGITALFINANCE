@@ -17,7 +17,7 @@ export default function HomePage() {
       }}
     >
       <Typography variant="h4" gutterBottom sx={{ mb: 3, fontWeight: 700 }}>
-        Welcome, {user?.first_name || "User"}
+        Welcome, {user?.nickname || user?.first_name || "User"}
       </Typography>
 
       <Box

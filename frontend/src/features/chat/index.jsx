@@ -22,20 +22,23 @@ const ChatBubble = ({ handleChatDrawerToggle, user }) => {
     };
   }, []);
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
+  const handleSendMessage = async (textOverride) => {
+    const messageText = (
+      typeof textOverride === "string" ? textOverride : inputValue
+    ).trim();
 
-    const userMessage = inputValue.trim();
+    if (!messageText) return;
+
     setMessages((prev) => [
       ...prev,
-      { id: Date.now(), text: userMessage, sender: user?.nickname || "User" },
+      { id: Date.now(), text: messageText, sender: user?.nickname || "User" },
     ]);
     setInputValue("");
     setIsTyping(true);
 
     try {
       // Call the real backend AI API
-      const response = await sendChatMessage(apiClient, userMessage, {});
+      const response = await sendChatMessage(apiClient, messageText, {});
       const aiResponse = response?.data?.response || "I received your message.";
 
       setMessages((prev) => [
@@ -101,10 +104,8 @@ const ChatBubble = ({ handleChatDrawerToggle, user }) => {
           messages={messages}
           isTyping={isTyping}
           messagesEndRef={messagesEndRef}
-          onSuggestionClick={(text) => {
-            setInputValue(text);
-          }}
-          user={user?.first_name ?? ""}
+          onSuggestionClick={handleSendMessage}
+          user={user?.nickname || user?.first_name || ""}
         />
       </Box>
 
