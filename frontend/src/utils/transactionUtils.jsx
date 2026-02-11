@@ -9,9 +9,17 @@ import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import EventRepeatIcon from "@mui/icons-material/EventRepeat";
 
 export const getIcon = (categoryName = "") => {
   const lowerName = categoryName.toLowerCase();
+
+  if (lowerName.includes("total") || lowerName.includes("overall")) {
+    if (lowerName.includes("weekly"))
+      return <EventRepeatIcon fontSize="small" />;
+    return <AccountBalanceWalletIcon fontSize="small" />;
+  }
 
   if (lowerName.includes("charity"))
     return <VolunteerActivismIcon fontSize="small" />;
