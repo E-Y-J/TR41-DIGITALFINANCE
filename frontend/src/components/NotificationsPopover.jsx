@@ -129,10 +129,6 @@ const NotificationsPopover = () => {
           paper: {
             sx: {
               width: 360,
-<<<<<<< HEAD
-
-=======
->>>>>>> origin
               maxHeight: "min(480px, calc(100vh - 32px))",
               borderRadius: 3,
               overflow: "hidden",
@@ -244,13 +240,7 @@ const NotificationsPopover = () => {
                         sx={{
                           py: 2,
                           px: 2,
-<<<<<<< HEAD
-
                           pr: isUnread ? 6 : 2,
-
-=======
-                          pr: isUnread ? 6 : 2,
->>>>>>> origin
                           bgcolor: isUnread ? "action.hover" : "transparent",
                           borderLeft: "4px solid",
                           borderColor: isUnread
