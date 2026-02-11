@@ -119,7 +119,7 @@ def categorize_transaction():
         orchestrator = get_orchestrator()
 
         # Get user_id from auth context for personalized learning
-        user = sync_user_from_claims(g.current_user)
+        user = sync_user_from_claims(g.current_user, g.access_token)
         user_id = user.id if user else None
 
         result = orchestrator.categorize(
@@ -187,7 +187,7 @@ def chat():
         handler = get_chat_handler()
         handler.initialize()
 
-        user = sync_user_from_claims(g.current_user)
+        user = sync_user_from_claims(g.current_user, g.access_token)
         user_id = user.id
 
         result = handler.process_message(
@@ -271,7 +271,7 @@ def get_chat_history():
     try:
         from app.models.ai_session import AISession
 
-        user = sync_user_from_claims(g.current_user)
+        user = sync_user_from_claims(g.current_user, g.access_token)
         user_id = user.id
 
         # Parse query parameters
@@ -356,9 +356,9 @@ def get_insights():
     try:
         from app.ai.anomaly_detector import get_detector
 
-        period = request.args.get("period", "month")
+        # period = request.args.get("period", "month")  # Reserved for future use
 
-        user = sync_user_from_claims(g.current_user)
+        user = sync_user_from_claims(g.current_user, g.access_token)
         user_id = user.id
 
         detector = get_detector()
@@ -409,7 +409,7 @@ def get_clarifications():
     try:
         from app.ai.clarification import get_clarification_manager
 
-        user = sync_user_from_claims(g.current_user)
+        user = sync_user_from_claims(g.current_user, g.access_token)
         user_id = user.id
 
         manager = get_clarification_manager()
@@ -773,7 +773,7 @@ def get_recurring_patterns():
 
         force_refresh = request.args.get("force_refresh", "false").lower() == "true"
 
-        user = sync_user_from_claims(g.current_user)
+        user = sync_user_from_claims(g.current_user, g.access_token)
         user_id = user.id
 
         detector = get_recurring_detector()
@@ -842,7 +842,7 @@ def get_upcoming_bills():
 
         days_ahead = min(request.args.get("days", 30, type=int), 90)
 
-        user = sync_user_from_claims(g.current_user)
+        user = sync_user_from_claims(g.current_user, g.access_token)
         user_id = user.id
 
         detector = get_recurring_detector()
@@ -907,7 +907,7 @@ def get_missed_payments():
     try:
         from app.ai.recurring_detector import get_recurring_detector
 
-        user = sync_user_from_claims(g.current_user)
+        user = sync_user_from_claims(g.current_user, g.access_token)
         user_id = user.id
 
         detector = get_recurring_detector()
@@ -1025,7 +1025,7 @@ def query_rag():
                 400,
             )
 
-        user = sync_user_from_claims(g.current_user)
+        user = sync_user_from_claims(g.current_user, g.access_token)
         user_id = user.id
 
         engine = get_rag_engine()

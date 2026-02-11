@@ -53,6 +53,11 @@ from datetime import datetime, timezone, timedelta
 from decimal import Decimal, InvalidOperation
 import threading
 
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    from backports.zoneinfo import ZoneInfo  # Python < 3.9
+
 logger = logging.getLogger(__name__)
 
 
@@ -369,6 +374,29 @@ class ChatHandler:
 
         return self._sessions[user_id]
 
+    def _get_user_timezone(self) -> timezone:
+        """
+        Get user's timezone from their settings.
+
+        Returns:
+            ZoneInfo timezone object, defaults to UTC if not set or invalid.
+        """
+        try:
+            from app.models.user import User
+
+            user = User.query.get(self.user_id)
+            if user and user.settings:
+                tz_name = user.settings.get("timezone", "UTC")
+                try:
+                    return ZoneInfo(tz_name)
+                except Exception:
+                    logger.debug(f"Invalid timezone '{tz_name}', using UTC")
+                    return timezone.utc
+        except Exception as e:
+            logger.debug(f"Failed to get user timezone: {e}")
+
+        return timezone.utc
+
     def _cleanup_sessions(self):
         """Remove expired sessions from memory and database."""
         now = datetime.now(timezone.utc)
@@ -402,6 +430,7 @@ class ChatHandler:
         user_id: UUID,
         message: str,
         context: Optional[Dict[str, Any]] = None,
+        session_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Process a user message and return response.
@@ -410,6 +439,7 @@ class ChatHandler:
             user_id: User's UUID
             message: User's message text
             context: Optional additional context
+            session_id: Optional session ID (currently unused, for future use)
 
         Returns:
             Dictionary with response data:
@@ -732,16 +762,14 @@ class ChatHandler:
             ):
                 tx_type = "income"
 
-            # Parse date
-            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            # Parse date using user's timezone
+            user_tz = self._get_user_timezone()
+            now_local = datetime.now(user_tz)
+            date = now_local.strftime("%Y-%m-%d")
             if "yesterday" in message_lower:
-                date = (datetime.now(timezone.utc) - timedelta(days=1)).strftime(
-                    "%Y-%m-%d"
-                )
+                date = (now_local - timedelta(days=1)).strftime("%Y-%m-%d")
             elif "last week" in message_lower:
-                date = (datetime.now(timezone.utc) - timedelta(days=7)).strftime(
-                    "%Y-%m-%d"
-                )
+                date = (now_local - timedelta(days=7)).strftime("%Y-%m-%d")
 
             return {
                 "intent": Intent.CREATE_TRANSACTION,

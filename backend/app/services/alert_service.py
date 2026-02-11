@@ -54,7 +54,8 @@ from sqlalchemy import desc, not_
 
 from app.core.extensions import db
 from app.models.alert import Alert
-from app.models.enums import AlertType, AlertSeverity
+from app.models.notification import Notification
+from app.models.enums import AlertType, AlertSeverity, NotificationType
 from app.utils.errors import NotFoundError, ForbiddenError, InternalError
 
 # =============================================================================
@@ -477,6 +478,24 @@ class AlertService:
                 f"(${spent_amount:.2f} of ${budget_amount:.2f})"
             )
 
+        # Create notification for user's notification center
+        try:
+            notification = Notification(
+                user_id=user_id,
+                notification_type=NotificationType.BUDGET_WARNING,
+                title=title,
+                message=message,
+                data={
+                    "budget_id": str(budget_id),
+                    "percentage_used": percentage_used,
+                    "period": period,
+                },
+            )
+            db.session.add(notification)
+            logger.info(f"Created budget warning notification for user {user_id}")
+        except Exception as e:
+            logger.warning(f"Failed to create budget warning notification: {e}")
+
         return cls.create(
             user_id=user_id,
             alert_type=AlertType.BUDGET_WARNING,
@@ -536,6 +555,25 @@ class AlertService:
                 f"You've exceeded your {period} total budget by "
                 f"${over_amount:.2f} (${spent_amount:.2f} of ${budget_amount:.2f})"
             )
+
+        # Create notification for user's notification center
+        try:
+            notification = Notification(
+                user_id=user_id,
+                notification_type=NotificationType.BUDGET_EXCEEDED,
+                title=title,
+                message=message,
+                data={
+                    "budget_id": str(budget_id),
+                    "over_amount": str(over_amount),
+                    "percentage_used": percentage_used,
+                    "period": period,
+                },
+            )
+            db.session.add(notification)
+            logger.info(f"Created budget exceeded notification for user {user_id}")
+        except Exception as e:
+            logger.warning(f"Failed to create budget exceeded notification: {e}")
 
         return cls.create(
             user_id=user_id,

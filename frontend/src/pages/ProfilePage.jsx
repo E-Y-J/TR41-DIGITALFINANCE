@@ -87,6 +87,7 @@ export default function ProfilePage() {
           {/* Profile Header */}
           <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
             <Avatar
+              src={user?.picture_url}
               sx={{
                 width: 80,
                 height: 80,

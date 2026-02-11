@@ -96,9 +96,7 @@ class JWKSClient:
         if self._jwks is None or force_refresh:
             try:
                 logger.debug(f"Fetching JWKS from {self.jwks_uri}")
-                with urlopen(
-                    self.jwks_uri, timeout=10
-                ) as response:  # nosec B310 - JWKS URL is HTTPS from Auth0
+                with urlopen(self.jwks_uri, timeout=10) as response:  # nosec B310 - JWKS URL is HTTPS from Auth0
                     self._jwks = json.loads(response.read().decode())
                 logger.info("JWKS fetched successfully")
             except Exception as e:
@@ -358,6 +356,59 @@ def get_email_verified(claims: Dict[str, Any]) -> bool:
 
 
 # =============================================================================
+# USERINFO ENDPOINT
+# =============================================================================
+
+
+def fetch_userinfo(access_token: str) -> Dict[str, Any]:
+    """
+    Fetch user profile information from Auth0's /userinfo endpoint.
+
+    The access token (used for API calls) typically doesn't include profile
+    details like picture URL. This function fetches that data from Auth0.
+
+    Args:
+        access_token: Valid Auth0 access token
+
+    Returns:
+        Dictionary containing user profile data (email, picture, etc.)
+
+    Raises:
+        TokenError: If userinfo cannot be fetched
+
+    Example:
+        >>> userinfo = fetch_userinfo("eyJhbGc...")
+        >>> print(userinfo.get("picture"))
+        'https://lh3.googleusercontent.com/...'
+
+    Notes:
+        - Requires the access token to have openid scope
+        - Contains profile info like picture, name, email
+    """
+    import urllib.request
+    import urllib.error
+
+    config = get_config()
+    userinfo_url = f"https://{config.auth0.domain}/userinfo"
+
+    try:
+        request = urllib.request.Request(
+            userinfo_url,
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        with urllib.request.urlopen(request, timeout=10) as response:  # nosec B310
+            data = json.loads(response.read().decode())
+            logger.debug(f"Fetched userinfo: {list(data.keys())}")
+            return data
+    except urllib.error.HTTPError as e:
+        logger.warning(f"Failed to fetch userinfo: HTTP {e.code}")
+        return {}
+    except Exception as e:
+        logger.warning(f"Failed to fetch userinfo: {e}")
+        return {}
+
+
+# =============================================================================
 # MODULE EXPORTS
 # =============================================================================
 
@@ -370,4 +421,5 @@ __all__ = [
     "get_user_id_from_claims",
     "get_email_from_claims",
     "get_email_verified",
+    "fetch_userinfo",
 ]

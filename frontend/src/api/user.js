@@ -1,5 +1,9 @@
 export const getUser = async (client) => {
-  const { data } = await client.post("/auth/callback");
+  // Send browser timezone for auto-detection on first login
+  const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const { data } = await client.post("/auth/callback", {
+    timezone: browserTimezone,
+  });
   return data;
 };
 
