@@ -40,11 +40,11 @@ export default function AiAssistantPage() {
 
         <Box
           sx={{
-            flexGrow: 1,
+            flex: 1,
             overflowY: "auto",
             display: "flex",
             flexDirection: "column",
-            overflowX: "hidden",
+            bgcolor: "transparent",
           }}
         >
           <MessageList

@@ -17,9 +17,6 @@ import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 
-import logo from "../assets/logo.png";
-import logoCompact from "../assets/logo-compact.png";
-
 const Sidebar = ({ handleLogout, open }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -95,8 +92,8 @@ const Sidebar = ({ handleLogout, open }) => {
         {/* Full Logo */}
         <Box
           component="img"
-          src={logo}
-          alt="Logo"
+          src="/logo.png"
+          alt="SecureBank AI Logo"
           sx={{
             height: 32,
             width: "auto",
@@ -112,8 +109,8 @@ const Sidebar = ({ handleLogout, open }) => {
         {/* Compact Logo  */}
         <Box
           component="img"
-          src={logoCompact}
-          alt="Logo Compact"
+          src="/logo-compact.png"
+          alt="SecureBank AI Logo Compact"
           sx={{
             height: 32,
             width: "auto",

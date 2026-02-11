@@ -236,15 +236,10 @@ class AISession(db.Model):
         if not include_inactive:
             query = query.filter(cls.is_active == True)
 
-        # Order by most recent first
         query = query.order_by(cls.updated_at.desc())
 
-        # Get total count
-        total = query.count()
-
-        # Apply pagination
         sessions = query.offset((page - 1) * per_page).limit(per_page).all()
-
+        total = query.count()
         has_more = (page * per_page) < total
 
         return sessions, total, has_more
