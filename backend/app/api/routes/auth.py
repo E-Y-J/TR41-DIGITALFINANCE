@@ -45,6 +45,7 @@ from flask import Blueprint, g, jsonify, request
 
 from app.auth.decorators import requires_auth, optional_auth
 from app.auth.user_sync import sync_user_from_claims
+from app.core.extensions import db
 from app.schemas.user_schema import user_schema
 from app.core.config import get_config
 
@@ -143,7 +144,22 @@ def auth_callback():
     is_new_user = existing_user is None
 
     # Sync user from Auth0 claims to local database
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
+
+    # Auto-detect timezone from frontend if user has default UTC
+    request_data = request.get_json(silent=True) or {}
+    browser_timezone = request_data.get("timezone")
+    if browser_timezone and user.settings.get("timezone") == "UTC":
+        try:
+            # Validate timezone by attempting to use it
+            from zoneinfo import ZoneInfo
+
+            ZoneInfo(browser_timezone)  # Raises if invalid
+            user.settings = {**user.settings, "timezone": browser_timezone}
+            db.session.commit()
+            logger.info(f"Auto-set timezone for {user.email}: {browser_timezone}")
+        except Exception as e:
+            logger.debug(f"Invalid browser timezone '{browser_timezone}': {e}")
 
     # Serialize user data
     user_data = user_schema.dump(user)
@@ -194,7 +210,7 @@ def get_me():
         }
     """
     # Sync/get user
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Build response with auth-relevant fields
     data = {
@@ -327,7 +343,7 @@ def auth_status():
     """
     if g.get("current_user"):
         # User is authenticated
-        user = sync_user_from_claims(g.current_user)
+        user = sync_user_from_claims(g.current_user, g.access_token)
 
         data = {
             "authenticated": True,

@@ -121,7 +121,7 @@ def get_categories():
             "message": "Categories retrieved successfully"
         }
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Check if only custom categories requested
     custom_only = request.args.get("custom_only", "").lower() == "true"
@@ -191,7 +191,7 @@ def create_category():
             "color": "#8B5CF6"
         }
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
     data = request.get_json() or {}
 
     # Validate input
@@ -305,7 +305,7 @@ def update_category(category_id: str):
             "color": "#10B981"
         }
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
     uuid_obj = parse_uuid(category_id, "category_id")
     data = request.get_json() or {}
 
@@ -370,7 +370,7 @@ def delete_category(category_id: str):
             "message": "Category deleted successfully"
         }
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
     uuid_obj = parse_uuid(category_id, "category_id")
 
     # Optional reassignment target

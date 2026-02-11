@@ -56,6 +56,11 @@ import uuid
 
 from app.core.extensions import db
 
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    from backports.zoneinfo import ZoneInfo  # Python < 3.9
+
 logger = logging.getLogger(__name__)
 
 
@@ -99,6 +104,73 @@ class Intent:
     BUDGET_STATUS = "budget_status"
     GET_INSIGHTS = "get_insights"
     HELP = "help"
+    # NEW: Disambiguation and financial intents
+    DISAMBIGUATE = "disambiguate"
+    SET_BUDGET = "set_budget"
+    MAKE_LOAN_PAYMENT = "make_loan_payment"
+    ADD_LOAN = "add_loan"
+    CHECK_LOAN = "check_loan"
+    SAVINGS_GOAL = "savings_goal"
+
+
+# =============================================================================
+# AMBIGUOUS COMMAND DETECTION
+# =============================================================================
+
+# Keywords that when combined create ambiguous intent
+# Each entry maps keyword-pairs to possible intents and clarification prompts
+AMBIGUOUS_PATTERNS = {
+    # "add X on/to budget" - could be expense or budget increase
+    "add_budget": {
+        "keywords": [("add", "budget"), ("increase", "budget"), ("put", "budget")],
+        "candidates": ["add_transaction", "set_budget"],
+        "prompt_template": (
+            "I noticed you mentioned '{category}' budget. Did you mean:\n\n"
+            "1️⃣ Add a **${amount} expense** under {category}\n"
+            "2️⃣ **Increase** your {category} budget limit by ${amount}\n"
+            "3️⃣ **Set** your {category} budget to ${amount}\n\n"
+            "Reply with 1, 2, or 3"
+        ),
+    },
+    # "add X to/on loan" - could be payment or new debt
+    "add_loan": {
+        "keywords": [("add", "loan"), ("put", "loan"), ("pay", "loan")],
+        "candidates": ["make_loan_payment", "add_loan", "add_transaction"],
+        "prompt_template": (
+            "I see you mentioned a loan. Did you mean:\n\n"
+            "1️⃣ Make a **${amount} loan payment** (reduces debt)\n"
+            "2️⃣ Record a **${amount} expense** for loan payment\n"
+            "3️⃣ Add a **new ${amount} loan** (new debt)\n\n"
+            "Reply with 1, 2, or 3"
+        ),
+    },
+    # "remove/reduce budget" - could be delete transaction or reduce limit
+    "remove_budget": {
+        "keywords": [
+            ("remove", "budget"),
+            ("reduce", "budget"),
+            ("decrease", "budget"),
+        ],
+        "candidates": ["delete_transaction", "set_budget"],
+        "prompt_template": (
+            "Did you mean:\n\n"
+            "1️⃣ **Delete** a transaction from {category}\n"
+            "2️⃣ **Reduce** your {category} budget limit by ${amount}\n\n"
+            "Reply with 1 or 2"
+        ),
+    },
+    # "add to savings" - could be expense categorized as savings or savings goal
+    "add_savings": {
+        "keywords": [("add", "savings"), ("save", ""), ("put", "savings")],
+        "candidates": ["add_transaction", "savings_goal"],
+        "prompt_template": (
+            "Did you mean:\n\n"
+            "1️⃣ Record a **${amount} transfer** to savings account\n"
+            "2️⃣ Set a **savings goal** of ${amount}\n\n"
+            "Reply with 1 or 2"
+        ),
+    },
+}
 
 
 # =============================================================================
@@ -118,7 +190,9 @@ class ChatSession:
     - pending_actions table: actions awaiting confirmation
     """
 
-    def __init__(self, user_id: UUID, session_id: Optional[str] = None, db_session=None):
+    def __init__(
+        self, user_id: UUID, session_id: Optional[str] = None, db_session=None
+    ):
         self.user_id = user_id
         self.session_id = session_id
         self._db_session = db_session  # SQLAlchemy AISession model
@@ -377,6 +451,29 @@ class ChatHandler:
 
         return self._sessions[session_id]
 
+    def _get_user_timezone(self) -> timezone:
+        """
+        Get user's timezone from their settings.
+
+        Returns:
+            ZoneInfo timezone object, defaults to UTC if not set or invalid.
+        """
+        try:
+            from app.models.user import User
+
+            user = User.query.get(self.user_id)
+            if user and user.settings:
+                tz_name = user.settings.get("timezone", "UTC")
+                try:
+                    return ZoneInfo(tz_name)
+                except Exception:
+                    logger.debug(f"Invalid timezone '{tz_name}', using UTC")
+                    return timezone.utc
+        except Exception as e:
+            logger.debug(f"Failed to get user timezone: {e}")
+
+        return timezone.utc
+
     def _cleanup_sessions(self):
         """Remove expired sessions from memory and database."""
         now = datetime.now(timezone.utc)
@@ -409,7 +506,7 @@ class ChatHandler:
         self,
         user_id: UUID,
         message: str,
-        session_id: str = None,
+        session_id: Optional[str] = None,
         context: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
@@ -418,6 +515,7 @@ class ChatHandler:
         Args:
             user_id: User's UUID
             message: User's message text
+            session_id: Optional session ID for conversation continuity
             context: Optional additional context
 
         Returns:
@@ -438,16 +536,23 @@ class ChatHandler:
         """
         if not self.is_initialized:
             self.initialize()
-            
+
         session = self._get_session(user_id, session_id)
-        
+
         if session and session._db_session:
             session._db_session = db.session.merge(session._db_session)
-        
+
         session.add_message("user", message)
 
         # Normalize message
         message_lower = message.strip().lower()
+
+        # Check for disambiguation response (1, 2, or 3)
+        if (
+            session.pending_action
+            and session.pending_action.get("type") == "disambiguation"
+        ):
+            return self._handle_disambiguation_response(user_id, session, message_lower)
 
         # Check for confirmation/cancellation of pending action
         if session.pending_action:
@@ -465,6 +570,11 @@ class ChatHandler:
                     "response": response,
                     "session_id": str(user_id),
                 }
+
+        # Check for ambiguous commands BEFORE parsing
+        ambiguity = self._detect_ambiguity(message_lower)
+        if ambiguity:
+            return self._handle_ambiguous_command(user_id, session, message, ambiguity)
 
         # Parse intent and extract data
         parsed = self._parse_message(message, session, context)
@@ -492,6 +602,17 @@ class ChatHandler:
             return self._handle_get_insights(user_id, session)
         elif intent == Intent.HELP:
             return self._handle_help(session)
+        # NEW: Financial feature intents
+        elif intent == Intent.SET_BUDGET:
+            return self._handle_set_budget(user_id, session, parsed)
+        elif intent == Intent.MAKE_LOAN_PAYMENT:
+            return self._handle_loan_payment(user_id, session, parsed)
+        elif intent == Intent.ADD_LOAN:
+            return self._handle_add_loan(user_id, session, parsed)
+        elif intent == Intent.CHECK_LOAN:
+            return self._handle_check_loan(user_id, session)
+        elif intent == Intent.SAVINGS_GOAL:
+            return self._handle_savings_goal(user_id, session, parsed)
         else:
             return self._handle_general_chat(session, message)
 
@@ -585,11 +706,22 @@ class ChatHandler:
             intent_map = {
                 "add_transaction": Intent.CREATE_TRANSACTION,
                 "categorize_transaction": Intent.CATEGORIZE,
-                "set_budget": Intent.BUDGET_STATUS,
+                "categorize_help": Intent.CATEGORIZE,
+                "budget_status": Intent.BUDGET_STATUS,
+                "set_budget": Intent.SET_BUDGET,
                 "summarize_transactions": Intent.QUERY_SPENDING,
+                "query_spending": Intent.QUERY_SPENDING,
+                "show_transactions": Intent.QUERY_TRANSACTIONS,
+                "edit_transaction": Intent.EDIT_TRANSACTION,
+                "delete_transaction": Intent.DELETE_TRANSACTION,
                 "get_insights": Intent.GET_INSIGHTS,
                 "help": Intent.HELP,
                 "general_chat": Intent.GENERAL_CHAT,
+                # NEW: Financial feature intents
+                "make_loan_payment": Intent.MAKE_LOAN_PAYMENT,
+                "add_loan": Intent.ADD_LOAN,
+                "check_loan": Intent.CHECK_LOAN,
+                "savings_goal": Intent.SAVINGS_GOAL,
             }
 
             mapped_intent = intent_map.get(intent_name, Intent.GENERAL_CHAT)
@@ -672,8 +804,8 @@ class ChatHandler:
             r"(?:i\s+)?bough?t\s+(.+?)\s+for\s+\$?(\d+(?:\.\d{2})?)",
             # "spent/spend 100 on/at/for X" (handles typos)
             r"(?:i\s+)?spen[td]?\s+\$?(\d+(?:\.\d{2})?)\s+(?:on|at|for)\s+(.+)",
-            # "add 100 for X at Y"
-            r"add\s+\$?(\d+(?:\.\d{2})?)\s+(?:for\s+)?(.+?)(?:\s+at\s+(.+))?$",
+            # "add 100 for X at Y" - but NOT "add X on/to budget" (handled by disambiguation)
+            r"add\s+\$?(\d+(?:\.\d{2})?)\s+for\s+(.+?)(?:\s+at\s+(.+))?$",
             # "paid 100 to/for/at X"
             r"(?:i\s+)?paid\s+\$?(\d+(?:\.\d{2})?)\s+(?:to|for|at)\s+(.+)",
             # "100 dollars for X" or "$100 for X"
@@ -745,16 +877,14 @@ class ChatHandler:
             ):
                 tx_type = "income"
 
-            # Parse date
-            date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            # Parse date using user's timezone
+            user_tz = self._get_user_timezone()
+            now_local = datetime.now(user_tz)
+            date = now_local.strftime("%Y-%m-%d")
             if "yesterday" in message_lower:
-                date = (datetime.now(timezone.utc) - timedelta(days=1)).strftime(
-                    "%Y-%m-%d"
-                )
+                date = (now_local - timedelta(days=1)).strftime("%Y-%m-%d")
             elif "last week" in message_lower:
-                date = (datetime.now(timezone.utc) - timedelta(days=7)).strftime(
-                    "%Y-%m-%d"
-                )
+                date = (now_local - timedelta(days=7)).strftime("%Y-%m-%d")
 
             return {
                 "intent": Intent.CREATE_TRANSACTION,
@@ -1076,21 +1206,38 @@ ONLY respond with the JSON, no other text."""
         date = data.get("date", "today")
 
         # Smart message: show product vs location appropriately
+        # If merchant is a category keyword (e.g., "food" -> "Food & Dining"), omit it
+        merchant_is_category = (
+            category != "Unknown" and merchant and merchant.lower() in category.lower()
+        )
+
         if description and merchant and description.lower() != merchant.lower():
             # Both product and store specified: "bought shoes at Nike Store"
             what_where = f"for **{description}** at {merchant}"
         elif description:
             # Only product: "bought shoes"
             what_where = f"for **{description}**"
+        elif merchant_is_category:
+            # Merchant is just a category word (e.g., "food" for "Food & Dining")
+            # Skip showing it separately since category is already shown
+            what_where = ""
         else:
             # Only merchant/location: "at Starbucks"
             what_where = f"at **{merchant}**"
 
-        response = (
-            f"I'll add a **${amount}** {tx_type} {what_where} "
-            f"under **{category}** for {date}.\n\n"
-            f"**Confirm?** (yes/no)"
-        )
+        # Build response - handle empty what_where
+        if what_where:
+            response = (
+                f"I'll add a **${amount}** {tx_type} {what_where} "
+                f"under **{category}** for {date}.\n\n"
+                f"**Confirm?** (yes/no)"
+            )
+        else:
+            response = (
+                f"I'll add a **${amount}** {tx_type} "
+                f"under **{category}** for {date}.\n\n"
+                f"**Confirm?** (yes/no)"
+            )
 
         # Set pending action
         session.set_pending_action(
@@ -1376,11 +1523,13 @@ ONLY respond with the JSON, no other text."""
             else:
                 response = "**Your Budget Status:**\n\n"
                 for b in budgets[:5]:
-                    pct = b.get("percentage_used", 0)
+                    pct = float(b.get("percentage_used", 0) or 0)
+                    spent = float(b.get("spent", 0) or 0)
+                    budget_amt = float(b.get("budget_amount", 0) or 0)
                     status = "✅" if pct < 70 else "⚠️" if pct < 100 else "🔴"
                     response += (
                         f"{status} **{b.get('category_name', 'Total')}**: "
-                        f"${b.get('spent', 0):.2f} / ${b.get('budget_amount', 0)} "
+                        f"${spent:.2f} / ${budget_amt:.2f} "
                         f"({pct:.0f}%)\n"
                     )
 
@@ -1470,21 +1619,24 @@ ONLY respond with the JSON, no other text."""
         """Handle help request."""
         response = """**I can help you with:**
 
-📝 **Add transactions:**
+📝 **Transactions:**
 - "Add $50 for lunch at Subway"
 - "Spent $30 on groceries"
-
-🗑️ **Delete transactions:**
 - "Delete my last transaction"
 
-💰 **Check spending:**
+📊 **Budgets:**
+- "Check my budget status"
+- "Set my food budget to $500"
+- "Increase my shopping budget by $100"
+
+💳 **Loans:**
+- "Check my loans"
+- "Pay $200 towards my loan"
+- "Add a new loan"
+
+💰 **Spending Analysis:**
 - "How much did I spend this month?"
 - "What's my spending on food?"
-
-📊 **Budget status:**
-- "Show my budget status"
-
-💡 **Get insights:**
 - "Show my spending insights"
 
 ❓ **Categorization:**
@@ -1500,6 +1652,547 @@ Just ask naturally and I'll help!"""
             "parsed_data": None,
             "response": response,
             "session_id": str(session.session_id),
+        }
+
+    # =========================================================================
+    # DISAMBIGUATION METHODS
+    # =========================================================================
+
+    def _detect_ambiguity(self, message_lower: str) -> Optional[Dict[str, Any]]:
+        """
+        Detect if message contains ambiguous intent.
+
+        Checks for keyword combinations that could have multiple meanings.
+
+        Args:
+            message_lower: Lowercased user message
+
+        Returns:
+            Ambiguity pattern dict if found, None otherwise
+        """
+        for pattern_name, pattern_data in AMBIGUOUS_PATTERNS.items():
+            for keyword_pair in pattern_data["keywords"]:
+                kw1, kw2 = keyword_pair
+                # Both keywords must be present (or kw2 is empty for single-keyword patterns)
+                if kw1 in message_lower and (not kw2 or kw2 in message_lower):
+                    logger.info(f"Detected ambiguous pattern: {pattern_name}")
+                    return {
+                        "pattern": pattern_name,
+                        **pattern_data,
+                    }
+        return None
+
+    def _extract_amount_and_category(self, message: str) -> Dict[str, Any]:
+        """Extract amount and category from ambiguous message."""
+        message_lower = message.lower()
+
+        # Extract amount
+        amount = None
+        amount_patterns = [
+            r"\$(\d+(?:\.\d{2})?)",
+            r"(\d+(?:\.\d{2})?)\s*(?:dollars?|bucks?)?",
+        ]
+        for pattern in amount_patterns:
+            match = re.search(pattern, message_lower)
+            if match:
+                try:
+                    amount = str(Decimal(match.group(1)))
+                    break
+                except (InvalidOperation, ValueError):
+                    pass
+
+        # Extract category from known category keywords
+        category = "Unknown"
+        category_keywords = {
+            "food": "Food & Dining",
+            "dining": "Food & Dining",
+            "grocery": "Food & Dining",
+            "groceries": "Food & Dining",
+            "transportation": "Transportation",
+            "transport": "Transportation",
+            "gas": "Transportation",
+            "shopping": "Shopping & Retail",
+            "entertainment": "Entertainment & Recreation",
+            "healthcare": "Healthcare & Medical",
+            "medical": "Healthcare & Medical",
+            "utilities": "Utilities & Services",
+            "financial": "Financial Services",
+            "loan": "Financial Services",
+        }
+        for keyword, cat_name in category_keywords.items():
+            if keyword in message_lower:
+                category = cat_name
+                break
+
+        return {"amount": amount or "?", "category": category}
+
+    def _handle_ambiguous_command(
+        self,
+        user_id: UUID,
+        session: ChatSession,
+        message: str,
+        ambiguity: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """
+        Handle ambiguous commands by asking for clarification.
+
+        Sets pending action with disambiguation context.
+        """
+        # Extract relevant data from message
+        extracted = self._extract_amount_and_category(message)
+
+        # Build clarification prompt
+        prompt = ambiguity["prompt_template"].format(
+            amount=extracted["amount"],
+            category=extracted["category"],
+        )
+
+        # Store disambiguation context as pending action
+        session.set_pending_action(
+            {
+                "type": "disambiguation",
+                "pattern": ambiguity["pattern"],
+                "candidates": ambiguity["candidates"],
+                "extracted_data": extracted,
+                "original_message": message,
+            }
+        )
+
+        session.add_message("assistant", prompt)
+
+        return {
+            "intent": Intent.DISAMBIGUATE,
+            "action": None,
+            "requires_confirmation": False,
+            "parsed_data": extracted,
+            "response": prompt,
+            "session_id": str(user_id),
+        }
+
+    def _handle_disambiguation_response(
+        self,
+        user_id: UUID,
+        session: ChatSession,
+        response: str,
+    ) -> Dict[str, Any]:
+        """
+        Handle user's response to disambiguation prompt.
+
+        Maps 1/2/3 responses to specific intents and routes accordingly.
+        """
+        pending = session.pending_action
+        candidates = pending.get("candidates", [])
+        extracted = pending.get("extracted_data", {})
+        original_message = pending.get("original_message", "")
+
+        # Parse user choice
+        choice = None
+        if response in ["1", "one", "first"]:
+            choice = 0
+        elif response in ["2", "two", "second"]:
+            choice = 1
+        elif response in ["3", "three", "third"]:
+            choice = 2
+        elif self._is_cancellation(response):
+            session.clear_pending_action()
+            resp = "No problem! What would you like to do instead?"
+            session.add_message("assistant", resp)
+            return {
+                "intent": Intent.CANCEL_ACTION,
+                "action": None,
+                "requires_confirmation": False,
+                "parsed_data": None,
+                "response": resp,
+                "session_id": str(user_id),
+            }
+
+        if choice is None or choice >= len(candidates):
+            resp = f"Please reply with a number (1-{len(candidates)}) or 'cancel' to start over."
+            session.add_message("assistant", resp)
+            return {
+                "intent": Intent.DISAMBIGUATE,
+                "action": None,
+                "requires_confirmation": False,
+                "parsed_data": None,
+                "response": resp,
+                "session_id": str(user_id),
+            }
+
+        # Clear disambiguation pending action
+        session.clear_pending_action()
+
+        # Route to the selected intent
+        selected_intent = candidates[choice]
+        logger.info(f"User selected option {choice + 1}: {selected_intent}")
+
+        # Map to Intent constant and handle
+        intent_map = {
+            "add_transaction": Intent.CREATE_TRANSACTION,
+            "set_budget": Intent.SET_BUDGET,
+            "make_loan_payment": Intent.MAKE_LOAN_PAYMENT,
+            "add_loan": Intent.ADD_LOAN,
+            "delete_transaction": Intent.DELETE_TRANSACTION,
+            "savings_goal": Intent.SAVINGS_GOAL,
+        }
+
+        intent = intent_map.get(selected_intent, Intent.GENERAL_CHAT)
+        parsed = {
+            "intent": intent,
+            "confidence": 1.0,
+            "data": {
+                "amount": extracted.get("amount"),
+                "category_name": extracted.get("category"),
+                "transaction_type": "expense",
+            },
+        }
+
+        # Route to appropriate handler
+        if intent == Intent.CREATE_TRANSACTION:
+            return self._handle_create_transaction(user_id, session, parsed)
+        elif intent == Intent.SET_BUDGET:
+            # Check if this is option 2 (increase) or 3 (set to)
+            if choice == 1:  # Increase by amount
+                parsed["data"]["budget_action"] = "increase"
+            else:  # Set to amount (choice == 2)
+                parsed["data"]["budget_action"] = "set"
+            return self._handle_set_budget(user_id, session, parsed)
+        elif intent == Intent.MAKE_LOAN_PAYMENT:
+            return self._handle_loan_payment(user_id, session, parsed)
+        elif intent == Intent.ADD_LOAN:
+            return self._handle_add_loan(user_id, session, parsed)
+        elif intent == Intent.DELETE_TRANSACTION:
+            return self._handle_delete_transaction(user_id, session, parsed)
+        elif intent == Intent.SAVINGS_GOAL:
+            return self._handle_savings_goal(user_id, session, parsed)
+        else:
+            return self._handle_general_chat(session, original_message)
+
+    # =========================================================================
+    # NEW FINANCIAL FEATURE HANDLERS
+    # =========================================================================
+
+    def _handle_set_budget(
+        self,
+        user_id: UUID,
+        session: ChatSession,
+        parsed: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Handle set/increase budget intent."""
+        data = parsed.get("data", {})
+        amount = data.get("amount", "?")
+        category = data.get("category_name", "Unknown")
+        action = data.get("budget_action", "set")  # "set" or "increase"
+
+        try:
+            from app.models.budget import Budget
+            from app.models.category import Category as CategoryModel
+            from app.models.enums import BudgetPeriod
+
+            # Get category
+            cat = CategoryModel.get_by_name(category)
+            if not cat:
+                response = f"I couldn't find the '{category}' category. Please specify a valid category."
+                session.add_message("assistant", response)
+                return {
+                    "intent": Intent.SET_BUDGET,
+                    "action": None,
+                    "requires_confirmation": False,
+                    "parsed_data": data,
+                    "response": response,
+                    "session_id": str(user_id),
+                }
+
+            # Check for existing budget
+            existing = Budget.query.filter_by(
+                user_id=user_id,
+                category_id=cat.id,
+            ).first()
+
+            if action == "increase" and existing:
+                new_amount = float(existing.amount) + float(amount)
+                action_desc = f"increase from ${existing.amount} to ${new_amount}"
+            elif action == "set":
+                new_amount = float(amount)
+                action_desc = f"set to ${amount}"
+            else:
+                new_amount = float(amount)
+                action_desc = f"set to ${amount}"
+
+            # Build confirmation
+            response = (
+                f"I'll **{action_desc}** your **{category}** budget.\n\n"
+                f"**Confirm?** (yes/no)"
+            )
+
+            session.set_pending_action(
+                {
+                    "type": "set_budget",
+                    "data": {
+                        "user_id": str(user_id),
+                        "category_id": str(cat.id),
+                        "category_name": category,
+                        "amount": str(new_amount),
+                        "action": action,
+                        "period": BudgetPeriod.MONTHLY.value,
+                    },
+                }
+            )
+
+            session.add_message("assistant", response)
+            return {
+                "intent": Intent.SET_BUDGET,
+                "action": "set_budget",
+                "requires_confirmation": True,
+                "parsed_data": data,
+                "response": response,
+                "session_id": str(user_id),
+            }
+
+        except Exception as e:
+            logger.error(f"Error handling set_budget: {e}", exc_info=True)
+            response = "I had trouble processing your budget request. Please try again."
+            session.add_message("assistant", response)
+            return {
+                "intent": Intent.SET_BUDGET,
+                "action": None,
+                "requires_confirmation": False,
+                "parsed_data": data,
+                "response": response,
+                "session_id": str(user_id),
+            }
+
+    def _handle_loan_payment(
+        self,
+        user_id: UUID,
+        session: ChatSession,
+        parsed: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """
+        Handle loan payment intent.
+
+        Creates a transaction AND reduces loan balance.
+        """
+        data = parsed.get("data", {})
+        amount = data.get("amount", "?")
+
+        try:
+            from app.models.loan import Loan
+            from app.models.category import Category as CategoryModel
+
+            # Get user's loans
+            loans = Loan.query.filter_by(user_id=user_id).all()
+            open_loans = [loan for loan in loans if loan.status.value == "open"]
+
+            if not open_loans:
+                response = (
+                    "You don't have any open loans. Would you like to:\n\n"
+                    "1️⃣ Add a new loan\n"
+                    "2️⃣ Record this as a regular expense\n\n"
+                    "Reply with 1 or 2"
+                )
+                session.set_pending_action(
+                    {
+                        "type": "disambiguation",
+                        "pattern": "no_loans",
+                        "candidates": ["add_loan", "add_transaction"],
+                        "extracted_data": data,
+                        "original_message": "",
+                    }
+                )
+                session.add_message("assistant", response)
+                return {
+                    "intent": Intent.DISAMBIGUATE,
+                    "action": None,
+                    "requires_confirmation": False,
+                    "parsed_data": data,
+                    "response": response,
+                    "session_id": str(user_id),
+                }
+
+            # Get Financial Services category for the expense
+            fin_cat = CategoryModel.get_by_name("Financial Services")
+
+            # If multiple loans, ask which one (future enhancement)
+            loan = open_loans[0]
+
+            response = (
+                f"I'll record a **${amount} loan payment** for '{loan.name}':\n\n"
+                f"• Create expense transaction under Financial Services\n"
+                f"• Reduce loan balance from ${loan.remaining_amount} to ${float(loan.remaining_amount) - float(amount)}\n\n"
+                f"**Confirm?** (yes/no)"
+            )
+
+            session.set_pending_action(
+                {
+                    "type": "make_loan_payment",
+                    "data": {
+                        "user_id": str(user_id),
+                        "loan_id": str(loan.id),
+                        "loan_name": loan.name,
+                        "amount": str(amount),
+                        "category_id": str(fin_cat.id) if fin_cat else None,
+                        "create_transaction": True,
+                    },
+                }
+            )
+
+            session.add_message("assistant", response)
+            return {
+                "intent": Intent.MAKE_LOAN_PAYMENT,
+                "action": "make_loan_payment",
+                "requires_confirmation": True,
+                "parsed_data": data,
+                "response": response,
+                "session_id": str(user_id),
+            }
+
+        except Exception as e:
+            logger.error(f"Error handling loan payment: {e}", exc_info=True)
+            response = "I had trouble processing your loan payment. Please try again."
+            session.add_message("assistant", response)
+            return {
+                "intent": Intent.MAKE_LOAN_PAYMENT,
+                "action": None,
+                "requires_confirmation": False,
+                "parsed_data": data,
+                "response": response,
+                "session_id": str(user_id),
+            }
+
+    def _handle_add_loan(
+        self,
+        user_id: UUID,
+        session: ChatSession,
+        parsed: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Handle add new loan intent."""
+        data = parsed.get("data", {})
+        amount = data.get("amount", "?")
+
+        response = (
+            f"To add a new loan of **${amount}**, I need a few more details:\n\n"
+            f"• What's the loan name/purpose? (e.g., 'Car Loan', 'Student Loan')\n\n"
+            f"Please provide the loan name."
+        )
+
+        session.set_pending_action(
+            {
+                "type": "add_loan_awaiting_name",
+                "data": {
+                    "user_id": str(user_id),
+                    "amount": str(amount),
+                },
+            }
+        )
+
+        session.add_message("assistant", response)
+        return {
+            "intent": Intent.ADD_LOAN,
+            "action": None,
+            "requires_confirmation": False,
+            "parsed_data": data,
+            "response": response,
+            "session_id": str(user_id),
+        }
+
+    def _handle_check_loan(
+        self,
+        user_id: UUID,
+        session: ChatSession,
+    ) -> Dict[str, Any]:
+        """Handle check loan status intent."""
+        try:
+            from app.models.loan import Loan
+
+            loans = Loan.query.filter_by(user_id=user_id).all()
+
+            if not loans:
+                response = (
+                    "You don't have any loans recorded. Would you like to add one?"
+                )
+            else:
+                open_loans = [loan for loan in loans if loan.status.value == "open"]
+                closed_loans = [loan for loan in loans if loan.status.value == "closed"]
+
+                total_remaining = sum(
+                    float(loan.remaining_amount) for loan in open_loans
+                )
+
+                response = "**Your Loans:**\n\n"
+
+                if open_loans:
+                    response += "📋 **Open Loans:**\n"
+                    for loan in open_loans:
+                        progress = (
+                            1
+                            - float(loan.remaining_amount) / float(loan.original_amount)
+                        ) * 100
+                        response += f"• {loan.name}: ${loan.remaining_amount} remaining ({progress:.0f}% paid)\n"
+                    response += f"\n**Total debt:** ${total_remaining:.2f}\n"
+
+                if closed_loans:
+                    response += f"\n✅ **Paid Off:** {len(closed_loans)} loan(s)\n"
+
+            session.add_message("assistant", response)
+            return {
+                "intent": Intent.CHECK_LOAN,
+                "action": None,
+                "requires_confirmation": False,
+                "parsed_data": None,
+                "response": response,
+                "session_id": str(user_id),
+            }
+
+        except Exception as e:
+            logger.error(f"Error checking loans: {e}", exc_info=True)
+            response = "I had trouble fetching your loans. Please try again."
+            session.add_message("assistant", response)
+            return {
+                "intent": Intent.CHECK_LOAN,
+                "action": None,
+                "requires_confirmation": False,
+                "parsed_data": None,
+                "response": response,
+                "session_id": str(user_id),
+            }
+
+    def _handle_savings_goal(
+        self,
+        user_id: UUID,
+        session: ChatSession,
+        parsed: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Handle savings goal intent (future feature)."""
+        data = parsed.get("data", {})
+        amount = data.get("amount", "?")
+
+        response = (
+            f"🚧 **Savings Goals Coming Soon!**\n\n"
+            f"We're working on savings goal tracking. In the meantime, you can:\n\n"
+            f"• Record transfers to your savings account as transactions\n"
+            f"• Set a budget to limit spending and increase savings\n\n"
+            f"Would you like to record a ${amount} savings transfer as a transaction?"
+        )
+
+        session.set_pending_action(
+            {
+                "type": "savings_fallback",
+                "data": {
+                    "amount": str(amount),
+                    "description": "Savings Transfer",
+                    "category_name": "Financial Services",
+                },
+            }
+        )
+
+        session.add_message("assistant", response)
+        return {
+            "intent": Intent.SAVINGS_GOAL,
+            "action": None,
+            "requires_confirmation": False,
+            "parsed_data": data,
+            "response": response,
+            "session_id": str(user_id),
         }
 
     def _handle_general_chat(
@@ -1554,6 +2247,15 @@ Just ask naturally and I'll help!"""
                 return self._execute_delete_transaction(user_id, session, action)
             elif action_type == "edit_transaction":
                 return self._execute_edit_transaction(user_id, session, action)
+            elif action_type == "set_budget":
+                return self._execute_set_budget(user_id, session, action)
+            elif action_type == "make_loan_payment":
+                return self._execute_loan_payment(user_id, session, action)
+            elif action_type == "savings_fallback":
+                # Treat as regular transaction
+                action["type"] = "create_transaction"
+                action["data"]["transaction_type"] = "expense"
+                return self._execute_create_transaction(user_id, session, action)
             else:
                 response = f"Unknown action type: {action_type}"
 
@@ -1674,6 +2376,178 @@ Just ask naturally and I'll help!"""
             "response": response,
             "session_id": str(session.session_id),
         }
+
+    def _execute_set_budget(
+        self,
+        user_id: UUID,
+        session: ChatSession,
+        action: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Execute set/increase budget action."""
+        from app.models.budget import Budget
+        from app.models.enums import BudgetType, BudgetPeriod
+        from app.core.extensions import db
+
+        data = action.get("data", {})
+
+        try:
+            category_id = data.get("category_id")
+            amount = Decimal(data.get("amount", "0"))
+            period = BudgetPeriod(data.get("period", "monthly"))
+
+            # Check for existing budget
+            existing = Budget.query.filter_by(
+                user_id=user_id,
+                category_id=category_id,
+            ).first()
+
+            if existing:
+                # Update existing budget
+                existing.amount = amount
+                existing.updated_at = datetime.now(timezone.utc)
+                db.session.commit()
+                action_text = "updated"
+            else:
+                # Create new budget
+                new_budget = Budget(
+                    user_id=user_id,
+                    category_id=category_id,
+                    budget_type=BudgetType.CATEGORY,
+                    amount=amount,
+                    period=period,
+                )
+                db.session.add(new_budget)
+                db.session.commit()
+                action_text = "set"
+
+            session.clear_pending_action()
+
+            category_name = data.get("category_name", "Unknown")
+            response = f"✅ Done! {category_name} budget {action_text} to **${amount}** ({period.value})."
+            session.add_message("assistant", response)
+
+            return {
+                "intent": Intent.CONFIRM_ACTION,
+                "action": "budget_updated",
+                "requires_confirmation": False,
+                "parsed_data": {"amount": str(amount), "category": category_name},
+                "response": response,
+                "session_id": str(session.session_id),
+            }
+
+        except Exception as e:
+            logger.error(f"Failed to set budget: {e}", exc_info=True)
+            session.clear_pending_action()
+            response = f"Sorry, I couldn't update the budget: {str(e)}"
+            session.add_message("assistant", response)
+            return {
+                "intent": Intent.CONFIRM_ACTION,
+                "action": None,
+                "requires_confirmation": False,
+                "parsed_data": None,
+                "response": response,
+                "session_id": str(session.session_id),
+            }
+
+    def _execute_loan_payment(
+        self,
+        user_id: UUID,
+        session: ChatSession,
+        action: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """
+        Execute loan payment action.
+
+        This does TWO things:
+        1. Creates an expense transaction for the payment
+        2. Reduces the loan's remaining balance
+        """
+        from app.models.loan import Loan
+        from app.models.enums import LoanStatus
+        from app.services.transaction_service import TransactionService
+        from app.models.user import User
+        from app.core.extensions import db
+
+        data = action.get("data", {})
+
+        try:
+            loan_id = data.get("loan_id")
+            amount = Decimal(data.get("amount", "0"))
+            create_tx = data.get("create_transaction", True)
+
+            # Get loan
+            loan = db.session.get(Loan, loan_id)
+            if not loan:
+                raise ValueError("Loan not found")
+
+            # Get user
+            user = db.session.get(User, user_id)
+            if not user:
+                raise ValueError("User not found")
+
+            # Update loan balance
+            old_balance = loan.remaining_amount
+            new_balance = max(Decimal("0"), loan.remaining_amount - amount)
+            loan.remaining_amount = new_balance
+            loan.updated_at = datetime.now(timezone.utc)
+
+            # Check if loan is paid off
+            if new_balance == 0:
+                loan.status = LoanStatus.CLOSED
+                paid_off_text = " 🎉 **Loan fully paid off!**"
+            else:
+                paid_off_text = ""
+
+            # Create expense transaction if requested
+            tx_id = None
+            if create_tx:
+                tx_data = {
+                    "amount": str(amount),
+                    "transaction_type": "expense",
+                    "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                    "merchant_name": f"Loan Payment - {loan.name}",
+                    "category_id": data.get("category_id"),
+                }
+                transaction = TransactionService.create_transaction(user, tx_data)
+                tx_id = str(transaction.id)
+
+            db.session.commit()
+            session.clear_pending_action()
+
+            response = (
+                f"✅ Done! Recorded **${amount}** payment for '{loan.name}'.\n\n"
+                f"• Loan balance: ${old_balance} → ${new_balance}\n"
+                f"• Expense transaction created{paid_off_text}"
+            )
+            session.add_message("assistant", response)
+
+            return {
+                "intent": Intent.CONFIRM_ACTION,
+                "action": "loan_payment",
+                "requires_confirmation": False,
+                "parsed_data": {
+                    "loan_id": loan_id,
+                    "amount": str(amount),
+                    "transaction_id": tx_id,
+                    "new_balance": str(new_balance),
+                },
+                "response": response,
+                "session_id": str(session.session_id),
+            }
+
+        except Exception as e:
+            logger.error(f"Failed to process loan payment: {e}", exc_info=True)
+            session.clear_pending_action()
+            response = f"Sorry, I couldn't process the loan payment: {str(e)}"
+            session.add_message("assistant", response)
+            return {
+                "intent": Intent.CONFIRM_ACTION,
+                "action": None,
+                "requires_confirmation": False,
+                "parsed_data": None,
+                "response": response,
+                "session_id": str(session.session_id),
+            }
 
     def request_category_clarification(
         self,

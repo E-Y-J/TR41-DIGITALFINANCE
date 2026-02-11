@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 
 import { getIcon, getStatusLabel } from "../../../utils/transactionUtils";
+import { useFormatting } from "../../../hooks/useFormatting";
 
 export const TransactionRow = ({
   row,
@@ -19,11 +20,12 @@ export const TransactionRow = ({
   isDashboard,
 }) => {
   const theme = useTheme();
+  const { formatCurrency } = useFormatting();
 
   const isIncome = row.transaction_type === "income";
   const amountColor = isIncome ? "success.main" : "text.primary";
   const amountPrefix = isIncome ? "+" : "";
-  const formattedAmount = `${amountPrefix}$${parseFloat(row.amount).toFixed(2)}`;
+  const formattedAmount = `${amountPrefix}${formatCurrency(row.amount)}`;
   const rowStatus = row.status || "completed";
 
   const getStatusChip = (status = "completed") => {

@@ -50,8 +50,9 @@ export default function SettingsPage() {
 
   const updateMutation = useMutation({
     mutationFn: (data) => updateUser(apiClient, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+    onSuccess: (response) => {
+      // Use the PATCH response directly instead of refetching
+      queryClient.setQueryData(["user"], response);
       setSnackbar({ open: true, message: "Settings saved!", severity: "success" });
     },
     onError: (error) => {

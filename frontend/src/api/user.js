@@ -1,5 +1,9 @@
 export const getUser = async (client) => {
-  const { data } = await client.post("/auth/callback");
+  // Send browser timezone for auto-detection on first login
+  const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const { data } = await client.post("/auth/callback", {
+    timezone: browserTimezone,
+  });
   return data;
 };
 
@@ -28,5 +32,10 @@ export const sendChatMessage = async (
     context,
     session_id: sessionId,
   });
+  return data;
+};
+
+export const deleteChatSession = async (client, sessionId) => {
+  const { data } = await client.delete(`/v1/ai/chat/session/${sessionId}`);
   return data;
 };

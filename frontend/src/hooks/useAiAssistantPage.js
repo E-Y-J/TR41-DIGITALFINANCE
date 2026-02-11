@@ -1,5 +1,8 @@
 import { useState, useRef, useMemo, useCallback } from "react";
-import { useGetChatHistory } from "../features/chat/useGetChatHistory";
+import {
+  useGetChatHistory,
+  useDeleteChatSession,
+} from "../features/chat/useGetChatHistory";
 import { useGetUser } from "../features/auth/useGetUser";
 import { useSendChatMessage } from "../features/chat/useSendChatMessage";
 
@@ -12,6 +15,7 @@ export const useAiAssistantPage = () => {
   } = useGetChatHistory();
 
   const { data: userData } = useGetUser();
+  const deleteMutation = useDeleteChatSession();
   const { mutateAsync: sendChatApi } = useSendChatMessage();
 
   const [activeChatId, setActiveChatId] = useState(null);
@@ -143,5 +147,20 @@ export const useAiAssistantPage = () => {
       setActiveChatId(null);
       setOptimisticMessages([]);
     },
+    handleDeleteChat: (chatId) => {
+      // If it's a local-only session, just remove from local state
+      if (chatId?.startsWith?.("local-")) {
+        setLocalSessions((prev) => prev.filter((s) => s.id !== chatId));
+      } else {
+        // Delete from server
+        deleteMutation.mutate(chatId);
+      }
+      // Clear active chat if we're deleting the active one
+      if (activeChatId === chatId) {
+        setActiveChatId(null);
+        setOptimisticMessages([]);
+      }
+    },
+    isDeletingChat: deleteMutation.isPending,
   };
 };

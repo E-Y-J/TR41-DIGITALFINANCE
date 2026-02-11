@@ -73,6 +73,9 @@ class NotificationSchema(BaseSchema):
                 "edited_profile",
                 "weekly_summary_ready",
                 "category_updated",
+                "ai_clarification",
+                "budget_warning",
+                "budget_exceeded",
             ],
         },
     )

@@ -7,8 +7,8 @@ export const useSendChatMessage = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ message, context }) => {
-      const res = await sendChatMessage(apiClient, { message, context });
+    mutationFn: async ({ message, session_id = null, context = {} }) => {
+      const res = await sendChatMessage(apiClient, { message, session_id, context });
       return res;
     },
     onSuccess: () => {

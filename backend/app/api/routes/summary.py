@@ -95,7 +95,7 @@ def get_spending_summary(period: str):
         }
     """
     # Sync user from JWT claims
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Get summary
     summary = SummaryService.get_spending_summary(user.id, period)
@@ -144,7 +144,7 @@ def get_category_breakdown(period: str):
         }
     """
     # Sync user from JWT claims
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Parse optional type filter
     transaction_type = None
@@ -203,7 +203,7 @@ def get_spending_trends():
         }
     """
     # Sync user from JWT claims
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Parse parameters - validation happens in service layer
     period = request.args.get("period", "monthly").lower()
@@ -261,7 +261,7 @@ def get_period_comparison(period: str):
         }
     """
     # Sync user from JWT claims
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Validate period
     if period.lower() not in ["weekly", "monthly"]:

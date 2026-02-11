@@ -34,6 +34,9 @@ from flask import Blueprint, request, g
 
 from app.auth.decorators import requires_auth
 from app.auth.user_sync import sync_user_from_claims
+from app.core.extensions import db
+from app.models.notification import Notification
+from app.models.enums import NotificationType
 from app.services.transaction_service import TransactionService
 from app.schemas.transaction_schema import transaction_schema, transaction_list_schema
 from app.utils.errors import ValidationError
@@ -106,7 +109,7 @@ def list_transactions():
         }
     """
     # Get current user
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Parse query parameters
     page = request.args.get("page", 1, type=int)
@@ -200,10 +203,25 @@ def create_transaction():
         raise ValidationError("Request body required")
 
     # Get current user
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Create transaction
     transaction = TransactionService.create_transaction(user, data)
+
+    # Create notification for new transaction
+    try:
+        merchant = transaction.merchant_name or "Unknown"
+        amount = f"${abs(float(transaction.amount)):.2f}"
+        notification = Notification(
+            user_id=user.id,
+            title="New Transaction",
+            message=f"{transaction.transaction_type.value.capitalize()} of {amount} at {merchant}",
+            notification_type=NotificationType.NEW_TRANSACTION,
+        )
+        db.session.add(notification)
+        db.session.commit()
+    except Exception as e:
+        logger.warning(f"Failed to create transaction notification: {e}")
 
     # Serialize response
     response_data = transaction_schema.dump(transaction)
@@ -255,7 +273,7 @@ def get_transaction(transaction_id: str):
     tx_id = parse_uuid(transaction_id)
 
     # Get current user
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Get transaction (validates ownership)
     transaction = TransactionService.get_user_transaction(user, tx_id)
@@ -318,7 +336,7 @@ def update_transaction(transaction_id: str):
         raise ValidationError("Request body required")
 
     # Get current user
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Update transaction
     transaction = TransactionService.update_transaction(user, tx_id, data)
@@ -359,10 +377,29 @@ def delete_transaction(transaction_id: str):
     tx_id = parse_uuid(transaction_id)
 
     # Get current user
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
+
+    # Get transaction details before deletion for notification
+    transaction = TransactionService.get_user_transaction(user, tx_id)
+    merchant = transaction.merchant_name or "Unknown"
+    amount = f"${abs(float(transaction.amount)):.2f}"
+    tx_type = transaction.transaction_type.value.capitalize()
 
     # Delete transaction
     TransactionService.delete_transaction(user, tx_id)
+
+    # Create notification for deleted transaction
+    try:
+        notification = Notification(
+            user_id=user.id,
+            title="Transaction Deleted",
+            message=f"{tx_type} of {amount} at {merchant} was deleted",
+            notification_type=NotificationType.DELETED_TRANSACTION,
+        )
+        db.session.add(notification)
+        db.session.commit()
+    except Exception as e:
+        logger.warning(f"Failed to create deletion notification: {e}")
 
     return success_response(message="Transaction deleted successfully")
 
@@ -401,7 +438,7 @@ def get_summary():
             "message": "Summary retrieved successfully"
         }
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
@@ -439,7 +476,7 @@ def get_monthly_trend():
     """
     Get month-by-month expense totals for a line chart.
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
     start_date = request.args.get("start_date")
     category = request.args.get("category")
 
@@ -508,7 +545,7 @@ def update_category(transaction_id: str):
     tx_id = parse_uuid(transaction_id, "transaction_id")
 
     # Get current user
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Get request body
     data = request.get_json() or {}

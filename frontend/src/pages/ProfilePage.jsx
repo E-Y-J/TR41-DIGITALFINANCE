@@ -32,8 +32,9 @@ export default function ProfilePage() {
 
   const updateMutation = useMutation({
     mutationFn: (data) => updateUser(apiClient, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+    onSuccess: (response) => {
+      // Use the PATCH response directly instead of refetching
+      queryClient.setQueryData(["user"], response);
       setSnackbar({ open: true, message: "Profile updated successfully!", severity: "success" });
       setIsEditing(false);
     },
@@ -87,6 +88,7 @@ export default function ProfilePage() {
           {/* Profile Header */}
           <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
             <Avatar
+              src={user?.picture_url}
               sx={{
                 width: 80,
                 height: 80,

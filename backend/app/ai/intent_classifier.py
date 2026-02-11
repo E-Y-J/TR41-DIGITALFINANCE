@@ -141,6 +141,64 @@ INTENT_EXAMPLES = {
         "budget remaining",
         "how much budget left",
     ],
+    # NEW: Budget modification intents
+    "set_budget": [
+        "set my food budget to 500",
+        "increase my budget by 100",
+        "add 200 to my budget limit",
+        "raise my monthly budget",
+        "update budget for groceries",
+        "change my spending limit",
+        "make my budget 1000",
+        "set budget to",
+        "increase budget",
+        "add to my budget",
+        "raise the budget limit",
+        "bump up my food budget",
+    ],
+    # NEW: Loan intents
+    "make_loan_payment": [
+        "pay 500 towards my loan",
+        "make a loan payment",
+        "pay off some of my debt",
+        "I paid 200 on my student loan",
+        "reduce my loan balance",
+        "pay down my loan",
+        "make a payment on my car loan",
+        "paid my loan",
+    ],
+    "add_loan": [
+        "add a new loan",
+        "I borrowed 5000",
+        "create a loan for my car",
+        "I took out a loan",
+        "new debt of 10000",
+        "record a new loan",
+        "add debt",
+        "I got a loan",
+    ],
+    "check_loan": [
+        "how much do I owe",
+        "loan balance",
+        "check my loans",
+        "remaining loan amount",
+        "debt status",
+        "show my loans",
+        "what's my loan balance",
+        "how much debt do I have",
+    ],
+    # NEW: Savings/Goals intents (future feature)
+    "savings_goal": [
+        "set a savings goal",
+        "I want to save 1000",
+        "create a savings goal",
+        "add to my savings",
+        "how much have I saved",
+        "savings progress",
+        "check my savings goal",
+        "save for vacation",
+        "save money for",
+    ],
     "get_insights": [
         "spending insights",
         "analyze my spending",
@@ -264,7 +322,7 @@ class IntentClassifier:
             )
             return True
 
-        except ImportError as e:
+        except ImportError:
             logger.warning(
                 "sentence-transformers not installed. "
                 "Using keyword-based fallback for intent detection. "

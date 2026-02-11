@@ -137,6 +137,12 @@ class UserSchema(BaseSchema):
         metadata={"description": "User's optional nickname/display name"},
     )
 
+    picture_url = fields.String(
+        dump_only=True,
+        allow_none=True,
+        metadata={"description": "User's profile picture URL from Auth0"},
+    )
+
     full_name = fields.String(
         dump_only=True, metadata={"description": "User's full name (computed)"}
     )

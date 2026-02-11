@@ -150,6 +150,10 @@ class User(db.Model):
         String(100), nullable=True, doc="User's optional nickname/display name"
     )
 
+    picture_url: Mapped[Optional[str]] = mapped_column(
+        String(512), nullable=True, doc="User's profile picture URL from Auth0"
+    )
+
     # =========================================================================
     # SETTINGS & PREFERENCES
     # =========================================================================
@@ -335,6 +339,7 @@ class User(db.Model):
             "first_name": self.first_name,
             "last_name": self.last_name,
             "nickname": self.nickname,
+            "picture_url": self.picture_url,
             "full_name": self.full_name,
             "account_status": self.account_status.value,
             "role": self.role.value,
@@ -370,11 +375,13 @@ class User(db.Model):
         # Map claims to user fields
         # Note: Auth0 provides 'given_name' and 'family_name' for first/last name
         # 'nickname' is also provided by Auth0
+        # 'picture' contains profile picture URL
         claim_mappings = {
             "email": "email",
             "given_name": "first_name",
             "family_name": "last_name",
             "nickname": "nickname",
+            "picture": "picture_url",
         }
 
         for claim_key, field_name in claim_mappings.items():

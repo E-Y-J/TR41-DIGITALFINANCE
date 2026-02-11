@@ -84,7 +84,7 @@ def get_current_user():
         }
     """
     # Sync user from Auth0 claims (creates if first login)
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Serialize user data
     data = user_schema.dump(user)
@@ -137,7 +137,7 @@ def update_current_user():
         raise ValidationError("Request body required")
 
     # Get/sync current user
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Update profile via service
     updated_user = UserService.update_profile(user, data)
@@ -180,7 +180,7 @@ def get_user_settings():
         }
     """
     # Get/sync current user
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     return success_response(
         data=user.settings, message="Settings retrieved successfully"
@@ -231,7 +231,7 @@ def update_user_settings():
         raise ValidationError("Request body required")
 
     # Get/sync current user
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Update settings via service
     updated_user = UserService.update_settings(user, data)
@@ -270,7 +270,7 @@ def deactivate_account():
         }
     """
     # Get/sync current user
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Deactivate via service
     UserService.deactivate_user(user)
