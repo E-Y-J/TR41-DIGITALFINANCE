@@ -13,10 +13,12 @@ import {
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { useDeleteTransaction } from "../useDeleteTransaction";
 import { useState } from "react";
+import { useFormatting } from "../../../hooks/useFormatting";
 
 const DeleteTransactionDialog = ({ open, onClose, transaction }) => {
   const theme = useTheme();
   const { mutate, isPending } = useDeleteTransaction();
+  const { formatCurrency } = useFormatting();
   const [error, setError] = useState(null);
 
   const handleConfirm = () => {
@@ -34,7 +36,7 @@ const DeleteTransactionDialog = ({ open, onClose, transaction }) => {
 
   const merchantName = transaction?.merchant_name || "this transaction";
   const amount = transaction?.amount
-    ? `$${parseFloat(transaction.amount).toFixed(2)}`
+    ? formatCurrency(transaction.amount)
     : "";
 
   return (
