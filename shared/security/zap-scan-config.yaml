@@ -1,0 +1,93 @@
+# =============================================================================
+# Digital Finance Tracker - OWASP ZAP Security Scan Configuration
+# PURPOSE: Automation framework configuration for full active security scan
+# =============================================================================
+
+env:
+  contexts:
+    - name: "Digital Finance API"
+      urls:
+        - "https://securebankai.mysticdatanode.net"
+      includePaths:
+        - "https://securebankai.mysticdatanode.net.*"
+      excludePaths:
+        - ".*\\.css"
+        - ".*\\.js"
+        - ".*\\.png"
+        - ".*\\.jpg"
+        - ".*\\.gif"
+        - ".*\\.ico"
+        - ".*\\.woff"
+        - ".*\\.woff2"
+    - name: "Digital Finance Frontend"
+      urls:
+        - "https://securebankai.vercel.app"
+      includePaths:
+        - "https://securebankai.vercel.app.*"
+      excludePaths:
+        - ".*\\.css"
+        - ".*\\.js"
+        - ".*\\.png"
+        - ".*\\.jpg"
+        - ".*\\.gif"
+        - ".*\\.ico"
+        - ".*\\.woff"
+        - ".*\\.woff2"
+  parameters:
+    failOnError: false
+    failOnWarning: false
+    progressToStdout: true
+
+jobs:
+  # Spider the API
+  - type: spider
+    parameters:
+      context: "Digital Finance API"
+      url: "https://securebankai.mysticdatanode.net"
+      maxDuration: 5
+      maxDepth: 5
+      maxChildren: 10
+
+  # Spider the Frontend
+  - type: spider
+    parameters:
+      context: "Digital Finance Frontend"
+      url: "https://securebankai.vercel.app"
+      maxDuration: 5
+      maxDepth: 5
+      maxChildren: 10
+
+  # Passive scan (automatic)
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 5
+
+  # Active scan against API
+  - type: activeScan
+    parameters:
+      context: "Digital Finance API"
+      maxRuleDurationInMins: 5
+      maxScanDurationInMins: 15
+
+  # Active scan against Frontend
+  - type: activeScan
+    parameters:
+      context: "Digital Finance Frontend"
+      maxRuleDurationInMins: 5
+      maxScanDurationInMins: 15
+
+  # Generate reports
+  - type: report
+    parameters:
+      template: "traditional-html"
+      reportDir: "c:/Users/surya/projects/digital finance/shared/security/"
+      reportFile: "zap-security-report"
+      reportTitle: "Digital Finance Tracker - Security Scan Report"
+      reportDescription: "OWASP ZAP Full Active Scan Results"
+
+  - type: report
+    parameters:
+      template: "traditional-json"
+      reportDir: "c:/Users/surya/projects/digital finance/shared/security/"
+      reportFile: "zap-security-report"
+      reportTitle: "Digital Finance Tracker - Security Scan Report"

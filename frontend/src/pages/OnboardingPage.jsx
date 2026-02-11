@@ -27,9 +27,8 @@ export default function OnboardingPage() {
     mutate({
       first_name: formData.firstName,
       last_name: formData.lastName,
-      nick_name: formData.nickName,
-      annual_salary: formData.annualSalary,
-      account_status: "active",
+      nickname: formData.nickName,
+      salary_amount: formData.annualSalary,
     });
   };
 

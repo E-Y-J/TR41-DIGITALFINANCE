@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, useCallback } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetChatHistory } from "../features/chat/useGetChatHistory";
 import { useGetUser } from "../features/auth/useGetUser";
@@ -6,7 +6,6 @@ import { useAxios } from "./useAxios";
 import { sendChatMessage } from "../api/user";
 
 export const useAiAssistantPage = () => {
-  const [page, setPage] = useState(0);
   const apiClient = useAxios();
   const queryClient = useQueryClient();
 
@@ -69,13 +68,6 @@ export const useAiAssistantPage = () => {
     return [...history, ...filteredOptimistic];
   }, [activeSession, optimisticMessages]);
 
-  const suggestionClickHandler = useCallback(
-    (text) => {
-      setInputValue(text);
-    },
-    [setInputValue],
-  );
-
   const handleSendMessage = async (textOverride) => {
     const messageText = (
       typeof textOverride === "string" ? textOverride : inputValue
@@ -110,8 +102,9 @@ export const useAiAssistantPage = () => {
 
     try {
       // Call the actual backend API
+      // Pass sessionId to continue the conversation in that specific session
       const response = await sendChatMessage(apiClient, messageText, {
-        session_id: activeChatId?.startsWith("local-") ? null : activeChatId,
+        sessionId: activeChatId?.startsWith("local-") ? null : activeChatId,
       });
 
       const aiResponse = response?.data?.response || "I received your message but couldn't generate a response.";
@@ -176,7 +169,7 @@ export const useAiAssistantPage = () => {
     conversations,
     activeChatId,
     displayMessages,
-    suggestionClickHandler,
+    suggestionClickHandler: handleSendMessage,
     inputValue,
     setInputValue,
     isTyping,
