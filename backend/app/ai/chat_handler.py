@@ -565,6 +565,90 @@ class ChatHandler:
                 except (InvalidOperation, ValueError):
                     pass
 
+        # TIER 0.5: Check if user is providing category for unclear merchant
+        if pending and pending.get("type") == "create_transaction_awaiting_category":
+            message_clean = message.strip().lower()
+            alternatives = pending.get("alternatives", [])
+            partial_data = pending.get("partial_data", {})
+
+            # Try to match user's response to a category
+            from app.services.category_service import CategoryService
+
+            matched_category = None
+            for alt in alternatives:
+                cat_name = alt.get("category", "").lower()
+                # Match if user typed category name or a significant part of it
+                if cat_name and (
+                    cat_name in message_clean or message_clean in cat_name
+                ):
+                    matched_category = CategoryService.get_by_name(alt["category"])
+                    break
+
+            # Also try direct lookup if no match from alternatives
+            if not matched_category:
+                # Try common short names
+                category_shortcuts = {
+                    "shopping": "Shopping & Retail",
+                    "retail": "Shopping & Retail",
+                    "food": "Food & Dining",
+                    "dining": "Food & Dining",
+                    "restaurant": "Food & Dining",
+                    "transport": "Transportation",
+                    "gas": "Transportation",
+                    "entertainment": "Entertainment & Recreation",
+                    "fun": "Entertainment & Recreation",
+                    "health": "Healthcare & Medical",
+                    "medical": "Healthcare & Medical",
+                    "pharmacy": "Healthcare & Medical",
+                    "utility": "Utilities & Services",
+                    "utilities": "Utilities & Services",
+                    "bills": "Utilities & Services",
+                    "financial": "Financial Services",
+                    "bank": "Financial Services",
+                    "income": "Income",
+                    "salary": "Income",
+                    "government": "Government & Legal",
+                    "legal": "Government & Legal",
+                    "charity": "Charity & Donations",
+                    "donation": "Charity & Donations",
+                }
+                for shortcut, full_name in category_shortcuts.items():
+                    if shortcut in message_clean:
+                        matched_category = CategoryService.get_by_name(full_name)
+                        break
+
+            if matched_category:
+                partial_data["category_id"] = str(matched_category.id)
+                partial_data["category_name"] = matched_category.name
+                partial_data["ai_confidence"] = 1.0  # User selected
+                partial_data["ai_source"] = "user_clarification"
+                session.clear_pending_action()
+
+                # Record this learning for future
+                merchant = partial_data.get("merchant_name") or partial_data.get(
+                    "description"
+                )
+                if merchant and self.orchestrator:
+                    try:
+                        self.orchestrator.record_user_correction(
+                            user_id=session.user_id,
+                            merchant_name=merchant,
+                            correct_category=matched_category.name,
+                            original_category="Unknown",
+                            original_source="clarification",
+                        )
+                    except Exception as e:
+                        logger.warning(f"Failed to record learning: {e}")
+
+                logger.info(
+                    f"Tier 0.5: User clarified category: {matched_category.name}"
+                )
+                return {
+                    "intent": Intent.CREATE_TRANSACTION,
+                    "confidence": 1.0,
+                    "data": partial_data,
+                }
+
         # Tier 1: Try rule-based parsing first (fastest)
         rule_based = self._rule_based_parse(message)
         if rule_based.get("confidence", 0) >= 0.8:
@@ -873,12 +957,13 @@ class ChatHandler:
                     break
 
         # Extract MERCHANT (where it was bought) - specific stores from "at X" or "from X"
-        # Only extract if it looks like a proper store name (capitalized or known chains)
+        # Supports both uppercase and lowercase store names
         merchant = None
         merchant_patterns = [
-            # "at Starbucks", "at Walmart" - proper nouns after "at" followed by "for" or time
-            r"\s+at\s+([A-Z][a-zA-Z\s\']+?)(?:\s+for|\s+yesterday|\s+today|\s*$)",
-            r"\s+from\s+([A-Z][a-zA-Z\s\']+?)(?:\s+for|\s+yesterday|\s+today|\s*$)",
+            # "at Starbucks", "at gnc", "at Walmart" - store names after "at"
+            r"\s+at\s+([a-zA-Z][a-zA-Z0-9\s\'&]*?)(?:\s+for|\s+yesterday|\s+today|\s+to\s+|\s*$)",
+            # "from Amazon", "from walmart" - store names after "from"
+            r"\s+from\s+([a-zA-Z][a-zA-Z0-9\s\'&]*?)(?:\s+for|\s+yesterday|\s+today|\s+to\s+|\s*$)",
         ]
         for pattern in merchant_patterns:
             match = re.search(
@@ -886,6 +971,13 @@ class ChatHandler:
             )  # Use original message for case
             if match:
                 merchant = match.group(1).strip()
+                # Capitalize the merchant name for display (e.g., "gnc" → "GNC")
+                if merchant:
+                    # Check if it's an acronym (all caps when properly formatted)
+                    if len(merchant) <= 3:
+                        merchant = merchant.upper()  # Short names like GNC, CVS, etc.
+                    else:
+                        merchant = merchant.title()
                 if merchant and len(merchant) > 1:
                     break
 
@@ -1051,6 +1143,7 @@ ONLY respond with the JSON, no other text."""
                 categorize_text,
                 amount=float(data["amount"]) if data.get("amount") else None,
                 transaction_type=data.get("transaction_type"),
+                user_id=user_id,  # Pass user_id for learned mappings
             )
             data["category_id"] = (
                 str(cat_result["category_id"]) if cat_result["category_id"] else None
@@ -1059,6 +1152,15 @@ ONLY respond with the JSON, no other text."""
             data["ai_confidence"] = cat_result["confidence"]
             data["ai_source"] = cat_result["source"]
             category_info = cat_result
+
+            # If AI is uncertain, ask user to clarify before confirming
+            if (
+                cat_result.get("needs_clarification")
+                or cat_result.get("category") == "Unknown"
+            ):
+                return self._ask_category_clarification(
+                    user_id, session, data, cat_result
+                )
 
         # Build confirmation message
         amount = data.get("amount", "?")
@@ -1666,6 +1768,80 @@ Just ask naturally and I'll help!"""
             "parsed_data": None,
             "response": response,
             "session_id": str(user_id),
+        }
+
+    def _ask_category_clarification(
+        self,
+        user_id: UUID,
+        session: ChatSession,
+        transaction_data: Dict[str, Any],
+        cat_result: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """
+        Ask user to clarify category when AI is uncertain.
+
+        This is called during transaction creation when the AI can't
+        confidently categorize the merchant.
+
+        Args:
+            user_id: User's UUID
+            session: Chat session
+            transaction_data: Parsed transaction data
+            cat_result: Categorization result with alternatives
+
+        Returns:
+            Chat response asking for category clarification
+        """
+        merchant = (
+            transaction_data.get("merchant_name")
+            or transaction_data.get("description")
+            or "this merchant"
+        )
+        amount = transaction_data.get("amount", "?")
+
+        # Get category alternatives
+        alternatives = cat_result.get("alternatives", [])
+        if not alternatives:
+            # Provide all categories if no specific alternatives
+            from app.services.category_service import CategoryService
+
+            all_cats = CategoryService.get_all()
+            alternatives = [
+                {"category": c.name, "category_id": str(c.id)}
+                for c in all_cats
+                if c.name != "Unknown"
+            ]
+
+        # Build options list
+        options_list = "\n".join([f"• {a['category']}" for a in alternatives[:6]])
+
+        response = (
+            f"I'm not sure what type of store **{merchant}** is.\n\n"
+            f"What category best describes this **${amount}** purchase?\n\n"
+            f"{options_list}\n\n"
+            f"Just reply with the category name (e.g., 'Shopping' or 'Healthcare')."
+        )
+
+        # Set pending action with transaction data
+        session.set_pending_action(
+            {
+                "type": "create_transaction_awaiting_category",
+                "partial_data": transaction_data,
+                "alternatives": alternatives,
+            }
+        )
+
+        session.add_message("assistant", response)
+
+        return {
+            "intent": Intent.CREATE_TRANSACTION,
+            "action": None,
+            "requires_confirmation": False,
+            "parsed_data": transaction_data,
+            "response": response,
+            "session_id": str(user_id),
+            "alternatives": alternatives,
+            "needs_clarification": True,
         }
 
     def request_category_clarification(

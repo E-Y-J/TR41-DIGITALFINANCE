@@ -139,7 +139,7 @@ class CORSConfig:
 
     origins: list = field(default_factory=lambda: ["http://localhost:5173"])
     methods: list = field(
-        default_factory=lambda: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        default_factory=lambda: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
     )
     allow_headers: list = field(
         default_factory=lambda: ["Content-Type", "Authorization"]
@@ -213,6 +213,12 @@ class Config:
     # Gemini Configuration
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+
+    # Sentry Error Monitoring
+    SENTRY_DSN: str = os.getenv("SENTRY_DSN", "")
+    SENTRY_TRACES_SAMPLE_RATE: float = float(
+        os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.1")
+    )
 
     # =============================================================================
     # FLASK-SQLALCHEMY COMPATIBILITY

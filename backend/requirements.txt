@@ -59,6 +59,9 @@ redis>=5.0.0
 # Production Server
 gunicorn>=21.2.0
 
+# Error Monitoring & Performance
+sentry-sdk[flask]>=2.0.0
+
 # Monitoring (optional)
 sentry-sdk[flask]>=1.39.0
 

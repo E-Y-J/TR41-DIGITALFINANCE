@@ -23,6 +23,7 @@ const Auth0ProviderWithNavigate = ({ children }) => {
         redirect_uri: redirectUri,
         scope: "openid profile email",
         audience: audience,
+        prompt: "select_account",
       }}
       onRedirectCallback={onRedirectCallback}
       cacheLocation="memory"

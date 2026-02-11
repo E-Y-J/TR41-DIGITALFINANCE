@@ -9,6 +9,7 @@
 # Pre-commit Config (Local Only - Each dev configures their own)
 .pre-commit-config.yaml
 .secrets.baseline
+scripts/check_file_hygiene.py
 
 # Environment variables (NEVER commit secrets)
 .env
