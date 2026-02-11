@@ -25,7 +25,7 @@ const Auth0ProviderWithNavigate = ({ children }) => {
         audience: audience,
       }}
       onRedirectCallback={onRedirectCallback}
-      cacheLocation="memory"
+      cacheLocation="localstorage"
       useRefreshTokens={true}
       useRefreshTokensFallback={true}
     >
