@@ -52,14 +52,12 @@ export const useAiAssistantPage = () => {
 
   const displayMessages = useMemo(() => {
     const history = activeSession?.messages || [];
-    if (activeChatId && history.length === 0 && optimisticMessages.length > 0) {
-      return optimisticMessages;
-    }
+
     const filteredOptimistic = optimisticMessages.filter(
       (opt) => !history.some((h) => h.text === opt.text),
     );
     return [...history, ...filteredOptimistic];
-  }, [activeSession, optimisticMessages, activeChatId]);
+  }, [activeSession, optimisticMessages]);
 
   const handleSendMessage = async (textOverride) => {
     const messageText = (
@@ -75,14 +73,12 @@ export const useAiAssistantPage = () => {
       text: messageText,
       sender: "user",
     };
-    setOptimisticMessages([userMsg]);
+
+    setOptimisticMessages((prev) => [...prev, userMsg]);
 
     try {
       const response = await sendChatApi({
         message: messageText,
-        context: {
-          session_id: activeChatId,
-        },
       });
 
       const chatPayload = response.data?.data || response.data || response;
@@ -97,7 +93,7 @@ export const useAiAssistantPage = () => {
         isOptimistic: true,
       };
 
-      setOptimisticMessages([userMsg, aiMsg]);
+      setOptimisticMessages((prev) => [...prev, aiMsg]);
 
       if (sessionId) {
         setActiveChatId(sessionId);
