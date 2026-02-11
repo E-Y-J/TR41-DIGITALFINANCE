@@ -44,11 +44,21 @@ migrate = Migrate()
 # Caching (Redis or simple cache)
 cache = Cache()
 
+
+# Request filter to exempt OPTIONS (CORS preflight) from rate limiting
+def _skip_options_requests():
+    """Skip rate limiting for OPTIONS requests (CORS preflight)."""
+    from flask import request
+
+    return request.method == "OPTIONS"
+
+
 # Rate limiting
 limiter = Limiter(
     key_func=get_remote_address,
     default_limits=["100 per hour"],
     storage_uri="memory://",  # Override in production with Redis
+    request_filter=_skip_options_requests,
 )
 
 # CORS handling
