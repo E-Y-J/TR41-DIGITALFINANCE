@@ -34,3 +34,8 @@ export const sendChatMessage = async (
   });
   return data;
 };
+
+export const deleteChatSession = async (client, sessionId) => {
+  const { data } = await client.delete(`/v1/ai/chat/session/${sessionId}`);
+  return data;
+};

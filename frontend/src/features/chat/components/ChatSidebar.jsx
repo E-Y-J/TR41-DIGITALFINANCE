@@ -7,15 +7,19 @@ import {
   ListItemText,
   ListItemIcon,
   Button,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
 const ChatSidebar = ({
   conversations,
   activeChatId,
   onSelectChat,
   onNewChat,
+  onDeleteChat,
   isMobile,
 }) => (
   <Box
@@ -76,9 +80,7 @@ const ChatSidebar = ({
                   borderRadius: "12px",
                   transition: "all 0.2s ease",
                   position: "relative",
-                  overflow: "hidden", // Ensures the border-left doesn't bleed out
-                  border: chat.isMock ? "1px dashed" : "1px solid transparent",
-                  borderColor: chat.isMock ? "primary.light" : "transparent",
+                  overflow: "hidden",
 
                   // Default Hover
                   "&:hover": {
@@ -109,16 +111,13 @@ const ChatSidebar = ({
                 <ListItemIcon sx={{ minWidth: 36 }}>
                   <ChatBubbleOutlineIcon
                     fontSize="small"
-                    color={
-                      isActive ? "primary" : chat.isMock ? "warning" : "inherit"
-                    }
+                    color={isActive ? "primary" : "inherit"}
                     sx={{ transition: "color 0.2s" }}
                   />
                 </ListItemIcon>
 
                 <ListItemText
                   primary={chat.title}
-                  secondary={chat.isMock ? "Local Mock" : null}
                   slotProps={{
                     primary: {
                       fontSize: "0.85rem",
@@ -128,13 +127,29 @@ const ChatSidebar = ({
                         color: isActive ? "text.primary" : "text.secondary",
                       },
                     },
-                    secondary: {
-                      fontSize: "0.7rem",
-                      fontWeight: 600,
-                      sx: { color: "orange", mt: 0.2 },
-                    },
                   }}
                 />
+
+                {isActive && onDeleteChat && (
+                  <Tooltip title="Delete chat" placement="left">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteChat(chat.id);
+                      }}
+                      sx={{
+                        opacity: 0.6,
+                        "&:hover": {
+                          opacity: 1,
+                          color: "error.main",
+                        },
+                      }}
+                    >
+                      <DeleteOutlineIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )}
               </ListItemButton>
             </ListItem>
           );

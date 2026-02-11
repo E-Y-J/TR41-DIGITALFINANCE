@@ -1,6 +1,9 @@
 import { useState, useRef, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetChatHistory } from "../features/chat/useGetChatHistory";
+import {
+  useGetChatHistory,
+  useDeleteChatSession,
+} from "../features/chat/useGetChatHistory";
 import { useGetUser } from "../features/auth/useGetUser";
 import { useAxios } from "./useAxios";
 import { sendChatMessage } from "../api/user";
@@ -12,6 +15,7 @@ export const useAiAssistantPage = () => {
   // sessionHistory now reflects the { sessions: [...] } structure
   const { data: historyResponse, isLoading } = useGetChatHistory();
   const { data: userData } = useGetUser();
+  const deleteMutation = useDeleteChatSession();
 
   const [activeChatId, setActiveChatId] = useState(null);
   const [inputValue, setInputValue] = useState("");
@@ -185,5 +189,20 @@ export const useAiAssistantPage = () => {
       setActiveChatId(null);
       setOptimisticMessages([]);
     },
+    handleDeleteChat: (chatId) => {
+      // If it's a local-only session, just remove from local state
+      if (chatId?.startsWith?.("local-")) {
+        setLocalSessions((prev) => prev.filter((s) => s.id !== chatId));
+      } else {
+        // Delete from server
+        deleteMutation.mutate(chatId);
+      }
+      // Clear active chat if we're deleting the active one
+      if (activeChatId === chatId) {
+        setActiveChatId(null);
+        setOptimisticMessages([]);
+      }
+    },
+    isDeletingChat: deleteMutation.isPending,
   };
 };

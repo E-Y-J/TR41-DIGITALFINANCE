@@ -34,6 +34,7 @@ from marshmallow import Schema, fields, validate, ValidationError
 
 from app.auth.decorators import requires_auth
 from app.auth.user_sync import sync_user_from_claims
+from app.core.extensions import db
 from app.utils.errors import ValidationError as AppValidationError
 from app.utils.errors import NotFoundError
 
@@ -320,6 +321,102 @@ def get_chat_history():
                     "error": {
                         "code": "CHAT_HISTORY_FAILED",
                         "message": "Could not retrieve chat history",
+                    },
+                }
+            ),
+            500,
+        )
+
+
+# =============================================================================
+# DELETE CHAT SESSION ENDPOINT
+# =============================================================================
+
+
+@bp.route("/chat/session/<session_id>", methods=["DELETE"])
+@requires_auth
+def delete_chat_session(session_id):
+    """
+    Delete a chat session by ID.
+
+    Path Parameters:
+        session_id: UUID of the session to delete
+
+    Response:
+        {
+            "success": true,
+            "message": "Chat session deleted successfully"
+        }
+
+    Errors:
+        - 404: Session not found
+        - 403: Session belongs to another user
+        - 500: Internal server error
+    """
+    try:
+        from app.models.ai_session import AISession
+
+        user = sync_user_from_claims(g.current_user, g.access_token)
+        user_id = user.id
+
+        # Find the session
+        session = AISession.query.filter_by(id=session_id).first()
+
+        if not session:
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "error": {
+                            "code": "SESSION_NOT_FOUND",
+                            "message": "Chat session not found",
+                        },
+                    }
+                ),
+                404,
+            )
+
+        # Check ownership
+        if session.user_id != user_id:
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "error": {
+                            "code": "FORBIDDEN",
+                            "message": "You don't have permission to delete this session",
+                        },
+                    }
+                ),
+                403,
+            )
+
+        # Delete the session
+        db.session.delete(session)
+        db.session.commit()
+
+        logger.info(f"User {user_id} deleted chat session {session_id}")
+
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "message": "Chat session deleted successfully",
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        logger.error(f"Delete chat session failed: {e}", exc_info=True)
+        db.session.rollback()
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": {
+                        "code": "DELETE_SESSION_FAILED",
+                        "message": "Could not delete chat session",
                     },
                 }
             ),

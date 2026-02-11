@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { chatHistory } from "../../api/user";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { chatHistory, deleteChatSession } from "../../api/user";
 import { useAxios } from "../../hooks/useAxios";
 
 export const useGetChatHistory = (params = {}) => {
@@ -19,5 +19,17 @@ export const useGetChatHistory = (params = {}) => {
       return serverData;
     },
     placeholderData: (previousData) => previousData,
+  });
+};
+
+export const useDeleteChatSession = () => {
+  const apiClient = useAxios();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (sessionId) => deleteChatSession(apiClient, sessionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatHistory"] });
+    },
   });
 };

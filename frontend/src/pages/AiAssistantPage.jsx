@@ -32,6 +32,7 @@ export default function AiAssistantPage() {
             c.handleNewChat();
             c.setMobileHistoryOpen(false);
           },
+          onDeleteChat: c.handleDeleteChat,
         }}
       />
 
@@ -70,6 +71,7 @@ export default function AiAssistantPage() {
           activeChatId={c.activeChatId}
           onSelectChat={c.handleSelectChat}
           onNewChat={c.handleNewChat}
+          onDeleteChat={c.handleDeleteChat}
         />
       </Box>
     </Box>
