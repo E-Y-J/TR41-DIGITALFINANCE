@@ -1391,11 +1391,13 @@ ONLY respond with the JSON, no other text."""
             else:
                 response = "**Your Budget Status:**\n\n"
                 for b in budgets[:5]:
-                    pct = b.get("percentage_used", 0)
+                    pct = float(b.get("percentage_used", 0) or 0)
+                    spent = float(b.get("spent", 0) or 0)
+                    budget_amt = float(b.get("budget_amount", 0) or 0)
                     status = "✅" if pct < 70 else "⚠️" if pct < 100 else "🔴"
                     response += (
                         f"{status} **{b.get('category_name', 'Total')}**: "
-                        f"${b.get('spent', 0):.2f} / ${b.get('budget_amount', 0)} "
+                        f"${spent:.2f} / ${budget_amt:.2f} "
                         f"({pct:.0f}%)\n"
                     )
 
