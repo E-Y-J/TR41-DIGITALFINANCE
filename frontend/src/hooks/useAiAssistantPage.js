@@ -22,7 +22,9 @@ export const useAiAssistantPage = () => {
   const messagesEndRef = useRef(null);
 
   const conversations = useMemo(() => {
-    const rawSessions = historyResponse?.sessions || [];
+    const rawSessions =
+      historyResponse?.data?.sessions || historyResponse?.sessions || [];
+
     return rawSessions
       .map((session) => ({
         id: session.id,
