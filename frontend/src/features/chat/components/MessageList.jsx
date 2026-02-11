@@ -6,6 +6,7 @@ import {
   Avatar,
   Paper,
   keyframes,
+  useTheme,
 } from "@mui/material";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import MessageEmptyState from "./MessageEmptyState";
@@ -188,7 +189,6 @@ const MessageItem = memo(
               )}
             </Paper>
 
-            {/* Action buttons for confirmations */}
             {actions && (
               <ActionButtons
                 actions={actions}
@@ -204,79 +204,9 @@ const MessageItem = memo(
   },
 );
 
-// const MessageItem = memo(({ msg, isAI, isLast }) => {
-//   const theme = useTheme();
-
-//   return (
-//     <Box
-//       sx={{
-//         display: "flex",
-//         flexDirection: "column",
-//         alignItems: isAI ? "flex-start" : "flex-end",
-//         animation: `${fadeIn} 0.3s ease-out`,
-//       }}
-//     >
-//       <Box
-//         sx={{
-//           display: "flex",
-//           alignItems: "flex-end",
-//           gap: 1,
-//           maxWidth: "85%",
-//         }}
-//       >
-//         {isAI && (
-//           <Avatar
-//             sx={{
-//               width: 28,
-//               height: 28,
-//               bgcolor: "background.paper",
-//               border: "1px solid",
-//               borderColor: "divider",
-//             }}
-//           >
-//             <SmartToyIcon sx={{ fontSize: 16, color: "primary.main" }} />
-//           </Avatar>
-//         )}
-
-//         <Paper
-//           elevation={0}
-//           sx={{
-//             p: 1.5,
-//             borderRadius: isAI ? "16px 16px 16px 4px" : "16px 16px 4px 16px",
-//             bgcolor: isAI ? "background.paper" : "primary.main",
-//             color: isAI ? "text.primary" : "white",
-//             border: "1px solid",
-//             borderColor: isAI ? "grey.200" : "transparent",
-//             background: !isAI ? theme.palette.primary.main : undefined,
-//           }}
-//         >
-//           {isAI && isLast ? (
-//             <Typewriter text={msg.text} speed={15} />
-//           ) : (
-//             <Typography
-//               variant="body2"
-//               sx={{
-//                 fontWeight: 500,
-//                 lineHeight: 1.5,
-//                 fontSize: { xs: "0.9rem", sm: "0.875rem" },
-//                 whiteSpace: "pre-wrap",
-//                 wordBreak: "break-word",
-//                 overflowWrap: "anywhere",
-//               }}
-//             >
-//               {msg.text}
-//             </Typography>
-//           )}
-//         </Paper>
-//       </Box>
-//     </Box>
-//   );
-// });
-
 export const MessageList = ({
   messages,
   isTyping,
-  showEmptyState,
   messagesEndRef,
   onSuggestionClick,
   user,

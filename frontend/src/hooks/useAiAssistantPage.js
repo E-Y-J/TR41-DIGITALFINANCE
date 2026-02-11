@@ -79,6 +79,7 @@ export const useAiAssistantPage = () => {
     try {
       const response = await sendChatApi({
         message: messageText,
+        session_id: activeChatId,
       });
 
       const chatPayload = response.data?.data || response.data || response;
