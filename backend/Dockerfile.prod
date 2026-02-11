@@ -1,0 +1,59 @@
+# =============================================================================
+# Digital Finance Tracker - Production Dockerfile
+# PURPOSE: Optimized container for VPS deployment (8GB RAM)
+# =============================================================================
+
+FROM python:3.13-slim
+
+# Environment
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV HF_HOME=/root/.cache/huggingface
+ENV TRANSFORMERS_CACHE=/root/.cache/huggingface
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    gcc \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Install Python dependencies (cached layer)
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+# Pre-download MiniLM model (~80MB) - cached in image
+RUN python -c "\
+from sentence_transformers import SentenceTransformer; \
+print('Downloading MiniLM...'); \
+SentenceTransformer('sentence-transformers/multi-qa-MiniLM-L6-cos-v1'); \
+print('MiniLM ready!')"
+
+# Copy application code
+COPY . .
+
+# Ensure the fine-tuned model exists (must be present before build)
+# Run: python tools/download_model.py --check to verify
+
+# Create non-root user for security
+RUN useradd --create-home appuser && chown -R appuser:appuser /app
+USER appuser
+
+# Expose port (8003 to avoid conflict with existing services on VPS)
+EXPOSE 8003
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8003/health || exit 1
+
+# Production server with Gunicorn
+# Workers = (2 * CPU cores) + 1, but limited for AI models memory usage
+# Timeout increased for AI inference
+# Port 8003 configured via BACKEND_PORT env var
+CMD ["gunicorn", "--bind", "0.0.0.0:8003", "--workers", "2", "--threads", "4", \
+     "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", \
+     "--preload", "app:create_app()"]

@@ -15,6 +15,8 @@ const BudgetPage = lazy(() => import("./pages/BudgetPage"));
 const TransactionPage = lazy(() => import("./pages/TransactionPage"));
 const AiAssistantPage = lazy(() => import("./pages/AiAssistantPage"));
 const LoansPage = lazy(() => import("./pages/LoansPage"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const App = () => {
@@ -50,6 +52,8 @@ const App = () => {
             <Route path="/home/transactions" element={<TransactionPage />} />
             <Route path="/home/loans" element={<LoansPage />} />
             <Route path="/home/ai-assistant" element={<AiAssistantPage />} />
+            <Route path="/settings/profile" element={<ProfilePage />} />
+            <Route path="/settings/account" element={<SettingsPage />} />
             <Route
               path="/home/*"
               element={

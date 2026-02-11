@@ -2,7 +2,16 @@
 
 Flask-based REST API for the AI Digital Finance Tracker application.
 
-## 🎯 Project Overview
+## � Production URLs
+
+| Environment | URL |
+|-------------|-----|
+| **API Base** | https://securebankai.mysticdatanode.net |
+| **Health Check** | https://securebankai.mysticdatanode.net/health |
+| **API Documentation** | https://securebankai.mysticdatanode.net/api/docs/ |
+| **OpenAPI Spec** | https://securebankai.mysticdatanode.net/api/docs/openapi.json |
+
+## �🎯 Project Overview
 
 This backend supports a cloud-based finance tracker that:
 
@@ -44,19 +53,31 @@ The ERD for the database architecture is located at:
 
 ## 🛠 Tech Stack
 
-| Layer         | Technology                               |
-| ------------- | ---------------------------------------- |
-| Framework     | Flask, Flask-SQLAlchemy, Flask-Migrate   |
-| Database      | PostgreSQL                               |
-| Auth          | Auth0 (token validation via python-jose) |
-| Validation    | Marshmallow                              |
-| AI/ML         | scikit-learn, pandas, numpy              |
-| Charts        | matplotlib, plotly                       |
-| Caching       | Flask-Caching (Redis)                    |
-| Rate Limiting | Flask-Limiter (Redis)                    |
-| Monitoring    | Sentry                                   |
-| Testing       | pytest                                   |
-| Server        | Gunicorn                                 |
+| Layer | Technology |
+|-------|------------|
+| **Framework** | Flask 3.0+, Flask-SQLAlchemy, Flask-Migrate |
+| **Language** | Python 3.13 |
+| **Database** | PostgreSQL 15 |
+| **Cache** | Redis 7.4 (Flask-Caching) |
+| **Auth** | Auth0 (python-jose, PyJWT) |
+| **Validation** | Marshmallow |
+| **Rate Limiting** | Flask-Limiter (Redis) |
+| **Monitoring** | Sentry |
+| **Testing** | pytest (146+ tests) |
+| **Server** | Gunicorn (WSGI) |
+| **Containerization** | Docker |
+
+### AI/ML Stack
+
+| Component | Model/Technology | Purpose |
+|-----------|------------------|---------|
+| **Categorizer** | DistilBERT (HuggingFace Transformers) | Transaction category prediction (99.7% accuracy) |
+| **Intent Classifier** | MiniLM-L6 (Sentence Transformers) | Detect user intent in chat messages |
+| **LLM Fallback** | Google Gemini 2.0 Flash | Complex queries requiring generative AI |
+| **Guardrails** | Custom NLP + keyword filtering | Ensure finance-only queries |
+| **RAG** | Sentence Transformers embeddings | Knowledge base retrieval |
+| **Recurring Detector** | Custom Python algorithms | Subscription/bill detection |
+| **Anomaly Detector** | Statistical analysis | Unusual spending detection |
 
 ---
 
@@ -494,7 +515,7 @@ venv\Scripts\activate
 python tools/populate_db.py --users 10
 
 # Example: 20 users, transactions and loans default
-python tools/populate_db.py --users 20 
+python tools/populate_db.py --users 20
 
 cd ..
 ```
@@ -836,22 +857,21 @@ Notes: ___
 
 ---
 
-## 👥 Team Contacts
+## 👥 Team Members
 
-| Role                 | Name             | Contact                   |
-| -------------------- | ---------------- | ------------------------- |
-| BE Lead (Sprint 1/2) | Ariel Resendiz   | resendiz.ariel6@gmail.com |
-| BE Lead (Sprint 2/3) | Suryadi Zhang    | suryadizhang86@gmail.com  |
-| Data Analytics       | Kenneth Beckford | treybeckford@yahoo.com    |
-| Cybersecurity        | Monira Lizu      | moniralizu1@gmail.com     |
+| Role | Name | Email |
+|------|------|-------|
+| **Frontend Developer** | Jae Young Seo | jaeyseo0922@gmail.com |
+| **Backend Developer** | Suryadi Zhang | suryadizhang86@gmail.com |
+| **Backend Developer** | Ariel Resendiz | resendiz.ariel6@gmail.com |
+| **Cybersecurity Specialist** | Monira Lizu | moniralizu1@gmail.com |
 
 ---
 
 ## 📚 Related Documentation
 
-Documents to be created in `../docs/`:
-
-- PRD.md - Product Requirements Document
-- ERD.png - Entity Relationship Diagram
-- API_CONTRACT.md - API endpoint specifications
-- SECURITY_REQUIREMENTS.md - Security requirements
+- [Main Project README](../README.md)
+- [Frontend README](../frontend/README.md)
+- [API Docs](https://securebankai.mysticdatanode.net/api/docs/)
+- [AI Architecture](docs/AI_ARCHITECTURE.md)
+- [AI System Guide](docs/AI_SYSTEM_GUIDE.md)

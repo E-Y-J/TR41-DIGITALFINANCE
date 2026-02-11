@@ -201,10 +201,12 @@ def _init_cors(app) -> None:
 
     cors.init_app(
         app,
+        resources={r"/api/*": {"origins": config.cors.origins}},
         origins=config.cors.origins,
         methods=config.cors.methods,
         allow_headers=allow_headers,
         supports_credentials=True,
+        expose_headers=["Content-Type", "Authorization"],
     )
 
 

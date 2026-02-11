@@ -55,7 +55,6 @@ from app.models.enums import CategoryType
 if TYPE_CHECKING:
     from app.models.transaction import Transaction
     from app.models.budget import Budget
-    from app.models.user import User
 
 
 # =============================================================================
@@ -237,6 +236,12 @@ KEYWORD_CATEGORY_MAP = {
         "wish",
         "aliexpress",
         "shopify",
+        # Supplement/Vitamin stores
+        "gnc",
+        "vitamin shoppe",
+        "vitamin world",
+        "supplement",
+        "nutrition store",
     ],
     "Entertainment & Recreation": [
         # Streaming
@@ -887,9 +892,9 @@ class Category(db.Model):
 
         return (
             cls.query.filter(
-                cls.is_active == True,
+                cls.is_active.is_(True),
                 or_(
-                    cls.is_system == True,  # System categories
+                    cls.is_system.is_(True),  # System categories
                     cls.user_id == user_id,  # User's custom categories
                 ),
             )
@@ -913,7 +918,7 @@ class Category(db.Model):
         """
         return (
             cls.query.filter(
-                cls.is_active == True,
+                cls.is_active.is_(True),
                 cls.user_id == user_id,
             )
             .order_by(cls.name)
@@ -939,14 +944,14 @@ class Category(db.Model):
         Example:
             >>> category = Category.get_by_name_for_user("Pet Expenses", user_id)
         """
-        from sqlalchemy import or_, func
+        from sqlalchemy import func
 
         # Check user's custom category first (if user_id provided)
         if user_id:
             custom = cls.query.filter(
                 func.lower(cls.name) == name.lower(),
                 cls.user_id == user_id,
-                cls.is_active == True,
+                cls.is_active.is_(True),
             ).first()
             if custom:
                 return custom
@@ -954,8 +959,8 @@ class Category(db.Model):
         # Fall back to system category
         return cls.query.filter(
             func.lower(cls.name) == name.lower(),
-            cls.is_system == True,
-            cls.is_active == True,
+            cls.is_system.is_(True),
+            cls.is_active.is_(True),
         ).first()
 
 

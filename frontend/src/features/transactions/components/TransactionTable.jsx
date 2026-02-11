@@ -9,6 +9,8 @@ import {
 } from "@mui/material";
 import EmptyState from "../../../components/common/EmptyState";
 import TransactionActionMenu from "./TransactionActionMenu";
+import EditTransactionModal from "./EditTransactionModal";
+import DeleteTransactionDialog from "./DeleteTransactionDialog";
 
 import { TransactionRow } from "./TransactionRow";
 import { formatDate } from "../../../utils/constants";
@@ -28,6 +30,10 @@ const headerStyle = {
 const TransactionTable = ({ data = [], isDashboard = false }) => {
   const [contextMenu, setContextMenu] = useState(null);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [transactionToEdit, setTransactionToEdit] = useState(null);
+  const [transactionToDelete, setTransactionToDelete] = useState(null);
 
   const handleMenuClose = () => {
     setContextMenu(null);
@@ -47,11 +53,25 @@ const TransactionTable = ({ data = [], isDashboard = false }) => {
   };
 
   const handleEdit = (row) => {
-    console.log("Editing", row);
+    setTransactionToEdit(row);
+    setEditModalOpen(true);
+    handleMenuClose();
   };
 
   const handleDelete = (row) => {
-    console.log("Deleting", row);
+    setTransactionToDelete(row);
+    setDeleteDialogOpen(true);
+    handleMenuClose();
+  };
+
+  const handleEditModalClose = () => {
+    setEditModalOpen(false);
+    setTransactionToEdit(null);
+  };
+
+  const handleDeleteDialogClose = () => {
+    setDeleteDialogOpen(false);
+    setTransactionToDelete(null);
   };
 
   if (!data || data.length === 0)
@@ -148,6 +168,20 @@ const TransactionTable = ({ data = [], isDashboard = false }) => {
         selectedRow={selectedRow}
         onEdit={handleEdit}
         onDelete={handleDelete}
+      />
+
+      {/* Edit Transaction Modal */}
+      <EditTransactionModal
+        open={editModalOpen}
+        onClose={handleEditModalClose}
+        transaction={transactionToEdit}
+      />
+
+      {/* Delete Transaction Dialog */}
+      <DeleteTransactionDialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteDialogClose}
+        transaction={transactionToDelete}
       />
     </TableContainer>
   );

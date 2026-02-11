@@ -110,6 +110,16 @@ class TransactionCategorizer:
         self.is_loaded = False
         self._initialized = True
 
+    @property
+    def is_ready(self) -> bool:
+        """
+        Check if the categorizer is ready for inference.
+
+        Returns:
+            True if model is loaded and ready, False otherwise
+        """
+        return self.is_loaded and self._classifier is not None
+
     def load_model(self) -> bool:
         """
         Load the inference engine.
