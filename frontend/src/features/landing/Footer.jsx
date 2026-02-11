@@ -1,7 +1,6 @@
 import { Box, Typography, Container, Stack, Divider } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import AppNavLink from "../../components/common/AppNavLink";
-import logo from "../../assets/logo.png";
 
 const NAV_LINKS = [
   { text: "Home", path: "#hero" },
@@ -37,8 +36,8 @@ const Footer = () => {
           <Grid size={{ xs: 12, md: 3 }} sx={{ mb: { xs: 3, md: 0 } }}>
             <Box
               component="img"
-              src={logo}
-              alt="Trade Logo"
+              src="/logo.png"
+              alt="SecureBank AI Logo"
               sx={{ height: 24, width: "auto", mb: 1.5 }}
             />
             <Typography

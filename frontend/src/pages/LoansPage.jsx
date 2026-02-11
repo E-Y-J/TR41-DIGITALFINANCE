@@ -113,7 +113,7 @@ const LoansPage = () => {
 
   const handleDeleteConfirm = () => {
     if (!selectedLoan?.id) return;
-    
+
     deleteMutation.mutate(selectedLoan.id, {
       onSuccess: (response) => {
         const msg = response?.data?.message || "Loan deleted successfully";
@@ -121,8 +121,7 @@ const LoansPage = () => {
         handleCloseDelete();
       },
       onError: (err) => {
-        const errorMsg =
-          err.response?.data?.message || "Failed to delete loan";
+        const errorMsg = err.response?.data?.message || "Failed to delete loan";
         setSnackbar({ open: true, message: errorMsg, severity: "error" });
       },
     });

@@ -52,6 +52,9 @@ from uuid import UUID
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal, InvalidOperation
 import threading
+import uuid
+
+from app.core.extensions import db
 
 try:
     from zoneinfo import ZoneInfo
@@ -120,8 +123,11 @@ class ChatSession:
     - pending_actions table: actions awaiting confirmation
     """
 
-    def __init__(self, user_id: UUID, db_session=None):
+    def __init__(
+        self, user_id: UUID, session_id: Optional[str] = None, db_session=None
+    ):
         self.user_id = user_id
+        self.session_id = session_id
         self._db_session = db_session  # SQLAlchemy AISession model
         self._pending_action: Optional[Dict[str, Any]] = None
         self.created_at = datetime.now(timezone.utc)
@@ -361,18 +367,22 @@ class ChatHandler:
             logger.error(f"Failed to initialize chat handler: {e}", exc_info=True)
             return False
 
-    def _get_session(self, user_id: UUID) -> ChatSession:
-        """Get or create a session for a user."""
-        # Clean expired sessions
+    def _get_session(self, user_id: UUID, session_id: str = None) -> ChatSession:
+        """Get a specific session or create a new one."""
         self._cleanup_sessions()
 
-        if user_id not in self._sessions:
-            self._sessions[user_id] = ChatSession(user_id)
-        else:
-            # Refresh db session for cached ChatSession to avoid detached instance errors
-            self._sessions[user_id]._load_from_db()
+        if not session_id:
+            new_id = str(uuid.uuid4())
+            logger.debug(f"✨ Creating fresh session for user {user_id}: {new_id}")
+            self._sessions[new_id] = ChatSession(user_id, session_id=new_id)
+            return self._sessions[new_id]
 
-        return self._sessions[user_id]
+        if session_id not in self._sessions:
+            self._sessions[session_id] = ChatSession(user_id, session_id=session_id)
+        else:
+            self._sessions[session_id]._load_from_db()
+
+        return self._sessions[session_id]
 
     def _get_user_timezone(self) -> timezone:
         """
@@ -429,8 +439,8 @@ class ChatHandler:
         self,
         user_id: UUID,
         message: str,
-        context: Optional[Dict[str, Any]] = None,
         session_id: Optional[str] = None,
+        context: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Process a user message and return response.
@@ -438,8 +448,8 @@ class ChatHandler:
         Args:
             user_id: User's UUID
             message: User's message text
+            session_id: Optional session ID for conversation continuity
             context: Optional additional context
-            session_id: Optional session ID (currently unused, for future use)
 
         Returns:
             Dictionary with response data:
@@ -460,7 +470,11 @@ class ChatHandler:
         if not self.is_initialized:
             self.initialize()
 
-        session = self._get_session(user_id)
+        session = self._get_session(user_id, session_id)
+
+        if session and session._db_session:
+            session._db_session = db.session.merge(session._db_session)
+
         session.add_message("user", message)
 
         # Normalize message
@@ -1408,7 +1422,7 @@ ONLY respond with the JSON, no other text."""
                 "requires_confirmation": False,
                 "parsed_data": budgets,
                 "response": response,
-                "session_id": str(user_id),
+                "session_id": str(session.session_id),
             }
 
         except Exception as e:
@@ -1421,7 +1435,7 @@ ONLY respond with the JSON, no other text."""
                 "requires_confirmation": False,
                 "parsed_data": None,
                 "response": response,
-                "session_id": str(user_id),
+                "session_id": str(session.session_id),
             }
 
     def _handle_get_insights(
@@ -1467,7 +1481,7 @@ ONLY respond with the JSON, no other text."""
                 "requires_confirmation": False,
                 "parsed_data": insights,
                 "response": response,
-                "session_id": str(user_id),
+                "session_id": str(session.session_id),
             }
 
         except Exception as e:
@@ -1480,7 +1494,7 @@ ONLY respond with the JSON, no other text."""
                 "requires_confirmation": False,
                 "parsed_data": None,
                 "response": response,
-                "session_id": str(user_id),
+                "session_id": str(session.session_id),
             }
 
     def _handle_help(self, session: ChatSession) -> Dict[str, Any]:
@@ -1516,7 +1530,7 @@ Just ask naturally and I'll help!"""
             "requires_confirmation": False,
             "parsed_data": None,
             "response": response,
-            "session_id": str(session.user_id),
+            "session_id": str(session.session_id),
         }
 
     def _handle_general_chat(
@@ -1559,7 +1573,7 @@ Just ask naturally and I'll help!"""
                 "requires_confirmation": False,
                 "parsed_data": None,
                 "response": response,
-                "session_id": str(user_id),
+                "session_id": str(session.session_id),
             }
 
         action_type = action.get("type")
@@ -1586,7 +1600,7 @@ Just ask naturally and I'll help!"""
             "requires_confirmation": False,
             "parsed_data": None,
             "response": response,
-            "session_id": str(user_id),
+            "session_id": str(session.session_id),
         }
 
     def _execute_create_transaction(
@@ -1641,7 +1655,7 @@ Just ask naturally and I'll help!"""
             "requires_confirmation": False,
             "parsed_data": {"transaction_id": str(transaction.id)},
             "response": response,
-            "session_id": str(user_id),
+            "session_id": str(session.session_id),
         }
 
     def _execute_delete_transaction(
@@ -1668,7 +1682,7 @@ Just ask naturally and I'll help!"""
             "requires_confirmation": False,
             "parsed_data": {"transaction_id": transaction_id},
             "response": response,
-            "session_id": str(user_id),
+            "session_id": str(session.session_id),
         }
 
     def _execute_edit_transaction(
@@ -1689,7 +1703,7 @@ Just ask naturally and I'll help!"""
             "requires_confirmation": False,
             "parsed_data": None,
             "response": response,
-            "session_id": str(user_id),
+            "session_id": str(session.session_id),
         }
 
     def request_category_clarification(
@@ -1740,7 +1754,7 @@ Just ask naturally and I'll help!"""
             "requires_confirmation": False,
             "parsed_data": {"transaction_id": str(transaction_id)},
             "response": response,
-            "session_id": str(user_id),
+            "session_id": str(session.session_id),
             "alternatives": alternatives,
             "needs_clarification": True,
         }

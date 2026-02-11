@@ -14,6 +14,10 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 
+import transactionImg from "../../assets/transaction.png";
+import trendImg from "../../assets/trend.png";
+import dailyTrendImg from "../../assets/daily_trend.png";
+
 const FEATURES = [
   {
     title: "Transaction Management",
