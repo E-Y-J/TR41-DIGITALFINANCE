@@ -1,6 +1,8 @@
 import { Box, Typography, Container, Stack } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import AuthButton from "../auth/AuthButton";
+import PreviewBox from "../../components/PreviewBox";
+import PreviewImage from "../../components/PreviewImage";
 
 const Hero = () => {
   return (
@@ -16,7 +18,7 @@ const Hero = () => {
     >
       <Container maxWidth="lg">
         <Grid container spacing={{ xs: 6, md: 10 }} alignItems="center">
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid item xs={12} md={6}>
             <Stack spacing={3}>
               <Typography
                 variant="overline"
@@ -88,11 +90,12 @@ const Hero = () => {
             </Stack>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid item xs={12} md={6}>
+            {/* Preview panel mirrored from FeaturesGrid (slightly larger on md+) */}
             <Box
               sx={{
                 width: "100%",
-                height: { xs: 350, md: 550 },
+                height: { xs: "auto", md: 550 }, // maintain original hero feel on md+
                 borderRadius: 4,
                 bgcolor: "background.paper",
                 border: "1px solid",
@@ -101,28 +104,27 @@ const Hero = () => {
                 alignItems: "center",
                 justifyContent: "center",
                 position: "relative",
-
                 boxShadow: "0 20px 50px rgba(2, 6, 23, 0.08)",
+                p: { xs: 1.5, md: 3 },
+                overflow: "hidden",
               }}
             >
-              <Box
-                sx={{
-                  width: "90%",
-                  height: "85%",
-                  bgcolor: "#F8FAFC",
-                  borderRadius: 2,
-                  border: "1px dashed",
-                  borderColor: "divider",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
+              <PreviewBox
+                label="Dashboard Preview"
+                aspectRatio={{ xs: "16 / 9", md: "16 / 9" }}
+                minHeight={{ xs: 240, md: 360 }}
+                maxWidth="100%"
+                sx={{ p: 0, width: "100%", height: "100%" }}
               >
-                <Typography color="text.disabled" variant="button">
-                  Dashboard Preview
-                </Typography>
-              </Box>
+                <PreviewImage
+                  src="/trend.png" // MARK: 
+                  // TODO: substitute with actual screenshot when available
+                  alt="Dashboard preview"
+                  fit="contain"
+                />
+              </PreviewBox>
 
+              {/* Decorative glow */}
               <Box
                 sx={{
                   position: "absolute",
@@ -135,6 +137,7 @@ const Hero = () => {
                   filter: "blur(80px)",
                   opacity: 0.3,
                   zIndex: -1,
+                  pointerEvents: "none",
                 }}
               />
             </Box>
