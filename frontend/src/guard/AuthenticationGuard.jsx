@@ -5,7 +5,7 @@ import { Box } from "@mui/material";
 import PageLoader from "../components/common/PageLoader";
 
 export const AuthenticationGuard = () => {
-  const { isAuthenticated, isLoading, logout } = useAuth0();
+  const { isAuthenticated, isLoading } = useAuth0();
 
   useEffect(() => {
     if (isLoading) return;

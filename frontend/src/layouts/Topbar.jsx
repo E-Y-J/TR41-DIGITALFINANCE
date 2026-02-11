@@ -5,7 +5,6 @@ import {
   Toolbar,
   IconButton,
   Box,
-  Badge,
   Tooltip,
   Menu,
   MenuItem,
@@ -14,8 +13,8 @@ import {
 } from "@mui/material";
 
 import MenuIcon from "@mui/icons-material/Menu";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import AccountCircle from "@mui/icons-material/AccountCircle";
+import NotificationsPopover from "../components/NotificationsPopover";
 import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -101,13 +100,7 @@ const TopBar = ({
         <Box sx={{ flexGrow: 1 }} />
 
         {/* Notifications */}
-        <Tooltip title="Notifications">
-          <IconButton size="large" color="inherit" sx={{ mr: 1 }}>
-            <Badge variant="dot" color="error" overlap="circular">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
-        </Tooltip>
+        <NotificationsPopover />
 
         {/* User Menu */}
         <Box sx={{ display: { xs: "none", sm: "block" } }}>

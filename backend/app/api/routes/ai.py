@@ -62,6 +62,7 @@ class ChatRequestSchema(Schema):
 
     message = fields.Str(required=True, validate=validate.Length(min=1, max=1000))
     context = fields.Dict(required=False)
+    session_id = fields.UUID(required=False, allow_none=True)
 
 
 class ResolveClarificationSchema(Schema):
@@ -193,6 +194,7 @@ def chat():
             user_id=user_id,
             message=data["message"],
             context=data.get("context"),
+            session_id=data.get("session_id"),
         )
 
         return jsonify({"success": True, "data": result}), 200

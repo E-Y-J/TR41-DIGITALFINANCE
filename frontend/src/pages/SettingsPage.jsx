@@ -215,16 +215,9 @@ export default function SettingsPage() {
               Security
             </Typography>
           </Box>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Security settings are managed through Auth0. Click below to manage your password and security options.
+          <Typography variant="body2" color="text.secondary">
+            Your account security is managed through Auth0. To reset your password, use the "Forgot Password" option on the login page.
           </Typography>
-          <Button
-            variant="outlined"
-            href="https://dev-2d371r8njde648mh.us.auth0.com/u/login"
-            target="_blank"
-          >
-            Manage Security Settings
-          </Button>
         </CardContent>
       </Card>
 

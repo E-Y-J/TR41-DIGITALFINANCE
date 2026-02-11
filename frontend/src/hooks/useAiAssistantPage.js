@@ -10,6 +10,7 @@ export const useAiAssistantPage = () => {
     isFetching,
     refetch: refetchHistory,
   } = useGetChatHistory();
+
   const { data: userData } = useGetUser();
   const { mutateAsync: sendChatApi } = useSendChatMessage();
 
@@ -36,7 +37,6 @@ export const useAiAssistantPage = () => {
           id: `${session.id}-${idx}`,
           text: msg.content,
           sender: msg.role === "assistant" ? "ai" : "user",
-
           intent: msg.intent,
           parsedData: msg.parsed_data,
         })),
@@ -52,15 +52,12 @@ export const useAiAssistantPage = () => {
 
   const displayMessages = useMemo(() => {
     const history = activeSession?.messages || [];
-
     if (activeChatId && history.length === 0 && optimisticMessages.length > 0) {
       return optimisticMessages;
     }
-
     const filteredOptimistic = optimisticMessages.filter(
       (opt) => !history.some((h) => h.text === opt.text),
     );
-
     return [...history, ...filteredOptimistic];
   }, [activeSession, optimisticMessages, activeChatId]);
 
@@ -83,7 +80,9 @@ export const useAiAssistantPage = () => {
     try {
       const response = await sendChatApi({
         message: messageText,
-        context: activeChatId ? { session_id: activeChatId } : {},
+        context: {
+          session_id: activeChatId,
+        },
       });
 
       const chatPayload = response.data?.data || response.data || response;
@@ -108,7 +107,11 @@ export const useAiAssistantPage = () => {
       console.error("Chat Error:", error);
       setOptimisticMessages((prev) => [
         ...prev,
-        { id: "err", text: "Connection error.", sender: "ai" },
+        {
+          id: "err",
+          text: "Connection error. Please try again.",
+          sender: "ai",
+        },
       ]);
     } finally {
       setIsTyping(false);
@@ -134,6 +137,7 @@ export const useAiAssistantPage = () => {
     messagesEndRef,
     handleSendMessage,
     handleTypewriterComplete,
+    suggestionClickHandler: handleSendMessage,
     handleSelectChat: (id) => {
       setActiveChatId(id);
       setOptimisticMessages([]);
@@ -142,6 +146,5 @@ export const useAiAssistantPage = () => {
       setActiveChatId(null);
       setOptimisticMessages([]);
     },
-    suggestionClickHandler: (text) => setInputValue(text),
   };
 };

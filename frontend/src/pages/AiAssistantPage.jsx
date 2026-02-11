@@ -47,28 +47,14 @@ export default function AiAssistantPage() {
             bgcolor: "transparent",
           }}
         >
-          <Box
-            sx={{
-              flex: 1,
-              overflowY: "auto",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <MessageList
-              messages={c.displayMessages}
-              isTyping={c.isTyping}
-              showEmptyState={
-                !c.activeChatId &&
-                c.displayMessages.length === 0 &&
-                !c.isTyping &&
-                !c.isFetching
-              }
-              messagesEndRef={c.messagesEndRef}
-              onSuggestionClick={c.suggestionClickHandler}
-              user={c.user?.first_name}
-            />
-          </Box>
+          <MessageList
+            messages={c.displayMessages}
+            isTyping={c.isTyping}
+            messagesEndRef={c.messagesEndRef}
+            onSuggestionClick={c.suggestionClickHandler}
+            onSendMessage={c.handleSendMessage}
+            user={c.user?.nickname || c.user?.first_name}
+          />
         </Box>
 
         <ChatInputArea

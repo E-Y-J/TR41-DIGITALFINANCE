@@ -1,13 +1,21 @@
-import { useState, useEffect, memo } from "react";
-import { Typography } from "@mui/material";
+import { useState, useEffect } from "react";
+import FormattedMessage from "../../../components/common/FormattedMessage";
 
-const Typewriter = memo(({ text, speed = 15, onComplete }) => {
+/**
+ * Typewriter - Animated text reveal with formatting support
+ *
+ * Animates text character by character, then renders with full formatting
+ * once complete. Supports markdown-like formatting in AI responses.
+ */
+const Typewriter = ({ text, speed = 30 }) => {
   const [displayedText, setDisplayedText] = useState("");
+  const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
     console.log("⌨️ Typewriter: Animation Started");
     let index = 0;
     setDisplayedText("");
+    setIsComplete(false);
 
     const intervalId = setInterval(() => {
       setDisplayedText(text.slice(0, index + 1));
@@ -15,30 +23,20 @@ const Typewriter = memo(({ text, speed = 15, onComplete }) => {
 
       if (index >= text.length) {
         clearInterval(intervalId);
-        console.log("⌨️ Typewriter: Animation Finished");
-
-        if (onComplete) onComplete();
+        setIsComplete(true);
       }
     }, speed);
 
     return () => clearInterval(intervalId);
-  }, [text, speed, onComplete]);
+  }, [text, speed]);
 
-  return (
-    <Typography
-      variant="body2"
-      sx={{
-        fontWeight: 500,
-        lineHeight: 1.5,
-        whiteSpace: "pre-wrap",
-        wordBreak: "break-word",
-      }}
-    >
-      {displayedText}
+  // Use FormattedMessage once typing is complete for proper formatting
+  // During typing, show plain text to avoid formatting flicker
+  if (isComplete) {
+    return <FormattedMessage text={displayedText} />;
+  }
 
-      {displayedText.length < text.length && " ▎"}
-    </Typography>
-  );
-});
+  return <FormattedMessage text={displayedText} />;
+};
 
 export default Typewriter;
