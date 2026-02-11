@@ -79,9 +79,9 @@ class NotificationSchema(BaseSchema):
 
     def get_type(self, obj):
         """Extract enum value as string."""
-        if hasattr(obj.type, "value"):
-            return obj.type.value
-        return str(obj.type) if obj.type else None
+        if hasattr(obj.notification_type, "value"):
+            return obj.notification_type.value
+        return str(obj.notification_type) if obj.notification_type else None
 
     status = fields.Method(
         "get_status",
