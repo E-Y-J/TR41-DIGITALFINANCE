@@ -19,7 +19,6 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useUpdateTransaction } from "../useUpdateTransaction";
-
 import { CATEGORIES, getLocalISODate } from "../../../utils/constants";
 
 const shrink = keyframes`
@@ -27,39 +26,42 @@ const shrink = keyframes`
   to { width: 0%; }
 `;
 
-export const EditTransactionModal = ({ open, onClose, transaction }) => {
+export const EditTransactionModal = ({
+  open,
+  onClose,
+  transaction,
+  categories = [],
+}) => {
   const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
   const todayStr = getLocalISODate(new Date(), "daily");
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success",
   });
 
-  // Compute initial form state from transaction
-  const initialForm = useMemo(() => ({
-    merchant_name: transaction?.merchant_name || "",
-    amount: transaction?.amount || "",
-    transaction_type: transaction?.transaction_type || "expense",
-    category: transaction?.category_name || transaction?.category || "",
-    date: transaction?.date || todayStr,
-  }), [transaction, todayStr]);
-
-  const [form, setForm] = useState(initialForm);
-
-  // Reset form when transaction changes (modal opens with new transaction)
-  const transactionId = transaction?.id;
-  const [lastTransactionId, setLastTransactionId] = useState(null);
-  
-  if (transactionId && transactionId !== lastTransactionId) {
-    setLastTransactionId(transactionId);
-    setForm({
+  const initialForm = useMemo(
+    () => ({
       merchant_name: transaction?.merchant_name || "",
       amount: transaction?.amount || "",
       transaction_type: transaction?.transaction_type || "expense",
-      category: transaction?.category_name || transaction?.category || "",
+
+      category_id: transaction?.category_id || transaction?.category_name || "",
       date: transaction?.date || todayStr,
-    });
+    }),
+    [transaction, todayStr],
+  );
+
+  const [form, setForm] = useState(initialForm);
+
+  const transactionId = transaction?.id;
+  const [lastTransactionId, setLastTransactionId] = useState(null);
+
+  if (transactionId && transactionId !== lastTransactionId) {
+    setLastTransactionId(transactionId);
+    setForm(initialForm);
   }
 
   const { mutate, isPending } = useUpdateTransaction();
@@ -68,14 +70,8 @@ export const EditTransactionModal = ({ open, onClose, transaction }) => {
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setSnackbar((prev) => ({
-      ...prev,
-      open: false,
-    }));
+    if (reason === "clickaway") return;
+    setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
   const handleSubmit = () => {
@@ -97,25 +93,15 @@ export const EditTransactionModal = ({ open, onClose, transaction }) => {
         onSuccess: (response) => {
           const msg =
             response?.data?.message || "Transaction updated successfully";
-
-          setSnackbar({
-            open: true,
-            message: msg,
-            severity: "success",
-          });
-
+          setSnackbar({ open: true, message: msg, severity: "success" });
           onClose();
         },
         onError: (err) => {
           const errorMsg =
             err.response?.data?.message || "Something went wrong.";
-          setSnackbar({
-            open: true,
-            message: errorMsg,
-            severity: "error",
-          });
+          setSnackbar({ open: true, message: errorMsg, severity: "error" });
         },
-      }
+      },
     );
   };
 
@@ -123,7 +109,9 @@ export const EditTransactionModal = ({ open, onClose, transaction }) => {
     flex: 1,
     "& .MuiOutlinedInput-root": {
       borderRadius: 3,
-      backgroundColor: "action.hover",
+      backgroundColor: isDarkMode
+        ? alpha(theme.palette.background.default, 0.5)
+        : "action.hover",
       transition: "all 0.2s ease-in-out",
       "&:hover": {
         backgroundColor: "action.selected",
@@ -131,13 +119,12 @@ export const EditTransactionModal = ({ open, onClose, transaction }) => {
       },
       "&.Mui-focused": {
         backgroundColor: "background.paper",
-        boxShadow: (theme) => theme.palette.mode === "dark" ? "0 4px 12px rgba(0,0,0,0.3)" : "0 4px 12px rgba(0,0,0,0.05)",
+        boxShadow: isDarkMode
+          ? "0 4px 12px rgba(0,0,0,0.5)"
+          : "0 4px 12px rgba(0,0,0,0.05)",
       },
     },
-    "& .MuiInputLabel-root": {
-      fontWeight: 500,
-      color: "text.secondary",
-    },
+    "& .MuiInputLabel-root": { fontWeight: 500, color: "text.secondary" },
   };
 
   return (
@@ -152,13 +139,17 @@ export const EditTransactionModal = ({ open, onClose, transaction }) => {
             sx: {
               borderRadius: 5,
               p: 1,
-              boxShadow: "0 24px 48px rgba(0,0,0,0.12)",
+              boxShadow: isDarkMode
+                ? "0 24px 48px rgba(0,0,0,0.6)"
+                : "0 24px 48px rgba(0,0,0,0.12)",
               backgroundImage: "none",
             },
           },
           backdrop: {
             sx: {
-              backgroundColor: "rgba(0, 0, 0, 0.4)",
+              backgroundColor: isDarkMode
+                ? "rgba(0, 0, 0, 0.7)"
+                : "rgba(0, 0, 0, 0.4)",
               backdropFilter: "blur(4px)",
             },
           },
@@ -195,7 +186,6 @@ export const EditTransactionModal = ({ open, onClose, transaction }) => {
             <TextField
               label="Merchant Name"
               name="merchant_name"
-              placeholder="e.g. Starbucks"
               fullWidth
               value={form.merchant_name}
               onChange={handleChange}
@@ -234,9 +224,9 @@ export const EditTransactionModal = ({ open, onClose, transaction }) => {
             <TextField
               select
               label="Category"
-              name="category"
+              name="category_id"
               fullWidth
-              value={form.category}
+              value={form.category_id}
               onChange={handleChange}
               sx={textFieldStyles}
               disabled={isPending}
@@ -244,11 +234,17 @@ export const EditTransactionModal = ({ open, onClose, transaction }) => {
               <MenuItem value="">
                 <em>None</em>
               </MenuItem>
-              {CATEGORIES.map((cat) => (
-                <MenuItem key={cat} value={cat}>
-                  {cat}
-                </MenuItem>
-              ))}
+              {categories.length > 0
+                ? categories.map((cat) => (
+                    <MenuItem key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </MenuItem>
+                  ))
+                : CATEGORIES.map((cat) => (
+                    <MenuItem key={cat} value={cat}>
+                      {cat}
+                    </MenuItem>
+                  ))}
             </TextField>
 
             <TextField
@@ -293,9 +289,6 @@ export const EditTransactionModal = ({ open, onClose, transaction }) => {
               px: 4,
               py: 1,
               boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.25)}`,
-              "&:hover": {
-                boxShadow: `0 6px 16px ${alpha(theme.palette.primary.main, 0.35)}`,
-              },
             }}
           >
             {isPending ? (
@@ -329,7 +322,6 @@ export const EditTransactionModal = ({ open, onClose, transaction }) => {
           >
             {snackbar.message}
           </Alert>
-
           {snackbar.open && (
             <Box
               sx={{
@@ -338,7 +330,7 @@ export const EditTransactionModal = ({ open, onClose, transaction }) => {
                 left: 0,
                 height: 4,
                 backgroundColor: "rgba(255, 255, 255, 0.7)",
-                animation: `1500ms linear forwards ${shrink}`,
+                animation: `${shrink} 1500ms linear forwards`,
               }}
             />
           )}
@@ -347,5 +339,3 @@ export const EditTransactionModal = ({ open, onClose, transaction }) => {
     </>
   );
 };
-
-export default EditTransactionModal;
