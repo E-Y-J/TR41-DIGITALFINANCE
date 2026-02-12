@@ -29,8 +29,8 @@ const ChatSidebar = ({
       display: "flex",
       flexDirection: "column",
       borderLeft: isMobile ? "none" : "1px solid",
+      bgcolor: "background.default",
       borderColor: "divider",
-      bgcolor: "#F8FAFC",
     }}
   >
     <Box sx={{ p: 2 }}>
@@ -89,9 +89,12 @@ const ChatSidebar = ({
 
                   // ACTIVE STATE
                   "&.Mui-selected": {
-                    bgcolor: "#ffffff",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
-                    "&:hover": { bgcolor: "#ffffff" },
+                    bgcolor: "background.paper",
+                    boxShadow: (theme) =>
+                      theme.palette.mode === "dark"
+                        ? "0 4px 20px rgba(0,0,0,0.5)"
+                        : "0 4px 12px rgba(0,0,0,0.06)",
+                    "&:hover": { bgcolor: "background.paper" },
 
                     // The "Selection Bar" Indicator
                     "&::before": {

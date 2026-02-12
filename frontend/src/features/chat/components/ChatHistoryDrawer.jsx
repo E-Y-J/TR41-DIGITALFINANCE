@@ -12,7 +12,7 @@ const ChatHistoryDrawer = ({ open, onClose, sidebarProps }) => (
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
           maxHeight: "70vh",
-          bgcolor: "#F8FAFC",
+          bgcolor: "background.default",
           backgroundImage: "none",
         },
       },
@@ -22,12 +22,11 @@ const ChatHistoryDrawer = ({ open, onClose, sidebarProps }) => (
       sx={{
         width: 36,
         height: 4,
-        bgcolor: "grey.400",
+        bgcolor: "divider",
         borderRadius: 10,
         mx: "auto",
         mt: 1.5,
         mb: 1,
-        opacity: 0.6,
       }}
     />
     <ChatSidebar isMobile={true} {...sidebarProps} />

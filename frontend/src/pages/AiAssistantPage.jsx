@@ -15,7 +15,6 @@ export default function AiAssistantPage() {
       sx={{
         display: "flex",
         height: "calc(100vh - 110px)",
-        bgcolor: "#F8FAFC",
       }}
     >
       <ChatHistoryDrawer

@@ -70,6 +70,7 @@ const TopBar = ({
         color: "text.primary",
         borderBottom: "1px solid",
         borderColor: "divider",
+        borderRadius: 0,
         transition: (theme) =>
           theme.transitions.create(["width", "margin"], {
             easing: theme.transitions.easing.sharp,
@@ -108,10 +109,7 @@ const TopBar = ({
         <Box sx={{ display: { xs: "none", sm: "block" } }}>
           <Tooltip title="Account settings">
             <IconButton onClick={handleMenuOpen} size="small" sx={{ ml: 0.5 }}>
-              <Avatar 
-                src={user?.picture_url} 
-                sx={{ width: 32, height: 32 }}
-              >
+              <Avatar src={user?.picture_url} sx={{ width: 32, height: 32 }}>
                 {user?.first_name?.[0]?.toUpperCase() || <AccountCircle />}
               </Avatar>
             </IconButton>

@@ -18,7 +18,7 @@ const ChatInputArea = ({ inputValue, setInputValue, onSend }) => (
         borderRadius: 4,
         border: "1px solid",
         borderColor: "divider",
-        bgcolor: "#ffffff",
+        bgcolor: "background.paper",
         overflow: "hidden",
         boxShadow: "0 4px 12px rgba(0,0,0,0.03)",
       }}

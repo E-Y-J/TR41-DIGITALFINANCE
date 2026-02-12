@@ -7,6 +7,7 @@ import {
   useTheme,
   useMediaQuery,
   Grow,
+  alpha,
 } from "@mui/material";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import BarChartIcon from "@mui/icons-material/BarChart";
@@ -80,19 +81,22 @@ const MessageEmptyState = ({ onSuggestionClick, user }) => {
         {SUGGESTIONS.map((item, index) => (
           <Grid item xs={12} sm={4} key={index}>
             <Grow in timeout={400 + index * 150}>
+              // MessageEmptyState.jsx (Card component)
               <Card
                 elevation={0}
                 sx={{
                   borderRadius: 4,
                   border: "1px solid",
                   borderColor: "divider",
-                  height: "100%",
-                  transition: "all 0.2s ease-in-out",
+                  bgcolor: "background.paper",
                   "&:hover": {
                     borderColor: "primary.main",
-                    bgcolor: "rgba(25, 118, 210, 0.02)",
+                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.04),
                     transform: "translateY(-4px)",
-                    boxShadow: "0 8px 24px rgba(0,0,0,0.06)",
+                    boxShadow: (theme) =>
+                      theme.palette.mode === "dark"
+                        ? `0 8px 24px ${alpha(theme.palette.common.black, 0.8)}`
+                        : "0 8px 24px rgba(0,0,0,0.06)",
                   },
                 }}
               >
