@@ -138,6 +138,10 @@ const DashboardLayout = () => {
             onMouseLeave={() => setDesktopOpen(false)}
             sx={{
               display: { xs: "none", sm: "block" },
+              "& .MuiDrawer-paper": {
+                borderTopRightRadius: 0,
+                borderBottomRightRadius: 0,
+              },
             }}
           >
             <Sidebar open={desktopOpen} />
