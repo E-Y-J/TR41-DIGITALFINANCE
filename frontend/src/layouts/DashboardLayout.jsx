@@ -10,6 +10,7 @@ import {
   Backdrop,
   useTheme,
   useMediaQuery,
+  alpha,
   Drawer as MuiDrawer,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -179,15 +180,27 @@ const DashboardLayout = () => {
                 aria-label="chat-assistant"
                 onClick={handleChatDrawerToggle}
                 sx={{
-                  transition: "transform 0.15s ease-in-out",
+                  transition: "all 0.2s ease-in-out",
                   p: 1.5,
-                  backgroundColor: "primary.light",
+                  backgroundColor: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "primary.main"
+                      : "primary.light",
                   color: "white",
-                  boxShadow: 4,
+                  boxShadow: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? `0 8px 24px ${alpha(theme.palette.common.black, 0.6)}`
+                      : 4,
                   "&:hover": {
-                    backgroundColor: "primary.main",
-                    transform: "translateY(-3px)",
-                    boxShadow: 2,
+                    backgroundColor: (theme) =>
+                      theme.palette.mode === "dark"
+                        ? "primary.light"
+                        : "primary.main",
+                    transform: "translateY(-4px)",
+                    boxShadow: (theme) =>
+                      theme.palette.mode === "dark"
+                        ? `0 12px 32px ${alpha(theme.palette.common.black, 0.8)}`
+                        : 6,
                   },
                 }}
               >
@@ -204,10 +217,19 @@ const DashboardLayout = () => {
                 "& .MuiDrawer-paper": {
                   boxSizing: "border-box",
                   width: { xs: "100%", sm: 400 },
-                  borderTopLeftRadius: { xs: 0, sm: 16 },
-                  borderBottomLeftRadius: { xs: 0, sm: 16 },
+                  borderTopLeftRadius: { xs: 0, sm: 24 },
+                  borderBottomLeftRadius: { xs: 0, sm: 24 },
                   height: "100%",
-                  boxShadow: "-4px 0 24px rgba(0,0,0,0.1)",
+                  bgcolor: "background.paper",
+                  backgroundImage: "none",
+                  borderLeft: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? `1px solid ${theme.palette.divider}`
+                      : "none",
+                  boxShadow: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "-8px 0 32px rgba(0,0,0,0.5)"
+                      : "-4px 0 24px rgba(0,0,0,0.1)",
                 },
               }}
             >
@@ -223,12 +245,14 @@ const DashboardLayout = () => {
       <Backdrop
         sx={{
           zIndex: (theme) => theme.zIndex.drawer + 999,
-          color: "#fff",
-          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          backgroundColor: (theme) =>
+            theme.palette.mode === "dark"
+              ? "rgba(15, 23, 42, 0.8)"
+              : "rgba(255, 255, 255, 0.8)",
         }}
         open={isGlobalLoading || isLoading}
       >
-        <PageLoader />
+        <PageLoader sx={{ bgcolor: "transparent" }} />
       </Backdrop>
     </Box>
   );

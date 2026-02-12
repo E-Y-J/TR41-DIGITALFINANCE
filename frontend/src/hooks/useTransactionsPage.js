@@ -37,7 +37,6 @@ export const useTransactionsPage = () => {
     transaction_type: filters.type === "All" ? "" : filters.type,
   });
 
-  console.log("useTransactionsPage - Fetched Data:", data);
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
     setPage(0);

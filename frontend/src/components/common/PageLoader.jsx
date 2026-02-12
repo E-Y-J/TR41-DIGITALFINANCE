@@ -1,25 +1,27 @@
+import { forwardRef } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 
-const PageLoader = () => {
+const PageLoader = forwardRef((props, ref) => {
   return (
     <Box
+      ref={ref}
+      {...props}
       sx={{
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        minHeight: "100px",
-        height: "100vh",
         width: "100%",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        zIndex: 9999,
+        height: props.absolute ? "100vh" : "100%",
+        minHeight: "100px",
+        bgcolor: "background.default",
+        backgroundImage: "none",
+        ...props.sx,
       }}
     >
-      <CircularProgress size={80} color="primary" />
+      <CircularProgress size={80} thickness={4} color="primary" />
     </Box>
   );
-};
+});
 
 export default PageLoader;
