@@ -30,14 +30,42 @@ import {
 // Map notification types to user-friendly labels, colors, and navigation paths
 const NOTIFICATION_TYPE_CONFIG = {
   default: { label: "General", color: "default", path: "/home/notifications" },
-  new_transaction: { label: "Transaction", color: "primary", path: "/home/transactions" },
-  deleted_transaction: { label: "Deleted", color: "error", path: "/home/transactions" },
-  edited_profile: { label: "Profile", color: "info", path: "/settings/profile" },
+  new_transaction: {
+    label: "Transaction",
+    color: "primary",
+    path: "/home/transactions",
+  },
+  deleted_transaction: {
+    label: "Deleted",
+    color: "error",
+    path: "/home/transactions",
+  },
+  edited_profile: {
+    label: "Profile",
+    color: "info",
+    path: "/settings/profile",
+  },
   weekly_summary_ready: { label: "Summary", color: "success", path: "/home" },
-  category_updated: { label: "Category", color: "warning", path: "/home/budget" },
-  budget_warning: { label: "Budget Alert", color: "warning", path: "/home/budget" },
-  budget_exceeded: { label: "Over Budget", color: "error", path: "/home/budget" },
-  ai_clarification: { label: "AI Chat", color: "info", path: "/home/ai-assistant" },
+  category_updated: {
+    label: "Category",
+    color: "warning",
+    path: "/home/budget",
+  },
+  budget_warning: {
+    label: "Budget Alert",
+    color: "warning",
+    path: "/home/budget",
+  },
+  budget_exceeded: {
+    label: "Over Budget",
+    color: "error",
+    path: "/home/budget",
+  },
+  ai_clarification: {
+    label: "AI Chat",
+    color: "info",
+    path: "/home/ai-assistant",
+  },
 };
 
 // Moved outside to prevent re-creation on every render
@@ -248,7 +276,9 @@ const NotificationsPopover = () => {
                       }
                     >
                       <ListItemButton
-                        onClick={(e) => handleNotificationClick(notification, e)}
+                        onClick={(e) =>
+                          handleNotificationClick(notification, e)
+                        }
                         sx={{
                           py: 2,
                           px: 2,

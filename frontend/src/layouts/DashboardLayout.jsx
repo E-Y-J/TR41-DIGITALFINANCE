@@ -260,6 +260,7 @@ const DashboardLayout = () => {
       <Backdrop
         sx={{
           zIndex: (theme) => theme.zIndex.drawer + 999,
+
           backgroundColor: (theme) =>
             theme.palette.mode === "dark"
               ? "rgba(15, 23, 42, 0.8)"
@@ -267,7 +268,9 @@ const DashboardLayout = () => {
         }}
         open={isGlobalLoading || isLoading}
       >
-        <PageLoader sx={{ bgcolor: "transparent" }} />
+        <PageLoader
+          sx={{ bgcolor: "transparent", minHeight: "auto", height: "auto" }}
+        />
       </Backdrop>
     </Box>
   );
