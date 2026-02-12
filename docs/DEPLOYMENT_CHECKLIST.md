@@ -1,5 +1,16 @@
 # Deployment Configuration Checklist
 
+## 🌐 Production URLs
+
+| Service | URL |
+|---------|-----|
+| **Frontend** | https://securebankai.vercel.app |
+| **API** | https://securebankai.mysticdatanode.net |
+| **API Health** | https://securebankai.mysticdatanode.net/health |
+| **API Docs** | https://securebankai.mysticdatanode.net/api/docs/ |
+
+---
+
 ## 🔐 Auth0 Dashboard Configuration
 
 **URL:** https://manage.auth0.com/
@@ -8,9 +19,9 @@
 
 | Setting | Local Development | Production |
 |---------|------------------|------------|
-| **Allowed Callback URLs** | `http://localhost:3000/callback` | `https://your-app.vercel.app/callback` |
-| **Allowed Logout URLs** | `http://localhost:3000` | `https://your-app.vercel.app` |
-| **Allowed Web Origins** | `http://localhost:3000` | `https://your-app.vercel.app` |
+| **Allowed Callback URLs** | `http://localhost:5173/callback` | `https://securebankai.vercel.app/callback` |
+| **Allowed Logout URLs** | `http://localhost:5173` | `https://securebankai.vercel.app` |
+| **Allowed Web Origins** | `http://localhost:5173` | `https://securebankai.vercel.app` |
 
 ### API Settings (Applications → APIs → Your API)
 
@@ -24,22 +35,22 @@
 
 ## 🔑 Environment Variables Summary
 
-### Backend (VPS or AWS EB)
+### Backend (VPS)
 
 | Variable | Required | Description | Example |
 |----------|----------|-------------|---------|
 | `FLASK_ENV` | ✅ | Environment mode | `production` |
 | `SECRET_KEY` | ✅ | Flask secret key (32+ chars) | `python -c "import secrets; print(secrets.token_hex(32))"` |
-| `DATABASE_URL` | ✅ | PostgreSQL connection | `postgresql://user:pass@rds-host:5432/dbname` |
+| `DATABASE_URL` | ✅ | PostgreSQL connection | `postgresql://user:pass@localhost:5432/digital_finance_db` |
 | `AUTH0_DOMAIN` | ✅ | Auth0 tenant domain | `dev-2d371r8njde648mh.us.auth0.com` |
 | `AUTH0_API_AUDIENCE` | ✅ | Auth0 API identifier | `https://api.digitalfinance.local` |
 | `AUTH0_ALGORITHMS` | ✅ | JWT signing algorithm | `RS256` |
-| `FRONTEND_URL` | ✅ | CORS allowed origin | `https://your-app.vercel.app` |
+| `FRONTEND_URL` | ✅ | CORS allowed origin | `https://securebankai.vercel.app` |
 | `GEMINI_API_KEY` | ✅ | Google AI API key | Get from Google AI Studio |
-| `REDIS_URL` | ✅ | Redis connection | `redis://redis:6379/0` (VPS) or Upstash URL |
+| `REDIS_URL` | ✅ | Redis connection | `redis://redis:6379/0` |
 | `DEV_IMPERSONATION` | ⚠️ | **MUST be `false` in prod** | `false` |
-| `AI_CATEGORIZER_ENABLED` | ⚪ | Enable local AI model | `true` (VPS) / `false` (Free Tier) |
-| `SENTRY_DSN` | ⚪ | Sentry error monitoring | `https://xxx@xxx.ingest.sentry.io/xxx` |
+| `AI_CATEGORIZER_ENABLED` | ⚪ | Enable local AI model | `true` |
+| `SENTRY_DSN` | ✅ | Sentry error monitoring | `https://xxx@xxx.ingest.sentry.io/xxx` |
 | `SENTRY_TRACES_SAMPLE_RATE` | ⚪ | Performance sampling (0-1) | `0.1` |
 
 ### Frontend (Vercel)
@@ -49,152 +60,164 @@
 | `VITE_AUTH0_DOMAIN` | ✅ | Auth0 tenant domain | `dev-2d371r8njde648mh.us.auth0.com` |
 | `VITE_AUTH0_CLIENT_ID` | ✅ | Auth0 SPA Client ID | `Xmf7EN2wO4jhTjJN1T2U1ZDgJidWI32A` |
 | `VITE_AUTH0_AUDIENCE` | ✅ | Auth0 API identifier | `https://api.digitalfinance.local` |
-| `VITE_API_URL` | ✅ | Backend API URL | `http://your-vps-ip:8000` |
+| `VITE_API_URL` | ✅ | Backend API URL | `https://securebankai.mysticdatanode.net` |
 
 ---
 
-## ☁️ AWS Setup Checklist
+## 🚀 Deployment Steps (VPS + Cloudflare Tunnel)
 
-### 1. RDS PostgreSQL
-- [ ] Create PostgreSQL 15 instance
-- [ ] Set master username/password
-- [ ] Configure security group (allow port 5432 from EB)
-- [ ] Note connection endpoint for `DATABASE_URL`
+### Step 1: VPS Initial Setup
 
-### 2. Elastic Beanstalk
-- [ ] Create Docker platform environment
-- [ ] Set all environment variables in Configuration
-- [ ] Configure instance type (t3.small minimum for AI models)
-- [ ] Set health check path to `/health`
+```bash
+# SSH to your VPS
+ssh root@your-vps-ip
 
-### 3. ElastiCache Redis (Optional)
-- [ ] Create Redis cluster
-- [ ] Configure security group
-- [ ] Note endpoint for `REDIS_URL`
+# Install Docker
+curl -fsSL https://get.docker.com | sh
+systemctl enable docker && systemctl start docker
+
+# Install Docker Compose
+curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+
+# Clone repository
+git clone https://github.com/E-Y-J/TR41-DIGITALFINANCE.git /opt/digital-finance
+cd /opt/digital-finance
+```
+
+### Step 2: Configure Environment
+
+```bash
+# Copy and edit environment file
+cp .env.example .env.prod
+nano .env.prod
+```
+
+### Step 3: Deploy Backend
+
+```bash
+# Build and start containers
+docker compose -f docker-compose.prod.yaml --env-file .env.prod up -d --build
+
+# Run database migrations
+docker compose -f docker-compose.prod.yaml exec backend flask db upgrade
+
+# Verify
+docker compose -f docker-compose.prod.yaml ps
+docker compose -f docker-compose.prod.yaml logs -f backend
+```
+
+### Step 4: Setup Cloudflare Tunnel
+
+```bash
+# Install cloudflared
+curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /usr/local/bin/cloudflared
+chmod +x /usr/local/bin/cloudflared
+
+# Authenticate
+cloudflared tunnel login
+
+# Create tunnel
+cloudflared tunnel create securebankai
+
+# Configure tunnel
+mkdir -p /etc/cloudflared
+cat > /etc/cloudflared/config.yml << EOF
+tunnel: <your-tunnel-id>
+credentials-file: /root/.cloudflared/<tunnel-id>.json
+
+ingress:
+  - hostname: securebankai.mysticdatanode.net
+    service: http://localhost:8000
+  - service: http_status:404
+EOF
+
+# Create DNS record and start service
+cloudflared tunnel route dns securebankai securebankai.mysticdatanode.net
+cloudflared service install
+systemctl enable cloudflared && systemctl start cloudflared
+```
+
+### Step 5: Deploy Frontend (Vercel)
+
+```bash
+cd frontend
+vercel --prod
+```
+
+### Step 6: Verify Deployment
+
+```bash
+# Test backend health
+curl https://securebankai.mysticdatanode.net/health
+
+# Test frontend
+# Visit https://securebankai.vercel.app
+```
+
+---
+
+## ☁️ Cloudflare Setup Checklist
+
+### DNS Settings
+- [ ] Domain added to Cloudflare
+- [ ] NS records updated at registrar
+- [ ] Proxied (orange cloud) enabled
+
+### SSL/TLS
+- [ ] SSL mode: Full (strict)
+- [ ] Minimum TLS: 1.2
+- [ ] Always Use HTTPS: On
+- [ ] HSTS: Enabled
+
+### WAF
+- [ ] OWASP Core Ruleset enabled
+- [ ] Managed Rules enabled
+- [ ] Rate limiting configured
+
+### Tunnel
+- [ ] Tunnel created and running
+- [ ] DNS route configured
+- [ ] Service installed as systemd
 
 ---
 
 ## 🌐 Vercel Setup Checklist
 
-### 1. Project Configuration
-- [ ] Connect GitHub repository
-- [ ] Set root directory to `frontend`
+### Project Configuration
+- [ ] Connected to GitHub repository
+- [ ] Root directory: `frontend`
 - [ ] Framework preset: Vite
 
-### 2. Environment Variables
-- [ ] Add all `VITE_*` variables
-- [ ] Set for Production environment
+### Environment Variables
+- [ ] `VITE_AUTH0_DOMAIN` set
+- [ ] `VITE_AUTH0_CLIENT_ID` set
+- [ ] `VITE_AUTH0_AUDIENCE` set
+- [ ] `VITE_API_URL` set to `https://securebankai.mysticdatanode.net`
 
-### 3. Build Settings
+### Build Settings
 - [ ] Build Command: `npm run build`
 - [ ] Output Directory: `dist`
 
 ---
 
-## 🚀 Deployment Steps
+## 🔄 Updating Production
 
-### Option A: VPS + AWS RDS (Recommended for Full AI)
+### Backend
 
-This architecture runs the backend with full AI models on your VPS while using AWS RDS for managed PostgreSQL.
-
-#### Step 1: AWS RDS Setup (Free Tier)
 ```bash
-# Create PostgreSQL 15 instance via AWS Console:
-# - Engine: PostgreSQL 15
-# - Template: Free tier
-# - DB instance class: db.t3.micro
-# - Storage: 20 GB
-# - Public access: Yes (configure security group)
-# - Note the endpoint URL
-```
-
-#### Step 2: VPS Setup (CentOS/AlmaLinux + Docker)
-```bash
-# SSH to your VPS
 ssh root@your-vps-ip
-
-# Clone repository
-git clone https://github.com/your-repo/digital-finance.git /opt/digital-finance
 cd /opt/digital-finance
-
-# Copy environment template
-cp .env.vps.example .env.vps
-
-# Edit with your values (AWS RDS URL, Auth0, Gemini key, etc.)
-nano .env.vps
-
-# Ensure fine-tuned AI model is present
-cd backend
-python tools/download_model.py --check
-cd ..
-
-# Build and start containers
-docker compose -f docker-compose.prod.yaml --env-file .env.vps build
-docker compose -f docker-compose.prod.yaml --env-file .env.vps up -d
-
-# Run database migrations
+git pull origin main
+docker compose -f docker-compose.prod.yaml --env-file .env.prod up -d --build
 docker compose -f docker-compose.prod.yaml exec backend flask db upgrade
-
-# Check logs
-docker compose -f docker-compose.prod.yaml logs -f backend
 ```
 
-#### Step 3: Frontend (Vercel)
+### Frontend
+
 ```bash
 cd frontend
 vercel --prod
-# Set environment variables in Vercel dashboard
-```
-
-#### Step 4: Update Auth0
-After deployment, update Auth0 Application Settings:
-- Add production callback URL: `https://your-app.vercel.app/callback`
-- Add production logout URL: `https://your-app.vercel.app`
-- Add production web origin: `https://your-app.vercel.app`
-
-#### Step 5: Verify
-```bash
-# Test backend health
-curl http://your-vps-ip:8000/health
-
-# Test API
-curl http://your-vps-ip:8000/api/test
-```
-
----
-
-### Option B: AWS Elastic Beanstalk (Alternative - No Local AI)
-
-For AWS-only deployment without local AI models (uses Gemini API fallback only).
-
-#### Step 1: Backend (AWS EB)
-```bash
-cd backend
-eb init -p docker digital-finance-api
-eb create production --single
-eb setenv FLASK_ENV=production SECRET_KEY=xxx DATABASE_URL=xxx ...
-eb deploy
-```
-
-### Step 2: Frontend (Vercel)
-```bash
-cd frontend
-vercel --prod
-```
-
-### Step 3: Update Auth0
-After deployment, update Auth0 Application Settings:
-- Add production callback URL
-- Add production logout URL  
-- Add production web origin
-
-### Step 4: Verify
-```bash
-# Test backend health
-curl https://your-backend.elasticbeanstalk.com/health
-
-# Test API
-curl https://your-backend.elasticbeanstalk.com/api/test
 ```
 
 ---
@@ -203,19 +226,39 @@ curl https://your-backend.elasticbeanstalk.com/api/test
 
 1. **NEVER commit `.env` files** - Use `.env.example` templates
 2. **Set `DEV_IMPERSONATION=false`** in production
-3. **Use strong `SECRET_KEY`** - Generate with secrets module
+3. **Use strong `SECRET_KEY`** - Generate with `secrets.token_hex(32)`
 4. **Rotate API keys** after any suspected breach
-5. **Enable HTTPS** on all endpoints
-6. **Configure CORS** to only allow your frontend domain
+5. **Cloudflare Tunnel** - No open ports on VPS
+6. **Configure CORS** to only allow frontend domain
 
 ---
 
-## 📝 Current Configuration Values
+## � Monitoring (Sentry)
+
+**Dashboard:** https://sentry.io
+
+### Checklist
+- [ ] `SENTRY_DSN` configured in backend
+- [ ] `SENTRY_TRACES_SAMPLE_RATE` set (0.1 recommended)
+- [ ] Alert rules configured for errors
+- [ ] Release tracking enabled
+
+### Features in Use
+- ✅ Error tracking with stack traces
+- ✅ Performance monitoring
+- ✅ User context in errors
+- ✅ Release tracking
+
+---
+
+## �📝 Current Configuration Values
 
 | Service | Value |
 |---------|-------|
-| Auth0 Domain | `dev-2d371r8njde648mh.us.auth0.com` |
-| Auth0 Client ID | `Xmf7EN2wO4jhTjJN1T2U1ZDgJidWI32A` |
-| Auth0 Audience | `https://api.digitalfinance.local` |
-| Local Backend | `http://localhost:8000` |
-| Local Frontend | `http://localhost:3000` |
+| **Auth0 Domain** | `dev-2d371r8njde648mh.us.auth0.com` |
+| **Auth0 Client ID** | `Xmf7EN2wO4jhTjJN1T2U1ZDgJidWI32A` |
+| **Auth0 Audience** | `https://api.digitalfinance.local` |
+| **Production API** | `https://securebankai.mysticdatanode.net` |
+| **Production Frontend** | `https://securebankai.vercel.app` |
+| **Local Backend** | `http://localhost:8000` |
+| **Local Frontend** | `http://localhost:5173` |

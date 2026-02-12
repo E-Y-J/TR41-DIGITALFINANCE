@@ -1,142 +1,306 @@
 # Deployment Guide - Digital Finance Tracker
 
-## Quick Demo Deployment (AWS + Vercel)
+## Production Architecture
 
-### Prerequisites
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              CLOUDFLARE                                     │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │     WAF     │  │   Access    │  │   Tunnel    │  │   DNS + SSL/TLS     │ │
+│  │  (Layer 7)  │  │ (Zero Trust)│  │ (No Ports)  │  │ (Auto Certificate)  │ │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+└────────────────────────────────┬────────────────────────────────────────────┘
+                                 │
+         ┌───────────────────────┼───────────────────────┐
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│    FRONTEND     │    │    BACKEND      │    │    DATABASE     │
+│    (Vercel)     │    │  (VPS Docker)   │    │  (PostgreSQL)   │
+│                 │    │                 │    │                 │
+│ securebankai    │    │ Flask + Gunicorn│    │ VPS or AWS RDS  │
+│ .vercel.app     │    │ + Redis + AI    │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
 
-- AWS Account (Free Tier eligible)
-- Vercel Account (Free)
-- Auth0 Account (Free tier)
-- Node.js 18+ and Python 3.11+
+## Live URLs
 
----
-
-## Backend Deployment (AWS Elastic Beanstalk)
-
-### Option 1: AWS Elastic Beanstalk (Recommended for Demo)
-
-1. **Install EB CLI:**
-   ```bash
-   pip install awsebcli
-   ```
-
-2. **Initialize EB in backend folder:**
-   ```bash
-   cd backend
-   eb init -p docker digital-finance-backend --region us-east-1
-   ```
-
-3. **Create environment:**
-   ```bash
-   eb create digital-finance-demo --single --instance-type t3.micro
-   ```
-
-4. **Set environment variables** (in AWS Console or CLI):
-   ```bash
-   eb setenv \
-     DATABASE_URL=postgresql://user:pass@host:5432/dbname \
-     AUTH0_DOMAIN=your-domain.auth0.com \
-     AUTH0_AUDIENCE=https://your-api-audience \
-     FLASK_ENV=production \
-     GEMINI_API_KEY=your-key-optional
-   ```
-
-5. **Deploy:**
-   ```bash
-   eb deploy
-   ```
-
-6. **Get URL:**
-   ```bash
-   eb status
-   # Note the CNAME - this is your backend URL
-   ```
-
-### Database Options
-
-**Option A: AWS RDS PostgreSQL (Free Tier)**
-- Create RDS instance in AWS Console
-- Use the endpoint in DATABASE_URL
-
-**Option B: SQLite for Demo (Simplest)**
-- Set `DATABASE_URL=sqlite:///demo.db`
-- Data persists only within container lifecycle
+| Service | URL |
+|---------|-----|
+| **Frontend** | https://securebankai.vercel.app |
+| **API** | https://securebankai.mysticdatanode.net |
+| **API Health** | https://securebankai.mysticdatanode.net/health |
+| **API Docs** | https://securebankai.mysticdatanode.net/api/docs/ |
 
 ---
 
-## Frontend Deployment (Vercel)
+## Prerequisites
 
-1. **Push code to GitHub** (if not already)
+- VPS (IONOS, DigitalOcean, Linode, etc.)
+- Cloudflare account (Free tier)
+- Vercel account (Free)
+- Auth0 account (Free tier)
+- Domain name (managed via Cloudflare DNS)
 
-2. **Import to Vercel:**
-   - Go to https://vercel.com/new
-   - Import your GitHub repo
-   - Set Root Directory: `frontend`
-   - Framework: Vite
+---
 
-3. **Set Environment Variables** in Vercel Dashboard:
-   ```
-   VITE_API_URL=https://your-eb-url.elasticbeanstalk.com/api
-   VITE_AUTH0_DOMAIN=your-domain.auth0.com
-   VITE_AUTH0_CLIENT_ID=your-client-id
-   VITE_AUTH0_AUDIENCE=https://your-api-audience
-   ```
+## Backend Deployment (VPS + Cloudflare Tunnel)
 
-4. **Deploy** - Vercel auto-deploys on push
+### Step 1: VPS Initial Setup
+
+```bash
+# SSH to your VPS
+ssh root@your-vps-ip
+
+# Install Docker (if not installed)
+curl -fsSL https://get.docker.com | sh
+systemctl enable docker
+systemctl start docker
+
+# Install Docker Compose
+curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+
+# Clone repository
+git clone https://github.com/E-Y-J/TR41-DIGITALFINANCE.git /opt/digital-finance
+cd /opt/digital-finance
+```
+
+### Step 2: Configure Environment
+
+```bash
+# Copy environment template
+cp .env.example .env.prod
+
+# Edit with production values
+nano .env.prod
+```
+
+Required environment variables:
+```env
+FLASK_ENV=production
+SECRET_KEY=<generate-with-python-secrets>
+DATABASE_URL=postgresql://user:pass@localhost:5432/digital_finance_db
+AUTH0_DOMAIN=dev-2d371r8njde648mh.us.auth0.com
+AUTH0_API_AUDIENCE=https://api.digitalfinance.local
+AUTH0_ALGORITHMS=RS256
+FRONTEND_URL=https://securebankai.vercel.app
+GEMINI_API_KEY=<your-gemini-key>
+REDIS_URL=redis://redis:6379/0
+DEV_IMPERSONATION=false
+AI_CATEGORIZER_ENABLED=true
+```
+
+### Step 3: Deploy with Docker Compose
+
+```bash
+# Build and start containers
+docker compose -f docker-compose.prod.yaml --env-file .env.prod up -d --build
+
+# Run database migrations
+docker compose -f docker-compose.prod.yaml exec backend flask db upgrade
+
+# Verify containers are running
+docker compose -f docker-compose.prod.yaml ps
+
+# Check logs
+docker compose -f docker-compose.prod.yaml logs -f backend
+```
+
+### Step 4: Install Cloudflare Tunnel
+
+```bash
+# Install cloudflared
+curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /usr/local/bin/cloudflared
+chmod +x /usr/local/bin/cloudflared
+
+# Authenticate with Cloudflare
+cloudflared tunnel login
+
+# Create tunnel
+cloudflared tunnel create securebankai
+
+# Configure tunnel (create config.yml)
+mkdir -p /etc/cloudflared
+cat > /etc/cloudflared/config.yml << EOF
+tunnel: <your-tunnel-id>
+credentials-file: /root/.cloudflared/<tunnel-id>.json
+
+ingress:
+  - hostname: securebankai.mysticdatanode.net
+    service: http://localhost:8000
+  - service: http_status:404
+EOF
+
+# Create DNS record
+cloudflared tunnel route dns securebankai securebankai.mysticdatanode.net
+
+# Install as system service
+cloudflared service install
+systemctl enable cloudflared
+systemctl start cloudflared
+```
+
+### Step 5: Verify Backend
+
+```bash
+# Test via Cloudflare tunnel
+curl https://securebankai.mysticdatanode.net/health
+
+# Expected response:
+# {"status": "healthy", "timestamp": "...", "version": "..."}
+```
+
+---
+
+## Frontend Deployment (Vercel CLI)
+
+### Step 1: Install Vercel CLI
+
+```bash
+npm install -g vercel
+vercel login
+```
+
+### Step 2: Deploy
+
+```bash
+cd frontend
+vercel --prod
+```
+
+### Step 3: Configure Environment Variables
+
+In Vercel Dashboard (Settings → Environment Variables):
+
+```
+VITE_API_URL=https://securebankai.mysticdatanode.net
+VITE_AUTH0_DOMAIN=dev-2d371r8njde648mh.us.auth0.com
+VITE_AUTH0_CLIENT_ID=Xmf7EN2wO4jhTjJN1T2U1ZDgJidWI32A
+VITE_AUTH0_AUDIENCE=https://api.digitalfinance.local
+```
 
 ---
 
 ## Auth0 Configuration
 
-1. **Create API** in Auth0 Dashboard:
-   - Identifier: `https://digital-finance-api` (this is your audience)
+### API Settings (Applications → APIs)
 
-2. **Create Application** (Single Page Application):
-   - Allowed Callback URLs: `https://your-vercel-url.vercel.app/callback`
-   - Allowed Logout URLs: `https://your-vercel-url.vercel.app`
-   - Allowed Web Origins: `https://your-vercel-url.vercel.app`
+| Setting | Value |
+|---------|-------|
+| **Identifier (Audience)** | `https://api.digitalfinance.local` |
+| **Signing Algorithm** | RS256 |
 
-3. **Update CORS** on Backend:
-   - Add Vercel URL to allowed origins
+### Application Settings (Applications → Applications)
+
+| Setting | Value |
+|---------|-------|
+| **Allowed Callback URLs** | `https://securebankai.vercel.app/callback, http://localhost:5173/callback` |
+| **Allowed Logout URLs** | `https://securebankai.vercel.app, http://localhost:5173` |
+| **Allowed Web Origins** | `https://securebankai.vercel.app, http://localhost:5173` |
 
 ---
 
-## Quick Test
+## Cloudflare Configuration
 
-```bash
-# Health check
-curl https://your-eb-url.elasticbeanstalk.com/health
+### WAF Rules (Security → WAF)
 
-# Should return:
-# {"status": "healthy", ...}
+- ✅ OWASP Core Ruleset enabled
+- ✅ Managed Rules auto-updated
+- ✅ Rate limiting configured
+
+### SSL/TLS Settings
+
+| Setting | Value |
+|---------|-------|
+| **SSL Mode** | Full (strict) |
+| **Minimum TLS** | 1.2 |
+| **HSTS** | Enabled |
+| **Always Use HTTPS** | On |
+
+---
+
+## Security Headers (Vercel)
+
+Frontend headers are configured in `frontend/vercel.json`:
+
+```json
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" },
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; ..." }
+      ]
+    }
+  ]
+}
 ```
 
 ---
 
-## Cleanup After Demo
+## Updating Production
+
+### Backend Updates
 
 ```bash
-# Terminate Elastic Beanstalk
-cd backend
-eb terminate digital-finance-demo
+# SSH to VPS
+ssh root@your-vps-ip
+cd /opt/digital-finance
 
-# Delete RDS (if created)
-# Go to AWS Console > RDS > Delete
+# Pull latest code
+git pull origin main
 
-# Vercel projects can remain (free)
+# Rebuild and restart
+docker compose -f docker-compose.prod.yaml --env-file .env.prod up -d --build
+
+# Run migrations if needed
+docker compose -f docker-compose.prod.yaml exec backend flask db upgrade
+```
+
+### Frontend Updates
+
+```bash
+cd frontend
+vercel --prod
 ```
 
 ---
 
-## Alternative: Railway.app (Simpler)
+## Monitoring & Logs
 
-If AWS is too complex, Railway offers one-click Docker deployment:
+### Sentry Error Monitoring
 
-1. Go to https://railway.app
-2. New Project > Deploy from GitHub
-3. Select the repo, set root to `backend`
-4. Add PostgreSQL plugin
-5. Set environment variables
-6. Deploy
+Sentry is configured for both backend error tracking and performance monitoring.
 
-Railway free tier: 500 hours/month, $5 credit.
+**Dashboard:** https://sentry.io (login required)
+
+**Backend Configuration** (in `.env.prod`):
+```env
+SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
+SENTRY_TRACES_SAMPLE_RATE=0.1
+```
+
+**Features:**
+- Real-time error alerts
+- Performance tracing
+- Release tracking
+- User context in errors
+
+### Container Logs
+
+```bash
+# View backend logs
+docker compose -f docker-compose.prod.yaml logs -f backend
+
+# View all container status
+docker compose -f docker-compose.prod.yaml ps
+
+# View cloudflared tunnel status
+systemctl status cloudflared
+journalctl -u cloudflared -f
+```
