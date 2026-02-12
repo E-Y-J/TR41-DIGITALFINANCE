@@ -25,14 +25,14 @@ const BudgetWidget = () => {
   const [viewGraph, setViewGraph] = useState("graph");
 
   const getButtonStyle = (isActive) => ({
-    color: isActive ? "#ffffff" : "text.secondary",
+    color: isActive ? "primary.contrastText" : "text.secondary",
     bgcolor: isActive ? "primary.main" : "transparent",
     border: "1px solid",
     borderColor: isActive ? "primary.main" : "grey.300",
     borderRadius: 2,
     p: 1,
     "&:hover": {
-      bgcolor: isActive ? "primary.main" : "grey.100",
+      bgcolor: isActive ? "primary.main" : "action.hover",
       borderColor: isActive ? "primary.main" : "grey.400",
     },
   });

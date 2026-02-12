@@ -6,7 +6,28 @@ This folder contains security-related documentation, scripts, and audit results.
 
 **Cybersecurity Lead:** Monira Lizu (moniralizu1@gmail.com)
 
-## Files to Create Here
+## Documentation
+
+| Document | Description | Status |
+|----------|-------------|--------|
+| [SECURITY_ARCHITECTURE.md](./SECURITY_ARCHITECTURE.md) | Complete security architecture overview | ✅ Current |
+| [vulnerability_report.md](./vulnerability_report.md) | ZAP/Bandit scan results and remediation | ✅ Current |
+| `penetration_test_results.md` | Pen test findings | 📋 Sprint 3 |
+| `auth_audit.md` | Authentication flow audit | 📋 Pending |
+
+## Quick Security Status
+
+| Layer | Technology | Status |
+|-------|------------|--------|
+| **Edge Protection** | Cloudflare WAF + Access + Tunnel | ✅ Active |
+| **Transport** | TLS 1.3, HSTS | ✅ Active |
+| **Authentication** | Auth0 (OAuth 2.0/OIDC) | ✅ Active |
+| **Application** | Security headers, CORS, rate limiting | ✅ Active |
+| **Scanning** | OWASP ZAP, Bandit | ✅ Last scan: Feb 10, 2026 |
+
+**Overall: No high-severity vulnerabilities. Strong security posture.**
+
+## Files in This Folder
 
 | File | Description | Sprint |
 |------|-------------|--------|

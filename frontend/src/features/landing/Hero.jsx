@@ -45,7 +45,7 @@ const Hero = () => {
                 }}
               >
                 Digital <br />
-                <Box component="span" sx={{ color: "#1E88E5" }}>
+                <Box component="span" sx={{ color: "primary.main" }}>
                   Finance
                 </Box>
               </Typography>
