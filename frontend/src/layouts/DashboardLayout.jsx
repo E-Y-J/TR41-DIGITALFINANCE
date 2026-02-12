@@ -102,7 +102,15 @@ const DashboardLayout = () => {
   const isAiPage = location.pathname === "/home/ai-assistant";
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box
+      sx={{
+        display: "flex",
+        width: "100vw",
+        maxWidth: "100%",
+        overflowX: "hidden",
+        position: "relative",
+      }}
+    >
       {/* Top Bar */}
       <TopBar
         drawerWidth={drawerWidth}
@@ -154,6 +162,7 @@ const DashboardLayout = () => {
         component="main"
         sx={{
           flexGrow: 1,
+          width: isMobile ? "100%" : `calc(100% - ${drawerWidth}px)`,
           height: "100vh",
           display: "flex",
           overflow: "auto",
@@ -162,7 +171,7 @@ const DashboardLayout = () => {
         }}
       >
         <Toolbar sx={{ minHeight: { xs: 48, sm: 64 }, flexShrink: 0 }} />
-        <Box sx={{ p: 3, pb: 0, flexShrink: 0 }}>
+        <Box sx={{ p: { xs: 2, sm: 3 }, pb: 0, flexShrink: 0 }}>
           <Breadcrumb />
         </Box>
         <Box sx={{ flexGrow: 1, minHeight: 0 }}>
