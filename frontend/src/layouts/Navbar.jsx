@@ -47,7 +47,13 @@ const Navbar = () => {
               component="img"
               src="/logo.png"
               alt="SecureBank AI Logo"
-              sx={{ height: 32, width: "auto" }}
+              sx={{
+                height: 32,
+                width: "auto",
+                bgcolor: "white",
+                borderRadius: 1,
+                p: 0.5,
+              }}
             />
           </Box>
 
