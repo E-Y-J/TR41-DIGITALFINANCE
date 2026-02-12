@@ -46,6 +46,7 @@ Notes:
 """
 
 import logging
+import re
 from typing import Dict, Any, List, Optional, Tuple
 import threading
 import numpy as np
@@ -133,6 +134,7 @@ INTENT_EXAMPLES = {
         "help me categorize",
     ],
     "budget_status": [
+        # Query/status phrases - READING not WRITING
         "am I over budget",
         "budget status",
         "how is my budget",
@@ -140,21 +142,45 @@ INTENT_EXAMPLES = {
         "am I within budget",
         "budget remaining",
         "how much budget left",
+        "show my budget",
+        "view budget",
+        "what is my budget",
+        "how much budget do I have",
+        "am I on track with my budget",
+        "budget overview",
+        "show budget status",
     ],
     # NEW: Budget modification intents
+    # NOTE: These phrases must be CLEARLY DISTINCT from budget_status
+    # Use action verbs: set, create, update, change, increase, decrease
     "set_budget": [
+        # Primary action phrases - high priority
         "set my food budget to 500",
-        "increase my budget by 100",
-        "add 200 to my budget limit",
-        "raise my monthly budget",
+        "set budget for shopping to 300",
+        "set a budget of 500 for groceries",
+        "create a budget for entertainment",
+        "create budget of 200",
+        "make a new budget",
+        # Update/change actions
         "update budget for groceries",
-        "change my spending limit",
+        "change my spending limit to 400",
+        "change food budget to 600",
+        "update my shopping budget",
+        # Increase actions
+        "increase my budget by 100",
+        "raise my monthly budget to 2000",
+        "bump up my food budget to 800",
+        "add 200 to my budget limit",
+        # Decrease actions
+        "decrease my entertainment budget",
+        "lower my shopping budget to 200",
+        "reduce budget for dining",
+        # Goal-setting phrases
+        "I want to limit groceries to 500",
+        "I want to cap my spending at 1000",
         "make my budget 1000",
-        "set budget to",
-        "increase budget",
-        "add to my budget",
-        "raise the budget limit",
-        "bump up my food budget",
+        "set spending limit",
+        "new budget for",
     ],
     # NEW: Loan intents
     "make_loan_payment": [
@@ -338,9 +364,199 @@ class IntentClassifier:
             self._use_fallback = True
             return False
 
+    def _classify_by_rules(self, text: str) -> Optional[Tuple[str, float]]:
+        """
+        Rule-based pre-classification for high-confidence patterns.
+        
+        Uses regex patterns to catch unambiguous user intents before
+        falling back to semantic matching. This improves accuracy for
+        critical operations like budget setting and transaction creation.
+        
+        Args:
+            text: User's input message
+            
+        Returns:
+            Tuple of (intent_name, confidence_score) if a rule matches,
+            None if no rule matches (fall through to semantic matching)
+        """
+        text_lower = text.lower().strip()
+        
+        # =================================================================
+        # BUDGET INTENTS - Critical to distinguish set vs check
+        # =================================================================
+        
+        # SET_BUDGET: Action verbs + budget + amount/category
+        set_budget_patterns = [
+            # "set my food budget to 500", "set budget for shopping to 300"
+            r"^set\s+(my\s+)?(\w+\s+)?budget\s+(to|at|for|of)\s+",
+            # "create a budget of 500", "create budget for groceries"
+            r"^create\s+(a\s+)?budget\s+(of|for)",
+            # "update my shopping budget", "change my budget to"
+            r"^(update|change|modify)\s+(my\s+)?(\w+\s+)?budget",
+            # "increase/decrease/raise/lower budget"
+            r"^(increase|decrease|raise|lower|bump)\s+(my\s+)?(\w+\s+)?budget",
+            # "I want to limit groceries to 500"
+            r"i\s+want\s+to\s+(limit|cap|set)\s+",
+            # "make my budget 1000", "make a new budget"
+            r"^make\s+(my\s+|a\s+)?(new\s+)?budget",
+            # "budget for food should be 500"
+            r"budget\s+for\s+\w+\s+should\s+be",
+            # "put a limit on", "set a limit on"
+            r"(put|set)\s+a\s+(spending\s+)?limit\s+on",
+        ]
+        
+        for pattern in set_budget_patterns:
+            if re.search(pattern, text_lower):
+                logger.debug(f"Rule match: '{text}' → set_budget (pattern: {pattern})")
+                return "set_budget", 0.95
+        
+        # BUDGET_STATUS: Query/check verbs without modification intent
+        budget_status_patterns = [
+            # "check my budget", "check budget status"
+            r"^check\s+(my\s+)?budget",
+            # "how is my budget", "how's my budget"
+            r"^how('?s|\s+is)\s+(my\s+)?budget",
+            # "what is my budget", "what's my budget"
+            r"^what('?s|\s+is)\s+(my\s+)?budget",
+            # "show my budget", "view my budget"
+            r"^(show|view|display)\s+(me\s+)?(my\s+)?budget",
+            # "am I over budget", "am I within budget"
+            r"^am\s+i\s+(over|under|within|on)\s+budget",
+            # "budget status", "budget remaining"
+            r"^budget\s+(status|remaining|left|overview)",
+        ]
+        
+        for pattern in budget_status_patterns:
+            if re.search(pattern, text_lower):
+                logger.debug(f"Rule match: '{text}' → budget_status (pattern: {pattern})")
+                return "budget_status", 0.95
+        
+        # =================================================================
+        # TRANSACTION INTENTS
+        # =================================================================
+        
+        # CREATE_TRANSACTION: "add/spent/paid/bought" + amount
+        create_transaction_patterns = [
+            # "add $50 for lunch", "add 25 dollars for coffee"
+            r"^add\s+\$?\d+",
+            # "spent $100 on groceries", "spent 50 at walmart"
+            r"^(i\s+)?spent\s+\$?\d+",
+            # "paid $200 for rent", "paid 50 to john"
+            r"^(i\s+)?paid\s+\$?\d+",
+            # "bought something for $30"
+            r"^(i\s+)?bought\s+",
+            # "received $500 salary", "got paid $1000"
+            r"^(i\s+)?(received|got\s+paid|earned)\s+\$?\d+",
+            # "$50 for coffee", "$100 groceries"
+            r"^\$\d+\s+(for|at|on)\s+",
+        ]
+        
+        for pattern in create_transaction_patterns:
+            if re.search(pattern, text_lower):
+                logger.debug(f"Rule match: '{text}' → add_transaction (pattern: {pattern})")
+                return "add_transaction", 0.92
+        
+        # =================================================================
+        # LOAN INTENTS
+        # =================================================================
+        
+        # CHECK_LOAN: Query loan status
+        check_loan_patterns = [
+            r"^(check|show|view)\s+(my\s+)?loan",
+            r"^how\s+much\s+(do\s+i\s+)?owe",
+            r"^(what('?s|\s+is)|show)\s+(my\s+)?loan\s+balance",
+            r"^(my\s+)?debt\s+status",
+            r"^(list|show)\s+(my\s+)?loans",
+        ]
+        
+        for pattern in check_loan_patterns:
+            if re.search(pattern, text_lower):
+                logger.debug(f"Rule match: '{text}' → check_loan (pattern: {pattern})")
+                return "check_loan", 0.95
+        
+        # LOAN_PAYMENT: Pay towards loan
+        loan_payment_patterns = [
+            r"^pay\s+\$?\d+\s+(towards?|on|for)\s+(my\s+)?loan",
+            r"^make\s+(a\s+)?loan\s+payment",
+            r"^(pay\s+off|pay\s+down)\s+(some\s+of\s+)?(my\s+)?loan",
+        ]
+        
+        for pattern in loan_payment_patterns:
+            if re.search(pattern, text_lower):
+                logger.debug(f"Rule match: '{text}' → make_loan_payment (pattern: {pattern})")
+                return "make_loan_payment", 0.92
+        
+        # ADD_LOAN: Add new loan
+        add_loan_patterns = [
+            r"^add\s+(a\s+)?(new\s+)?loan",
+            r"^(i\s+)?(borrowed|took\s+out)\s+\$?\d+",
+            r"^(create|record)\s+(a\s+)?(new\s+)?loan",
+            r"^new\s+(debt|loan)\s+of\s+\$?\d+",
+        ]
+        
+        for pattern in add_loan_patterns:
+            if re.search(pattern, text_lower):
+                logger.debug(f"Rule match: '{text}' → add_loan (pattern: {pattern})")
+                return "add_loan", 0.92
+        
+        # =================================================================
+        # QUERY INTENTS
+        # =================================================================
+        
+        # QUERY_SPENDING: "how much" spent questions
+        query_spending_patterns = [
+            r"^how\s+much\s+(did\s+i|have\s+i)\s+spen[dt]",
+            r"^(what|how\s+much)\s+(is|was)\s+my\s+spending",
+            r"^total\s+spending\s+(for|on|this)",
+            r"^spending\s+(on|for|by)\s+",
+        ]
+        
+        for pattern in query_spending_patterns:
+            if re.search(pattern, text_lower):
+                logger.debug(f"Rule match: '{text}' → query_spending (pattern: {pattern})")
+                return "query_spending", 0.90
+        
+        # GET_INSIGHTS: Analysis requests
+        insights_patterns = [
+            r"^(give\s+me|show\s+me|get)\s+(financial\s+)?insights",
+            r"^analyze\s+(my\s+)?spending",
+            r"^(spending|financial)\s+(trends?|patterns?|habits?)",
+            r"^(any\s+)?tips?\s+(for|on|about)\s+(my\s+)?spending",
+        ]
+        
+        for pattern in insights_patterns:
+            if re.search(pattern, text_lower):
+                logger.debug(f"Rule match: '{text}' → get_insights (pattern: {pattern})")
+                return "get_insights", 0.90
+        
+        # CATEGORIZE: Category questions
+        categorize_patterns = [
+            r"^what\s+(category|type)\s+(is|for)\s+",
+            r"^(which|what)\s+category\s+(should|would|does)",
+            r"^categorize\s+",
+            r"^how\s+(do\s+i|should\s+i|to)\s+categorize",
+        ]
+        
+        for pattern in categorize_patterns:
+            if re.search(pattern, text_lower):
+                logger.debug(f"Rule match: '{text}' → categorize_help (pattern: {pattern})")
+                return "categorize_help", 0.90
+        
+        # HELP: Help requests
+        if re.search(r"^(help|what\s+can\s+you\s+do|how\s+do\s+i\s+use)", text_lower):
+            logger.debug(f"Rule match: '{text}' → help")
+            return "help", 0.95
+        
+        # No rule matched - fall through to semantic matching
+        return None
+
     def classify(self, text: str) -> Tuple[str, float]:
         """
         Classify user text into an intent.
+        
+        Uses a hybrid approach:
+        1. First, try rule-based matching for high-confidence patterns
+        2. If no rule matches, use semantic similarity with MiniLM
 
         Args:
             text: User's input message
@@ -356,11 +572,17 @@ class IntentClassifier:
         """
         if not self.is_initialized:
             self.initialize()
+        
+        # Step 1: Try rule-based classification first (high confidence)
+        rule_result = self._classify_by_rules(text)
+        if rule_result is not None:
+            return rule_result
 
-        # Use keyword-based fallback if model unavailable
+        # Step 2: Use keyword-based fallback if model unavailable
         if self._use_fallback:
             return self._classify_by_keywords(text)
 
+        # Step 3: Semantic similarity matching with MiniLM
         try:
             # Embed user input
             user_embedding = self.model.encode(text, convert_to_numpy=True)
@@ -536,17 +758,61 @@ class IntentClassifier:
                 "what type",
                 "label",
             ],
-            "set_budget": ["budget", "limit", "spending limit", "set limit", "cap"],
+            # Budget status - READ operations (check, view, status, remaining)
+            "budget_status": [
+                "check budget",
+                "budget status",
+                "how is my budget",
+                "over budget",
+                "within budget",
+                "budget remaining",
+                "show my budget",
+                "view my budget",
+                "what is my budget",
+                "budget left",
+                "am i on budget",
+            ],
+            # Set budget - WRITE operations (set, create, update, change, limit)
+            "set_budget": [
+                "set budget",
+                "set my budget",
+                "create budget",
+                "create a budget",
+                "update budget",
+                "change budget",
+                "increase budget",
+                "decrease budget",
+                "lower budget",
+                "raise budget",
+                "new budget",
+                "budget to $",
+                "budget to 1",
+                "budget to 2",
+                "budget to 3",
+                "budget to 4",
+                "budget to 5",
+                "budget to 6",
+                "budget to 7",
+                "budget to 8",
+                "budget to 9",
+                "budget of $",
+                "spending limit",
+                "cap spending",
+                "limit groceries",
+                "limit food",
+                "limit shopping",
+                "limit entertainment",
+            ],
             "summarize_transactions": [
                 "summary",
                 "summarize",
                 "overview",
                 "report",
-                "total",
-                "spending",
-                "how much",
-                "spent this",
-                "show my",
+                "total spent",
+                "spending breakdown",
+                "how much spent",
+                "spent this month",
+                "spent this week",
             ],
             "get_insights": [
                 "insight",
