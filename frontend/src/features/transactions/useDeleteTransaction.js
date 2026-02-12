@@ -7,11 +7,11 @@ export const useDeleteTransaction = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (transactionId) =>
-      deleteTransaction(apiClient, transactionId),
+    mutationFn: (transactionId) => deleteTransaction(apiClient, transactionId),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
 
     onError: (error) => {

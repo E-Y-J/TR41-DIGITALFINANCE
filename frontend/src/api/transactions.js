@@ -10,8 +10,15 @@ export const createTransaction = async (apiClient, transactionData) => {
   return data;
 };
 
-export const updateTransaction = async (apiClient, transactionId, transactionData) => {
-  const data = await apiClient.put(`/transactions/${transactionId}`, transactionData);
+export const updateTransaction = async (
+  apiClient,
+  transactionId,
+  transactionData,
+) => {
+  const data = await apiClient.patch(
+    `/transactions/${transactionId}`,
+    transactionData,
+  );
   return data;
 };
 

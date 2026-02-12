@@ -13,7 +13,10 @@ export default function HomePage() {
     <Box
       sx={{
         p: { xs: 2, md: 3 },
-        minHeight: "100vh",
+        width: "100%",
+        maxWidth: "100%",
+        boxSizing: "border-box",
+        overflowX: "hidden",
       }}
     >
       <Typography variant="h4" gutterBottom sx={{ mb: 3, fontWeight: 700 }}>
@@ -23,12 +26,18 @@ export default function HomePage() {
       <Box
         sx={{
           display: "grid",
+          width: "100%",
           gridTemplateColumns: {
             xs: "1fr",
             md: "repeat(3, 1fr)",
           },
-          gap: 3,
+          gap: { xs: 2, md: 3 },
           mb: 3,
+
+          "& > div": {
+            minWidth: 0,
+            overflow: "hidden",
+          },
         }}
       >
         <Box sx={{ gridColumn: { md: "span 2" } }}>

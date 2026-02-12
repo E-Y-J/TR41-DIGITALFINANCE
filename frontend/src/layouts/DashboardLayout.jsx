@@ -102,7 +102,15 @@ const DashboardLayout = () => {
   const isAiPage = location.pathname === "/home/ai-assistant";
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box
+      sx={{
+        display: "flex",
+        width: "100vw",
+        maxWidth: "100%",
+        overflowX: "hidden",
+        position: "relative",
+      }}
+    >
       {/* Top Bar */}
       <TopBar
         drawerWidth={drawerWidth}
@@ -138,6 +146,10 @@ const DashboardLayout = () => {
             onMouseLeave={() => setDesktopOpen(false)}
             sx={{
               display: { xs: "none", sm: "block" },
+              "& .MuiDrawer-paper": {
+                borderTopRightRadius: 0,
+                borderBottomRightRadius: 0,
+              },
             }}
           >
             <Sidebar open={desktopOpen} />
@@ -150,6 +162,7 @@ const DashboardLayout = () => {
         component="main"
         sx={{
           flexGrow: 1,
+          width: isMobile ? "100%" : `calc(100% - ${drawerWidth}px)`,
           height: "100vh",
           display: "flex",
           overflow: "auto",
@@ -158,7 +171,7 @@ const DashboardLayout = () => {
         }}
       >
         <Toolbar sx={{ minHeight: { xs: 48, sm: 64 }, flexShrink: 0 }} />
-        <Box sx={{ p: 3, pb: 0, flexShrink: 0 }}>
+        <Box sx={{ p: { xs: 2, sm: 3 }, pb: 0, flexShrink: 0 }}>
           <Breadcrumb />
         </Box>
         <Box sx={{ flexGrow: 1, minHeight: 0 }}>
@@ -219,6 +232,8 @@ const DashboardLayout = () => {
                   width: { xs: "100%", sm: 400 },
                   borderTopLeftRadius: { xs: 0, sm: 24 },
                   borderBottomLeftRadius: { xs: 0, sm: 24 },
+                  borderTopRightRadius: 0,
+                  borderBottomRightRadius: 0,
                   height: "100%",
                   bgcolor: "background.paper",
                   backgroundImage: "none",
@@ -245,6 +260,7 @@ const DashboardLayout = () => {
       <Backdrop
         sx={{
           zIndex: (theme) => theme.zIndex.drawer + 999,
+
           backgroundColor: (theme) =>
             theme.palette.mode === "dark"
               ? "rgba(15, 23, 42, 0.8)"
@@ -252,7 +268,9 @@ const DashboardLayout = () => {
         }}
         open={isGlobalLoading || isLoading}
       >
-        <PageLoader sx={{ bgcolor: "transparent" }} />
+        <PageLoader
+          sx={{ bgcolor: "transparent", minHeight: "auto", height: "auto" }}
+        />
       </Backdrop>
     </Box>
   );

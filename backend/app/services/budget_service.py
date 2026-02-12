@@ -331,15 +331,24 @@ class BudgetService:
         """
         budget_type = BudgetType(data["budget_type"])
         period = BudgetPeriod(data["period"])
-        category_id = data.get("category_id")
+        category_input = data.get("category_id")
+        category_id = None
 
-        # Validate category exists for category budgets
         if budget_type == BudgetType.CATEGORY:
-            category = db.session.get(Category, category_id)
-            if not category:
-                raise ValidationError("Category not found")
+            # Attempt to treat the input as a UUID first
+            try:
+                category_id = uuid.UUID(str(category_input))
+                category = db.session.get(Category, category_id)
+            except (ValueError, TypeError):
+                # If not a valid UUID, treat it as a Category Name
+                category = Category.query.filter_by(name=category_input).first()
+                if category:
+                    category_id = category.id
 
-        # Check for existing budget (unique constraint)
+            if not category:
+                raise ValidationError("Category not found", details={"category_id": ["Invalid category provided"]})
+
+        # Continue with existing creation logic using the resolved category_id...
         existing = Budget.query.filter_by(
             user_id=user_id,
             category_id=category_id,

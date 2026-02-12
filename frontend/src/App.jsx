@@ -27,20 +27,20 @@ const App = () => {
         path="/"
         element={
           <PublicRoute>
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader absolute />}>
               <LandingPage />
             </Suspense>
           </PublicRoute>
         }
       />
 
-      <Route path="/callback" element={<PageLoader />} />
+      <Route path="/callback" element={<PageLoader absolute />} />
 
       <Route element={<AuthenticationGuard />}>
         <Route
           path="/onboarding"
           element={
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader absolute />}>
               <OnboardingPage />
             </Suspense>
           }
@@ -56,11 +56,14 @@ const App = () => {
             <Route path="/home/notifications" element={<NotificationsPage />} />
             <Route path="/settings/profile" element={<ProfilePage />} />
             <Route path="/settings/account" element={<SettingsPage />} />
-            <Route path="/settings" element={<Navigate to="/settings/account" replace />} />
+            <Route
+              path="/settings"
+              element={<Navigate to="/settings/account" replace />}
+            />
             <Route
               path="/home/*"
               element={
-                <Suspense fallback={<PageLoader />}>
+                <Suspense fallback={<PageLoader absolute />}>
                   <NotFound />
                 </Suspense>
               }
@@ -72,7 +75,7 @@ const App = () => {
       <Route
         path="*"
         element={
-          <Suspense fallback={<PageLoader />}>
+          <Suspense fallback={<PageLoader absolute />}>
             <NotFound />
           </Suspense>
         }

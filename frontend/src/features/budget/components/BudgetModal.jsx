@@ -87,7 +87,7 @@ const BudgetModal = ({ open, onClose, budget = null, categories = [] }) => {
         setError(
           err.response?.data?.message ||
             err.response?.data?.error?.message ||
-            "Failed to save budget"
+            "Failed to save budget",
         );
       },
     });
@@ -133,11 +133,7 @@ const BudgetModal = ({ open, onClose, budget = null, categories = [] }) => {
         }}
       >
         {isEdit ? "Edit Budget" : "Create Budget"}
-        <IconButton
-          onClick={onClose}
-          disabled={isPending}
-          size="small"
-        >
+        <IconButton onClick={onClose} disabled={isPending} size="small">
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -176,23 +172,20 @@ const BudgetModal = ({ open, onClose, budget = null, categories = [] }) => {
                 label="Category"
                 onChange={handleChange}
               >
-                {categories.length > 0 ? (
-                  categories.map((cat) => (
-                    <MenuItem key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </MenuItem>
-                  ))
-                ) : (
-                  CATEGORIES.filter((c) => c !== "Income").map((cat) => (
-                    <MenuItem key={cat} value={cat}>
-                      {cat}
-                    </MenuItem>
-                  ))
-                )}
+                {categories.length > 0
+                  ? categories.map((cat) => (
+                      <MenuItem key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </MenuItem>
+                    ))
+                  : CATEGORIES.filter((c) => c !== "Income").map((cat) => (
+                      <MenuItem key={cat} value={cat}>
+                        {cat}
+                      </MenuItem>
+                    ))}
               </Select>
             </FormControl>
           )}
-
           {/* Show category name for edit mode */}
           {isEdit && budget?.category_name && (
             <TextField

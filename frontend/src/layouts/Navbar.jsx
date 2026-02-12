@@ -38,6 +38,7 @@ const Navbar = () => {
         color: "text.primary",
         borderBottom: "1px solid",
         borderColor: "divider",
+        borderRadius: 0,
       }}
     >
       <Container maxWidth="lg">

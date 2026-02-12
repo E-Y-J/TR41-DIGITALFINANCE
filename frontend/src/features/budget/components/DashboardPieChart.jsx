@@ -63,8 +63,9 @@ const DashboardPieChart = ({ data, suggestions }) => {
         </PieChart>
       </Box>
 
-      <CustomLegend data={currentData.filter((item) => item.isSpent)} />
-
+      {isMobile ? null : (
+        <CustomLegend data={currentData.filter((item) => item.isSpent)} />
+      )}
       <ChartControls
         page={page}
         totalPages={totalPages}
