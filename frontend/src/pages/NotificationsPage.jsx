@@ -15,6 +15,8 @@ import {
   CircularProgress,
   Pagination,
   alpha,
+  useTheme,
+  Stack,
 } from "@mui/material";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import CircleIcon from "@mui/icons-material/Circle";
@@ -26,7 +28,6 @@ import {
   useGetUnreadCount,
 } from "../features/notifications";
 
-// Map notification types to user-friendly labels and colors
 const NOTIFICATION_TYPE_CONFIG = {
   default: { label: "General", color: "default" },
   new_transaction: { label: "Transaction", color: "primary" },
@@ -37,10 +38,6 @@ const NOTIFICATION_TYPE_CONFIG = {
   budget_warning: { label: "Budget Alert", color: "warning" },
   budget_exceeded: { label: "Over Budget", color: "error" },
   ai_clarification: { label: "AI Chat", color: "info" },
-};
-
-const getTypeConfig = (type) => {
-  return NOTIFICATION_TYPE_CONFIG[type] || NOTIFICATION_TYPE_CONFIG.default;
 };
 
 const formatDate = (dateString) => {
@@ -59,11 +56,11 @@ const formatDate = (dateString) => {
   return date.toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
-    year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
   });
 };
 
 export default function NotificationsPage() {
+  const theme = useTheme();
   const [page, setPage] = useState(1);
   const perPage = 20;
 
@@ -79,102 +76,85 @@ export default function NotificationsPage() {
   const notifications = notificationsData?.items ?? [];
   const totalPages = Math.ceil((notificationsData?.total ?? 0) / perPage);
 
-  const handleMarkAsRead = (notificationId) => {
-    markAsReadMutation.mutate(notificationId);
-  };
-
-  const handleMarkAllAsRead = () => {
-    markAllAsReadMutation.mutate();
-  };
-
   return (
-    <Box sx={{ p: 3, maxWidth: 800, mx: "auto" }}>
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 900, mx: "auto" }}>
       <Paper
-        elevation={3}
+        variant="outlined"
         sx={{
           borderRadius: 4,
-          border: "1px solid",
-          borderColor: "divider",
+          bgcolor: (theme) =>
+            theme.palette.mode === "dark"
+              ? alpha(theme.palette.background.paper, 0.4)
+              : "background.paper",
           overflow: "hidden",
+          backgroundImage: "none",
         }}
       >
-        {/* Header */}
-        <Box
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
           sx={{
             p: 3,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            borderBottom: 1,
+            borderBottom: "1px solid",
             borderColor: "divider",
-            bgcolor: (theme) => alpha(theme.palette.primary.main, 0.02),
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <NotificationsIcon color="primary" sx={{ fontSize: 28 }} />
+          <Stack direction="row" spacing={2} alignItems="center">
+            <NotificationsIcon color="primary" />
             <Box>
-              <Typography variant="h5" fontWeight={700}>
+              <Typography variant="h6" fontWeight={900}>
                 Notifications
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {unreadCount > 0
-                  ? `${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}`
-                  : "All caught up!"}
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                fontWeight={600}
+              >
+                {unreadCount > 0 ? `${unreadCount} UNREAD` : "ALL CAUGHT UP"}
               </Typography>
             </Box>
-          </Box>
+          </Stack>
 
           {unreadCount > 0 && (
             <Button
-              variant="outlined"
+              variant="text"
               size="small"
               startIcon={<DoneAllIcon />}
-              onClick={handleMarkAllAsRead}
-              disabled={markAllAsReadMutation.isPending}
-              sx={{ borderRadius: 2 }}
+              onClick={() => markAllAsReadMutation.mutate()}
+              sx={{ fontWeight: 800, textTransform: "none" }}
             >
-              Mark all as read
+              Mark all read
             </Button>
           )}
-        </Box>
+        </Stack>
 
-        {/* Notifications List */}
-        <Box sx={{ minHeight: 400 }}>
+        <Box sx={{ minHeight: 300 }}>
           {isLoading ? (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                minHeight: 300,
-              }}
-            >
-              <CircularProgress />
-            </Box>
+            <Stack alignItems="center" justifyContent="center" sx={{ py: 10 }}>
+              <CircularProgress size={32} />
+            </Stack>
           ) : notifications.length === 0 ? (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                minHeight: 300,
-                color: "text.secondary",
-              }}
+            <Stack
+              alignItems="center"
+              justifyContent="center"
+              sx={{ py: 10, opacity: 0.5 }}
             >
-              <NotificationsIcon sx={{ fontSize: 64, mb: 2, opacity: 0.2 }} />
-              <Typography variant="h6" fontWeight={500}>
-                No notifications yet
-              </Typography>
-              <Typography variant="body2">
-                We'll notify you when something important happens
-              </Typography>
-            </Box>
+              <NotificationsIcon sx={{ fontSize: 48, mb: 1 }} />
+              <Typography variant="body2">No notifications found</Typography>
+            </Stack>
           ) : (
             <List disablePadding>
               {notifications.map((notification, index) => {
-                const typeConfig = getTypeConfig(notification.notification_type);
+                const typeKey = notification.type?.toLowerCase();
+                const typeConfig =
+                  NOTIFICATION_TYPE_CONFIG[typeKey] ||
+                  NOTIFICATION_TYPE_CONFIG.default;
                 const isUnread = notification.status === "unread";
+
+                const chipColor =
+                  theme.palette[typeConfig.color]?.main ||
+                  theme.palette.text.secondary;
 
                 return (
                   <Box key={notification.id}>
@@ -182,87 +162,77 @@ export default function NotificationsPage() {
                       disablePadding
                       secondaryAction={
                         isUnread && (
-                          <Tooltip title="Mark as read" placement="left">
+                          <Tooltip title="Mark as read" arrow placement="left">
                             <IconButton
-                              edge="end"
                               size="small"
-                              onClick={() => handleMarkAsRead(notification.id)}
-                              disabled={markAsReadMutation.isPending}
-                              sx={{ mr: 1 }}
+                              onClick={() =>
+                                markAsReadMutation.mutate(notification.id)
+                              }
+                              sx={{ color: "primary.main" }}
                             >
-                              <CircleIcon
-                                sx={{ fontSize: 12, color: "primary.main" }}
-                              />
+                              <CircleIcon sx={{ fontSize: 10 }} />
                             </IconButton>
                           </Tooltip>
                         )
                       }
                     >
                       <ListItemButton
-                        onClick={() => {
-                          if (isUnread) handleMarkAsRead(notification.id);
-                        }}
+                        onClick={() =>
+                          isUnread && markAsReadMutation.mutate(notification.id)
+                        }
                         sx={{
-                          py: 2.5,
+                          py: 2,
                           px: 3,
-                          pr: isUnread ? 7 : 3,
+                          transition: "0.2s",
                           bgcolor: isUnread
-                            ? (theme) => alpha(theme.palette.primary.main, 0.04)
+                            ? alpha("#3b82f6", 0.04)
                             : "transparent",
-                          borderLeft: "4px solid",
-                          borderColor: isUnread ? "primary.main" : "transparent",
-                          transition: "all 0.2s ease-in-out",
-                          "&:hover": {
-                            bgcolor: (theme) =>
-                              alpha(theme.palette.primary.main, 0.08),
-                          },
+                          "&:hover": { bgcolor: alpha("#3b82f6", 0.08) },
                         }}
                       >
                         <ListItemText
-                          disableTypography
                           primary={
-                            <Box
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 1.5,
-                                mb: 1,
-                              }}
+                            <Stack
+                              direction="row"
+                              spacing={1.5}
+                              alignItems="center"
+                              sx={{ mb: 0.5 }}
                             >
                               <Typography
-                                variant="subtitle1"
-                                fontWeight={isUnread ? 700 : 500}
-                                color={
-                                  isUnread ? "text.primary" : "text.secondary"
-                                }
+                                variant="subtitle2"
+                                fontWeight={isUnread ? 900 : 600}
                               >
-                                {notification.title || "Notification"}
+                                {notification.message}
                               </Typography>
                               <Chip
                                 label={typeConfig.label}
                                 size="small"
-                                color={typeConfig.color}
-                                variant={isUnread ? "filled" : "outlined"}
-                                sx={{ height: 22, fontSize: "0.7rem" }}
+                                sx={{
+                                  height: 20,
+                                  fontSize: "0.625rem",
+                                  fontWeight: 900,
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.05em",
+
+                                  bgcolor: alpha(chipColor, 0.12),
+                                  color: isUnread
+                                    ? chipColor
+                                    : alpha(chipColor, 0.7),
+                                  border: `1px solid ${alpha(chipColor, 0.2)}`,
+                                  borderRadius: "6px",
+                                  "& .MuiChip-label": { px: 1 },
+                                }}
                               />
-                            </Box>
+                            </Stack>
                           }
                           secondary={
-                            <Box>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{ mb: 0.5 }}
-                              >
-                                {notification.message}
-                              </Typography>
-                              <Typography
-                                variant="caption"
-                                color="text.disabled"
-                              >
-                                {formatDate(notification.created_at)}
-                              </Typography>
-                            </Box>
+                            <Typography
+                              variant="caption"
+                              color="text.disabled"
+                              fontWeight={600}
+                            >
+                              {formatDate(notification.created_at)}
+                            </Typography>
                           }
                         />
                       </ListItemButton>
@@ -275,25 +245,19 @@ export default function NotificationsPage() {
           )}
         </Box>
 
-        {/* Pagination */}
         {totalPages > 1 && (
-          <Box
-            sx={{
-              p: 2,
-              display: "flex",
-              justifyContent: "center",
-              borderTop: 1,
-              borderColor: "divider",
-            }}
+          <Stack
+            alignItems="center"
+            sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}
           >
             <Pagination
               count={totalPages}
               page={page}
-              onChange={(_, newPage) => setPage(newPage)}
+              onChange={(_, val) => setPage(val)}
+              size="small"
               color="primary"
-              shape="rounded"
             />
-          </Box>
+          </Stack>
         )}
       </Paper>
     </Box>
