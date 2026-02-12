@@ -149,7 +149,7 @@ const Sidebar = ({ handleLogout, open }) => {
             pointerEvents: isOpen ? "auto" : "none",
           }}
         >
-          <Box sx={{ bgcolor: "grey.200", p: 2, borderRadius: 2 }}>
+          <Box sx={{ bgcolor: "action.selected", p: 2, borderRadius: 2 }}>
             <Typography
               variant="caption"
               color="text.secondary"

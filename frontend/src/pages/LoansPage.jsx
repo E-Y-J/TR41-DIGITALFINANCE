@@ -221,7 +221,7 @@ const LoansPage = () => {
               sx={{
                 borderRadius: 4,
                 border: "1px solid",
-                borderColor: alpha(theme.palette.grey[300], 0.5),
+                borderColor: "divider",
                 boxShadow: "none",
                 transition: "all 0.3s ease",
                 "&:hover": {

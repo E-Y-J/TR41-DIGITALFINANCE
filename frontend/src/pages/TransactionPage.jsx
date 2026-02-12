@@ -19,7 +19,7 @@ export default function TransactionsPage() {
           p: { xs: 2, sm: 3 },
           borderRadius: 4,
           border: "1px solid",
-          borderColor: "grey.200",
+          borderColor: "divider",
           display: "flex",
           flexDirection: "column",
         }}

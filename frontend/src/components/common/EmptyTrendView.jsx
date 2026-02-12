@@ -13,7 +13,7 @@ const EmptyTrendView = ({ header, text }) => {
         justifyContent: "center",
         borderRadius: 6,
         border: "1px solid",
-        borderColor: "grey.200",
+        borderColor: "divider",
         textAlign: "center",
         px: 3,
         position: "relative",

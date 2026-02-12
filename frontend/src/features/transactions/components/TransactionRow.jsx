@@ -138,7 +138,7 @@ export const TransactionRow = ({
             <Avatar
               variant="rounded"
               sx={{
-                bgcolor: "grey.100",
+                bgcolor: "action.selected",
                 color: "primary.main",
                 width: 32,
                 height: 32,

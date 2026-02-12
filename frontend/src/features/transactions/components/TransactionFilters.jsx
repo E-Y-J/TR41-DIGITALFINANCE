@@ -33,7 +33,7 @@ const getButtonStyle = (isActive) => ({
   boxShadow: isActive ? "0 2px 8px rgba(25, 118, 210, 0.25)" : "none",
   "&:hover": {
     bgcolor: isActive ? "primary.dark" : "action.hover",
-    borderColor: isActive ? "primary.dark" : "grey.400",
+    borderColor: isActive ? "primary.dark" : "divider",
   },
 });
 
@@ -43,7 +43,7 @@ const textFieldStyles = {
     borderRadius: 3,
     backgroundColor: "background.paper",
     "& fieldset": { borderColor: "divider" },
-    "&:hover fieldset": { borderColor: "grey.400" },
+    "&:hover fieldset": { borderColor: "primary.main" },
   },
 };
 

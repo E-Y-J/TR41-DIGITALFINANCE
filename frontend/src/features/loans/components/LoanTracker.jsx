@@ -55,7 +55,7 @@ const LoanTracker = ({ loans }) => {
               borderRadius: 4,
               bgcolor: "background.paper",
               border: "1px solid",
-              borderColor: alpha(theme.palette.grey[300], 0.5),
+              borderColor: "divider",
               boxShadow: "none",
               flexShrink: 0,
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",

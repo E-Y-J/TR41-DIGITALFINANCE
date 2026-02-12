@@ -89,7 +89,7 @@ const LoanFormContent = ({
       transition: "all 0.2s ease-in-out",
       "&:hover": {
         backgroundColor: "action.selected",
-        "& .MuiOutlinedInput-notchedOutline": { borderColor: "grey.400" },
+        "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" },
       },
       "&.Mui-focused": {
         backgroundColor: "background.paper",
@@ -121,7 +121,7 @@ const LoanFormContent = ({
           disabled={isPending}
           sx={{
             color: "text.secondary",
-            "&:hover": { bgcolor: "grey.100" },
+            "&:hover": { bgcolor: "action.selected" },
           }}
         >
           <CloseIcon />

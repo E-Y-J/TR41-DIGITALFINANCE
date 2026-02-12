@@ -127,7 +127,7 @@ export const EditTransactionModal = ({ open, onClose, transaction }) => {
       transition: "all 0.2s ease-in-out",
       "&:hover": {
         backgroundColor: "action.selected",
-        "& .MuiOutlinedInput-notchedOutline": { borderColor: "grey.400" },
+        "& .MuiOutlinedInput-notchedOutline": { borderColor: "divider" },
       },
       "&.Mui-focused": {
         backgroundColor: "background.paper",
