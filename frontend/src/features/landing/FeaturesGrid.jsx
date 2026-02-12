@@ -16,6 +16,10 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import PreviewBox from "../../components/PreviewBox";
 import PreviewImage from "../../components/PreviewImage";
 
+import transactionImg from "../../assets/transaction.png";
+import trendImg from "../../assets/trend.png";
+import dailyTrendImg from "../../assets/daily_trend.png";
+
 const FEATURES = [
   {
     title: "Transaction Management",

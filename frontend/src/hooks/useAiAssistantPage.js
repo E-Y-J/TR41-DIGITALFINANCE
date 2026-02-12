@@ -1,57 +1,53 @@
 import { useState, useRef, useMemo, useCallback } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useGetChatHistory } from "../features/chat/useGetChatHistory";
+import {
+  useGetChatHistory,
+  useDeleteChatSession,
+} from "../features/chat/useGetChatHistory";
 import { useGetUser } from "../features/auth/useGetUser";
-import { useAxios } from "./useAxios";
-import { sendChatMessage } from "../api/user";
+import { useSendChatMessage } from "../features/chat/useSendChatMessage";
 
 export const useAiAssistantPage = () => {
-  const [page, setPage] = useState(0);
-  const apiClient = useAxios();
-  const queryClient = useQueryClient();
+  const {
+    data: historyResponse,
+    isLoading,
+    isFetching,
+    refetch: refetchHistory,
+  } = useGetChatHistory();
 
-  // sessionHistory now reflects the { sessions: [...] } structure
-  const { data: historyResponse, isLoading } = useGetChatHistory();
   const { data: userData } = useGetUser();
+  const deleteMutation = useDeleteChatSession();
+  const { mutateAsync: sendChatApi } = useSendChatMessage();
 
   const [activeChatId, setActiveChatId] = useState(null);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [mobileHistoryOpen, setMobileHistoryOpen] = useState(false);
   const [optimisticMessages, setOptimisticMessages] = useState([]);
-  const [localSessions, setLocalSessions] = useState([]);
 
   const messagesEndRef = useRef(null);
 
   const conversations = useMemo(() => {
-    // 1. Access the sessions array from the new response structure
-    const rawSessions = historyResponse?.sessions || [];
+    const rawSessions =
+      historyResponse?.data?.sessions || historyResponse?.sessions || [];
 
-    const serverHistory = rawSessions.map((session) => ({
-      id: session.id,
-      // Use the first user message for the title, or fallback
-      title:
-        session.conversation_history
-          ?.find((m) => m.role === "user")
-          ?.content.slice(0, 30) || "Recent Chat",
-      isMock: false,
-      messages: (session.conversation_history || []).map((msg, idx) => ({
-        id: `${session.id}-${idx}`,
-        text: msg.content,
-        sender: msg.role === "assistant" ? "ai" : "user",
-      })),
-      updatedAt: session.updated_at,
-    }));
-
-    // Combine local sessions with server history, avoiding duplicates
-    const serverIds = new Set(serverHistory.map((s) => s.id));
-    const uniqueLocal = localSessions.filter((s) => !serverIds.has(s.id));
-
-    // Combine and sort by most recently updated
-    return [...uniqueLocal, ...serverHistory].sort(
-      (a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0),
-    );
-  }, [historyResponse, localSessions]);
+    return rawSessions
+      .map((session) => ({
+        id: session.id,
+        title:
+          session.conversation_history
+            ?.find((m) => m.role === "user")
+            ?.content.slice(0, 30) || "Recent Chat",
+        messages: (session.conversation_history || []).map((msg, idx) => ({
+          id: `${session.id}-${idx}`,
+          text: msg.content,
+          sender: msg.role === "assistant" ? "ai" : "user",
+          intent: msg.intent,
+          parsedData: msg.parsed_data,
+        })),
+        updatedAt: session.updated_at,
+      }))
+      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+  }, [historyResponse]);
 
   const activeSession = useMemo(
     () => conversations.find((c) => c.id === activeChatId),
@@ -61,122 +57,79 @@ export const useAiAssistantPage = () => {
   const displayMessages = useMemo(() => {
     const history = activeSession?.messages || [];
 
-    // Only show optimistic messages if they aren't already in the server history
     const filteredOptimistic = optimisticMessages.filter(
       (opt) => !history.some((h) => h.text === opt.text),
     );
-
     return [...history, ...filteredOptimistic];
   }, [activeSession, optimisticMessages]);
-
-  const suggestionClickHandler = useCallback(
-    (text) => {
-      setInputValue(text);
-    },
-    [setInputValue],
-  );
 
   const handleSendMessage = async (textOverride) => {
     const messageText = (
       typeof textOverride === "string" ? textOverride : inputValue
     ).trim();
-
     if (!messageText) return;
 
     setInputValue("");
     setIsTyping(true);
 
-    // Add user message optimistically
-    const userMsgId = Date.now();
-    const newUserMsg = { id: userMsgId, text: messageText, sender: "user" };
+    const userMsg = {
+      id: `u-${Date.now()}`,
+      text: messageText,
+      sender: "user",
+    };
 
-    if (!activeChatId) {
-      // New chat - create a local session first
-      const newSessionId = `local-${Date.now()}`;
-      const newSession = {
-        id: newSessionId,
-        title: messageText.slice(0, 30),
-        isMock: true,
-        messages: [newUserMsg],
-        updatedAt: new Date().toISOString(),
-      };
-
-      setLocalSessions((prev) => [newSession, ...prev]);
-      setActiveChatId(newSessionId);
-    } else {
-      // Existing chat - add optimistic message
-      setOptimisticMessages((prev) => [...prev, newUserMsg]);
-    }
+    setOptimisticMessages((prev) => [...prev, userMsg]);
 
     try {
-      // Call the actual backend API
-      const response = await sendChatMessage(apiClient, messageText, {
-        session_id: activeChatId?.startsWith("local-") ? null : activeChatId,
+      const response = await sendChatApi({
+        message: messageText,
+        session_id: activeChatId,
       });
 
-      const aiResponse = response?.data?.response || "I received your message but couldn't generate a response.";
-      const aiMsgId = Date.now() + 1;
-      const newAiMsg = { id: aiMsgId, text: aiResponse, sender: "ai" };
+      const chatPayload = response.data?.data || response.data || response;
+      const sessionId = chatPayload.session_id;
 
-      // Update local session or optimistic messages with AI response
-      if (activeChatId?.startsWith("local-")) {
-        setLocalSessions((prev) =>
-          prev.map((s) =>
-            s.id === activeChatId
-              ? {
-                  ...s,
-                  messages: [...s.messages, newAiMsg],
-                  updatedAt: new Date().toISOString(),
-                }
-              : s,
-          ),
-        );
-      } else {
-        setOptimisticMessages((prev) => [...prev, newAiMsg]);
-      }
-
-      // Refresh chat history from server after a short delay
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ["chatHistory"] });
-      }, 1000);
-
-    } catch (error) {
-      console.error("Failed to send chat message:", error);
-
-      // Add error message
-      const errorMsg = {
-        id: Date.now() + 1,
-        text: "Sorry, I couldn't process your message. Please try again.",
+      const aiMsg = {
+        id: `ai-${Date.now()}`,
+        text: chatPayload.response,
         sender: "ai",
+        intent: chatPayload.intent,
+        parsedData: chatPayload.parsed_data,
+        isOptimistic: true,
       };
 
-      if (activeChatId?.startsWith("local-")) {
-        setLocalSessions((prev) =>
-          prev.map((s) =>
-            s.id === activeChatId
-              ? {
-                  ...s,
-                  messages: [...s.messages, errorMsg],
-                  updatedAt: new Date().toISOString(),
-                }
-              : s,
-          ),
-        );
-      } else {
-        setOptimisticMessages((prev) => [...prev, errorMsg]);
+      setOptimisticMessages((prev) => [...prev, aiMsg]);
+
+      if (sessionId) {
+        setActiveChatId(sessionId);
+        await refetchHistory();
       }
+    } catch (error) {
+      console.error("Chat Error:", error);
+      setOptimisticMessages((prev) => [
+        ...prev,
+        {
+          id: "err",
+          text: "Connection error. Please try again.",
+          sender: "ai",
+        },
+      ]);
     } finally {
       setIsTyping(false);
     }
   };
 
+  const handleTypewriterComplete = useCallback(() => {
+    setOptimisticMessages([]);
+  }, []);
+
   return {
     user: userData,
     isLoading,
+    isFetching,
     conversations,
     activeChatId,
     displayMessages,
-    suggestionClickHandler,
     inputValue,
     setInputValue,
     isTyping,
@@ -184,6 +137,8 @@ export const useAiAssistantPage = () => {
     setMobileHistoryOpen,
     messagesEndRef,
     handleSendMessage,
+    handleTypewriterComplete,
+    suggestionClickHandler: handleSendMessage,
     handleSelectChat: (id) => {
       setActiveChatId(id);
       setOptimisticMessages([]);
@@ -192,5 +147,20 @@ export const useAiAssistantPage = () => {
       setActiveChatId(null);
       setOptimisticMessages([]);
     },
+    handleDeleteChat: (chatId) => {
+      // If it's a local-only session, just remove from local state
+      if (chatId?.startsWith?.("local-")) {
+        setLocalSessions((prev) => prev.filter((s) => s.id !== chatId));
+      } else {
+        // Delete from server
+        deleteMutation.mutate(chatId);
+      }
+      // Clear active chat if we're deleting the active one
+      if (activeChatId === chatId) {
+        setActiveChatId(null);
+        setOptimisticMessages([]);
+      }
+    },
+    isDeletingChat: deleteMutation.isPending,
   };
 };

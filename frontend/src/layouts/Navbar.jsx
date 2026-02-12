@@ -16,8 +16,6 @@ import AuthButton from "../features/auth/AuthButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 
-import logo from "../assets/logo.png";
-
 const NAV_LINKS = [
   { text: "Home", path: "#hero" },
   { text: "Our Mission", path: "#about" },
@@ -47,8 +45,8 @@ const Navbar = () => {
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Box
               component="img"
-              src={logo}
-              alt="Logo"
+              src="/logo.png"
+              alt="SecureBank AI Logo"
               sx={{ height: 32, width: "auto" }}
             />
           </Box>

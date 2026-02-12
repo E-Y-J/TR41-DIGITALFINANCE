@@ -32,6 +32,7 @@ export default function AiAssistantPage() {
             c.handleNewChat();
             c.setMobileHistoryOpen(false);
           },
+          onDeleteChat: c.handleDeleteChat,
         }}
       />
 
@@ -40,11 +41,11 @@ export default function AiAssistantPage() {
 
         <Box
           sx={{
-            flexGrow: 1,
+            flex: 1,
             overflowY: "auto",
             display: "flex",
             flexDirection: "column",
-            overflowX: "hidden",
+            bgcolor: "transparent",
           }}
         >
           <MessageList
@@ -52,7 +53,8 @@ export default function AiAssistantPage() {
             isTyping={c.isTyping}
             messagesEndRef={c.messagesEndRef}
             onSuggestionClick={c.suggestionClickHandler}
-            user={c.user?.first_name}
+            onSendMessage={c.handleSendMessage}
+            user={c.user?.nickname || c.user?.first_name}
           />
         </Box>
 
@@ -69,6 +71,7 @@ export default function AiAssistantPage() {
           activeChatId={c.activeChatId}
           onSelectChat={c.handleSelectChat}
           onNewChat={c.handleNewChat}
+          onDeleteChat={c.handleDeleteChat}
         />
       </Box>
     </Box>

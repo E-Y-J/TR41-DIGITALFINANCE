@@ -10,6 +10,16 @@ export const createTransaction = async (apiClient, transactionData) => {
   return data;
 };
 
+export const updateTransaction = async (apiClient, transactionId, transactionData) => {
+  const data = await apiClient.put(`/transactions/${transactionId}`, transactionData);
+  return data;
+};
+
+export const deleteTransaction = async (apiClient, transactionId) => {
+  const data = await apiClient.delete(`/transactions/${transactionId}`);
+  return data;
+};
+
 export const getSummary = async (apiClient, params = {}) => {
   const data = await apiClient.get("/transactions/summary", {
     params: params,

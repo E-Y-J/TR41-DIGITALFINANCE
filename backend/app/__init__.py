@@ -36,7 +36,9 @@ Configuration:
 import logging
 from typing import Optional
 
+import sentry_sdk
 from flask import Flask, jsonify
+from sentry_sdk.integrations.flask import FlaskIntegration
 from werkzeug.exceptions import HTTPException
 
 from app.core.config import get_config
@@ -89,6 +91,20 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     # Load configuration
     config = get_config(config_name)
     app.config.from_object(config)
+
+    # ==========================================================================
+    # SENTRY ERROR MONITORING
+    # Initialize Sentry early to capture all errors during startup
+    # ==========================================================================
+    if config.SENTRY_DSN:
+        sentry_sdk.init(
+            dsn=config.SENTRY_DSN,
+            integrations=[FlaskIntegration()],
+            traces_sample_rate=config.SENTRY_TRACES_SAMPLE_RATE,
+            environment=config.ENV,
+            send_default_pii=False,  # Don't send user PII
+        )
+        logger.info("Sentry initialized for error monitoring")
 
     # Store config for easy access
     app.config["CONFIG"] = config

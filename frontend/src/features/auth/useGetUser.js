@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
+import { useAuth0 } from "@auth0/auth0-react";
 import { getUser } from "../../api/user";
 import { useAxios } from "../../hooks/useAxios";
 
 export const useGetUser = () => {
+  const { isAuthenticated, isLoading } = useAuth0();
   const apiClient = useAxios();
 
   return useQuery({
@@ -15,6 +17,8 @@ export const useGetUser = () => {
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
+    // Only call API when user is authenticated
+    enabled: isAuthenticated && !isLoading,
   });
 };
 

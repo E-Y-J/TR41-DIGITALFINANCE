@@ -5,17 +5,17 @@ import {
   Toolbar,
   IconButton,
   Box,
-  Badge,
   Tooltip,
   Menu,
   MenuItem,
   ListItemIcon,
   ListItemText,
+  Avatar,
 } from "@mui/material";
 
 import MenuIcon from "@mui/icons-material/Menu";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import AccountCircle from "@mui/icons-material/AccountCircle";
+import NotificationsPopover from "../components/NotificationsPopover";
 import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -25,6 +25,7 @@ const TopBar = ({
   handleMobileDrawerToggle,
   handleLogout,
   open,
+  user,
 }) => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -101,19 +102,18 @@ const TopBar = ({
         <Box sx={{ flexGrow: 1 }} />
 
         {/* Notifications */}
-        <Tooltip title="Notifications">
-          <IconButton size="large" color="inherit" sx={{ mr: 1 }}>
-            <Badge variant="dot" color="error" overlap="circular">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
-        </Tooltip>
+        <NotificationsPopover />
 
         {/* User Menu */}
         <Box sx={{ display: { xs: "none", sm: "block" } }}>
           <Tooltip title="Account settings">
             <IconButton onClick={handleMenuOpen} size="small" sx={{ ml: 0.5 }}>
-              <AccountCircle sx={{ width: 32, height: 32 }} />
+              <Avatar 
+                src={user?.picture_url} 
+                sx={{ width: 32, height: 32 }}
+              >
+                {user?.first_name?.[0]?.toUpperCase() || <AccountCircle />}
+              </Avatar>
             </IconButton>
           </Tooltip>
           <Menu

@@ -44,6 +44,7 @@ migrate = Migrate()
 # Caching (Redis or simple cache)
 cache = Cache()
 
+
 # Rate limiting
 limiter = Limiter(
     key_func=get_remote_address,
@@ -180,6 +181,13 @@ def _init_limiter(app) -> None:
 
     limiter.init_app(app)
 
+    # Exempt OPTIONS requests from rate limiting (CORS preflight)
+    @limiter.request_filter
+    def _skip_options_requests():
+        from flask import request
+
+        return request.method == "OPTIONS"
+
 
 def _init_cors(app) -> None:
     """
@@ -201,10 +209,12 @@ def _init_cors(app) -> None:
 
     cors.init_app(
         app,
+        resources={r"/api/*": {"origins": config.cors.origins}},
         origins=config.cors.origins,
         methods=config.cors.methods,
         allow_headers=allow_headers,
         supports_credentials=True,
+        expose_headers=["Content-Type", "Authorization"],
     )
 
 

@@ -47,8 +47,7 @@ services:
     command: sh -c "
       echo 'Starting Flask server ...' &&
       flask db upgrade &&
-      python tools/populate_db.py  \
-      --users 10 \
+      python tools/populate_db.py \
       &&
       python run.py
       "

@@ -140,6 +140,34 @@ class AISession(db.Model):
         db.session.add(session)
         return session
 
+    @classmethod
+    def resume(
+        cls, session_id: uuid.UUID, user_id: uuid.UUID
+    ) -> Optional["AISession"]:
+        """
+        Resume a specific session by ID, reactivating it if expired.
+
+        Args:
+            session_id: Session UUID to resume
+            user_id: User's UUID (for ownership validation)
+
+        Returns:
+            AISession instance if found and owned by user, None otherwise
+        """
+        session = cls.query.filter(
+            cls.id == session_id,
+            cls.user_id == user_id,
+        ).first()
+
+        if session:
+            # Reactivate and refresh expiration
+            session.is_active = True
+            session.expires_at = datetime.now(timezone.utc) + timedelta(minutes=30)
+            session.updated_at = datetime.now(timezone.utc)
+            return session
+
+        return None
+
     def add_message(self, role: str, content: str) -> None:
         """
         Add message to conversation history.
@@ -208,15 +236,10 @@ class AISession(db.Model):
         if not include_inactive:
             query = query.filter(cls.is_active == True)
 
-        # Order by most recent first
         query = query.order_by(cls.updated_at.desc())
 
-        # Get total count
-        total = query.count()
-
-        # Apply pagination
         sessions = query.offset((page - 1) * per_page).limit(per_page).all()
-
+        total = query.count()
         has_more = (page * per_page) < total
 
         return sessions, total, has_more
