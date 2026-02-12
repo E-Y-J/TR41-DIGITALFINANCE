@@ -5,6 +5,7 @@ import { useMemo } from "react";
 
 const MonthlyLineChart = ({ data = [] }) => {
   const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { maxDataPoint, gradientOffsets } = useMemo(() => {
@@ -30,24 +31,43 @@ const MonthlyLineChart = ({ data = [] }) => {
       <svg width={0} height={0} style={{ position: "absolute" }}>
         <defs>
           <linearGradient id="financeTrendGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={theme.palette.error.main} />
+            {/* TOP: Critical zone - use a very bright red/pink */}
+            <stop
+              offset="0%"
+              stopColor={theme.palette.error.light}
+              stopOpacity={1}
+            />
+
+            {/* MID-TOP: Danger transition */}
             <stop
               offset={`${gradientOffsets.danger}%`}
-              stopColor={theme.palette.error.light}
+              stopColor={theme.palette.error.main}
+              stopOpacity={0.9}
             />
+
+            {/* MIDDLE: Warning zone - vibrant orange */}
             <stop
               offset={`${gradientOffsets.warning}%`}
-              stopColor={theme.palette.warning.main}
+              stopColor={theme.palette.warning.light}
+              stopOpacity={0.8}
             />
+
+            {/* MID-BOTTOM: Safe zone - sky blue rather than deep blue */}
             <stop
               offset={`${gradientOffsets.safe}%`}
-              stopColor={theme.palette.primary.main}
+              stopColor={theme.palette.info.light}
+              stopOpacity={0.6}
             />
-            <stop offset="100%" stopColor={theme.palette.primary.light} />
+
+            {/* BOTTOM: Deep Fade - pure transparency */}
+            <stop
+              offset="100%"
+              stopColor={theme.palette.info.main}
+              stopOpacity={0}
+            />
           </linearGradient>
         </defs>
       </svg>
-
       <LineChart
         dataset={data}
         margin={{
@@ -77,7 +97,8 @@ const MonthlyLineChart = ({ data = [] }) => {
             area: true,
             curve: "monotoneX",
             color: "url(#financeTrendGradient)",
-            showMark: true,
+            showMark: false,
+            disableMark: true,
           },
           {
             id: "budget-limit",
@@ -87,17 +108,32 @@ const MonthlyLineChart = ({ data = [] }) => {
             curve: "step",
             strokeDashArray: "8 4",
             showMark: false,
+            disableMark: true,
           },
         ]}
         sx={{
           "& .MuiAreaElement-series-spending-series": {
-            fillOpacity: 0.2,
+            fillOpacity: isDarkMode ? 0.5 : 0.3,
           },
           "& .MuiLineElement-series-spending-series": {
-            strokeWidth: 3,
+            strokeWidth: 4,
+            filter: isDarkMode
+              ? `drop-shadow(0px 0px 12px ${alpha(theme.palette.primary.main, 0.8)})`
+              : "none",
+          },
+          "& .MuiMarkElement-root": {
+            stroke: isDarkMode ? theme.palette.background.paper : "#fff",
+            strokeWidth: 2,
+            scale: "1.2",
           },
           "& .MuiChartsGrid-line": {
-            stroke: alpha(theme.palette.divider, 0.1),
+            stroke: alpha(theme.palette.divider, 0.3),
+            strokeDasharray: "4 4",
+          },
+          "& .MuiLineElement-series-budget-limit": {
+            stroke: alpha(theme.palette.text.disabled, 0.5),
+            strokeWidth: 2,
+            strokeDasharray: "10 5",
           },
         }}
       />

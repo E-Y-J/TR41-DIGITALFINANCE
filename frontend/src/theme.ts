@@ -72,9 +72,9 @@ export const lightTheme = createTheme({
     },
 
     action: {
-      hover: "#F8FAFC",
-      selected: "#F1F5F9",
-      focus: "#E2E8F0",
+      hover: "#F1F5F9",
+      selected: "#E2E8F0",
+      focus: "#CBD5E1",
     },
   },
   typography,
@@ -97,9 +97,9 @@ export const darkTheme = createTheme({
     },
 
     action: {
-      hover: "#1E293B",
-      selected: "#334155",
-      focus: "#475569",
+      hover: "#334155",
+      selected: "#475569",
+      focus: "#64748B",
     },
   },
   typography,

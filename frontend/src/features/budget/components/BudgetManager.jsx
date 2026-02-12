@@ -16,6 +16,7 @@ import {
   alpha,
   Tabs,
   Tab,
+  useTheme,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
@@ -30,6 +31,9 @@ import BudgetModal from "./BudgetModal";
 import DeleteBudgetDialog from "./DeleteBudgetDialog";
 
 const BudgetManager = () => {
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
+
   const { data, isLoading, error } = useGetBudgets();
   const meta = data?.meta || {};
 
@@ -41,15 +45,10 @@ const BudgetManager = () => {
   const { totalBudgets, categoryBudgets } = useMemo(() => {
     const rawItems = data?.items || [];
     const filteredByPeriod = rawItems.filter((b) => b.period === periodFilter);
-
-    const totals = filteredByPeriod
-      .filter((b) => b.budget_type === "total")
-      .sort((a, b) => (b.percentage_used || 0) - (a.percentage_used || 0));
-
-    const categories = filteredByPeriod
-      .filter((b) => b.budget_type === "category")
-      .sort((a, b) => (b.percentage_used || 0) - (a.percentage_used || 0));
-
+    const totals = filteredByPeriod.filter((b) => b.budget_type === "total");
+    const categories = filteredByPeriod.filter(
+      (b) => b.budget_type === "category",
+    );
     return { totalBudgets: totals, categoryBudgets: categories };
   }, [data, periodFilter]);
 
@@ -74,8 +73,9 @@ const BudgetManager = () => {
         p: { xs: 2, md: 3 },
         borderRadius: 4,
         border: "1px solid",
-        borderColor: "grey.200",
+        borderColor: "divider",
         bgcolor: "background.paper",
+        backgroundImage: "none",
       }}
     >
       <Stack
@@ -150,13 +150,16 @@ const BudgetManager = () => {
         >
           <Box
             sx={{
-              bgcolor: "grey.100",
+              bgcolor: (theme) =>
+                isDarkMode
+                  ? alpha(theme.palette.primary.main, 0.08)
+                  : "grey.100",
               p: 0.5,
-              borderRadius: "10px",
+              borderRadius: "12px",
               display: "flex",
               gap: 0.5,
               border: "1px solid",
-              borderColor: "grey.200",
+              borderColor: "divider",
             }}
           >
             <Tooltip title="Grid View">
@@ -164,14 +167,16 @@ const BudgetManager = () => {
                 size="small"
                 onClick={() => setViewMode("grid")}
                 sx={{
-                  bgcolor: viewMode === "grid" ? "white" : "transparent",
+                  bgcolor:
+                    viewMode === "grid" ? "background.paper" : "transparent",
                   borderRadius: "8px",
                   boxShadow:
                     viewMode === "grid" ? "0 2px 8px rgba(0,0,0,0.08)" : 0,
                   color:
                     viewMode === "grid" ? "primary.main" : "text.secondary",
                   "&:hover": {
-                    bgcolor: viewMode === "grid" ? "white" : "grey.200",
+                    bgcolor:
+                      viewMode === "grid" ? "background.paper" : "action.hover",
                   },
                   transition: "all 0.2s ease",
                 }}
@@ -184,14 +189,16 @@ const BudgetManager = () => {
                 size="small"
                 onClick={() => setViewMode("list")}
                 sx={{
-                  bgcolor: viewMode === "list" ? "white" : "transparent",
+                  bgcolor:
+                    viewMode === "list" ? "background.paper" : "transparent",
                   borderRadius: "8px",
                   boxShadow:
                     viewMode === "list" ? "0 2px 8px rgba(0,0,0,0.08)" : 0,
                   color:
                     viewMode === "list" ? "primary.main" : "text.secondary",
                   "&:hover": {
-                    bgcolor: viewMode === "list" ? "white" : "grey.200",
+                    bgcolor:
+                      viewMode === "list" ? "background.paper" : "action.hover",
                   },
                   transition: "all 0.2s ease",
                 }}
@@ -213,7 +220,9 @@ const BudgetManager = () => {
               textTransform: "none",
               fontWeight: 700,
               boxShadow: (theme) =>
-                `0 4px 12px ${alpha(theme.palette.primary.main, 0.2)}`,
+                isDarkMode
+                  ? `0 4px 14px ${alpha(theme.palette.primary.main, 0.4)}`
+                  : `0 4px 12px ${alpha(theme.palette.primary.main, 0.2)}`,
               "&:hover": {
                 boxShadow: (theme) =>
                   `0 6px 16px ${alpha(theme.palette.primary.main, 0.3)}`,
@@ -353,7 +362,11 @@ const BudgetSection = ({ title, items, viewMode, onEdit, onDelete }) => {
       ) : (
         <Paper
           variant="outlined"
-          sx={{ borderRadius: 3, overflow: "hidden", borderColor: "grey.200" }}
+          sx={{
+            borderRadius: 3,
+            overflow: "hidden",
+            borderColor: "action.hover",
+          }}
         >
           <List disablePadding>
             {items.map((budget, idx) => (
