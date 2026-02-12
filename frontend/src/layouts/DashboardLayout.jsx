@@ -232,6 +232,8 @@ const DashboardLayout = () => {
                   width: { xs: "100%", sm: 400 },
                   borderTopLeftRadius: { xs: 0, sm: 24 },
                   borderBottomLeftRadius: { xs: 0, sm: 24 },
+                  borderTopRightRadius: 0,
+                  borderBottomRightRadius: 0,
                   height: "100%",
                   bgcolor: "background.paper",
                   backgroundImage: "none",

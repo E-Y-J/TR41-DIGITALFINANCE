@@ -36,6 +36,8 @@ const MessageEmptyState = ({ onSuggestionClick, user }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isDarkMode = theme.palette.mode === "dark";
 
+  const displaySuggestions = isMobile ? SUGGESTIONS.slice(0, 1) : SUGGESTIONS;
+
   return (
     <Box
       sx={{
@@ -49,30 +51,29 @@ const MessageEmptyState = ({ onSuggestionClick, user }) => {
         margin: "0 auto",
       }}
     >
-      <Box sx={{ textAlign: "center", mb: 6 }}>
+      <Box sx={{ textAlign: "center", mb: { xs: 3, sm: 6 } }}>
         <Typography
           variant={isMobile ? "h5" : "h4"}
-          fontWeight={800}
+          fontWeight={900}
           gutterBottom
           sx={{
-            // Improved gradient for dark mode compatibility
             background: isDarkMode
               ? `linear-gradient(45deg, ${theme.palette.primary.light}, ${theme.palette.common.white})`
               : `linear-gradient(45deg, ${theme.palette.text.primary}, ${theme.palette.grey[600]})`,
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
-            letterSpacing: -0.5,
+            letterSpacing: -1,
           }}
         >
           Hey, {user || "there"}!
         </Typography>
 
         <Typography
-          variant="body1"
+          variant="body2"
           color="text.secondary"
-          sx={{ px: 2, lineHeight: 1.5 }}
+          sx={{ px: 2, lineHeight: 1.4, fontWeight: 500 }}
         >
-          How can I assist you?
+          How can I assist you today?
         </Typography>
       </Box>
 
@@ -80,31 +81,24 @@ const MessageEmptyState = ({ onSuggestionClick, user }) => {
         container
         spacing={2}
         justifyContent="center"
-        sx={{ width: "100%" }}
+        sx={{ width: "100%", maxWidth: { xs: 300, sm: "100%" } }}
       >
-        {SUGGESTIONS.map((item, index) => (
+        {displaySuggestions.map((item, index) => (
           <Grid item xs={12} sm={4} key={index}>
             <Grow in timeout={400 + index * 150}>
-              {/* FIX: Wrap Card in a div to provide a clean DOM node for the transition */}
               <div>
                 <Card
                   elevation={0}
                   sx={{
-                    borderRadius: 4,
+                    borderRadius: 3,
                     border: "1px solid",
                     borderColor: "divider",
                     bgcolor: "background.paper",
+                    backgroundImage: "none",
                     transition: "all 0.2s ease-in-out",
                     "&:hover": {
                       borderColor: "primary.main",
-                      bgcolor: alpha(
-                        theme.palette.primary.main,
-                        isDarkMode ? 0.08 : 0.04,
-                      ),
                       transform: "translateY(-4px)",
-                      boxShadow: isDarkMode
-                        ? `0 8px 24px ${alpha(theme.palette.common.black, 0.6)}`
-                        : "0 8px 24px rgba(0,0,0,0.06)",
                     },
                   }}
                 >
@@ -112,10 +106,11 @@ const MessageEmptyState = ({ onSuggestionClick, user }) => {
                     onClick={() => onSuggestionClick(item.fullText)}
                     sx={{
                       p: 2,
-                      height: "100%",
                       display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-start",
+
+                      flexDirection: { xs: "row", sm: "column" },
+                      alignItems: "center",
+                      gap: { xs: 2, sm: 0 },
                     }}
                   >
                     <Box
@@ -123,27 +118,28 @@ const MessageEmptyState = ({ onSuggestionClick, user }) => {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        width: 44,
-                        height: 44,
-                        borderRadius: "12px",
-                        // Dynamic background for the icon container
-                        bgcolor: isDarkMode
-                          ? alpha(theme.palette.primary.main, 0.2)
-                          : alpha(theme.palette.primary.main, 0.1),
+                        width: { xs: 36, sm: 44 },
+                        height: { xs: 36, sm: 44 },
+                        borderRadius: "10px",
+                        bgcolor: alpha(
+                          theme.palette.primary.main,
+                          isDarkMode ? 0.2 : 0.1,
+                        ),
                         color: "primary.main",
-                        mb: 2,
-                        "& svg": { fontSize: 22 },
+                        mb: { xs: 0, sm: 2 },
+                        flexShrink: 0,
+                        "& svg": { fontSize: { xs: 18, sm: 22 } },
                       }}
                     >
                       {item.icon}
                     </Box>
 
                     <Typography
-                      variant="body2"
+                      variant="caption"
                       fontWeight={700}
                       sx={{
-                        lineHeight: 1.4,
-                        textAlign: "left",
+                        lineHeight: 1.3,
+                        textAlign: { xs: "left", sm: "center" },
                         color: "text.primary",
                       }}
                     >

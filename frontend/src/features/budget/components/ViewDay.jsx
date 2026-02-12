@@ -58,7 +58,7 @@ const ViewDay = ({
           mb: 3,
           display: "flex",
           flexDirection: { xs: "column", md: "row" },
-          alignItems: { xs: "flex-start", md: "center" },
+          alignItems: { xs: "stretch", md: "center" },
           justifyContent: "space-between",
           gap: 2,
         }}
