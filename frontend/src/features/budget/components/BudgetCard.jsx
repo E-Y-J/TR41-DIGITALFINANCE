@@ -19,6 +19,8 @@ import { getIcon } from "../../../utils/transactionUtils";
 
 const BudgetCard = ({ budget, onEdit, onDelete }) => {
   const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
+
   const {
     budget_type,
     category_name,
@@ -53,140 +55,159 @@ const BudgetCard = ({ budget, onEdit, onDelete }) => {
   return (
     <Card
       sx={{
-        height: "100%",
+        flex: 1,
         width: "100%",
         display: "flex",
         flexDirection: "column",
+        minWidth: 0,
         borderRadius: 4,
-        border: "1.5px solid",
-        borderColor: alpha(mainColor, 0.1),
+        backgroundImage: "none",
+        border: "1px solid",
+        borderColor: isDarkMode ? alpha(mainColor, 0.2) : alpha(mainColor, 0.1),
+        bgcolor: isDarkMode
+          ? alpha(theme.palette.background.paper, 0.5)
+          : "background.paper",
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         position: "relative",
-        overflow: "visible",
+        overflow: "hidden",
         "&:hover": {
           transform: "translateY(-6px)",
           borderColor: mainColor,
-          boxShadow: `0 12px 24px ${alpha(mainColor, 0.15)}`,
+          boxShadow: isDarkMode
+            ? `0 12px 30px ${alpha(mainColor, 0.25)}`
+            : `0 12px 24px ${alpha(mainColor, 0.15)}`,
           "& .action-buttons": { opacity: 1 },
         },
       }}
     >
       <CardContent
-        sx={{ p: 2.5, flexGrow: 1, display: "flex", flexDirection: "column" }}
+        sx={{
+          p: 2.5,
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          minHeight: { md: 280 },
+        }}
       >
-        {/* Header Section */}
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{ mb: 2.5 }}
-        >
+        <Box>
           <Stack
             direction="row"
             spacing={1.5}
-            alignItems="center"
-            sx={{ minWidth: 0 }}
+            alignItems="flex-start"
+            sx={{ mb: 2, width: "100%" }}
           >
             <Box
               sx={{
                 width: 42,
                 height: 42,
                 borderRadius: 2.5,
+                flexShrink: 0,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                flexShrink: 0,
-                bgcolor: alpha(mainColor, 0.1),
+                bgcolor: alpha(mainColor, 0.15),
                 color: mainColor,
-                boxShadow: `inset 0 0 0 1px ${alpha(mainColor, 0.1)}`,
+                boxShadow: isDarkMode
+                  ? `0 0 10px ${alpha(mainColor, 0.2)}`
+                  : "none",
               }}
             >
               {getIcon(isTotal ? `${period} total` : category_name)}
             </Box>
-            <Box sx={{ minWidth: 0 }}>
+
+            <Box sx={{ minWidth: 0, flex: 1 }}>
               <Typography
                 variant="subtitle2"
                 fontWeight={800}
-                noWrap
-                sx={{ color: "text.primary", lineHeight: 1.2 }}
+                sx={{
+                  color: "text.primary",
+                  fontSize: "0.9rem",
+                  lineHeight: 1.2,
+
+                  height: "2.4em",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
               >
                 {displayName}
               </Typography>
               <Typography
                 variant="caption"
                 color="text.secondary"
-                sx={{ fontWeight: 600 }}
+                sx={{ fontWeight: 700, opacity: 0.8 }}
               >
                 {period?.toUpperCase()}
               </Typography>
             </Box>
-          </Stack>
 
-          {/* Improved Spacing for Actions */}
-          <Stack
-            className="action-buttons"
-            direction="row"
-            spacing={0.5}
-            sx={{
-              opacity: { xs: 1, md: 0.6 },
-              transition: "opacity 0.2s",
-            }}
-          >
-            <Tooltip title="Edit">
-              <IconButton
-                size="small"
-                onClick={() => onEdit(budget)}
-                sx={{
-                  bgcolor: "grey.50",
-                  "&:hover": {
-                    bgcolor: alpha(theme.palette.primary.main, 0.1),
-                  },
-                }}
-              >
-                <EditIcon sx={{ fontSize: "1.1rem" }} />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Delete">
-              <IconButton
-                size="small"
-                onClick={() => onDelete(budget)}
-                sx={{
-                  bgcolor: "grey.50",
-                  "&:hover": {
-                    bgcolor: alpha(theme.palette.error.main, 0.1),
-                    color: "error.main",
-                  },
-                }}
-              >
-                <DeleteIcon sx={{ fontSize: "1.1rem" }} />
-              </IconButton>
-            </Tooltip>
-          </Stack>
-        </Stack>
-
-        {/* Status Indicator Area */}
-        <Box sx={{ flexGrow: 1, mb: 2 }}>
-          {is_exceeded && (
-            <Chip
-              icon={
-                <ErrorOutlineIcon style={{ fontSize: 14, color: "inherit" }} />
-              }
-              label={`Over by ${formatCurrency(remaining)}`}
-              size="small"
+            <Stack
+              className="action-buttons"
+              direction="row"
+              spacing={0.5}
               sx={{
-                fontWeight: 800,
-                bgcolor: alpha(theme.palette.error.main, 0.1),
-                color: "error.main",
-                border: `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
-                borderRadius: 1.5,
-                fontSize: "0.65rem",
+                opacity: { xs: 1, md: 0 },
+                flexShrink: 0,
+                transition: "opacity 0.2s",
               }}
-            />
-          )}
+            >
+              <Tooltip title="Edit Budget" arrow>
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(budget);
+                  }}
+                  sx={{ bgcolor: isDarkMode ? alpha("#fff", 0.05) : "grey.50" }}
+                >
+                  <EditIcon sx={{ fontSize: "1rem" }} />
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title="Delete Budget" arrow>
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(budget);
+                  }}
+                  sx={{
+                    bgcolor: isDarkMode ? alpha("#fff", 0.05) : "grey.50",
+                    "&:hover": { color: "error.main" },
+                  }}
+                >
+                  <DeleteIcon sx={{ fontSize: "1rem" }} />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+          </Stack>
+
+          <Box sx={{ mb: 2, minHeight: 24 }}>
+            {is_exceeded && (
+              <Chip
+                icon={
+                  <ErrorOutlineIcon
+                    style={{ fontSize: 14, color: "inherit" }}
+                  />
+                }
+                label={`Over by ${formatCurrency(remaining)}`}
+                size="small"
+                sx={{
+                  fontWeight: 800,
+                  bgcolor: alpha(theme.palette.error.main, 0.15),
+                  color: theme.palette.error.light,
+                  border: `1px solid ${alpha(theme.palette.error.main, 0.3)}`,
+                  borderRadius: 1.5,
+                }}
+              />
+            )}
+          </Box>
         </Box>
 
-        {/* Progress Section */}
-        <Box>
+        <Box sx={{ mt: "auto" }}>
           <Stack
             direction="row"
             justifyContent="space-between"
@@ -197,7 +218,7 @@ const BudgetCard = ({ budget, onEdit, onDelete }) => {
               <Typography
                 variant="caption"
                 color="text.secondary"
-                fontWeight={700}
+                fontWeight={800}
               >
                 SPENT
               </Typography>
@@ -205,7 +226,7 @@ const BudgetCard = ({ budget, onEdit, onDelete }) => {
                 variant="h6"
                 fontWeight={900}
                 sx={{
-                  color: is_exceeded ? "error.main" : "text.primary",
+                  color: is_exceeded ? "error.light" : "text.primary",
                   lineHeight: 1,
                 }}
               >
@@ -217,9 +238,9 @@ const BudgetCard = ({ budget, onEdit, onDelete }) => {
               fontWeight={900}
               sx={{
                 color: mainColor,
-                bgcolor: alpha(mainColor, 0.1),
+                bgcolor: alpha(mainColor, 0.15),
                 px: 1,
-                py: 0.2,
+                py: 0.3,
                 borderRadius: 1,
               }}
             >
@@ -231,15 +252,20 @@ const BudgetCard = ({ budget, onEdit, onDelete }) => {
             variant="determinate"
             value={progressValue}
             sx={{
-              height: 8,
-              borderRadius: 4,
-              bgcolor: "grey.100",
+              height: 10,
+              borderRadius: 5,
+              bgcolor: isDarkMode
+                ? alpha(theme.palette.common.white, 0.08)
+                : "grey.100",
               mb: 2.5,
               "& .MuiLinearProgress-bar": {
-                borderRadius: 4,
+                borderRadius: 5,
                 bgcolor: mainColor,
+                boxShadow: is_exceeded
+                  ? `0 0 8px ${alpha(mainColor, 0.6)}`
+                  : "none",
                 backgroundImage: is_exceeded
-                  ? `linear-gradient(45deg, ${alpha("#fff", 0.15)} 25%, transparent 25%, transparent 50%, ${alpha("#fff", 0.15)} 50%, ${alpha("#fff", 0.15)} 75%, transparent 75%, transparent)`
+                  ? `linear-gradient(45deg, ${alpha("#fff", 0.2)} 25%, transparent 25%, transparent 50%, ${alpha("#fff", 0.2)} 50%, ${alpha("#fff", 0.2)} 75%, transparent 75%, transparent)`
                   : "none",
                 backgroundSize: "1rem 1rem",
               },
@@ -249,21 +275,18 @@ const BudgetCard = ({ budget, onEdit, onDelete }) => {
           <Stack
             direction="row"
             justifyContent="space-between"
-            sx={{
-              pt: 2,
-              borderTop: `1px dashed ${theme.palette.divider}`,
-            }}
+            sx={{ pt: 2, borderTop: `1px dashed ${theme.palette.divider}` }}
           >
             <Box>
               <Typography
                 variant="caption"
                 color="text.secondary"
                 display="block"
-                sx={{ fontWeight: 700, fontSize: "0.6rem" }}
+                sx={{ fontWeight: 800, fontSize: "0.65rem" }}
               >
                 LIMIT
               </Typography>
-              <Typography variant="body2" fontWeight={800} color="text.primary">
+              <Typography variant="body2" fontWeight={800}>
                 {formatCurrency(amount)}
               </Typography>
             </Box>
@@ -272,14 +295,14 @@ const BudgetCard = ({ budget, onEdit, onDelete }) => {
                 variant="caption"
                 color="text.secondary"
                 display="block"
-                sx={{ fontWeight: 700, fontSize: "0.6rem" }}
+                sx={{ fontWeight: 800, fontSize: "0.65rem" }}
               >
                 {is_exceeded ? "DEFICIT" : "REMAINING"}
               </Typography>
               <Typography
                 variant="body2"
                 fontWeight={800}
-                color={is_exceeded ? "error.main" : "success.main"}
+                color={is_exceeded ? "error.light" : "success.main"}
               >
                 {formatCurrency(remaining)}
               </Typography>

@@ -30,9 +30,17 @@ const BudgetRow = ({ budget, onEdit, onDelete }) => {
   return (
     <ListItem
       sx={{
-        py: { xs: 2, sm: 1.5 },
+        py: { xs: 2.5, sm: 2 },
         px: { xs: 2, sm: 3 },
-        "&:hover": { bgcolor: "action.hover" },
+        transition: theme.transitions.create(
+          ["background-color", "transform"],
+          {
+            duration: theme.transitions.duration.shorter,
+          },
+        ),
+        "&:hover": {
+          bgcolor: "action.hover",
+        },
       }}
     >
       <Stack
