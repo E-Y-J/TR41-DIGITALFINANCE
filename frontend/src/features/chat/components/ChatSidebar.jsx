@@ -84,7 +84,7 @@ const ChatSidebar = ({
 
                   // Default Hover
                   "&:hover": {
-                    bgcolor: "rgba(0, 0, 0, 0.02)",
+                    bgcolor: "action.hover",
                   },
 
                   // ACTIVE STATE

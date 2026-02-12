@@ -94,7 +94,7 @@ export default function NotificationsPage() {
         sx={{
           borderRadius: 4,
           border: "1px solid",
-          borderColor: "grey.200",
+          borderColor: "divider",
           overflow: "hidden",
         }}
       >
