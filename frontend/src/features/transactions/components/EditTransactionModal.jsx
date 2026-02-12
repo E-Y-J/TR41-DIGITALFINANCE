@@ -26,7 +26,7 @@ const shrink = keyframes`
   to { width: 0%; }
 `;
 
-export const EditTransactionModal = ({
+const EditTransactionModal = ({
   open,
   onClose,
   transaction,
@@ -339,3 +339,5 @@ export const EditTransactionModal = ({
     </>
   );
 };
+
+export default EditTransactionModal;
