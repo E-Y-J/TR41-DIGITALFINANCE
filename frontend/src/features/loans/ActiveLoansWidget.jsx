@@ -8,6 +8,8 @@ const ActiveLoansWidget = () => {
   const navigate = useNavigate();
   const { data, isLoading, isError } = useGetLoans({
     status: "open",
+    page: 1,
+    per_page: 5,
   });
 
   const loans = (data?.items || [])

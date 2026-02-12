@@ -8,10 +8,15 @@ import {
   CardContent,
   IconButton,
   Chip,
+  Divider,
+  Stack,
   LinearProgress,
   Snackbar,
   Alert,
   Tooltip,
+  Pagination,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -30,8 +35,19 @@ import EmptyState from "../components/common/EmptyState";
 
 const LoansPage = () => {
   const theme = useTheme();
-  const { data, isLoading, isError } = useGetLoans();
+  const isDarkMode = theme.palette.mode === "dark";
+
+  const [status, setStatus] = useState("all");
+  const [page, setPage] = useState(1);
+  const perPage = 5;
+
+  const { data, isLoading, isError } = useGetLoans({
+    status: status === "all" ? "" : status,
+    page,
+    per_page: perPage,
+  });
   const loans = data?.items || [];
+  const totalPages = data?.totalPages || 1;
 
   const createMutation = useCreateLoan();
   const updateMutation = useUpdateLoan();
@@ -111,6 +127,11 @@ const LoansPage = () => {
     }
   };
 
+  const handleStatusChange = (event, newValue) => {
+    setStatus(newValue);
+    setPage(1);
+  };
+
   const handleDeleteConfirm = () => {
     if (!selectedLoan?.id) return;
 
@@ -166,17 +187,20 @@ const LoansPage = () => {
   }
 
   return (
-    <Box sx={{ p: 3, maxWidth: 1200, mx: "auto" }}>
-      {/* Header */}
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: "auto" }}>
       <Box
         sx={{
           display: "flex",
+          flexDirection: { xs: "column", md: "row" },
           justifyContent: "space-between",
-          alignItems: "center",
-          mb: 3,
+          alignItems: { xs: "flex-start", md: "flex-end" },
+          gap: 2,
+          mb: 4,
+          borderBottom: 1,
+          borderColor: "divider",
         }}
       >
-        <Box>
+        <Box sx={{ pb: 1.5 }}>
           <Typography
             variant="h4"
             fontWeight={800}
@@ -184,50 +208,82 @@ const LoansPage = () => {
           >
             Loans
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Manage your loans and track your repayment progress.
+          <Typography variant="body2" color="text.secondary">
+            Manage your borrowings and track repayment progress.
           </Typography>
         </Box>
+
+        <Tabs
+          value={status}
+          onChange={handleStatusChange}
+          sx={{
+            "& .MuiTab-root": {
+              textTransform: "none",
+              fontWeight: 600,
+              minWidth: 100,
+            },
+          }}
+        >
+          <Tab value="all" label="All Loans" />
+          <Tab value="open" label="Active" />
+          <Tab value="closed" label="Closed" />
+        </Tabs>
+
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={handleOpenCreate}
           sx={{
+            mb: 1,
             borderRadius: 3,
             textTransform: "none",
-            fontWeight: 600,
+            fontWeight: 700,
             px: 3,
-            py: 1.5,
-            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            py: 1,
+            boxShadow: isDarkMode
+              ? `0 4px 14px ${alpha(theme.palette.primary.main, 0.4)}`
+              : "0 4px 12px rgba(0,0,0,0.15)",
           }}
         >
           Add Loan
         </Button>
       </Box>
 
-      {/* Loans List */}
       {loans.length === 0 ? (
-        <Card sx={{ borderRadius: 4, p: 4 }}>
+        <Card
+          sx={{
+            borderRadius: 4,
+            p: 4,
+            border: "1px solid",
+            borderColor: "divider",
+            boxShadow: "none",
+          }}
+        >
           <EmptyState
-            header="No loans yet"
-            text="Start tracking your loans by clicking the 'Add Loan' button above."
+            header={status === "all" ? "No loans yet" : `No ${status} loans`}
+            text="Start tracking your loans to see your repayment progress here."
           />
         </Card>
       ) : (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Stack spacing={2}>
           {loans.map((loan) => (
             <Card
               key={loan.id}
+              elevation={0}
               sx={{
                 borderRadius: 4,
                 border: "1px solid",
                 borderColor: "divider",
-                boxShadow: "none",
-                transition: "all 0.3s ease",
+                bgcolor: isDarkMode
+                  ? alpha(theme.palette.background.paper, 0.6)
+                  : "background.paper",
+                transition: "all 0.25s ease-in-out",
                 "&:hover": {
-                  borderColor: theme.palette.primary.main,
-                  transform: "translateY(-2px)",
-                  boxShadow: `0 8px 24px ${alpha(theme.palette.common.black, 0.08)}`,
+                  borderColor: "primary.main",
+                  transform: "translateY(-3px)",
+                  boxShadow: isDarkMode
+                    ? `0 8px 24px ${alpha(theme.palette.common.black, 0.5)}`
+                    : "0 8px 24px rgba(0,0,0,0.04)",
                 },
               }}
             >
@@ -236,7 +292,6 @@ const LoansPage = () => {
                   sx={{
                     display: "flex",
                     justifyContent: "space-between",
-                    alignItems: "flex-start",
                     mb: 2,
                   }}
                 >
@@ -244,25 +299,29 @@ const LoansPage = () => {
                     <Typography variant="h6" fontWeight={700}>
                       {loan.name}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {loan.category_name || "Uncategorized"}
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        letterSpacing: 0.5,
+                      }}
+                    >
+                      {loan.category_name || "General"}
                     </Typography>
                   </Box>
-                  <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                  <Stack direction="row" spacing={1} alignItems="center">
                     <Chip
                       label={loan.status === "open" ? "Active" : "Closed"}
                       size="small"
                       color={loan.status === "open" ? "success" : "default"}
-                      sx={{ fontWeight: 600 }}
+                      sx={{ fontWeight: 700, borderRadius: 1.5 }}
                     />
                     <Tooltip title="Edit">
                       <IconButton
                         size="small"
                         onClick={() => handleOpenEdit(loan)}
-                        sx={{
-                          color: "text.secondary",
-                          "&:hover": { color: "primary.main" },
-                        }}
                       >
                         <EditIcon fontSize="small" />
                       </IconButton>
@@ -270,19 +329,16 @@ const LoansPage = () => {
                     <Tooltip title="Delete">
                       <IconButton
                         size="small"
+                        color="error"
                         onClick={() => handleOpenDelete(loan)}
-                        sx={{
-                          color: "text.secondary",
-                          "&:hover": { color: "error.main" },
-                        }}
                       >
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
-                  </Box>
+                  </Stack>
                 </Box>
 
-                <Box sx={{ mb: 2 }}>
+                <Box sx={{ mb: 2.5 }}>
                   <Box
                     sx={{
                       display: "flex",
@@ -290,13 +346,13 @@ const LoansPage = () => {
                       mb: 1,
                     }}
                   >
-                    <Typography variant="body2" color="text.secondary">
-                      Progress: {loan.progress_percentage?.toFixed(1) || 0}%
+                    <Typography variant="body2" fontWeight={600}>
+                      {loan.progress_percentage?.toFixed(1)}% Repaid
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       {formatCurrency(
                         loan.original_amount - loan.remaining_amount,
-                      )}{" "}
+                      )}
                       paid
                     </Typography>
                   </Box>
@@ -308,7 +364,7 @@ const LoansPage = () => {
                       borderRadius: 4,
                       bgcolor: alpha(
                         getProgressColor(loan.progress_percentage),
-                        0.15,
+                        0.1,
                       ),
                       "& .MuiLinearProgress-bar": {
                         borderRadius: 4,
@@ -318,13 +374,12 @@ const LoansPage = () => {
                   />
                 </Box>
 
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    flexWrap: "wrap",
-                    gap: 2,
-                  }}
+                <Divider sx={{ mb: 2, borderStyle: "dashed" }} />
+
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={{ xs: 2, md: 6 }}
+                  sx={{ mt: 1 }}
                 >
                   <Box>
                     <Typography
@@ -332,7 +387,23 @@ const LoansPage = () => {
                       color="text.secondary"
                       display="block"
                     >
-                      Original Amount
+                      REMAINING
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      fontWeight={700}
+                      color="primary.main"
+                    >
+                      {formatCurrency(loan.remaining_amount)}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      display="block"
+                    >
+                      TOTAL LOAN
                     </Typography>
                     <Typography variant="body1" fontWeight={600}>
                       {formatCurrency(loan.original_amount)}
@@ -344,52 +415,35 @@ const LoansPage = () => {
                       color="text.secondary"
                       display="block"
                     >
-                      Remaining
+                      DATE RANGE
                     </Typography>
-                    <Typography
-                      variant="body1"
-                      fontWeight={600}
-                      color="warning.main"
-                    >
-                      {formatCurrency(loan.remaining_amount)}
+                    <Typography variant="body2" fontWeight={500}>
+                      {loan.start_date
+                        ? new Date(loan.start_date).toLocaleDateString()
+                        : "N/A"}
+                      —
+                      {loan.end_date
+                        ? new Date(loan.end_date).toLocaleDateString()
+                        : "Present"}
                     </Typography>
                   </Box>
-                  {loan.start_date && (
-                    <Box>
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        display="block"
-                      >
-                        Start Date
-                      </Typography>
-                      <Typography variant="body1">
-                        {new Date(loan.start_date).toLocaleDateString()}
-                      </Typography>
-                    </Box>
-                  )}
-                  {loan.end_date && (
-                    <Box>
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        display="block"
-                      >
-                        End Date
-                      </Typography>
-                      <Typography variant="body1">
-                        {new Date(loan.end_date).toLocaleDateString()}
-                      </Typography>
-                    </Box>
-                  )}
-                </Box>
+                </Stack>
               </CardContent>
             </Card>
           ))}
-        </Box>
+          <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={(e, v) => setPage(v)}
+              color="primary"
+              shape="rounded"
+              size="large"
+            />
+          </Box>
+        </Stack>
       )}
 
-      {/* Modals */}
       <LoanFormModal
         open={formModalOpen}
         onClose={handleCloseModal}
@@ -407,11 +461,10 @@ const LoansPage = () => {
         loanName={selectedLoan?.name}
       />
 
-      {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
-        onClose={handleSnackbarClose}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
         <Alert

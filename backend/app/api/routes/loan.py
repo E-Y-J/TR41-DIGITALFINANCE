@@ -42,23 +42,28 @@ bp = Blueprint("loans", __name__)
 @requires_auth
 def get_loans():
     """
-    Retrieve all loans for the current user.
-    Optional query params:
-        status: filter by loan status ("open" or "closed")
-
-    Returns:
-        200: List of loans
+    Retrieve all loans for the current user with pagination and filtering.
     """
     user = sync_user_from_claims(g.current_user, g.access_token)
 
-    status_filter = request.args.get("status")
-    if status_filter and status_filter not in ["open", "closed"]:
-        raise ValidationError("Invalid status filter. Must be 'open' or 'closed'.")
-
-    loans = LoanService.get_all(user.id, status_filter=status_filter)
+    status_filter = request.args.get("status", "all")
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 10, type=int)
+    loans_data = LoanService.get_paginated(
+        user_id=user.id, 
+        status_filter=None if status_filter == "all" else status_filter,
+        page=page,
+        per_page=per_page
+    )
+    
 
     return success_response(
-        data=loan_list_schema.dump(loans),
+        data={
+            "items": loan_list_schema.dump(loans_data.items),
+            "total": loans_data.total,
+            "pages": loans_data.pages,
+            "current_page": loans_data.page
+        },
         message="Loans retrieved successfully",
     )
 
