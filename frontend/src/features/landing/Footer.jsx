@@ -38,7 +38,14 @@ const Footer = () => {
               component="img"
               src="/logo.png"
               alt="SecureBank AI Logo"
-              sx={{ height: 24, width: "auto", mb: 1.5 }}
+              sx={{
+                height: 24,
+                width: "auto",
+                mb: 1.5,
+                bgcolor: "white",
+                borderRadius: 1,
+                p: 0.5,
+              }}
             />
             <Typography
               variant="caption"

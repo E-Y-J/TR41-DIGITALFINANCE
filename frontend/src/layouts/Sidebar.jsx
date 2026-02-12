@@ -103,6 +103,9 @@ const Sidebar = ({ handleLogout, open }) => {
             transition: isOpen
               ? "opacity 0.3s ease-in-out 0.1s"
               : "opacity 0.1s ease-in-out",
+            bgcolor: "white",
+            borderRadius: 1,
+            p: 0.5,
           }}
         />
 
@@ -119,6 +122,9 @@ const Sidebar = ({ handleLogout, open }) => {
             transition: isOpen
               ? "opacity 0.1s ease-in-out"
               : "opacity 0.3s ease-in-out 0.1s",
+            bgcolor: "white",
+            borderRadius: 1,
+            p: 0.5,
           }}
         />
       </Box>
