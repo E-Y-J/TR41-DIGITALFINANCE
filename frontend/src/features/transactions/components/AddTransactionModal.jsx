@@ -95,7 +95,7 @@ export const AddTransactionModal = ({ open, onClose }) => {
       "&:hover": {
         backgroundColor: isDarkMode
           ? alpha(theme.palette.background.default, 0.8)
-          : "#f9f9f9",
+          : "action.selected",
         "& .MuiOutlinedInput-notchedOutline": {
           borderColor: isDarkMode ? "primary.main" : "grey.400",
         },

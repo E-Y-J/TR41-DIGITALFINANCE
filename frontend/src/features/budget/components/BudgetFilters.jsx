@@ -55,9 +55,9 @@ const BudgetFilters = ({
           minWidth: 200,
           "& .MuiOutlinedInput-root": {
             borderRadius: 3,
-            backgroundColor: "grey.50",
-            "&:hover": { backgroundColor: "#f9f9f9" },
-            "&.Mui-focused": { backgroundColor: "#fff" },
+            backgroundColor: "action.hover",
+            "&:hover": { backgroundColor: "action.selected" },
+            "&.Mui-focused": { backgroundColor: "background.paper" },
           },
         }}
         slotProps={{

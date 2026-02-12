@@ -96,12 +96,12 @@ const BudgetModal = ({ open, onClose, budget = null, categories = [] }) => {
   const textFieldStyles = {
     "& .MuiOutlinedInput-root": {
       borderRadius: 3,
-      backgroundColor: "grey.50",
+      backgroundColor: "action.hover",
       "&:hover": {
-        backgroundColor: "#f9f9f9",
+        backgroundColor: "action.selected",
       },
       "&.Mui-focused": {
-        backgroundColor: "#fff",
+        backgroundColor: "background.paper",
       },
     },
   };

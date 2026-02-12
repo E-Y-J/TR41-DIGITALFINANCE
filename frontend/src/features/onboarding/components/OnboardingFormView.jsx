@@ -15,11 +15,11 @@ const OnboardingFormView = ({
   const textFieldStyles = {
     "& .MuiOutlinedInput-root": {
       borderRadius: 3,
-      backgroundColor: "#fff",
+      backgroundColor: "background.paper",
       transition: "all 0.2s ease-in-out",
-      "&:hover": { backgroundColor: "#f9f9f9" },
+      "&:hover": { backgroundColor: "action.hover" },
       "&.Mui-focused": {
-        backgroundColor: "#fff",
+        backgroundColor: "background.paper",
         boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
       },
     },

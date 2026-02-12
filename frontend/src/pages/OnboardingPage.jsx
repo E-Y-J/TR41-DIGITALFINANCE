@@ -39,7 +39,7 @@ export default function OnboardingPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        bgcolor: "#F8FAFC",
+        bgcolor: "background.default",
       }}
     >
       <Container maxWidth="sm">

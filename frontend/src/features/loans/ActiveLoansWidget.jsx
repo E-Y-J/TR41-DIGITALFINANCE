@@ -64,7 +64,7 @@ const ActiveLoansWidget = () => {
             borderRadius: 2,
             "&:hover": {
               bgcolor: "primary.main",
-              color: "#ffffff",
+              color: "primary.contrastText",
               borderColor: "primary.main",
             },
           }}

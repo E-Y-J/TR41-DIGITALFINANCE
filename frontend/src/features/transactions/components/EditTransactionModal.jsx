@@ -123,15 +123,15 @@ export const EditTransactionModal = ({ open, onClose, transaction }) => {
     flex: 1,
     "& .MuiOutlinedInput-root": {
       borderRadius: 3,
-      backgroundColor: "grey.50",
+      backgroundColor: "action.hover",
       transition: "all 0.2s ease-in-out",
       "&:hover": {
-        backgroundColor: "#f9f9f9",
+        backgroundColor: "action.selected",
         "& .MuiOutlinedInput-notchedOutline": { borderColor: "grey.400" },
       },
       "&.Mui-focused": {
-        backgroundColor: "#fff",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        backgroundColor: "background.paper",
+        boxShadow: (theme) => theme.palette.mode === "dark" ? "0 4px 12px rgba(0,0,0,0.3)" : "0 4px 12px rgba(0,0,0,0.05)",
       },
     },
     "& .MuiInputLabel-root": {
