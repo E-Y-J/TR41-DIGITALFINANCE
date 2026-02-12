@@ -831,8 +831,17 @@ class ChatHandler:
         if any(word in message_lower for word in ["how much", "spent", "spending"]):
             return self._parse_query(message_lower)
 
-        # Budget patterns
+        # Budget patterns - distinguish between SET and CHECK intents
         if "budget" in message_lower:
+            # SET_BUDGET: action verbs indicate modification intent
+            set_budget_indicators = [
+                "set ", "create ", "update ", "change ", "modify ",
+                "increase ", "decrease ", "raise ", "lower ", "bump ",
+                "budget to ", "budget of ", "limit ", "cap "
+            ]
+            if any(indicator in message_lower for indicator in set_budget_indicators):
+                return {"intent": Intent.SET_BUDGET, "confidence": 0.95}
+            # BUDGET_STATUS: query/check verbs indicate viewing intent
             return {"intent": Intent.BUDGET_STATUS, "confidence": 0.9}
 
         # Insights patterns
