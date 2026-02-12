@@ -11,6 +11,9 @@ declare module "@mui/material/styles" {
   }
 }
 
+// =============================================================================
+// Shared component styles for consistent theming
+// =============================================================================
 const sharedComponents: ThemeOptions["components"] = {
   MuiButton: {
     styleOverrides: {
@@ -67,6 +70,12 @@ export const lightTheme = createTheme({
       primary: "#0F172A",
       secondary: "#64748B",
     },
+
+    action: {
+      hover: "#F8FAFC",
+      selected: "#F1F5F9",
+      focus: "#E2E8F0",
+    },
   },
   typography,
   components: sharedComponents,
@@ -85,6 +94,12 @@ export const darkTheme = createTheme({
     text: {
       primary: "#F8FAFC",
       secondary: "#94A3B8",
+    },
+
+    action: {
+      hover: "#1E293B",
+      selected: "#334155",
+      focus: "#475569",
     },
   },
   typography,
