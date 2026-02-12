@@ -19,7 +19,6 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useCreateTransaction } from "../useCreateTransaction";
-
 import { CATEGORIES, getLocalISODate } from "../../../utils/constants";
 
 const shrink = keyframes`
@@ -29,7 +28,9 @@ const shrink = keyframes`
 
 export const AddTransactionModal = ({ open, onClose }) => {
   const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
   const todayStr = getLocalISODate(new Date(), "daily");
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -51,14 +52,8 @@ export const AddTransactionModal = ({ open, onClose }) => {
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setSnackbar((prev) => ({
-      ...prev,
-      open: false,
-    }));
+    if (reason === "clickaway") return;
+    setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
   const handleSubmit = () => {
@@ -78,44 +73,47 @@ export const AddTransactionModal = ({ open, onClose }) => {
       onSuccess: (response) => {
         const msg =
           response?.data?.message || "Transaction created successfully";
-
-        setSnackbar({
-          open: true,
-          message: msg,
-          severity: "success",
-        });
-
+        setSnackbar({ open: true, message: msg, severity: "success" });
         setForm(initialState);
         onClose();
       },
       onError: (err) => {
         const errorMsg = err.response?.data?.message || "Something went wrong.";
-        setSnackbar({
-          open: true,
-          message: errorMsg,
-          severity: "error",
-        });
+        setSnackbar({ open: true, message: errorMsg, severity: "error" });
       },
     });
   };
+
   const textFieldStyles = {
     flex: 1,
     "& .MuiOutlinedInput-root": {
       borderRadius: 3,
-      backgroundColor: "grey.50",
+      backgroundColor: isDarkMode
+        ? alpha(theme.palette.background.default, 0.5)
+        : "grey.50",
       transition: "all 0.2s ease-in-out",
       "&:hover": {
-        backgroundColor: "#f9f9f9",
-        "& .MuiOutlinedInput-notchedOutline": { borderColor: "grey.400" },
+        backgroundColor: isDarkMode
+          ? alpha(theme.palette.background.default, 0.8)
+          : "#f9f9f9",
+        "& .MuiOutlinedInput-notchedOutline": {
+          borderColor: isDarkMode ? "primary.main" : "grey.400",
+        },
       },
       "&.Mui-focused": {
-        backgroundColor: "#fff",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        backgroundColor: "background.paper",
+        boxShadow: isDarkMode
+          ? `0 4px 12px ${alpha("#000", 0.5)}`
+          : "0 4px 12px rgba(0,0,0,0.05)",
       },
     },
     "& .MuiInputLabel-root": {
       fontWeight: 500,
       color: "text.secondary",
+    },
+    "& input[type='date']::-webkit-calendar-picker-indicator": {
+      filter: isDarkMode ? "invert(1) brightness(0.9)" : "none",
+      cursor: "pointer",
     },
   };
 
@@ -131,13 +129,18 @@ export const AddTransactionModal = ({ open, onClose }) => {
             sx: {
               borderRadius: 5,
               p: 1,
-              boxShadow: "0 24px 48px rgba(0,0,0,0.12)",
+              boxShadow: isDarkMode
+                ? "0 24px 48px rgba(0,0,0,0.6)"
+                : "0 24px 48px rgba(0,0,0,0.12)",
               backgroundImage: "none",
+              bgcolor: "background.paper",
             },
           },
           backdrop: {
             sx: {
-              backgroundColor: "rgba(0, 0, 0, 0.4)",
+              backgroundColor: isDarkMode
+                ? "rgba(0, 0, 0, 0.7)"
+                : "rgba(0, 0, 0, 0.4)",
               backdropFilter: "blur(4px)",
             },
           },
@@ -152,7 +155,9 @@ export const AddTransactionModal = ({ open, onClose }) => {
             pt: 1,
           }}
         >
-          <DialogTitle sx={{ fontWeight: 800, fontSize: "1.25rem" }}>
+          <DialogTitle
+            sx={{ fontWeight: 800, fontSize: "1.25rem", color: "text.primary" }}
+          >
             New Transaction
           </DialogTitle>
           <IconButton
@@ -219,6 +224,15 @@ export const AddTransactionModal = ({ open, onClose }) => {
               onChange={handleChange}
               sx={textFieldStyles}
               disabled={isPending}
+              slotProps={{
+                select: {
+                  MenuProps: {
+                    PaperProps: {
+                      sx: { borderRadius: 3, mt: 1, backgroundImage: "none" },
+                    },
+                  },
+                },
+              }}
             >
               <MenuItem value="">
                 <em>None</em>
@@ -271,9 +285,9 @@ export const AddTransactionModal = ({ open, onClose }) => {
               minWidth: 140,
               px: 4,
               py: 1,
-              boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.25)}`,
+              boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, isDarkMode ? 0.4 : 0.25)}`,
               "&:hover": {
-                boxShadow: `0 6px 16px ${alpha(theme.palette.primary.main, 0.35)}`,
+                boxShadow: `0 6px 16px ${alpha(theme.palette.primary.main, isDarkMode ? 0.6 : 0.35)}`,
               },
             }}
           >
@@ -308,7 +322,6 @@ export const AddTransactionModal = ({ open, onClose }) => {
           >
             {snackbar.message}
           </Alert>
-
           {snackbar.open && (
             <Box
               sx={{
@@ -317,7 +330,7 @@ export const AddTransactionModal = ({ open, onClose }) => {
                 left: 0,
                 height: 4,
                 backgroundColor: "rgba(255, 255, 255, 0.7)",
-                animation: `1500ms linear forwards ${shrink}`,
+                animation: `${shrink} 1500ms linear forwards`,
               }}
             />
           )}

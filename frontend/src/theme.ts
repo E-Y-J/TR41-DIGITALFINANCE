@@ -1,4 +1,4 @@
-import { createTheme } from "@mui/material/styles";
+import { createTheme, ThemeOptions } from "@mui/material/styles";
 
 declare module "@mui/material/styles" {
   interface Palette {
@@ -11,76 +11,84 @@ declare module "@mui/material/styles" {
   }
 }
 
-// Shared typography settings
-const typography = {
-  fontFamily: "'Inter', sans-serif",
-  h1: { fontWeight: 700 },
-  h2: { fontWeight: 700 },
-  h3: { fontWeight: 600 },
-  allVariants: {
-    fontFeatureSettings: "'cv11', 'ss01'",
+const sharedComponents: ThemeOptions["components"] = {
+  MuiButton: {
+    styleOverrides: {
+      root: {
+        borderRadius: 8,
+        textTransform: "none",
+        fontWeight: 600,
+      },
+    },
   },
-  body1: {
-    fontFeatureSettings: "'tnum'",
+  MuiTextField: {
+    defaultProps: {
+      variant: "outlined",
+    },
   },
-  body2: {
-    fontFeatureSettings: "'tnum'",
+  MuiOutlinedInput: {
+    styleOverrides: {
+      root: {
+        borderRadius: 10,
+      },
+    },
+  },
+  MuiPaper: {
+    styleOverrides: {
+      root: {
+        backgroundImage: "none",
+        borderRadius: 12,
+      },
+    },
   },
 };
 
-// Light theme
+const typography = {
+  fontFamily: "'Inter', sans-serif",
+  h1: { fontWeight: 700 },
+  h6: { fontWeight: 600, fontSize: "1.1rem" },
+  button: { fontWeight: 600 },
+  allVariants: {
+    fontFeatureSettings: "'cv11', 'ss01'",
+  },
+};
+
 export const lightTheme = createTheme({
   palette: {
     mode: "light",
-    primary: {
-      main: "#1E88E5",
-      light: "#60A5FA",
-    },
-    secondary: {
-      main: "#2ECC71",
-      light: "#6EE7B7",
-    },
-    neutral: {
-      main: "#2C2F33",
-    },
+    primary: { main: "#1E88E5", light: "#60A5FA" },
+    secondary: { main: "#2ECC71", light: "#6EE7B7" },
+    neutral: { main: "#475569" },
     background: {
-      default: "#F1F5F9",
+      default: "#F8FAFC",
       paper: "#FFFFFF",
     },
     text: {
-      primary: "#020617",
-      secondary: "#2C2F33",
+      primary: "#0F172A",
+      secondary: "#64748B",
     },
   },
   typography,
+  components: sharedComponents,
 });
 
-// Dark theme
 export const darkTheme = createTheme({
   palette: {
     mode: "dark",
-    primary: {
-      main: "#60A5FA",
-      light: "#93C5FD",
-    },
-    secondary: {
-      main: "#6EE7B7",
-      light: "#A7F3D0",
-    },
-    neutral: {
-      main: "#9CA3AF",
-    },
+    primary: { main: "#60A5FA", light: "#93C5FD" },
+    secondary: { main: "#6EE7B7", light: "#A7F3D0" },
+    neutral: { main: "#94A3B8" },
     background: {
       default: "#0F172A",
       paper: "#1E293B",
     },
     text: {
-      primary: "#F1F5F9",
-      secondary: "#CBD5E1",
+      primary: "#F8FAFC",
+      secondary: "#94A3B8",
     },
   },
   typography,
+  components: sharedComponents,
 });
 
-// Default export for backward compatibility
 export const theme = lightTheme;

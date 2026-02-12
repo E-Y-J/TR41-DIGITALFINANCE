@@ -153,7 +153,7 @@ const DashboardLayout = () => {
           display: "flex",
           overflow: "auto",
           flexDirection: "column",
-          bgcolor: "#F8FAFC",
+          bgcolor: "background.default",
         }}
       >
         <Toolbar sx={{ minHeight: { xs: 48, sm: 64 }, flexShrink: 0 }} />

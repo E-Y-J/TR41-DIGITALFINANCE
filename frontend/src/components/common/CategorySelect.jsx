@@ -1,44 +1,56 @@
-import { TextField, MenuItem, InputAdornment } from "@mui/material";
+import { TextField, MenuItem, InputAdornment, useTheme } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { CATEGORIES } from "../../utils/constants";
 
-const styledMenuItem = {
+const styledMenuItem = (theme) => ({
   borderRadius: 2,
   mx: 1,
   my: 0.5,
   typography: "body2",
   transition: "all 0.2s",
+
   "&:hover": {
-    bgcolor: "grey.100",
+    bgcolor: theme.palette.mode === "light" ? "grey.100" : "action.hover",
     transform: "translateY(-1px)",
   },
   "&.Mui-selected": {
     bgcolor: "primary.main",
-    color: "white",
+    color: "primary.contrastText",
     fontWeight: 600,
   },
   "&.Mui-selected:hover": {
     bgcolor: "primary.light",
   },
-};
+});
 
-const textFieldStyles = {
+const textFieldStyles = (theme) => ({
   "& .MuiOutlinedInput-root": {
     borderRadius: 3,
-    backgroundColor: "grey.50",
+
+    backgroundColor:
+      theme.palette.mode === "light" ? "grey.50" : "background.paper",
     transition: "all 0.2s ease-in-out",
     "&:hover": {
-      backgroundColor: "#f9f9f9",
-      "& .MuiOutlinedInput-notchedOutline": { borderColor: "grey.400" },
+      backgroundColor:
+        theme.palette.mode === "light" ? "grey.100" : "action.hover",
+      "& .MuiOutlinedInput-notchedOutline": {
+        borderColor:
+          theme.palette.mode === "light" ? "grey.400" : "primary.main",
+      },
     },
     "&.Mui-focused": {
-      backgroundColor: "#fff",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+      backgroundColor: "background.paper",
+      boxShadow:
+        theme.palette.mode === "light"
+          ? "0 4px 12px rgba(0,0,0,0.05)"
+          : "0 4px 12px rgba(0,0,0,0.5)",
     },
   },
-};
+});
 
 const CategorySelect = ({ value, onChange, sx = {} }) => {
+  const theme = useTheme();
+
   return (
     <TextField
       select
@@ -47,7 +59,7 @@ const CategorySelect = ({ value, onChange, sx = {} }) => {
       value={value || "All"}
       onChange={(e) => onChange(e.target.value)}
       sx={{
-        ...textFieldStyles,
+        ...textFieldStyles(theme),
         minWidth: 180,
         ...sx,
       }}
@@ -62,13 +74,17 @@ const CategorySelect = ({ value, onChange, sx = {} }) => {
         select: {
           MenuProps: {
             PaperProps: {
-              elevation: 3,
+              elevation: 4,
               sx: {
                 maxHeight: 300,
                 borderRadius: 3,
                 mt: 1,
                 bgcolor: "background.paper",
-                boxShadow: "0px 4px 20px rgba(0,0,0,0.1)",
+                backgroundImage: "none",
+                border:
+                  theme.palette.mode === "dark"
+                    ? `1px solid ${theme.palette.divider}`
+                    : "none",
                 "& .MuiList-root": { p: 1 },
               },
             },
@@ -77,11 +93,11 @@ const CategorySelect = ({ value, onChange, sx = {} }) => {
         },
       }}
     >
-      <MenuItem value="All" sx={styledMenuItem}>
+      <MenuItem value="All" sx={styledMenuItem(theme)}>
         All Categories
       </MenuItem>
       {CATEGORIES.map((cat) => (
-        <MenuItem key={cat} value={cat} sx={styledMenuItem}>
+        <MenuItem key={cat} value={cat} sx={styledMenuItem(theme)}>
           {cat}
         </MenuItem>
       ))}
