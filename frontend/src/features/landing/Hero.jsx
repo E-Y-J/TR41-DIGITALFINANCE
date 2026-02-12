@@ -1,6 +1,7 @@
 import { Box, Typography, Container, Stack } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import AuthButton from "../auth/AuthButton";
+import PreviewImage from "../../components/PreviewImage";
 import dashboardImg from "../../assets/dashboard.png";
 
 const Hero = () => {
@@ -79,10 +80,11 @@ const Hero = () => {
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
+            {/* Dashboard Preview Panel */}
             <Box
               sx={{
                 width: "100%",
-                height: { xs: 300, md: 450 },
+                height: { xs: "auto", md: 450 },
                 borderRadius: 4,
                 bgcolor: "background.paper",
                 border: "1px solid",
@@ -90,19 +92,15 @@ const Hero = () => {
                 boxShadow: "0 25px 50px -12px rgba(0,0,0,0.15)",
                 overflow: "hidden",
                 display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                p: 2,
               }}
             >
-              <Box
-                component="img"
+              <PreviewImage
                 src={dashboardImg}
                 alt="Dashboard Preview"
-                sx={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
-                  objectPosition: "center",
-                  p: 2,
-                }}
+                fit="contain"
               />
             </Box>
           </Grid>

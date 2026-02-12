@@ -13,6 +13,8 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import PreviewBox from "../../components/PreviewBox";
+import PreviewImage from "../../components/PreviewImage";
 
 import transactionImg from "../../assets/transaction.png";
 import trendImg from "../../assets/trend.png";
@@ -24,18 +26,24 @@ const FEATURES = [
     desc: "Enter income and expenses manually or import directly from e-wallets like PayPal. Every entry captures amount, type, date, and category.",
     icon: <AccountBalanceWalletIcon color="primary" />,
     points: ["Manual & Auto Import", "PayPal Integration", "Detailed Metadata"],
+    image: "/transaction.png", // MARK: 
+    // TODO: substitute with actual screenshot when available
   },
   {
     title: "AI Categorization",
     desc: "Our AI analyzes your spending patterns to predict and assign categories to new transactions automatically, reducing manual bookkeeping.",
     icon: <AutoAwesomeIcon color="secondary" />,
     points: ["Pattern Recognition", "Auto-labeling", "Smart Insights"],
+    // MARK:
+    // TODO: add image when available, e.g. image: "/ai_categorization.png"
   },
   {
     title: "Unified Dashboard",
     desc: "A single source of truth for your finances. Monitor balances, monthly totals, and category breakdowns in real-time.",
     icon: <DashboardIcon color="primary" />,
     points: ["Real-time Balances", "Spending Trends", "Category Breakdown"],
+    image: "/dashboard.png", // MARK: 
+    // TODO: substitute with actual screenshot when available
   },
 ];
 
@@ -56,7 +64,7 @@ const FeaturesGrid = () => {
               direction={index % 2 === 0 ? "row" : "row-reverse"}
               sx={{ minHeight: "60vh" }}
             >
-              <Grid size={{ xs: 12, md: 6 }}>
+              <Grid item xs={12} md={6}>
                 <Box
                   sx={{
                     display: "flex",
@@ -105,25 +113,41 @@ const FeaturesGrid = () => {
                 </List>
               </Grid>
 
-              <Grid size={{ xs: 12, md: 6 }}>
+              <Grid item xs={12} md={6}>
+                {/* Preview panel: modeled after Hero, slightly smaller */}
                 <Box
                   sx={{
                     width: "100%",
-                    height: { xs: 300, md: 450 },
+                    height: { xs: "auto", md: 480 }, // Hero uses 550; a bit smaller here
                     borderRadius: 4,
-                    bgcolor: "grey.100",
+                    bgcolor: "background.paper",
                     border: "1px solid",
                     borderColor: "divider",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: "0 20px 40px rgba(0,0,0,0.05)",
+                    position: "relative",
+                    boxShadow: "0 20px 50px rgba(2, 6, 23, 0.08)",
+                    p: { xs: 1.5, md: 3 },
                     overflow: "hidden",
                   }}
                 >
-                  <Typography color="text.disabled" variant="button">
-                    [Preview: {feature.title}]
-                  </Typography>
+                  <PreviewBox
+                    label={`Preview: ${feature.title}`}
+                    // Match Hero’s approach: ratio on small screens; fill panel on md+
+                    aspectRatio={{ xs: "16 / 9", md: "16 / 9" }}
+                    minHeight={{ xs: 240, md: 360 }}
+                    maxWidth="100%"
+                    sx={{ p: 0, width: "100%", height: "100%" }}
+                  >
+                    {feature.image ? (
+                      <PreviewImage
+                        src={feature.image}
+                        alt={`${feature.title} preview`}
+                        fit="contain" // consistent with Hero to avoid cropping on small screens
+                      />
+                    ) : null}
+                  </PreviewBox>
                 </Box>
               </Grid>
             </Grid>
