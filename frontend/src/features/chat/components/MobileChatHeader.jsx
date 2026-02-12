@@ -24,15 +24,13 @@ const MobileChatHeader = ({ onOpenHistory }) => {
           borderRadius: 2,
           px: 2,
           minWidth: "fit-content",
-          color: "text.secondary",
-          border: "1px solid",
+          bgcolor: (theme) => alpha(theme.palette.background.paper, 0.8),
+          backdropFilter: "blur(8px)",
+          color: "text.primary",
           borderColor: "divider",
-          bgcolor: alpha("#fff", 0.6),
-          backdropFilter: "blur(4px)",
-
           "&:hover": {
-            bgcolor: "action.hover",
-            borderColor: "grey.400",
+            bgcolor: "background.paper",
+            borderColor: "primary.main",
           },
         }}
       >

@@ -6,7 +6,6 @@ import {
   Avatar,
   Paper,
   keyframes,
-  useTheme,
 } from "@mui/material";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import MessageEmptyState from "./MessageEmptyState";
@@ -94,8 +93,6 @@ const TypingIndicator = () => (
 
 const MessageItem = memo(
   ({ msg, isAI, isLast, onActionClick, showActions }) => {
-    const theme = useTheme();
-
     // Detect if this message needs confirmation buttons
     const confirmationType = useMemo(
       () => (isAI && showActions ? detectConfirmationType(msg.text) : null),
@@ -160,10 +157,9 @@ const MessageItem = memo(
                   ? "16px 16px 16px 4px"
                   : "16px 16px 4px 16px",
                 bgcolor: isAI ? "background.paper" : "primary.main",
-                color: isAI ? "text.primary" : "white",
+                color: isAI ? "text.primary" : "primary.contrastText",
                 border: "1px solid",
-                borderColor: isAI ? "grey.200" : "transparent",
-                background: !isAI ? theme.palette.primary.main : undefined,
+                borderColor: isAI ? "divider" : "transparent",
               }}
             >
               {isAI ? (

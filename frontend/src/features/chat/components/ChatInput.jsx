@@ -9,6 +9,7 @@ const ChatInput = ({ inputValue, setInputValue, onSend, noBorder = false }) => {
         sx={{
           p: 1.25,
           borderRadius: 3,
+          bgcolor: "background.paper",
           border: noBorder ? "none" : "1px solid",
           borderColor: "divider",
           boxShadow: noBorder ? "none" : 1,
