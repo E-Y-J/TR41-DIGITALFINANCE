@@ -32,18 +32,20 @@ import {
   TableHead,
   TableRow,
   Paper,
+  alpha,
+  useTheme,
 } from "@mui/material";
 
-// Render a single line with inline formatting
 const FormattedLine = memo(({ text, sx = {} }) => {
-  // Parse for bold (**text**), italic (*text*), and code (`text`)
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
+
   const segments = useMemo(() => {
     const result = [];
     let remaining = text;
     let key = 0;
 
     while (remaining.length > 0) {
-      // Check for bold
       const boldMatch = remaining.match(/^\*\*(.+?)\*\*/);
       if (boldMatch) {
         result.push(
@@ -53,13 +55,12 @@ const FormattedLine = memo(({ text, sx = {} }) => {
             sx={{ fontWeight: 700, ...sx }}
           >
             {boldMatch[1]}
-          </Typography>
+          </Typography>,
         );
         remaining = remaining.slice(boldMatch[0].length);
         continue;
       }
 
-      // Check for code
       const codeMatch = remaining.match(/^`(.+?)`/);
       if (codeMatch) {
         result.push(
@@ -67,70 +68,74 @@ const FormattedLine = memo(({ text, sx = {} }) => {
             key={key++}
             component="code"
             sx={{
-              bgcolor: "grey.100",
+              bgcolor: isDarkMode
+                ? alpha(theme.palette.primary.main, 0.15)
+                : "grey.100",
+              color: isDarkMode ? "primary.light" : "primary.dark",
               px: 0.75,
               py: 0.25,
-              borderRadius: 0.5,
-              fontFamily: "monospace",
-              fontSize: "0.85em",
+              borderRadius: 1,
+              fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+              fontSize: "0.9em",
+              border: isDarkMode
+                ? `1px solid ${alpha(theme.palette.primary.main, 0.2)}`
+                : "1px solid",
+              borderColor: isDarkMode ? undefined : "grey.200",
               ...sx,
             }}
           >
             {codeMatch[1]}
-          </Box>
+          </Box>,
         );
         remaining = remaining.slice(codeMatch[0].length);
         continue;
       }
 
-      // Check for italic (single asterisk)
       const italicMatch = remaining.match(/^\*([^*]+?)\*/);
       if (italicMatch) {
         result.push(
-          <Typography key={key++} component="span" sx={{ fontStyle: "italic", ...sx }}>
+          <Typography
+            key={key++}
+            component="span"
+            sx={{ fontStyle: "italic", ...sx }}
+          >
             {italicMatch[1]}
-          </Typography>
+          </Typography>,
         );
         remaining = remaining.slice(italicMatch[0].length);
         continue;
       }
 
-      // No pattern matched - find the next special character or take all remaining
       const nextSpecial = remaining.search(/\*|`/);
       if (nextSpecial === -1) {
-        // No more special characters
         result.push(
           <Typography key={key++} component="span" sx={sx}>
             {remaining}
-          </Typography>
+          </Typography>,
         );
         break;
       } else if (nextSpecial > 0) {
-        // Text before the next special character
         result.push(
           <Typography key={key++} component="span" sx={sx}>
             {remaining.slice(0, nextSpecial)}
-          </Typography>
+          </Typography>,
         );
         remaining = remaining.slice(nextSpecial);
       } else {
-        // Special character at start but no pattern matched - treat as literal
         result.push(
           <Typography key={key++} component="span" sx={sx}>
             {remaining[0]}
-          </Typography>
+          </Typography>,
         );
         remaining = remaining.slice(1);
       }
     }
-
     return result;
-  }, [text, sx]);
+  }, [text, sx, isDarkMode, theme.palette.primary.main]);
 
   return <>{segments}</>;
 });
 
-// Parse table from markdown
 const parseTable = (lines) => {
   const rows = lines
     .filter((line) => line.startsWith("|") && !line.match(/^\|[\s-:|]+\|$/))
@@ -138,21 +143,18 @@ const parseTable = (lines) => {
       line
         .split("|")
         .slice(1, -1)
-        .map((cell) => cell.trim())
+        .map((cell) => cell.trim()),
     );
-
   if (rows.length < 1) return null;
-
-  const headers = rows[0];
-  const bodyRows = rows.slice(1);
-
-  return { headers, bodyRows };
+  return { headers: rows[0], bodyRows: rows.slice(1) };
 };
 
 const FormattedMessage = memo(({ text, variant = "body2", sx = {} }) => {
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
+
   const elements = useMemo(() => {
     if (!text) return null;
-
     const lines = text.split("\n");
     const result = [];
     let key = 0;
@@ -162,23 +164,20 @@ const FormattedMessage = memo(({ text, variant = "body2", sx = {} }) => {
       const line = lines[i];
       const trimmedLine = line.trim();
 
-      // Empty line - add spacing
       if (!trimmedLine) {
-        result.push(<Box key={key++} sx={{ height: 8 }} />);
+        result.push(<Box key={key++} sx={{ height: 12 }} />);
         i++;
         continue;
       }
 
-      // Horizontal divider
       if (trimmedLine === "---" || trimmedLine === "***") {
         result.push(
-          <Divider key={key++} sx={{ my: 1.5, borderColor: "grey.300" }} />
+          <Divider key={key++} sx={{ my: 2.5, borderColor: "divider" }} />,
         );
         i++;
         continue;
       }
 
-      // Table (starts with |)
       if (trimmedLine.startsWith("|")) {
         const tableLines = [];
         while (i < lines.length && lines[i].trim().startsWith("|")) {
@@ -192,15 +191,33 @@ const FormattedMessage = memo(({ text, variant = "body2", sx = {} }) => {
               key={key++}
               component={Paper}
               elevation={0}
-              sx={{ my: 1, border: "1px solid", borderColor: "grey.200" }}
+              sx={{
+                my: 2,
+                border: "1px solid",
+                borderColor: "divider",
+                bgcolor: "background.paper",
+                backgroundImage: "none",
+                borderRadius: 2,
+                overflow: "hidden",
+              }}
             >
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ bgcolor: "grey.50" }}>
+                  <TableRow
+                    sx={{
+                      bgcolor: isDarkMode
+                        ? alpha(theme.palette.primary.main, 0.08)
+                        : "grey.50",
+                    }}
+                  >
                     {tableData.headers.map((h, idx) => (
                       <TableCell
                         key={idx}
-                        sx={{ fontWeight: 600, fontSize: "0.8rem" }}
+                        sx={{
+                          fontWeight: 700,
+                          py: 1.5,
+                          borderColor: "divider",
+                        }}
                       >
                         <FormattedLine text={h} />
                       </TableCell>
@@ -209,9 +226,18 @@ const FormattedMessage = memo(({ text, variant = "body2", sx = {} }) => {
                 </TableHead>
                 <TableBody>
                   {tableData.bodyRows.map((row, rowIdx) => (
-                    <TableRow key={rowIdx}>
+                    <TableRow
+                      key={rowIdx}
+                      sx={{
+                        "&:last-child td": { border: 0 },
+                        "&:hover": { bgcolor: "action.hover" },
+                      }}
+                    >
                       {row.map((cell, cellIdx) => (
-                        <TableCell key={cellIdx} sx={{ fontSize: "0.8rem" }}>
+                        <TableCell
+                          key={cellIdx}
+                          sx={{ borderColor: "divider" }}
+                        >
                           <FormattedLine text={cell} />
                         </TableCell>
                       ))}
@@ -219,13 +245,12 @@ const FormattedMessage = memo(({ text, variant = "body2", sx = {} }) => {
                   ))}
                 </TableBody>
               </Table>
-            </TableContainer>
+            </TableContainer>,
           );
         }
         continue;
       }
 
-      // Bullet list
       if (trimmedLine.startsWith("- ") || trimmedLine.startsWith("• ")) {
         const listItems = [];
         while (
@@ -236,9 +261,12 @@ const FormattedMessage = memo(({ text, variant = "body2", sx = {} }) => {
           i++;
         }
         result.push(
-          <List key={key++} dense sx={{ py: 0, pl: 1 }}>
+          <List key={key++} dense sx={{ py: 0.5 }}>
             {listItems.map((item, idx) => (
-              <ListItem key={idx} sx={{ py: 0.25, px: 0 }}>
+              <ListItem
+                key={idx}
+                sx={{ py: 0.5, px: 0, alignItems: "flex-start" }}
+              >
                 <Box
                   component="span"
                   sx={{
@@ -246,82 +274,44 @@ const FormattedMessage = memo(({ text, variant = "body2", sx = {} }) => {
                     height: 6,
                     borderRadius: "50%",
                     bgcolor: "primary.main",
-                    mr: 1.5,
+                    mt: 1.2,
+                    mr: 2,
                     flexShrink: 0,
                   }}
                 />
                 <ListItemText
-                  primary={<FormattedLine text={item} sx={{ fontSize: "0.875rem" }} />}
+                  primary={<FormattedLine text={item} />}
                   sx={{ m: 0 }}
                 />
               </ListItem>
             ))}
-          </List>
+          </List>,
         );
         continue;
       }
 
-      // Numbered list
-      if (/^\d+\.\s/.test(trimmedLine)) {
-        const listItems = [];
-        while (i < lines.length && /^\d+\.\s/.test(lines[i].trim())) {
-          listItems.push(lines[i].trim().replace(/^\d+\.\s/, ""));
-          i++;
-        }
-        result.push(
-          <List key={key++} dense sx={{ py: 0, pl: 1 }}>
-            {listItems.map((item, idx) => (
-              <ListItem key={idx} sx={{ py: 0.25, px: 0 }}>
-                <Typography
-                  component="span"
-                  sx={{
-                    minWidth: 20,
-                    fontWeight: 600,
-                    color: "primary.main",
-                    mr: 1,
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  {idx + 1}.
-                </Typography>
-                <ListItemText
-                  primary={<FormattedLine text={item} sx={{ fontSize: "0.875rem" }} />}
-                  sx={{ m: 0 }}
-                />
-              </ListItem>
-            ))}
-          </List>
-        );
-        continue;
-      }
-
-      // Regular text line
       result.push(
         <Typography
           key={key++}
           variant={variant}
           sx={{
             fontWeight: 500,
-            lineHeight: 1.6,
-            fontSize: { xs: "0.9rem", sm: "0.875rem" },
+            lineHeight: 1.75,
+            mb: 1,
+            color: isDarkMode ? "text.primary" : "inherit",
             ...sx,
           }}
         >
           <FormattedLine text={line} />
-        </Typography>
+        </Typography>,
       );
       i++;
     }
-
     return result;
-  }, [text, variant, sx]);
-
+  }, [text, variant, sx, isDarkMode, theme]);
   return (
     <Box
-      sx={{
-        "& > *:first-of-type": { mt: 0 },
-        "& > *:last-child": { mb: 0 },
-      }}
+      sx={{ "& > *:first-of-type": { mt: 0 }, "& > *:last-child": { mb: 0 } }}
     >
       {elements}
     </Box>
