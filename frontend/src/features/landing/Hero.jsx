@@ -1,7 +1,6 @@
 import { Box, Typography, Container, Stack } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import AuthButton from "../auth/AuthButton";
-import PreviewBox from "../../components/PreviewBox";
 import PreviewImage from "../../components/PreviewImage";
 import dashboardImg from "../../assets/dashboard.png";
 
@@ -81,53 +80,27 @@ const Hero = () => {
           </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
-            {/* Preview panel mirrored from FeaturesGrid (slightly larger on md+) */}
+            {/* Dashboard Preview Panel */}
             <Box
               sx={{
                 width: "100%",
-                height: { xs: "auto", md: 550 }, // auto on mobile prevents cropping
+                height: { xs: "auto", md: 450 },
                 borderRadius: 4,
                 bgcolor: "background.paper",
                 border: "1px solid",
                 borderColor: "divider",
-                boxShadow: "0 20px 50px rgba(2, 6, 23, 0.08)",
+                boxShadow: "0 25px 50px -12px rgba(0,0,0,0.15)",
                 overflow: "hidden",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                position: "relative",
-                p: { xs: 1.5, md: 3 },
+                p: 2,
               }}
             >
-              <PreviewBox
-                label="Dashboard Preview"
-                aspectRatio={{ xs: "16 / 9", md: "16 / 9" }}
-                minHeight={{ xs: 240, md: 360 }}
-                maxWidth="100%"
-                sx={{ p: 0, width: "100%", height: "100%" }}
-              >
-                <PreviewImage
-                  src={dashboardImg}
-                  alt="Dashboard preview"
-                  fit="contain"
-                />
-              </PreviewBox>
-
-              {/* Decorative glow */}
-              <Box
-                sx={{
-                  position: "absolute",
-                  bottom: -20,
-                  left: -20,
-                  width: 140,
-                  height: 140,
-                  bgcolor: "secondary.light",
-                  borderRadius: "50%",
-                  filter: "blur(80px)",
-                  opacity: 0.3,
-                  zIndex: -1,
-                  pointerEvents: "none",
-                }}
+              <PreviewImage
+                src={dashboardImg}
+                alt="Dashboard Preview"
+                fit="contain"
               />
             </Box>
           </Grid>
