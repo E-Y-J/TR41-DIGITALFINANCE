@@ -35,8 +35,6 @@ const BudgetManager = () => {
   const [modalState, setModalState] = useState({ type: null, budget: null });
   const effectiveViewMode = isMobile ? "list" : viewMode;
 
-  console.log(data);
-
   const { totalBudgets, categoryBudgets, activeMeta } = useMemo(() => {
     const rawItems = data?.items || [];
 
