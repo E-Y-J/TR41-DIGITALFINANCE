@@ -95,6 +95,7 @@ const BudgetManager = () => {
     >
       <BudgetHeader
         meta={meta}
+        periodFilter={periodFilter}
         viewMode={effectiveViewMode}
         setViewMode={setViewMode}
         isMobile={isMobile}

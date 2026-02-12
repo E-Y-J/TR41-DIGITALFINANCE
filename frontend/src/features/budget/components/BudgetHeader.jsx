@@ -14,7 +14,14 @@ import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import AddIcon from "@mui/icons-material/Add";
 
-const BudgetHeader = ({ meta, viewMode, setViewMode, isMobile, onAdd }) => {
+const BudgetHeader = ({
+  meta,
+  viewMode,
+  setViewMode,
+  isMobile,
+  onAdd,
+  periodFilter,
+}) => {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
 
@@ -44,9 +51,9 @@ const BudgetHeader = ({ meta, viewMode, setViewMode, isMobile, onAdd }) => {
           <Typography
             variant={isMobile ? "h6" : "h5"}
             fontWeight={900}
-            sx={{ letterSpacing: "-0.02em" }}
+            sx={{ letterSpacing: "-0.02em", textTransform: "capitalize" }}
           >
-            My Budgets
+            My {periodFilter} Budgets
           </Typography>
           <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
             {meta.warning_count > 0 && (
