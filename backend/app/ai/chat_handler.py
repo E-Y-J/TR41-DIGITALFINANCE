@@ -743,9 +743,14 @@ class ChatHandler:
                     Intent.CREATE_TRANSACTION,
                     Intent.EDIT_TRANSACTION,
                     Intent.QUERY_SPENDING,
+                    Intent.SET_BUDGET,
                 ]:
                     # Extract entities locally using regex - NO GEMINI NEEDED
-                    extracted = self._extract_entities_locally(message)
+                    if mapped_intent == Intent.SET_BUDGET:
+                        # Extract budget-specific entities
+                        extracted = self._extract_budget_entities(message)
+                    else:
+                        extracted = self._extract_entities_locally(message)
                     if extracted:
                         rule_based["data"] = extracted
                         rule_based["confidence"] = 0.85  # Boost confidence
@@ -835,12 +840,84 @@ class ChatHandler:
         if "budget" in message_lower:
             # SET_BUDGET: action verbs indicate modification intent
             set_budget_indicators = [
-                "set ", "create ", "update ", "change ", "modify ",
-                "increase ", "decrease ", "raise ", "lower ", "bump ",
-                "budget to ", "budget of ", "limit ", "cap "
+                "set ",
+                "create ",
+                "update ",
+                "change ",
+                "modify ",
+                "increase ",
+                "decrease ",
+                "raise ",
+                "lower ",
+                "bump ",
+                "budget to ",
+                "budget of ",
+                "limit ",
+                "cap ",
             ]
             if any(indicator in message_lower for indicator in set_budget_indicators):
-                return {"intent": Intent.SET_BUDGET, "confidence": 0.95}
+                # Extract amount and category for set_budget
+                amount_match = re.search(r"\$?(\d+(?:\.\d{2})?)", message_lower)
+                amount = amount_match.group(1) if amount_match else "?"
+
+                # Extract category from message
+                category_name = "Unknown"
+                known_categories = [
+                    "food",
+                    "dining",
+                    "groceries",
+                    "transportation",
+                    "transport",
+                    "gas",
+                    "shopping",
+                    "entertainment",
+                    "healthcare",
+                    "medical",
+                    "utilities",
+                    "financial",
+                    "housing",
+                    "rent",
+                    "education",
+                    "personal",
+                    "income",
+                    "travel",
+                    "subscription",
+                ]
+                category_map = {
+                    "food": "Food & Dining",
+                    "dining": "Food & Dining",
+                    "groceries": "Food & Dining",
+                    "transportation": "Transportation",
+                    "transport": "Transportation",
+                    "gas": "Transportation",
+                    "shopping": "Shopping & Retail",
+                    "entertainment": "Entertainment & Recreation",
+                    "healthcare": "Healthcare & Medical",
+                    "medical": "Healthcare & Medical",
+                    "utilities": "Utilities & Services",
+                    "financial": "Financial Services",
+                    "housing": "Housing & Rent",
+                    "rent": "Housing & Rent",
+                    "education": "Education",
+                    "personal": "Personal & Family",
+                    "income": "Income",
+                    "travel": "Travel",
+                    "subscription": "Subscriptions",
+                }
+                for kw in known_categories:
+                    if kw in message_lower:
+                        category_name = category_map.get(kw, "Unknown")
+                        break
+
+                return {
+                    "intent": Intent.SET_BUDGET,
+                    "confidence": 0.95,
+                    "data": {
+                        "amount": amount,
+                        "category_name": category_name,
+                        "budget_action": "set",
+                    },
+                }
             # BUDGET_STATUS: query/check verbs indicate viewing intent
             return {"intent": Intent.BUDGET_STATUS, "confidence": 0.9}
 
@@ -1075,6 +1152,97 @@ class ChatHandler:
             }
 
         return None
+
+    def _extract_budget_entities(self, message: str) -> Dict[str, Any]:
+        """
+        Extract budget-related entities (amount, category) from message.
+
+        Args:
+            message: User's message text
+
+        Returns:
+            Dictionary with extracted budget entities
+        """
+        message_lower = message.lower().strip()
+
+        # Extract amount - order matters, more specific patterns first
+        amount = "?"
+        amount_patterns = [
+            r"\$(\d+(?:\.\d{2})?)",  # $500
+            r"(\d+(?:\.\d{2})?)\s*dollars?",  # 500 dollars
+            r"budget\s+(?:to|of|at|for)\s+\$?(\d+(?:\.\d{2})?)",  # budget to 500
+            r"(?:to|of|at)\s+\$?(\d+(?:\.\d{2})?)\s*$",  # to 500 (at end)
+            r"(\d+(?:\.\d{2})?)\s+budget",  # 500 budget
+            r"\b(\d+(?:\.\d{2})?)\b",  # any standalone number as fallback
+        ]
+        for pattern in amount_patterns:
+            match = re.search(pattern, message_lower)
+            if match:
+                try:
+                    val = Decimal(match.group(1))
+                    if val > 0:  # Only accept positive amounts
+                        amount = str(val)
+                        break
+                except (InvalidOperation, ValueError):
+                    pass
+
+        # Extract category - map common keywords to full category names
+        category_name = "Unknown"
+        category_map = {
+            "food": "Food & Dining",
+            "dining": "Food & Dining",
+            "groceries": "Food & Dining",
+            "grocery": "Food & Dining",
+            "restaurant": "Food & Dining",
+            "transportation": "Transportation",
+            "transport": "Transportation",
+            "gas": "Transportation",
+            "car": "Transportation",
+            "shopping": "Shopping & Retail",
+            "retail": "Shopping & Retail",
+            "entertainment": "Entertainment & Recreation",
+            "recreation": "Entertainment & Recreation",
+            "healthcare": "Healthcare & Medical",
+            "medical": "Healthcare & Medical",
+            "health": "Healthcare & Medical",
+            "utilities": "Utilities & Services",
+            "utility": "Utilities & Services",
+            "financial": "Financial Services",
+            "finance": "Financial Services",
+            "housing": "Housing & Rent",
+            "rent": "Housing & Rent",
+            "education": "Education",
+            "school": "Education",
+            "personal": "Personal & Family",
+            "family": "Personal & Family",
+            "income": "Income",
+            "travel": "Travel",
+            "vacation": "Travel",
+            "subscription": "Subscriptions",
+            "subscriptions": "Subscriptions",
+        }
+
+        for keyword, cat_name in category_map.items():
+            if keyword in message_lower:
+                category_name = cat_name
+                break
+
+        # Determine budget action
+        action = "set"
+        if any(
+            word in message_lower for word in ["increase", "raise", "bump up", "add"]
+        ):
+            action = "increase"
+        elif any(
+            word in message_lower for word in ["decrease", "reduce", "lower", "cut"]
+        ):
+            action = "decrease"
+
+        return {
+            "amount": amount,
+            "category_name": category_name,
+            "budget_action": action,
+        }
 
     def _gemini_parse(
         self,
@@ -1891,6 +2059,44 @@ Just ask naturally and I'll help!"""
         amount = data.get("amount", "?")
         category = data.get("category_name", "Unknown")
         action = data.get("budget_action", "set")  # "set" or "increase"
+
+        # Validate amount before proceeding
+        if amount == "?" or not amount:
+            response = (
+                f"I'd like to help you with your **{category}** budget.\n\n"
+                "Please specify the amount. For example:\n"
+                '• "Set my food budget to $500"\n'
+                '• "I want a $300 budget for groceries"'
+            )
+            session.add_message("assistant", response)
+            return {
+                "intent": Intent.SET_BUDGET,
+                "action": None,
+                "requires_confirmation": False,
+                "parsed_data": data,
+                "response": response,
+                "session_id": str(user_id),
+            }
+
+        # Validate amount is a valid number
+        try:
+            float(amount)
+        except (ValueError, TypeError):
+            response = (
+                f"I couldn't understand the amount '{amount}'.\n\n"
+                "Please specify a valid number. For example:\n"
+                '• "Set my budget to $500"\n'
+                '• "I want a 300 budget"'
+            )
+            session.add_message("assistant", response)
+            return {
+                "intent": Intent.SET_BUDGET,
+                "action": None,
+                "requires_confirmation": False,
+                "parsed_data": data,
+                "response": response,
+                "session_id": str(user_id),
+            }
 
         try:
             from app.models.budget import Budget
