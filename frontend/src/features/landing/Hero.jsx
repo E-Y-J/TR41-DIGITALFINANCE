@@ -3,6 +3,7 @@ import Grid from "@mui/material/Grid";
 import AuthButton from "../auth/AuthButton";
 import PreviewBox from "../../components/PreviewBox";
 import PreviewImage from "../../components/PreviewImage";
+import dashboardImg from "../../assets/dashboard.png";
 
 const Hero = () => {
   return (
@@ -106,8 +107,7 @@ const Hero = () => {
                 sx={{ p: 0, width: "100%", height: "100%" }}
               >
                 <PreviewImage
-                  src="/trend.png" // MARK: 
-                  // TODO: substitute with actual screenshot when available
+                  src={dashboardImg}
                   alt="Dashboard preview"
                   fit="contain"
                 />
