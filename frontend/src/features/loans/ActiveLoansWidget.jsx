@@ -7,10 +7,12 @@ import { useGetLoans } from "./useGetLoans";
 const ActiveLoansWidget = () => {
   const navigate = useNavigate();
   const { data, isLoading, isError } = useGetLoans({
-    // status: "open",
-    // turned off so I can render all 5 loans for screen testing
+    status: "open",
   });
-  const loans = data?.items || [];
+
+  const loans = (data?.items || [])
+    .sort((a, b) => a.remaining_amount - b.remaining_amount)
+    .slice(0, 5);
 
   const navigateToAllLoans = () => {
     navigate("/home/loans");

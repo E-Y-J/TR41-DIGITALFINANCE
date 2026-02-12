@@ -46,7 +46,9 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 
 
-def sync_user_from_claims(claims: Dict[str, Any]) -> User:
+def sync_user_from_claims(
+    claims: Dict[str, Any], access_token: Optional[str] = None
+) -> User:
     """
     Sync Auth0 token claims to local database user.
 
@@ -55,9 +57,11 @@ def sync_user_from_claims(claims: Dict[str, Any]) -> User:
     2. Creates new user if first login
     3. Updates existing user if info changed
     4. Updates last login timestamp
+    5. Fetches profile picture from /userinfo if needed
 
     Args:
         claims: Validated Auth0 token claims dictionary
+        access_token: Optional access token for fetching /userinfo
 
     Returns:
         User instance (created or updated)
@@ -67,7 +71,7 @@ def sync_user_from_claims(claims: Dict[str, Any]) -> User:
 
     Example:
         >>> claims = validate_token(token)
-        >>> user = sync_user_from_claims(claims)
+        >>> user = sync_user_from_claims(claims, token)
         >>> print(user.email)
         'user@example.com'
 
@@ -76,11 +80,24 @@ def sync_user_from_claims(claims: Dict[str, Any]) -> User:
         - Database commit is performed automatically
         - Safe to call multiple times (idempotent)
     """
+    from app.auth.auth0 import fetch_userinfo
+
     auth0_id = claims.get("sub")
 
     if not auth0_id:
         logger.error("Token claims missing 'sub' field")
         raise InternalError("Invalid token claims")
+
+    # If picture is missing from claims and we have a token, fetch from /userinfo
+    merged_claims = dict(claims)
+    if "picture" not in claims and access_token:
+        try:
+            userinfo = fetch_userinfo(access_token)
+            if userinfo.get("picture"):
+                merged_claims["picture"] = userinfo["picture"]
+                logger.debug(f"Fetched picture from /userinfo for {auth0_id}")
+        except Exception as e:
+            logger.warning(f"Could not fetch userinfo: {e}")
 
     try:
         # Try to find existing user
@@ -88,11 +105,11 @@ def sync_user_from_claims(claims: Dict[str, Any]) -> User:
 
         if user is None:
             # Create new user on first login
-            user = _create_user_from_claims(claims)
+            user = _create_user_from_claims(merged_claims)
             logger.info(f"Created new user: {auth0_id}")
         else:
             # Update existing user if claims changed
-            if user.update_from_claims(claims):
+            if user.update_from_claims(merged_claims):
                 logger.debug(f"Updated user data: {auth0_id}")
 
             # Always update last login
@@ -181,6 +198,7 @@ def _create_user_from_claims(claims: Dict[str, Any]) -> User:
         first_name=first_name,
         last_name=last_name,
         nickname=claims.get("nickname"),  # Optional field from Auth0
+        picture_url=claims.get("picture"),  # Profile picture URL from Auth0
         last_login=datetime.now(timezone.utc),
         settings={
             "currency": "USD",  # Default currency

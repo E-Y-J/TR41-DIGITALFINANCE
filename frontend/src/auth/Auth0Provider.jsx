@@ -1,6 +1,18 @@
 import { Auth0Provider } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 
+// Clear Auth0 tokens if this is a new browser session (not a refresh)
+// sessionStorage survives refresh but clears when browser closes
+const isNewBrowserSession = !sessionStorage.getItem("app_session_active");
+if (isNewBrowserSession) {
+  // Clear Auth0 tokens from localStorage to force re-login
+  Object.keys(localStorage).forEach((key) => {
+    if (key.startsWith("@@auth0spajs@@")) {
+      localStorage.removeItem(key);
+    }
+  });
+}
+
 const Auth0ProviderWithNavigate = ({ children }) => {
   const navigate = useNavigate();
   const domain = import.meta.env.VITE_AUTH0_DOMAIN;
@@ -21,12 +33,13 @@ const Auth0ProviderWithNavigate = ({ children }) => {
       clientId={clientId}
       authorizationParams={{
         redirect_uri: redirectUri,
-        scope: "openid profile email",
+        scope: "openid profile email offline_access",
         audience: audience,
-        prompt: "select_account",
       }}
       onRedirectCallback={onRedirectCallback}
-      cacheLocation="memory"
+      cacheLocation="localstorage"
+      useRefreshTokens={true}
+      useRefreshTokensFallback={true}
     >
       {children}
     </Auth0Provider>

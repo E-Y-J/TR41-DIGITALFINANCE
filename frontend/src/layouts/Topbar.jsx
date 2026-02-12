@@ -10,6 +10,7 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  Avatar,
 } from "@mui/material";
 
 import MenuIcon from "@mui/icons-material/Menu";
@@ -24,6 +25,7 @@ const TopBar = ({
   handleMobileDrawerToggle,
   handleLogout,
   open,
+  user,
 }) => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -106,7 +108,12 @@ const TopBar = ({
         <Box sx={{ display: { xs: "none", sm: "block" } }}>
           <Tooltip title="Account settings">
             <IconButton onClick={handleMenuOpen} size="small" sx={{ ml: 0.5 }}>
-              <AccountCircle sx={{ width: 32, height: 32 }} />
+              <Avatar 
+                src={user?.picture_url} 
+                sx={{ width: 32, height: 32 }}
+              >
+                {user?.first_name?.[0]?.toUpperCase() || <AccountCircle />}
+              </Avatar>
             </IconButton>
           </Tooltip>
           <Menu

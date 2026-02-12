@@ -101,7 +101,7 @@ def get_budgets():
             }
         }
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
     active_only = request.args.get("active_only", "true").lower() == "true"
 
     budgets = BudgetService.get_budgets_with_spending(user.id, active_only)
@@ -157,7 +157,7 @@ def create_budget():
             "period": "monthly"
         }
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
     data = request.get_json() or {}
 
     # Validate input
@@ -209,7 +209,7 @@ def get_budget(budget_id):
             "message": "Budget retrieved successfully"
         }
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     budget = BudgetService.get_budget_by_id(budget_id, user.id)
 
@@ -267,7 +267,7 @@ def update_budget(budget_id):
             "is_active": true
         }
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
     data = request.get_json() or {}
 
     # Validate input
@@ -308,7 +308,7 @@ def delete_budget(budget_id):
             "message": "Budget deleted successfully"
         }
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     BudgetService.delete_budget(budget_id, user.id)
 
@@ -356,7 +356,7 @@ def get_budget_status():
             "message": "Budget status retrieved successfully"
         }
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Get total budget status
     total_status = BudgetService.check_budget_status(user.id, category_id=None)
@@ -436,7 +436,7 @@ def get_category_budget_status(category_id):
             "message": "Category budget status retrieved successfully"
         }
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     status = BudgetService.check_budget_status(user.id, category_id=category_id)
 
@@ -510,7 +510,7 @@ def get_budget_suggestions():
             "message": "Budget suggestions generated successfully"
         }
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     # Parse query parameters
     months = request.args.get("months", 3, type=int)

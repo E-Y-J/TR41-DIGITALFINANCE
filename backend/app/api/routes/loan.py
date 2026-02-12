@@ -49,7 +49,7 @@ def get_loans():
     Returns:
         200: List of loans
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     status_filter = request.args.get("status")
     if status_filter and status_filter not in ["open", "closed"]:
@@ -78,7 +78,7 @@ def get_loan(loan_id: str):
         200: Loan object
         404: Loan not found or not owned by user
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     try:
         loan_uuid = UUID(loan_id)
@@ -104,7 +104,7 @@ def create_loan():
     """
     Create a new loan for the current user.
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     data = request.get_json(silent=True)
     if data is None:
@@ -135,7 +135,7 @@ def update_loan(loan_id: str):
     Partial update of a loan for the current user.
     Only provided fields will be updated.
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     data = request.get_json(silent=True)
     if data is None:
@@ -170,7 +170,7 @@ def delete_loan(loan_id: str):
     """
     Delete a loan for the current user.
     """
-    user = sync_user_from_claims(g.current_user)
+    user = sync_user_from_claims(g.current_user, g.access_token)
 
     try:
         loan_uuid = UUID(loan_id)

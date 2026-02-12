@@ -163,6 +163,8 @@ class NotificationType(enum.Enum):
         WEEKLY_SUMMARY_READY: Weekly AI summary available
         CATEGORY_UPDATED: AI re-categorized a transaction
         AI_CLARIFICATION: AI needs user clarification for categorization
+        BUDGET_WARNING: Budget threshold approaching (70%)
+        BUDGET_EXCEEDED: Budget limit exceeded (100%+)
 
     Notification System:
         Types requested by frontend team for notification UI.
@@ -180,6 +182,8 @@ class NotificationType(enum.Enum):
     WEEKLY_SUMMARY_READY = "weekly_summary_ready"
     CATEGORY_UPDATED = "category_updated"
     AI_CLARIFICATION = "ai_clarification"
+    BUDGET_WARNING = "budget_warning"
+    BUDGET_EXCEEDED = "budget_exceeded"
 
 
 class AISource(enum.Enum):
