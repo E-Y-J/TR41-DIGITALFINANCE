@@ -15,7 +15,9 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PreviewBox from "../../components/PreviewBox";
 import PreviewImage from "../../components/PreviewImage";
-
+import transactionImg from "../../assets/transaction.png";
+import dailyTrendImg from "../../assets/daily_trend.png";
+import trendImg from "../../assets/trend.png";
 
 const FEATURES = [
   {
@@ -23,21 +25,21 @@ const FEATURES = [
     desc: "Enter income and expenses manually or import directly from e-wallets like PayPal. Every entry captures amount, type, date, and category.",
     icon: <AccountBalanceWalletIcon color="primary" />,
     points: ["Manual & Auto Import", "PayPal Integration", "Detailed Metadata"],
-    image: "/transaction.png", 
+    image: transactionImg,
   },
   {
     title: "AI Categorization",
     desc: "Our AI analyzes your spending patterns to predict and assign categories to new transactions automatically, reducing manual bookkeeping.",
     icon: <AutoAwesomeIcon color="secondary" />,
     points: ["Pattern Recognition", "Auto-labeling", "Smart Insights"],
-    image: "/daily_trend.png",
+    image: dailyTrendImg,
   },
   {
     title: "Unified Dashboard",
     desc: "A single source of truth for your finances. Monitor balances, monthly totals, and category breakdowns in real-time.",
     icon: <DashboardIcon color="primary" />,
     points: ["Real-time Balances", "Spending Trends", "Category Breakdown"],
-    image: "/trend.png", 
+    image: trendImg,
   },
 ];
 

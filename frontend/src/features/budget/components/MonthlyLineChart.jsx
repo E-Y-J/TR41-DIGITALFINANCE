@@ -25,7 +25,6 @@ const MonthlyLineChart = ({ data = [] }) => {
     };
   }, [data]);
 
-  console.log(data);
   return (
     <Box sx={{ width: "100%", height: isMobile ? 350 : 500 }}>
       <svg width={0} height={0} style={{ position: "absolute" }}>

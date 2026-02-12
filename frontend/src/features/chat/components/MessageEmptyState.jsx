@@ -34,6 +34,7 @@ const SUGGESTIONS = [
 const MessageEmptyState = ({ onSuggestionClick, user }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isDarkMode = theme.palette.mode === "dark";
 
   return (
     <Box
@@ -54,7 +55,10 @@ const MessageEmptyState = ({ onSuggestionClick, user }) => {
           fontWeight={800}
           gutterBottom
           sx={{
-            background: `linear-gradient(45deg, ${theme.palette.text.primary}, ${theme.palette.grey[600]})`,
+            // Improved gradient for dark mode compatibility
+            background: isDarkMode
+              ? `linear-gradient(45deg, ${theme.palette.primary.light}, ${theme.palette.common.white})`
+              : `linear-gradient(45deg, ${theme.palette.text.primary}, ${theme.palette.grey[600]})`,
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             letterSpacing: -0.5,
@@ -81,66 +85,73 @@ const MessageEmptyState = ({ onSuggestionClick, user }) => {
         {SUGGESTIONS.map((item, index) => (
           <Grid item xs={12} sm={4} key={index}>
             <Grow in timeout={400 + index * 150}>
-              // MessageEmptyState.jsx (Card component)
-              <Card
-                elevation={0}
-                sx={{
-                  borderRadius: 4,
-                  border: "1px solid",
-                  borderColor: "divider",
-                  bgcolor: "background.paper",
-                  "&:hover": {
-                    borderColor: "primary.main",
-                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.04),
-                    transform: "translateY(-4px)",
-                    boxShadow: (theme) =>
-                      theme.palette.mode === "dark"
-                        ? `0 8px 24px ${alpha(theme.palette.common.black, 0.8)}`
-                        : "0 8px 24px rgba(0,0,0,0.06)",
-                  },
-                }}
-              >
-                <CardActionArea
-                  onClick={() => onSuggestionClick(item.fullText)}
+              {/* FIX: Wrap Card in a div to provide a clean DOM node for the transition */}
+              <div>
+                <Card
+                  elevation={0}
                   sx={{
-                    p: 2,
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                    justifyContent: "flex-start",
+                    borderRadius: 4,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    bgcolor: "background.paper",
+                    transition: "all 0.2s ease-in-out",
+                    "&:hover": {
+                      borderColor: "primary.main",
+                      bgcolor: alpha(
+                        theme.palette.primary.main,
+                        isDarkMode ? 0.08 : 0.04,
+                      ),
+                      transform: "translateY(-4px)",
+                      boxShadow: isDarkMode
+                        ? `0 8px 24px ${alpha(theme.palette.common.black, 0.6)}`
+                        : "0 8px 24px rgba(0,0,0,0.06)",
+                    },
                   }}
                 >
-                  <Box
+                  <CardActionArea
+                    onClick={() => onSuggestionClick(item.fullText)}
                     sx={{
+                      p: 2,
+                      height: "100%",
                       display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: 44,
-                      height: 44,
-                      borderRadius: "12px",
-                      bgcolor: "primary.lighter",
-                      color: "primary.main",
-                      mb: 2,
-                      "& svg": { fontSize: 22 },
+                      flexDirection: "column",
+                      alignItems: "flex-start",
                     }}
                   >
-                    {item.icon}
-                  </Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 44,
+                        height: 44,
+                        borderRadius: "12px",
+                        // Dynamic background for the icon container
+                        bgcolor: isDarkMode
+                          ? alpha(theme.palette.primary.main, 0.2)
+                          : alpha(theme.palette.primary.main, 0.1),
+                        color: "primary.main",
+                        mb: 2,
+                        "& svg": { fontSize: 22 },
+                      }}
+                    >
+                      {item.icon}
+                    </Box>
 
-                  <Typography
-                    variant="body2"
-                    fontWeight={700}
-                    sx={{
-                      lineHeight: 1.4,
-                      textAlign: "left",
-                      color: "text.primary",
-                    }}
-                  >
-                    {item.text}
-                  </Typography>
-                </CardActionArea>
-              </Card>
+                    <Typography
+                      variant="body2"
+                      fontWeight={700}
+                      sx={{
+                        lineHeight: 1.4,
+                        textAlign: "left",
+                        color: "text.primary",
+                      }}
+                    >
+                      {item.text}
+                    </Typography>
+                  </CardActionArea>
+                </Card>
+              </div>
             </Grow>
           </Grid>
         ))}

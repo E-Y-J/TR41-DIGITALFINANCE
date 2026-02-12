@@ -12,7 +12,6 @@ const Typewriter = ({ text, speed = 30 }) => {
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
-    console.log("⌨️ Typewriter: Animation Started");
     let index = 0;
     setDisplayedText("");
     setIsComplete(false);
