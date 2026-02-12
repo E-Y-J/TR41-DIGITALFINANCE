@@ -1,7 +1,18 @@
-import { Box, Typography, LinearProgress, Stack, Fade } from "@mui/material";
+import {
+  Box,
+  Typography,
+  LinearProgress,
+  Stack,
+  Fade,
+  useTheme,
+  alpha,
+} from "@mui/material";
 import { CATEGORIES, CATEGORY_COLORS } from "../../../utils/constants";
 
 const DailyBarChart = ({ data, specificCategory }) => {
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
+
   const dayData = data[0] || {};
   const totalDailySpend = CATEGORIES.reduce(
     (acc, cat) => acc + (dayData[cat] || 0),
@@ -82,10 +93,15 @@ const DailyBarChart = ({ data, specificCategory }) => {
                 sx={{
                   height: 8,
                   borderRadius: 3,
-                  bgcolor: "grey.100",
+                  bgcolor: isDarkMode
+                    ? alpha(theme.palette.common.white, 0.05)
+                    : "grey.100",
                   "& .MuiLinearProgress-bar": {
                     bgcolor: item.color,
                     borderRadius: 3,
+                    boxShadow: isDarkMode
+                      ? `0 0 10px ${alpha(item.color, 0.5)}`
+                      : "none",
                   },
                 }}
               />

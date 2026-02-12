@@ -10,22 +10,22 @@ export const useGetLoans = (params = {}) => {
     queryFn: () => getLoans(apiClient, params),
     refetchOnWindowFocus: false,
     select: (response) => {
-      const serverData = response?.data;
-
-      if (!serverData?.data) {
-        return { items: [], total: 0 };
+      const serverData = response?.data.data;
+      if (serverData.items && Array.isArray(serverData.items)) {
+        return {
+          items: serverData.items || [],
+          totalPages: serverData.pages || 1,
+        };
       }
 
-      const totalCount =
-        serverData.meta?.total ??
-        serverData.total ??
-        serverData.count ??
-        serverData.data.length;
+      if (Array.isArray(serverData)) {
+        return {
+          items: serverData,
+          totalPages: 1,
+        };
+      }
 
-      return {
-        items: serverData.data,
-        total: totalCount,
-      };
+      return { items: [], totalPages: 1 };
     },
     placeholderData: (previousData) => previousData,
   });

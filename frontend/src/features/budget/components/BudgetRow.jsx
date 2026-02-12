@@ -1,29 +1,46 @@
-import React from "react";
 import {
   ListItem,
-  ListItemIcon,
-  ListItemText,
   Box,
   LinearProgress,
   IconButton,
   Typography,
   Stack,
-  Tooltip,
+  alpha,
+  useTheme,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { getIcon } from "../../../utils/transactionUtils";
 
 const BudgetRow = ({ budget, onEdit, onDelete }) => {
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
   const percent = Math.min((budget.spent / budget.amount) * 100, 100);
-  const isOver = percent >= 100;
+
+  const isCritical = percent >= 80;
+  const isWarning = percent >= 50 && percent < 80;
+
+  const stateColorKey = isCritical
+    ? "error"
+    : isWarning
+      ? "warning"
+      : "primary";
+  const stateColorValue = theme.palette[stateColorKey].main;
 
   return (
     <ListItem
       sx={{
-        py: { xs: 2, sm: 1.5 },
+        py: { xs: 2.5, sm: 2 },
         px: { xs: 2, sm: 3 },
-        "&:hover": { bgcolor: "grey.50" },
+        transition: theme.transitions.create(
+          ["background-color", "transform"],
+          {
+            duration: theme.transitions.duration.shorter,
+          },
+        ),
+        "&:hover": {
+          bgcolor: "action.hover",
+        },
       }}
     >
       <Stack
@@ -42,10 +59,11 @@ const BudgetRow = ({ budget, onEdit, onDelete }) => {
             sx={{
               p: 1.2,
               borderRadius: "12px",
-              bgcolor: isOver ? "error.lighter" : "grey.100",
-              color: isOver ? "error.main" : "text.secondary",
+              bgcolor: alpha(stateColorValue, isDarkMode ? 0.15 : 0.1),
+              color: stateColorValue,
               display: "flex",
               flexShrink: 0,
+              transition: "all 0.3s ease",
             }}
           >
             {getIcon(
@@ -55,18 +73,12 @@ const BudgetRow = ({ budget, onEdit, onDelete }) => {
             )}
           </Box>
           <Box sx={{ minWidth: 0 }}>
-            {" "}
-            <Typography
-              variant="body2"
-              fontWeight={700}
-              noWrap
-              sx={{ maxWidth: { xs: "180px", sm: "160px" } }}
-            >
+            <Typography variant="body2" fontWeight={700} color="text.primary">
               {budget.category_name}
             </Typography>
             <Typography
               variant="caption"
-              color={isOver ? "error.main" : "text.secondary"}
+              color={`${stateColorKey}.main`}
               fontWeight={600}
             >
               {Math.round(percent)}% used
@@ -74,12 +86,19 @@ const BudgetRow = ({ budget, onEdit, onDelete }) => {
           </Box>
         </Stack>
 
-        <Box sx={{ flexGrow: 1, mx: { xs: 0, sm: 4 } }}>
+        <Box sx={{ flexGrow: 1, mx: { xs: 0, sm: 4 }, width: "100%" }}>
           <LinearProgress
             variant="determinate"
             value={percent}
-            color={isOver ? "error" : percent > 80 ? "warning" : "primary"}
-            sx={{ height: 6, borderRadius: 4, bgcolor: "grey.100" }}
+            color={stateColorKey}
+            sx={{
+              height: 6,
+              borderRadius: 4,
+              bgcolor: alpha(theme.palette.text.primary, 0.05),
+              "& .MuiLinearProgress-bar": {
+                borderRadius: 4,
+              },
+            }}
           />
         </Box>
 
@@ -96,7 +115,7 @@ const BudgetRow = ({ budget, onEdit, onDelete }) => {
               minWidth: { sm: "110px" },
             }}
           >
-            <Typography variant="body2" fontWeight={800}>
+            <Typography variant="body2" fontWeight={800} color="text.primary">
               ${budget.spent.toLocaleString()}
             </Typography>
             <Typography variant="caption" color="text.secondary">
@@ -120,4 +139,5 @@ const BudgetRow = ({ budget, onEdit, onDelete }) => {
     </ListItem>
   );
 };
+
 export default BudgetRow;

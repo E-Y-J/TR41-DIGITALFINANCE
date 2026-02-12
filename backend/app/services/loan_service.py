@@ -11,6 +11,7 @@ Provides business logic, validation, DB operations, and computed fields for Loan
 import logging
 from typing import List, Dict, Any, Optional
 from uuid import UUID
+from flask_sqlalchemy.pagination import Pagination
 
 from app.core.extensions import db
 from app.models.loan import Loan
@@ -62,6 +63,34 @@ class LoanService:
             raise NotFoundError("Loan not found")
         cls._populate_related_names([loan])
         return loan
+    
+
+    @classmethod
+    def get_paginated(
+        cls, 
+        user_id: UUID, 
+        status_filter: Optional[str] = None, 
+        page: int = 1, 
+        per_page: int = 10
+    ) -> Pagination:
+        """
+        Retrieve a paginated list of loans for a user, 
+        optionally filtered by status.
+        """
+        query = Loan.query.filter_by(user_id=user_id)
+
+        if status_filter and status_filter != "all":
+            if status_filter not in [s.value for s in LoanStatus]:
+                raise ValidationError(f"Invalid status filter: {status_filter}")
+            query = query.filter_by(status=status_filter)
+
+        query = query.order_by(Loan.created_at.desc())
+
+        paginated_data = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        cls._populate_related_names(paginated_data.items)
+
+        return paginated_data
 
     # =========================================================================
     # CREATE OPERATION

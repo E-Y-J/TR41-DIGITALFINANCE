@@ -172,7 +172,7 @@ const DashboardLayout = () => {
               sx={{
                 position: "fixed",
                 bottom: 16,
-                right: 16,
+                right: 24,
                 zIndex: 1200,
               }}
             >

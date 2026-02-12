@@ -1,4 +1,12 @@
-import { Box, Paper, Typography, CircularProgress, Fade } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Paper,
+  CircularProgress,
+  Fade,
+  alpha,
+  useTheme,
+} from "@mui/material";
 import SpendingFilters from "./BudgetFilters";
 import DailyBarChart from "./DailyBarChart";
 import EmptyTrendView from "../../../components/common/EmptyTrendView";
@@ -14,6 +22,9 @@ const ViewDay = ({
   isLoading,
   isFetching,
 }) => {
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
+
   const getHeaderText = (date) => {
     if (!date) return "Select a Date";
 
@@ -27,14 +38,19 @@ const ViewDay = ({
 
   return (
     <Paper
-      elevation={3}
+      elevation={isDarkMode ? 0 : 3}
       sx={{
         p: { xs: 2, sm: 3 },
         borderRadius: 4,
         border: "1px solid",
-        borderColor: "grey.200",
+        borderColor: "divider",
+        bgcolor: "background.paper",
+        backgroundImage: "none",
         display: "flex",
         flexDirection: "column",
+        boxShadow: isDarkMode
+          ? `0 0 20px ${alpha(theme.palette.common.black, 0.3)}`
+          : theme.shadows[3],
       }}
     >
       <Box
@@ -47,7 +63,15 @@ const ViewDay = ({
           gap: 2,
         }}
       >
-        <Typography variant="h6">{getHeaderText(specificDate)}</Typography>
+        <Typography
+          variant="h6"
+          component="h2"
+          fontWeight={800}
+          lineHeight={1.2}
+          color="text.primary"
+        >
+          {getHeaderText(specificDate)}
+        </Typography>
         <SpendingFilters
           selectedDate={specificDate}
           setSelectedDate={setSpecificDate}
@@ -71,11 +95,24 @@ const ViewDay = ({
           <Box
             sx={{
               position: "relative",
-              opacity: isFetching ? 0.4 : 1,
+              opacity: isFetching ? (isDarkMode ? 0.5 : 0.4) : 1,
               transition: "opacity 0.2s ease",
               pointerEvents: isFetching ? "none" : "auto",
             }}
           >
+            {isFetching && (
+              <CircularProgress
+                size={20}
+                sx={{
+                  position: "absolute",
+                  top: 10,
+                  right: 10,
+                  zIndex: 1,
+                  color: "primary.main",
+                }}
+              />
+            )}
+
             <DailyBarChart
               data={dailyCategoryData}
               specificCategory={specificCategory}

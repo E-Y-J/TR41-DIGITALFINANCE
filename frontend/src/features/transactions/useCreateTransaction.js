@@ -12,6 +12,7 @@ export const useCreateTransaction = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
 
     onError: (error) => {
